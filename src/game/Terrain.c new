@@ -1,0 +1,2292 @@
+/****************************/
+/*     TERRAIN.C           */
+/* By Brian Greenstone      */
+/****************************/
+
+/***************/
+/* EXTERNALS   */
+/***************/
+
+
+#include "globals.h"
+#include "objects.h"
+#include "main.h"
+#include "Terrain.h"
+#include "misc.h"
+#include "file.h"
+#include "3dmath.h"
+#include "camera.h"
+#include "objtypes.h"
+
+#include <QD3DGeometry.h>
+#include <QD3DMath.h>
+#include <QD3DStorage.h>
+
+extern	ObjNode		*gThisNodePtr;
+extern	long		gDX,gDY,gDZ,gX,gY,gZ,gMyStartX,gMyStartZ;
+extern	ObjNode		*gFirstNodePtr;
+extern	long		gMyX,gMyY,gMyZ;
+extern	ObjNode		*gMyNodePtr,*gMyTerrainObj;
+extern	NewObjectDefinitionType	gNewObjectData;
+extern	TerrainItemEntryType	**gTerrainItemLookupTableX;
+extern	long		gTempXXX;
+extern	Ptr			gTileFilePtr;
+extern	TQ3Matrix4x4	gCameraWorldToViewMatrix,gCameraViewToFrustumMatrix,gCameraAdjustMatrix;
+extern	NewObjectDefinitionType	gNewObjectDefinition;
+
+/****************************/
+/*  PROTOTYPES             */
+/****************************/
+
+static void ScrollTerrainUp(long superRow, long superCol);
+static void ScrollTerrainDown(long superRow, long superCol);
+static void ScrollTerrainLeft(void);
+static void ScrollTerrainRight(long superCol, long superRow, long tileCol, long tileRow);
+static short GetFreeSuperTileMemory(void);
+static void ReleaseSuperTileObject(short superTileNum);
+static void CalcNewItemDeleteWindow(void);
+static float	GetTerrainHeightAtRowCol(long row, long col);
+static void MoveASuperTile(void);
+static void UpdateTileAnims(void);
+static void SetTileUVCoords_SplitA(u_short flipRotBits, TQ3TriMeshData *triMeshData);
+static void SetTileUVCoords_SplitB(u_short flipRotBits, TQ3TriMeshData *triMeshData);
+static void CreateSuperTileMemoryList(void);
+static short	BuildTerrainSuperTile(long	startCol, long startRow);
+static Boolean SeeIfSuperTileInConeOfVision(short superTileNum);
+static Boolean DrawTileIntoMipmap(u_short tile, short row, short col, u_short *buffer);
+
+/****************************/
+/*    CONSTANTS             */
+/****************************/
+
+#define	ITEM_WINDOW_RIGHT		1				// # supertiles for item add window
+#define	ITEM_WINDOW_LEFT		1
+#define	ITEM_WINDOW_FAR			2
+#define	ITEM_WINDOW_NEAR		1
+#define	OUTER_SIZE				1				// size of border out of add window for delete window
+
+
+enum
+{
+	TILE_ANIM_STATE_NONE,						// when don't need to anim
+	TILE_ANIM_STATE_DOAGAIN,					// when need to update other buffer of polys (cant update both at same time!)
+	TILE_ANIM_STATE_DOIT						// when we get a fresh update (update 1st buffer, then set to DOAGAIN)
+};
+
+#define	MAX_TILES		300
+
+
+/**********************/
+/*     VARIABLES      */
+/**********************/
+
+
+
+Ptr		gTerrainPtr = nil;								// points to terrain file data
+u_short	*gTileDataPtr;
+
+u_short	**gTerrainTextureLayer = nil;							// 2 dimensional array of u_shorts (allocated below)
+u_short	**gTerrainHeightMapLayer = nil;
+u_short	**gTerrainPathLayer = nil;
+
+long	gTerrainTileWidth,gTerrainTileDepth;			// width & depth of terrain in tiles
+long	gTerrainUnitWidth,gTerrainUnitDepth;			// width & depth of terrain in world units (see TERRAIN_POLYGON_SIZE)
+
+long	gNumTerrainTextureTiles = 0;
+Ptr		gTerrainHeightMapPtrs[MAX_HEIGHTMAP_TILES];
+
+long	gNumSuperTilesDeep,gNumSuperTilesWide;	  		// dimensions of terrain in terms of supertiles
+long	gCurrentSuperTileRow,gCurrentSuperTileCol;
+
+static short	gTerrainScrollBuffer[MAX_SUPERTILES_DEEP][MAX_SUPERTILES_WIDE];		// 2D array which has index to supertiles for each possible supertile
+
+short	gNumFreeSupertiles;
+static	SuperTileMemoryType		gSuperTileMemoryList[MAX_SUPERTILES];
+
+
+long	gTerrainItemDeleteWindow_Near,gTerrainItemDeleteWindow_Far,
+		gTerrainItemDeleteWindow_Left,gTerrainItemDeleteWindow_Right;
+
+TileAttribType	*gTileAttributes = nil;
+
+Ptr		gQuickTileAnimListPtr;
+
+long	gNumTileAnims;
+short	*gTileAnimEntryList[MAX_TILE_ANIMS];
+short	gTileAnimCounter[MAX_TILE_ANIMS];
+Byte	gTileAnimIndex[MAX_TILE_ANIMS];
+Byte	gTileAnimChangedFlag[MAX_TILE_ANIMS];
+
+u_short		gTileFlipRotBits;
+short		gTileAttribParm0;
+Byte		gTileAttribParm1,gTileAttribParm2;
+
+float		gSuperTileRadius;
+
+TQ3SurfaceShaderObject	gTileTextures[MAX_TILES];
+TQ3SurfaceShaderObject	gDummyTex;
+
+u_short		gDummyTexMap[8][8] = {0x7fff,0x7fff,0x7fff,0x7fff,0x7fff,0x7fff,0x7fff};
+
+/****************** INIT TERRAIN MANAGER ************************/
+//
+// Only called at boot!
+//
+
+void InitTerrainManager(void)
+{
+	gSuperTileRadius = sqrtf(2) * (TERRAIN_SUPERTILE_UNIT_SIZE/2);					// radius = 1/2 width * sqrt(2)
+
+	gDummyTex = QD3D_Data16ToTexture_NoMip((Ptr)&gDummyTexMap, 8, 8);				// dummy is needed to init supertiles
+
+	CreateSuperTileMemoryList();
+	ClearScrollBuffer();
+
+}
+
+/***************** CLEAR SCROLL BUFFER ************************/
+
+void ClearScrollBuffer(void)
+{
+long	row,col;
+
+	for (row = 0; row < MAX_SUPERTILES_DEEP; row++)
+		for (col = 0; col < MAX_SUPERTILES_WIDE; col++)
+			gTerrainScrollBuffer[row][col] = EMPTY_SUPERTILE;
+}
+
+
+/***************** DISPOSE TERRAIN **********************/
+//
+// Deletes any existing terrain data
+//
+
+void DisposeTerrain(void)
+{
+	if (gTileFilePtr)
+	{
+		DisposePtr(gTileFilePtr);
+		gTileFilePtr = nil;
+	}
+	
+	if (gTerrainItemLookupTableX != nil)
+	{
+	  	DisposePtr((Ptr)gTerrainItemLookupTableX);
+	  	gTerrainItemLookupTableX = nil;
+	}
+
+	if (gTerrainTextureLayer != nil)
+	{
+		DisposePtr((Ptr)gTerrainTextureLayer);
+		gTerrainTextureLayer = nil;
+	}
+
+	if (gTerrainHeightMapLayer != nil)
+	{
+		DisposePtr((Ptr)gTerrainHeightMapLayer);
+		gTerrainHeightMapLayer = nil;
+	}
+
+	if (gTerrainPathLayer != nil)
+	{
+		DisposePtr((Ptr)gTerrainPathLayer);
+		gTerrainPathLayer = nil;
+	}
+
+	if (gTerrainPtr != nil)	   					    		// see if zap existing terrain
+	{
+		DisposePtr((Ptr)gTerrainPtr);
+		gTerrainPtr = nil;
+	}
+}
+
+
+
+
+/************** CREATE SUPERTILE MEMORY LIST ********************/
+//
+// This preallocates all of the memory that will ever be needed by all of
+// the supertiles on the screen for POLY_FT3's and vertex list data.
+//
+// This MUST be called after the Object Manager has been initialized and
+// the terrain file has been loaded!
+//
+// IMPORTANT!!:  This allocates room for more supertiles than are ever used at
+//			one time.  The reason is because supertiles remain stagnant for 1
+//			cycle after being deleted so that any OT Drawing can complete.
+// 			We don't want to delete & reassign primitive's memory while
+//			hardware drawing is taking place!
+//
+// UPDATE:  The newer rev of this no longer mallocs any memory, but rather it uses
+//			precompiled data chunks, thus saving mallocs and init time, and it can
+// 			be called freely without having to cleanup any memory.
+//
+
+static void CreateSuperTileMemoryList(void)
+{
+short					u,v,i,j;
+TQ3TriMeshData			triMeshData;
+TQ3Point3D				p[NUM_VERTICES_IN_SUPERTILE];
+TQ3TriMeshTriangleData	newTriangle[NUM_POLYS_IN_SUPERTILE];
+TQ3TriMeshAttributeData	triangleAttribs[2],vertAttribs[2];
+TQ3Vector3D				faceNormals[NUM_POLYS_IN_SUPERTILE];
+TQ3Vector3D				vertexNormals[NUM_VERTICES_IN_SUPERTILE];
+TQ3Param2D				uvs[NUM_VERTICES_IN_SUPERTILE];
+TQ3SurfaceShaderObject	faceTextures[NUM_POLYS_IN_SUPERTILE];
+
+
+static	Byte			faceIdx1[SUPERTILE_SIZE][SUPERTILE_SIZE][3] =
+{
+	0,1,5,		1,2,6,		2,3,7,		3,4,8,
+	5,6,10,		6,7,11,		7,8,12,		8,9,13,
+	10,11,15,	11,12,16,	12,13,17,	13,14,18,
+	15,16,20,	16,17,21,	17,18,22,	18,19,23	
+};
+
+static	Byte			faceIdx2[SUPERTILE_SIZE][SUPERTILE_SIZE][3] =
+{
+	1,6,5,		2,7,6,		3,8,7,		4,9,8,
+	6,11,10,	7,12,11,	8,13,12,	9,14,13,
+	11,16,15,	12,17,16,	13,18,17,	14,19,18,
+	16,21,20,	17,22,21,	18,23,22,	19,24,23
+};
+
+Ptr						blankTexPtr;
+TQ3SurfaceShaderObject	blankTexObject;
+
+
+			/**********************************/
+			/* MAKE EMPTY TRIANGLE DATA LISTS */
+			/**********************************/
+			
+				/* INIT POINT COORDS & NORMALS */
+				
+	for (i = 0; i < NUM_VERTICES_IN_SUPERTILE; i++)											
+	{
+		p[i].x = p[i].y = p[i].z = 0.0;										// clear point list
+		vertexNormals[i].x = vertexNormals[i].z = 0;						// set dummy vertex normals (point up)
+		vertexNormals[i].y = 1.0;
+		Q3Vector3D_Normalize(&vertexNormals[i],&vertexNormals[i]);
+	}
+	
+			/* INIT UV'S */
+			
+	i = 0;
+	for (v = 0; v <= SUPERTILE_SIZE; v++)									// sets uv's 0.0 -> 1.0 for single texture map
+	{
+		for (u = 0; u <= SUPERTILE_SIZE; u++)
+		{
+			uvs[i].u = u&1;
+			uvs[i].v = v&1;		
+			i++;
+		}	
+	}
+
+			/* INIT FACES & FACE NORMALS */
+				
+	j = 0;
+	for (i = 0; i < NUM_POLYS_IN_SUPERTILE; i++)							// create triangle list
+	{
+		if (i&1)
+		{
+			newTriangle[i].pointIndices[0] = faceIdx2[j/SUPERTILE_SIZE][j%SUPERTILE_SIZE][0];
+			newTriangle[i].pointIndices[1] = faceIdx2[j/SUPERTILE_SIZE][j%SUPERTILE_SIZE][1];
+			newTriangle[i].pointIndices[2] = faceIdx2[j/SUPERTILE_SIZE][j%SUPERTILE_SIZE][2];
+			j++;
+		}
+		else
+		{
+			newTriangle[i].pointIndices[0] = faceIdx1[j/SUPERTILE_SIZE][j%SUPERTILE_SIZE][0];
+			newTriangle[i].pointIndices[1] = faceIdx1[j/SUPERTILE_SIZE][j%SUPERTILE_SIZE][1];
+			newTriangle[i].pointIndices[2] = faceIdx1[j/SUPERTILE_SIZE][j%SUPERTILE_SIZE][2];
+		}
+		
+		faceNormals[i].x = faceNormals[i].z = 0;							// set dummy face normals
+		faceNormals[i].y = 1;			
+		Q3Vector3D_Normalize(&faceNormals[i],&faceNormals[i]);
+	}
+
+				/* SET DATA */
+				
+	for (i = 0;  i < NUM_POLYS_IN_SUPERTILE; i++)							// assign arbitrary textures to polys
+		faceTextures[i] = gDummyTex;
+				
+	triangleAttribs[0].attributeType = kQ3AttributeTypeNormal;				// set attribute Type
+	triangleAttribs[0].data = &faceNormals[0];								// point to attribute data
+	triangleAttribs[0].attributeUseArray = nil;								// (not used)
+	triangleAttribs[1].attributeType = kQ3AttributeTypeSurfaceShader;		// shader
+	triangleAttribs[1].data = &faceTextures[0];					
+	triangleAttribs[1].attributeUseArray = nil;
+	
+	vertAttribs[0].attributeType = kQ3AttributeTypeNormal;					// set attrib type == normal
+	vertAttribs[0].data = &vertexNormals[0];								// point to vertex normals
+	vertAttribs[0].attributeUseArray = nil;									// (not used)
+
+	vertAttribs[1].attributeType = kQ3AttributeTypeShadingUV;				// set attrib type == shading UV
+	vertAttribs[1].data = &uvs[0];											// point to vertex UV's
+	vertAttribs[1].attributeUseArray = nil;									// (not used)		
+
+
+			/********************************************/
+			/* FOR EACH POSSIBLE SUPERTILE ALLOC MEMORY */
+			/********************************************/
+
+	gNumFreeSupertiles = MAX_SUPERTILES;
+
+	for (i = 0; i < MAX_SUPERTILES; i++)
+	{
+		gSuperTileMemoryList[i].mode = SUPERTILE_MODE_FREE;					// it's free for use
+
+					/* MAKE BLANK TEXTURE */
+					
+		blankTexPtr = AllocPtr(SUPERTILE_SIZE * SUPERTILE_SIZE * sizeof(short) * OREOMAP_TILE_SIZE);		// alloc memory for texture
+		if (blankTexPtr == nil)
+			DoFatalAlert("\pCreateSuperTileMemoryList: AllocPtr failed!");
+
+		blankTexObject = QD3D_Data16ToTexture_NoMip(blankTexPtr, OREOMAP_TILE_SIZE*SUPERTILE_SIZE, OREOMAP_TILE_SIZE*SUPERTILE_SIZE);
+		if (blankTexObject == nil)
+			DoFatalAlert("\pCreateSuperTileMemoryList: QD3D_Data16ToTexture_NoMip failed!");
+
+		DisposePtr(blankTexPtr);																			// free memory
+	
+
+				/* CREATE AN EMPTY TRIMESH STRUCTURE */
+				 
+		triMeshData.triMeshAttributeSet = nil; //Q3AttributeSet_New();	// empty attrib set (eventually will contain kQ3AttributeTypeSurfaceShader)
+		triMeshData.numTriangles = NUM_POLYS_IN_SUPERTILE;		// n triangles in each trimesh
+		triMeshData.triangles = &newTriangle[0];				// point to triangle list
+
+		triMeshData.numTriangleAttributeTypes = 2;				// all triangles share the same attribs
+		triMeshData.triangleAttributeTypes = &triangleAttribs[0];
+
+		triMeshData.numEdges = 0;								// our trimesh doesnt have any edge info
+		triMeshData.edges = nil;
+		triMeshData.numEdgeAttributeTypes = 0;						
+		triMeshData.edgeAttributeTypes = nil;
+
+		triMeshData.numPoints = NUM_VERTICES_IN_SUPERTILE;		// set n # vertices
+		triMeshData.points = &p[0];								// point to bogus temp point list
+
+		triMeshData.numVertexAttributeTypes = 2;				// 2 attrib types: uv's & normals
+		triMeshData.vertexAttributeTypes = &vertAttribs[0];
+
+		triMeshData.bBox.isEmpty = kQ3False;					// calc bounding box			
+		triMeshData.bBox.min.x = triMeshData.bBox.min.y = triMeshData.bBox.min.z = 0;
+		triMeshData.bBox.max.x = triMeshData.bBox.max.y = triMeshData.bBox.max.z = TERRAIN_SUPERTILE_UNIT_SIZE;
+		
+
+				/* CREATE THE TRIMESH OBJECT */
+					
+		gSuperTileMemoryList[i].triMesh = Q3TriMesh_New(&triMeshData);
+		if (gSuperTileMemoryList[i].triMesh == nil)
+		{
+			DoAlert("\pCreateSuperTileMemoryList: Q3TriMesh_New failed!");
+			QD3D_ShowRecentError();
+		}
+	}
+	
+}
+
+
+/***************** GET FREE SUPERTILE MEMORY *******************/
+//
+// Finds one of the preallocated supertile memory blocks and returns its index
+// IT ALSO MARKS THE BLOCK AS USED
+//
+// OUTPUT: index into gSuperTileMemoryList
+//
+
+static short GetFreeSuperTileMemory(void)
+{
+short	i;
+
+				/* SCAN FOR A FREE BLOCK */
+
+	for (i = 0; i < MAX_SUPERTILES; i++)
+	{
+		if (gSuperTileMemoryList[i].mode == SUPERTILE_MODE_FREE)
+		{
+			gSuperTileMemoryList[i].mode = SUPERTILE_MODE_USED;
+			gNumFreeSupertiles--;			
+			return(i);
+		}
+	}
+
+	DoFatalAlert("\pNo Free Supertiles!");
+	return(-1);											// ERROR, NO FREE BLOCKS!!!! SHOULD NEVER GET HERE!
+}
+
+
+/******************* BUILD TERRAIN SUPERTILE *******************/
+//
+// Builds a new supertile which has scrolled on
+//
+// INPUT: startCol = starting column in map
+//		  startRow = starting row in map
+//
+// OUTPUT: index to supertile
+//
+
+static short	BuildTerrainSuperTile(long	startCol, long startRow)
+{
+long	 			row,col,row2,col2,i;
+short				superTileNum;
+Boolean				animFlag = false;
+float				height;
+TQ3Point3D			grid[SUPERTILE_SIZE+1][SUPERTILE_SIZE+1];
+TQ3Vector3D			normals[SUPERTILE_SIZE+1][SUPERTILE_SIZE+1];
+TQ3GeometryObject	theTriMesh;
+TQ3TriMeshData		triMeshData;
+TQ3Vector3D			*normalPtr,*vertexNormalList;
+u_short				tile,textureNum;
+short				h1,h2,h3,h4;
+TQ3Point3D			*pointList;
+TQ3TriMeshTriangleData	*triangleList;
+TQ3SurfaceShaderObject	*texturePtr;
+
+	superTileNum = GetFreeSuperTileMemory();									// get memory block for the data
+
+
+
+
+	gSuperTileMemoryList[superTileNum].row = startRow;							// remember row/col of data for dereferencing later
+	gSuperTileMemoryList[superTileNum].col = startCol;
+
+
+
+			/*********************************/
+			/* CREATE TERRAIN MESH VERTICES  */
+			/*********************************/
+
+	for (row2 = 0; row2 <= SUPERTILE_SIZE; row2++)
+	{
+		row = row2 + startRow;
+		
+		for (col2 = 0; col2 <= SUPERTILE_SIZE; col2++)
+		{
+			col = col2 + startCol;
+			
+			if ((row >= gTerrainTileDepth) || (col >= gTerrainTileWidth))			// check for edge vertices (off map array)
+				height = 0;
+			else
+				height = GetTerrainHeightAtRowCol(row,col); 						// get pixel height here
+			
+			grid[row2][col2].x = (col*TERRAIN_POLYGON_SIZE);
+			grid[row2][col2].z = (row*TERRAIN_POLYGON_SIZE);
+			grid[row2][col2].y = height;											// save height @ this tile's upper left corner
+		}
+	}
+
+			/******************************/
+			/* CALCULATE VERTEX NORMALS   */
+			/******************************/
+
+	for (row2 = 0; row2 <= SUPERTILE_SIZE; row2++)
+	{
+		row = row2 + startRow;
+		
+		for (col2 = 0; col2 <= SUPERTILE_SIZE; col2++)
+		{
+			float	center_h,left_h,right_h,back_h,front_h;
+			
+			col = col2 + startCol;
+
+					/* GET CENTER HEIGHT */
+					
+			center_h = grid[row2][col2].y;
+
+					/* GET LEFT HEIGHT */
+					
+			if (col2 == 0)
+				left_h = GetTerrainHeightAtRowCol(row,col-1);
+			else
+				left_h = grid[row2][col2-1].y;
+				
+					/* GET RIGHT HEIGHT */
+			
+			if (col2 == SUPERTILE_SIZE)
+				right_h = GetTerrainHeightAtRowCol(row,col+1);
+			else
+				right_h = grid[row2][col2+1].y;
+			
+					/* GET BACK HEIGHT */
+			
+			if (row2 == 0)
+				back_h = GetTerrainHeightAtRowCol(row-1,col);
+			else
+				back_h = grid[row2-1][col2].y;
+			
+					/* GET FRONT HEIGHT */
+			
+			if (row2 == SUPERTILE_SIZE)
+				front_h = GetTerrainHeightAtRowCol(row+1,col);
+			else
+				front_h = grid[row2+1][col2].y;
+			
+			
+			normals[row2][col2].x = ((left_h - center_h) + (center_h - right_h)) * .01;
+			normals[row2][col2].y = 1;
+			normals[row2][col2].z = ((back_h - center_h) + (center_h - front_h)) * .01;
+			
+			Q3Vector3D_Normalize(&normals[row2][col2],&normals[row2][col2]);	// normalize the vertex normal
+			
+		}
+	}
+
+
+
+
+				/***************************************/
+				/* DETERMINE SPLITTING ANGLE FOR TILES */
+				/***************************************/
+
+	for (row = 0; row < SUPERTILE_SIZE; row++)
+	{
+		for (col = 0; col < SUPERTILE_SIZE; col++)
+		{
+			h1 = grid[row][col].y;												// get height of all 4 vertices (clockwise)
+			h2 = grid[row][col+1].y;
+			h3 = grid[row+1][col+1].y;
+			h4 = grid[row+1][col].y;
+
+					/* QUICK CHECK FOR FLAT POLYS */
+
+			if ((h1 == h2) && (h1 == h3) && (h2 == h3))							// see if all same level
+			{
+			 	gSuperTileMemoryList[superTileNum].splitAngle[row][col] = 0;  	// use / splits as default for flat polys
+				continue;
+			}
+
+				/* SEE IF MANUAL FOLD-SPLIT */
+
+			tile = GetPathTileNumAtRowCol(row + startRow, col + startCol);		// get path tile to see if manual fold
+			if ((tile == PATH_TILE_FOLD_A) || (tile == PATH_TILE_FOLD_B))
+			{
+				if (tile == PATH_TILE_FOLD_A)
+					gSuperTileMemoryList[superTileNum].splitAngle[row][col] = 0;  // use / splits
+				else
+					gSuperTileMemoryList[superTileNum].splitAngle[row][col] = 1;  // use \ splits
+			}
+					/* CALC FOLD-SPLIT */
+			else
+			{
+				short	diff1,diff2;
+
+				Absolute(h2-h4,diff1);												// calc diff / .
+				Absolute(h1-h3,diff2);												// calc diff \ .
+
+				if (diff2 < diff1)
+					gSuperTileMemoryList[superTileNum].splitAngle[row][col] = 1;	// use \ splits
+				else
+					gSuperTileMemoryList[superTileNum].splitAngle[row][col] = 0;	// use / splits
+			}
+		}
+	}
+
+			/*********************************/
+			/* CREATE TERRAIN MESH POLYGONS  */
+			/*********************************/
+
+					/* GET THE TRIMESH */
+					
+	theTriMesh = gSuperTileMemoryList[superTileNum].triMesh;					// get the triMesh
+	if (theTriMesh == nil)
+		DoFatalAlert("\pBuildTerrainSuperTile: triMesh == nil");
+
+	Q3TriMesh_GetData(theTriMesh,&triMeshData);
+	pointList = triMeshData.points;												// get ptr to point/vertex list
+	triangleList = triMeshData.triangles;										// get ptr to triangle index list
+	vertexNormalList = triMeshData.vertexAttributeTypes[0].data;				// get ptr to vertex normals
+	normalPtr = triMeshData.triangleAttributeTypes[0].data;						// get ptr to face normals
+	texturePtr = triMeshData.triangleAttributeTypes[1].data;					// get ptr to face textures
+	
+					/* SET VERTEX COORDS & NORMALS */
+	
+	i = 0;			
+	for (row = 0; row < (SUPERTILE_SIZE+1); row++)
+		for (col = 0; col < (SUPERTILE_SIZE+1); col++)
+		{
+			pointList[i] = grid[row][col];									// copy from other list
+			vertexNormalList[i] = normals[row][col];
+			i++;
+		}
+	
+
+				/* UPDATE TRIMESH DATA WITH NEW INFO */
+			
+	for (row2 = 0; row2 < SUPERTILE_SIZE; row2++)
+	{
+		row = row2 + startRow;
+
+		for (col2 = 0; col2 < SUPERTILE_SIZE; col2++)
+		{
+
+			col = col2 + startCol;
+
+					/* ADD TILE TO PIXMAP */
+					
+			tile = gTerrainTextureLayer[row][col];					// get tile from map
+
+			textureNum = tile&TILENUM_MASK;
+			if (textureNum >= gNumTerrainTextureTiles)
+				DoFatalAlert("\pBuildTerrainSuperTile: tile >= gNumTerrainTextureTiles");
+
+			*texturePtr++ = gTileTextures[textureNum];					// assign texture reference to triangle A
+			*texturePtr++ = gTileTextures[textureNum];					// assign texture reference to triangle B
+
+
+					/* SET SPLITTING INFO */
+
+			if (gSuperTileMemoryList[superTileNum].splitAngle[row2][col2])		// set coords & uv's based on splitting
+			{
+					/* \ */
+			}
+			else
+			{
+					/* / */
+			}			
+		}
+	}
+	
+						/* CALC FACE NORMALS */
+					
+	for (i = 0; i < NUM_POLYS_IN_SUPERTILE; i++)
+	{
+		
+		CalcFaceNormal(&pointList[triangleList[i].pointIndices[2]],			
+						&pointList[triangleList[i].pointIndices[1]],
+						&pointList[triangleList[i].pointIndices[0]],
+						&normalPtr[i]);		
+	}			
+	
+			
+
+				/* UPDATE THE TRIMESH */
+			
+	Q3TriMesh_SetData(theTriMesh,&triMeshData);										// update the trimesh with new info
+	Q3TriMesh_EmptyData(&triMeshData);												// free the trimesh data
+
+	gSuperTileMemoryList[superTileNum].hasAnimatingTiles = animFlag;				// remember if this supertile animates
+
+
+
+	return(superTileNum);
+}
+
+
+/********************* DRAW TILE INTO MIPMAP *************************/
+
+static Boolean DrawTileIntoMipmap(u_short tile, short row, short col, u_short *buffer)
+{
+u_short		texMapNum,flipRotBits;
+double		*tileData;		
+Byte		y;	
+double		*dPtr;
+
+			/* EXTRACT BIT INFO FROM TILE */
+				
+	flipRotBits = tile&(TILE_FLIPXY_MASK|TILE_ROTATE_MASK);		// get flip & rotate bits
+	texMapNum = tile&TILENUM_MASK; 								// filter out texture #
+
+	if (texMapNum >= gNumTerrainTextureTiles)					// make sure not illegal tile #
+		DoFatalAlert("\pBuildTerrainSuperTile: illegal tile #");
+
+				/* CALC PTRS */
+				
+	buffer += ((row * OREOMAP_TILE_SIZE) * (SUPERTILE_SIZE * OREOMAP_TILE_SIZE)) + (col * OREOMAP_TILE_SIZE);		// get dest
+	tileData = (double *)(gTileDataPtr + (texMapNum * OREOMAP_TILE_SIZE * OREOMAP_TILE_SIZE));						// get src
+	
+	dPtr = (double *)buffer;
+	for (y =  0; y < OREOMAP_TILE_SIZE; y++)
+	{
+		dPtr[0] = tileData[0];
+		dPtr[1] = tileData[1];
+		dPtr[2] = tileData[2];
+		dPtr[3] = tileData[3];
+		dPtr[4] = tileData[4];
+		dPtr[5] = tileData[5];
+		dPtr[6] = tileData[6];
+		dPtr[7] = tileData[7];
+			
+		dPtr += (OREOMAP_TILE_SIZE/4)*4;						// next line in dest
+		tileData += (OREOMAP_TILE_SIZE/4);						// next line in src
+	}
+
+			/* RETURN ANIM FLAG */
+		
+	return(gQuickTileAnimListPtr[texMapNum]);					// see if this SuperTile contains any animating tiles
+
+}
+
+
+
+/******************** SET TILE UV COORDS: SPLIT / **********************/
+
+static void SetTileUVCoords_SplitA(u_short flipRotBits, TQ3TriMeshData *triMeshData)
+{
+Byte		i;
+TQ3Param2D	uv[2][3],*uvPtr;
+TQ3TriMeshAttributeData	*attribs;
+
+			/* EACH TILE HAS 2 POLYGONS WHICH ARE SPLIT */
+
+	for (i = 0; i < 2; i++)
+	{
+					/*******************************/
+					/* SET UV'S FOR BOTH TRIANGLES */
+					/*******************************/
+
+		switch(flipRotBits)         											// set uv's based on flip & rot bits
+		{
+					/* NO FLIP & NO ROT */
+						/* XYFLIP ROT 2 */
+
+			case	0:
+			case	TILE_FLIPXY_MASK | TILE_ROT2:
+					if (i)														// UV's alternate every other triangle/poly
+					{
+						uv[1][0].u = 1.0; 										// upper right
+						uv[1][0].v = 1.0;
+						uv[1][1].u = 0;	  										// lower left
+						uv[1][1].v = 0;
+						uv[1][2].u = 1.0;										// lower right
+						uv[1][2].v = 0;
+					}
+					else
+					{
+						uv[0][0].u = 0;	 										// upper left
+						uv[0][0].v = 1.0;
+						uv[0][1].u = 0;											// lower left
+						uv[0][1].v = 0;
+						uv[0][2].u = 1.0;										// upper right
+						uv[0][2].v = 1.0;
+					}
+					break;
+
+						/* FLIP X */
+					/* FLIPY ROT 2 */
+
+			case	TILE_FLIPX_MASK:
+			case	TILE_FLIPY_MASK | TILE_ROT2:
+					if (i)
+					{
+						uv[1][0].u = 0; 										// upper right
+						uv[1][0].v = 1;
+						uv[1][1].u = 1.0;										// lower left
+						uv[1][1].v = 0;
+						uv[1][2].u = 0;											// lower right
+						uv[1][2].v = 0;
+					}
+					else
+					{
+						uv[0][0].u = 1.0;										// upper right
+						uv[0][0].v = 1;
+						uv[0][1].u = 1.0;										// lower right
+						uv[0][1].v = 0;
+						uv[0][2].u = 0;											// upper left
+						uv[0][2].v = 1;
+					}
+					break;
+
+						/* FLIP Y */
+					/* FLIPX ROT 2 */
+
+			case	TILE_FLIPY_MASK:
+			case	TILE_FLIPX_MASK | TILE_ROT2:
+					if (i)
+					{
+						uv[1][0].u = 1.0; 										// lower right
+						uv[1][0].v = 0;
+						uv[1][1].u = 0;	  										// upper left
+						uv[1][1].v = 1;
+						uv[1][2].u = 1.0;										// upper right
+						uv[1][2].v = 1;
+					}
+					else
+					{
+						uv[0][0].u = 0;											// lower left
+						uv[0][0].v = 0;
+						uv[0][1].u = 0;											// upper right
+						uv[0][1].v = 1;
+						uv[0][2].u = 1.0;										// lower right
+						uv[0][2].v = 0;
+					}
+					break;
+
+
+					/* FLIP XY */
+					/* NO FLIP ROT 2 */
+
+			case	TILE_FLIPXY_MASK:
+			case	TILE_ROT2:
+					if (i)
+					{
+						uv[1][0].u = 0; 										// lower right
+						uv[1][0].v = 0;
+						uv[1][1].u = 1.0; 										// upper right
+						uv[1][1].v = 1;
+						uv[1][2].u = 0;											// upper left
+						uv[1][2].v = 1;
+					}
+					else
+					{
+						uv[0][0].u = 1.0;										// lower right
+						uv[0][0].v = 0;
+						uv[0][1].u = 1.0;										// upper right
+						uv[0][1].v = 1;
+						uv[0][2].u = 0;                  				  		// lower left
+						uv[0][2].v = 0;
+					}
+					break;
+
+
+					/* NO FLIP ROT 1 */
+					/* FLIP XY ROT 3 */
+
+			case	TILE_ROT1:
+			case	TILE_FLIPXY_MASK | TILE_ROT3:
+					if (i)
+					{
+						uv[1][0].u = 0;											// upper left
+						uv[1][0].v = 1;
+						uv[1][1].u = 1.0;										// lower right
+						uv[1][1].v = 0;
+						uv[1][2].u = 1.0;										// upper right
+						uv[1][2].v = 1;
+					}
+					else
+					{
+						uv[0][0].u = 0;                          	// lower left
+						uv[0][0].v = 0;
+						uv[0][1].u = 1.0;							// lower right
+						uv[0][1].v = 0;
+						uv[0][2].u = 0;								// upper left
+						uv[0][2].v = 1;
+					}
+					break;
+
+					/* NO FLIP ROT 3 */
+					/* FLIP XY ROT 1 */
+
+			case	TILE_ROT3:
+			case	TILE_FLIPXY_MASK | TILE_ROT1:
+					if (i)
+					{
+						uv[1][0].u = 1.0;							// lower right
+						uv[1][0].v = 0;
+						uv[1][1].u = 0;								// upper left
+						uv[1][1].v = 1;
+						uv[1][2].u = 0;								// lower left
+						uv[1][2].v = 0;
+					}
+					else
+					{
+						uv[0][0].u = 1.0;							// upper right
+						uv[0][0].v = 1;
+						uv[0][1].u = 0;								// upper left
+						uv[0][1].v = 1;
+						uv[0][2].u = 1.0;							// lower right
+						uv[0][2].v = 0;
+					}
+					break;
+
+					/* FLIP X ROT 1 */
+					/* FLIP Y ROT 3 */
+
+			case	TILE_FLIPX_MASK | TILE_ROT1:
+			case	TILE_FLIPY_MASK | TILE_ROT3:
+					if (i)
+					{
+						uv[1][0].u = 1.0;
+						uv[1][0].v = 1;
+						uv[1][1].u = 0;
+						uv[1][1].v = 0;
+						uv[1][2].u = 0;
+						uv[1][2].v = 1;
+					}
+					else
+					{
+						uv[0][0].u = 1.0;
+						uv[0][0].v = 0;
+						uv[0][1].u = 0;
+						uv[0][1].v = 0;
+						uv[0][2].u = 1.0;
+						uv[0][2].v = 1;
+					}
+					break;
+
+					/* FLIP X ROT 3 */
+					/* FLIP Y ROT 1 */
+
+			case	TILE_FLIPX_MASK | TILE_ROT3:
+			case	TILE_FLIPY_MASK | TILE_ROT1:
+					if (i)
+					{
+						uv[1][0].u = 0;
+						uv[1][0].v = 0;
+						uv[1][1].u = 1.0;
+						uv[1][1].v = 1;
+						uv[1][2].u = 1.0;
+						uv[1][2].v = 0;
+					}
+					else
+					{
+						uv[0][0].u = 0;
+						uv[0][0].v = 1;
+						uv[0][1].u = 1.0;
+						uv[0][1].v = 1;
+						uv[0][2].u = 0;
+						uv[0][2].v = 0;
+					}
+					break;
+		}
+	}
+
+
+			/* UPDATE UV'S IN ATTRIBUTE LIST */
+			
+	attribs = triMeshData->vertexAttributeTypes;						// point to vertex attribute list
+	uvPtr = attribs[1].data;											// point to 2nd attribute's data (the uv list)
+
+	for (i = 0; i < 2; i++)
+	{
+		*uvPtr++ = uv[i][0];											// put new uv's into the attribute's list
+		*uvPtr++ = uv[i][1];
+		*uvPtr++ = uv[i][2];
+	}
+
+}
+
+
+/******************** SET TILE UV COORDS: SPLIT B \ **********************/
+
+static void SetTileUVCoords_SplitB(u_short flipRotBits, TQ3TriMeshData *triMeshData)
+{
+Byte	i;
+TQ3Param2D	uv[2][3],*uvPtr;
+TQ3TriMeshAttributeData	*attribs;
+
+		/* CHANGE THIS POLYGON'S INFO */
+
+	for (i = 0; i < 2; i++)
+	{
+					/*******************************/
+					/* SET UV'S FOR BOTH TRIANGLES */
+					/*******************************/
+
+		switch(flipRotBits)         							// set uv's based on flip & rot bits
+		{
+					/* NO FLIP & NO ROT */
+					  /* XYFLIP ROT 2 */
+
+			case	0:
+			case	TILE_FLIPXY_MASK | TILE_ROT2:
+					if (i)										// UV's alternate every other triangle/poly
+					{
+						uv[1][0].u = 0;							// upper left
+						uv[1][0].v = 1;
+						uv[1][1].u = 1.0;						// lower right
+						uv[1][1].v = 0;
+						uv[1][2].u = 1.0;						// upper right
+						uv[1][2].v = 1;
+					}
+					else
+					{
+						uv[0][0].u = 0; 						// upper left
+						uv[0][0].v = 1;
+						uv[0][1].u = 0;	  						// lower left
+						uv[0][1].v = 0;
+						uv[0][2].u = 1.0;						// lower right
+						uv[0][2].v = 0;
+					}
+					break;
+
+						/* FLIP X */
+					/* FLIPY ROT 2 */
+
+			case	TILE_FLIPX_MASK:
+			case	TILE_FLIPY_MASK | TILE_ROT2:
+					if (i)														// UV's alternate every other triangle/poly
+					{
+						uv[1][0].u = 1.0;	// upper right
+						uv[1][0].v = 1;
+						uv[1][1].u = 0;						// lower left
+						uv[1][1].v = 0;
+						uv[1][2].u = 0;						// upper left
+						uv[1][2].v = 1;
+					}
+					else
+					{
+						uv[0][0].u = 1.0;	// upper right
+						uv[0][0].v = 1;
+						uv[0][1].u = 1.0; 	// lower right
+						uv[0][1].v = 0;
+						uv[0][2].u = 0;						// lower left
+						uv[0][2].v = 0;
+					}
+					break;
+
+						/* FLIP Y */
+					/* FLIPX ROT 2 */
+
+			case	TILE_FLIPY_MASK:
+			case	TILE_FLIPX_MASK | TILE_ROT2:
+					if (i)
+					{
+						uv[1][0].u = 0; 						// lower left
+						uv[1][0].v = 0;
+						uv[1][1].u = 1.0; 	// upper right
+						uv[1][1].v = 1;
+						uv[1][2].u = 1.0;	// lower right
+						uv[1][2].v = 0;
+					}
+					else
+					{
+						uv[0][0].u = 0; 						// lower left
+						uv[0][0].v = 0;
+						uv[0][1].u = 0;	  					// upper left
+						uv[0][1].v = 1;
+						uv[0][2].u = 1.0;	// upper right
+						uv[0][2].v = 1;
+					}
+					break;
+
+
+					/* FLIP XY */
+					/* NO FLIP ROT 2 */
+
+			case	TILE_FLIPXY_MASK:
+			case	TILE_ROT2:
+					if (i)
+					{
+						uv[1][0].u = 1.0;		// lower right
+						uv[1][0].v = 0;
+						uv[1][1].u = 0;							// upper left
+						uv[1][1].v = 1;
+						uv[1][2].u = 0;							// lower left
+						uv[1][2].v = 0;
+					}
+					else
+					{
+						uv[0][0].u = 1.0;	// lower right
+						uv[0][0].v = 0;
+						uv[0][1].u = 1.0; 	// upper right
+						uv[0][1].v = 1;
+						uv[0][2].u = 0;						// upper left
+						uv[0][2].v = 1;
+					}
+					break;
+
+
+					/* NO FLIP ROT 1 */
+					/* FLIP XY ROT 3 */
+
+			case	TILE_ROT1:
+			case	TILE_FLIPXY_MASK | TILE_ROT3:
+					if (i)
+					{
+						uv[1][0].u = 0;  						// lower left
+						uv[1][0].v = 0;
+						uv[1][1].u = 1.0;      // upper right
+						uv[1][1].v = 1;
+						uv[1][2].u = 0;							// upper left
+						uv[1][2].v = 1;
+					}
+					else
+					{
+						uv[0][0].u = 0;  						// lower left
+						uv[0][0].v = 0;
+						uv[0][1].u = 1.0;      // lower right
+						uv[0][1].v = 0;
+						uv[0][2].u = 1.0;		// upper right
+						uv[0][2].v = 1;
+					}
+					break;
+
+					/* NO FLIP ROT 3 */
+					/* FLIP XY ROT 1 */
+
+			case	TILE_ROT3:
+			case	TILE_FLIPXY_MASK | TILE_ROT1:
+					if (i)
+					{
+						uv[1][0].u = 1.0;		// upper right
+						uv[1][0].v = 1;
+						uv[1][1].u = 0;					  		// lower left
+						uv[1][1].v = 0;
+						uv[1][2].u = 1.0;		// lower right
+						uv[1][2].v = 0;
+					}
+					else
+					{
+						uv[0][0].u = 1.0;  	// upper right
+						uv[0][0].v = 1;
+						uv[0][1].u = 0;							// upper left
+						uv[0][1].v = 1;
+						uv[0][2].u = 0;	  						// lower left
+						uv[0][2].v = 0;
+					}
+					break;
+
+					/* FLIP X ROT 1 */
+					/* FLIP Y ROT 3 */
+
+			case	TILE_FLIPX_MASK | TILE_ROT1:
+			case	TILE_FLIPY_MASK | TILE_ROT3:
+					if (i)
+					{
+						uv[1][0].u = 1.0; 		// lower right
+						uv[1][0].v = 0;
+						uv[1][1].u = 0;							// upper left
+						uv[1][1].v = 1;
+						uv[1][2].u = 1.0;      // upper right
+						uv[1][2].v = 1;
+					}
+					else
+					{
+						uv[0][0].u = 1.0;  	// lower right
+						uv[0][0].v = 0;
+						uv[0][1].u = 0;					     	// lower left
+						uv[0][1].v = 0;
+						uv[0][2].u = 1.0;		// upper left
+						uv[0][2].v = 1;
+					}
+					break;
+
+					/* FLIP X ROT 3 */
+					/* FLIP Y ROT 1 */
+
+			case	TILE_FLIPX_MASK | TILE_ROT3:
+			case	TILE_FLIPY_MASK | TILE_ROT1:
+					if (i)
+					{
+						uv[1][0].u = 0;						 	// upper left
+						uv[1][0].v = 1;
+						uv[1][1].u = 1.0;		// lower right
+						uv[1][1].v = 0;
+						uv[1][2].u = 0;	 						// lower left
+						uv[1][2].v = 0;
+					}
+					else
+					{
+						uv[0][0].u = 0;	 						// upper left
+						uv[0][0].v = 1;
+						uv[0][1].u = 1.0;		// upper right
+						uv[0][1].v = 1;
+						uv[0][2].u = 1.0;		// lower right
+						uv[0][2].v = 0;
+					}
+					break;
+
+		}
+	}
+	
+			/* UPDATE UV'S IN ATTRIBUTE LIST */
+			
+	attribs = triMeshData->vertexAttributeTypes;						// point to vertex attribute list
+	uvPtr = attribs[1].data;											// point to 2nd attribute's data (the uv list)
+
+	for (i = 0; i < 2; i++)
+	{
+		*uvPtr++ = uv[i][0];											// put new uv's into the attribute's list
+		*uvPtr++ = uv[i][1];
+		*uvPtr++ = uv[i][2];
+	}
+	
+}
+
+
+/******************* RELEASE SUPERTILE OBJECT *******************/
+//
+// Deactivates the terrain object and releases its memory block
+//
+
+static void ReleaseSuperTileObject(short superTileNum)
+{
+	gSuperTileMemoryList[superTileNum].mode = SUPERTILE_MODE_FREE;		// it's free!
+	gNumFreeSupertiles++;
+}
+
+
+/********************* DRAW TERRAIN **************************/
+//
+// This is the main call to update the screen.  It draws all ObjNode's and the terrain itself
+//
+
+void DrawTerrain(QD3DSetupOutputType *setupInfo)
+{
+short	i;
+TQ3Status	myStatus;
+			
+				/* DRAW STUFF */
+				
+	DrawObjects(setupInfo);												// draw objNodes
+
+	for (i = 0; i < MAX_SUPERTILES; i++)
+	{
+		if (gSuperTileMemoryList[i].mode != SUPERTILE_MODE_USED)		// if supertile is being used, then draw it
+			continue;
+		
+		if (!SeeIfSuperTileInConeOfVision(i))							// make sure it's visible
+			continue;
+			
+			/* DRAW THE TRIMESH IN THIS SUPERTILE */
+			
+		myStatus = Q3Object_Submit(gSuperTileMemoryList[i].triMesh,setupInfo->viewObject);
+		if ( myStatus == kQ3Failure )
+		{
+			DoAlert("\pDrawTerrain: Q3Object_Submit failed!");	
+			QD3D_ShowRecentError();	
+		}
+		
+	}
+}
+
+
+/***************** GET TERRAIN HEIGHT AT COORD ******************/
+//
+// Given a world x/z coord, return the y coord based on height map
+//
+// INPUT: x/z = world coords 
+//
+// OUTPUT: y = world y coord
+//
+
+float	GetTerrainHeightAtCoord(long x, long z)
+{
+long	row,col,offx,offy;
+short	height;
+u_short tileNum,tile,flipBits;
+Ptr		pixelPtr;
+float	heightf;
+
+	if ((x < 0) || (z < 0))										// see if out of bounds
+		return(0);
+	if ((x >= gTerrainUnitWidth) || (z >= gTerrainUnitDepth))
+		return(0);
+
+	col = x/TERRAIN_POLYGON_SIZE;	 							// calc map row/col that the coord lies on
+	row = z/TERRAIN_POLYGON_SIZE;
+
+	tile = gTerrainHeightMapLayer[row][col];					// get height tile from map
+	tileNum = tile&TILENUM_MASK;  							// filter out tile #
+	gTempXXX = tileNum;		//---------
+	flipBits = tile&TILE_FLIPXY_MASK;							// filter out flip bits
+
+	pixelPtr = gTerrainHeightMapPtrs[tileNum];				// point to that tile's pixel data
+
+	offx = ((x%TERRAIN_POLYGON_SIZE)*TERRAIN_HMTILE_SIZE)/TERRAIN_POLYGON_SIZE;	// see how far into 32x32 tile we are
+	offy = ((z%TERRAIN_POLYGON_SIZE)*TERRAIN_HMTILE_SIZE)/TERRAIN_POLYGON_SIZE;
+
+	if (flipBits & TILE_FLIPX_MASK)							// see if flipped X
+		offx = TERRAIN_HMTILE_SIZE-1-offx;
+
+	if (flipBits & TILE_FLIPY_MASK)							// see if flipped Y
+		offy = TERRAIN_HMTILE_SIZE-1-offy;
+
+
+	pixelPtr += (offy*TERRAIN_HMTILE_SIZE)+offx;			// calc index into tile data for the pixel we want
+
+	height = *pixelPtr++;									// get pixel value
+	heightf = height*HEIGHT_EXTRUDE_FACTOR; 				// scale it to a useable y coordinate
+
+	return(heightf);
+ }
+
+
+/***************** GET TERRAIN HEIGHT AT ROW/COL ******************/
+//
+// INPUT: row/col= map row/col
+//
+// OUTPUT: y = world y coord
+//
+
+static float	GetTerrainHeightAtRowCol(long row, long col)
+{
+long	offx,offy;
+short	height;
+u_short tileNum,tile,flipBits;
+Ptr		pixelPtr;
+float	heightf;
+
+	if (row < 0)
+		return(0);
+	if (row > gTerrainTileDepth)
+		return(0);
+	if (col < 0)
+		return(0);
+	if (col > gTerrainTileWidth)
+		return(0);
+
+	tile = gTerrainHeightMapLayer[row][col];				// get height data from map
+	tileNum = tile&TILENUM_MASK; 							// filter out tile #
+	flipBits = tile&TILE_FLIPXY_MASK;						// filter out flip bits
+
+	pixelPtr = gTerrainHeightMapPtrs[tileNum];				// point to that tile's pixel data
+
+	if (flipBits & TILE_FLIPX_MASK)							// see if flipped X
+		offx = TERRAIN_HMTILE_SIZE-1;
+	else
+		offx = 0;
+
+	if (flipBits & TILE_FLIPY_MASK)							// see if flipped Y
+		offy = TERRAIN_HMTILE_SIZE-1;
+	else
+		offy = 0;
+
+	pixelPtr += (offy*TERRAIN_HMTILE_SIZE)+offx;			// calc index into tile data for the pixel we want
+
+	height = *pixelPtr++;									// get pixel value
+	heightf = (float)height * HEIGHT_EXTRUDE_FACTOR; 		// scale it to a useable y coordinate
+
+	return(heightf);
+}
+
+
+
+
+/***************** GET SUPERTILE INFO ******************/
+//
+// Given a world x/z coord, return some supertile info
+//
+// INPUT: x/y = world x/y coords
+// OUTPUT: row/col in tile coords and supertile coords
+//
+
+void GetSuperTileInfo(long x, long z, long *superCol, long *superRow, long *tileCol, long *tileRow)
+{
+long	row,col;
+
+
+//	if ((x < 0) || (y < 0))									// see if out of bounds
+//		return;
+//	if ((x >= gTerrainUnitWidth) || (y >= gTerrainUnitDepth))
+//		return;
+
+	col = x/TERRAIN_SUPERTILE_UNIT_SIZE;					// calc supertile relative row/col that the coord lies on
+	row = z/TERRAIN_SUPERTILE_UNIT_SIZE;
+
+	*superRow = row;										// return which supertile relative row/col it is
+	*superCol = col;
+	*tileRow = row*SUPERTILE_SIZE;							// return which tile row/col the super tile starts on
+	*tileCol = col*SUPERTILE_SIZE;
+}
+
+
+/******************** DO MY TERRAIN UPDATE ********************/
+
+void DoMyTerrainUpdate(void)
+{
+long	x,y;
+long	superCol,superRow,tileCol,tileRow;
+
+
+//	UpdateTileAnims();										// update tile anims
+
+
+			/* CALC PIXEL COORDS OF FAR LEFT SUPER TILE */
+
+	x = gMyX-(SUPERTILE_DIST_SIDE*SUPERTILE_SIZE*TERRAIN_POLYGON_SIZE);
+	y = gMyZ-(SUPERTILE_DIST_FAR*SUPERTILE_SIZE*TERRAIN_POLYGON_SIZE);
+
+
+			/* SEE IF WE'VE SCROLLED A WHOLE SUPERTILE YET */
+
+	GetSuperTileInfo(x,y,&superCol,&superRow,&tileCol,&tileRow); 		// get supertile coord info
+
+
+		// NOTE: DO VERTICAL FIRST!!!!
+
+				/* SEE IF SCROLLED UP */
+
+	if (superRow > gCurrentSuperTileRow)
+	{
+		if (superRow > (gCurrentSuperTileRow+1))						// check for overload scroll
+			DoFatalAlert("\pDoMyTerrainUpdate: scrolled up > 1 tile!");
+		ScrollTerrainUp(superRow,superCol);
+		gCurrentSuperTileRow = superRow;
+	}
+	else
+				/* SEE IF SCROLLED DOWN */
+
+	if (superRow < gCurrentSuperTileRow)
+	{
+		if (superRow < (gCurrentSuperTileRow-1))						// check for overload scroll
+			DoFatalAlert("\pDoMyTerrainUpdate: scrolled down < -1 tile!");
+		ScrollTerrainDown(superRow,superCol);
+		gCurrentSuperTileRow = superRow;
+	}
+
+			/* SEE IF SCROLLED LEFT */
+
+	if (superCol > gCurrentSuperTileCol)
+	{
+		if (superCol > (gCurrentSuperTileCol+1))						// check for overload scroll
+			DoFatalAlert("\pDoMyTerrainUpdate: scrolled left > 1 tile!");
+		ScrollTerrainLeft();
+	}
+	else
+				/* SEE IF SCROLLED RIGHT */
+
+	if (superCol < gCurrentSuperTileCol)
+	{
+		if (superCol < (gCurrentSuperTileCol-1))						// check for overload scroll
+			DoFatalAlert("\pDoMyTerrainUpdate: scrolled right < -1 tile!");
+		ScrollTerrainRight(superCol,superRow,tileCol,tileRow);
+		gCurrentSuperTileCol = superCol;
+	}
+
+	CalcNewItemDeleteWindow();							// recalc item delete window
+
+}
+
+
+/****************** CALC NEW ITEM DELETE WINDOW *****************/
+
+static void CalcNewItemDeleteWindow(void)
+{
+long	temp,temp2;
+
+				/* CALC LEFT SIDE OF WINDOW */
+
+	temp = gCurrentSuperTileCol*(TERRAIN_POLYGON_SIZE*SUPERTILE_SIZE);		// convert to 3space coords
+	temp2 = temp - (ITEM_WINDOW_LEFT+OUTER_SIZE)*         	   			  	// factor window left
+			(TERRAIN_POLYGON_SIZE*SUPERTILE_SIZE);
+	gTerrainItemDeleteWindow_Left = temp2;
+
+
+				/* CALC RIGHT SIDE OF WINDOW */
+
+	temp += SUPERTILE_DIST_WIDE*SUPERTILE_SIZE*TERRAIN_POLYGON_SIZE;				// calc offset to right side
+	temp += (ITEM_WINDOW_RIGHT+OUTER_SIZE)*SUPERTILE_SIZE*TERRAIN_POLYGON_SIZE; 	// factor window right
+	gTerrainItemDeleteWindow_Right = temp;
+
+
+				/* CALC FAR SIDE OF WINDOW */
+
+	temp = gCurrentSuperTileRow*(TERRAIN_POLYGON_SIZE*SUPERTILE_SIZE);				// convert to 3space coords
+	temp2 = temp-(ITEM_WINDOW_FAR+OUTER_SIZE)*TERRAIN_POLYGON_SIZE*SUPERTILE_SIZE;	// factor window top/back
+	gTerrainItemDeleteWindow_Far = temp2;
+
+
+				/* CALC NEAR SIDE OF WINDOW */
+
+	temp += SUPERTILE_DIST_DEEP*SUPERTILE_SIZE*TERRAIN_POLYGON_SIZE;		// calc offset to bottom side
+	temp += (ITEM_WINDOW_NEAR+OUTER_SIZE)*                				// factor window bottom/front
+			TERRAIN_POLYGON_SIZE*SUPERTILE_SIZE;
+	gTerrainItemDeleteWindow_Near = temp;
+}
+
+
+
+/********************** SCROLL TERRAIN UP *************************/
+//
+// INPUT: superRow = new supertile row #
+//
+
+static void ScrollTerrainUp(long superRow, long superCol)
+{
+long	col,i,bottom,left,right;
+short	superTileNum;
+long	tileRow,tileCol;
+
+
+			/* PURGE OLD TOP ROW */
+
+	if ((gCurrentSuperTileRow < gNumSuperTilesDeep) && (gCurrentSuperTileRow >= 0))	// check if off map
+	{
+		for (i = 0; i < SUPERTILE_DIST_WIDE; i++)
+		{
+			col = gCurrentSuperTileCol+i;
+			if (col >= gNumSuperTilesWide)											// check if off map
+				break;
+			if (col < 0)
+				continue;
+
+			superTileNum = gTerrainScrollBuffer[gCurrentSuperTileRow][col];			// get supertile for that spot
+			if (superTileNum != EMPTY_SUPERTILE)
+			{
+				ReleaseSuperTileObject(superTileNum);						 		// free the supertile
+				gTerrainScrollBuffer[gCurrentSuperTileRow][col] = EMPTY_SUPERTILE;
+			}
+		}
+	}
+
+
+		/* CREATE NEW BOTTOM ROW */
+
+	superRow += SUPERTILE_DIST_DEEP-1;		 				   				// calc row # of bottom supertile row
+	tileRow = superRow * SUPERTILE_SIZE;  									// calc row # of bottom tile row
+
+	if (superRow >= gNumSuperTilesDeep)										// see if off map
+		return;
+	if (superRow < 0)
+		return;
+
+	tileCol = gCurrentSuperTileCol * SUPERTILE_SIZE;						// calc col # bot left tile col
+
+	for (col = gCurrentSuperTileCol; col < (gCurrentSuperTileCol + SUPERTILE_DIST_WIDE); col++)
+	{
+		if (col >= gNumSuperTilesWide)
+			goto check_items;
+		if (col < 0)
+			goto next;
+
+		if (gTerrainScrollBuffer[superRow][col] == EMPTY_SUPERTILE)					// see if something is already there
+		{
+			if ((tileCol >= 0) && (tileCol < gTerrainTileWidth))
+			{
+				superTileNum = BuildTerrainSuperTile(tileCol,tileRow); 					// make new terrain object
+				gTerrainScrollBuffer[superRow][col] = superTileNum;						// save into scroll buffer array
+			}
+		}
+next:
+		tileCol += SUPERTILE_SIZE;
+	}
+
+check_items:
+
+			/* ADD ITEMS ON BOTTOM */
+
+	bottom = superRow+ITEM_WINDOW_NEAR;
+	left = superCol-ITEM_WINDOW_LEFT;
+	right = superCol+SUPERTILE_DIST_WIDE-1+ITEM_WINDOW_RIGHT;
+
+	if (left < 0)
+		left = 0;
+	else
+	if (left >= gNumSuperTilesWide)
+		return;
+
+	if (right < 0)
+		return;
+	if (right >= gNumSuperTilesWide)
+		right = gNumSuperTilesWide-1;
+
+	if (bottom >= gNumSuperTilesDeep)
+		return;
+	if (bottom < 0)
+		return;
+
+	ScanForPlayfieldItems(bottom,bottom,left,right);
+}
+
+
+/********************** SCROLL TERRAIN DOWN *************************/
+//
+// INPUT: superRow = new supertile row #
+//
+
+static void ScrollTerrainDown(long superRow, long superCol)
+{
+long	col,i,row,top,left,right;
+short	superTileNum;
+long	tileRow,tileCol;
+
+
+			/* PURGE OLD BOTTOM ROW */
+
+	row = gCurrentSuperTileRow+SUPERTILE_DIST_DEEP-1;						// calc supertile row # for bottom row
+
+	if ((row < gNumSuperTilesDeep) && (row >= 0))							// check if off map
+	{
+		for (i = 0; i < SUPERTILE_DIST_WIDE; i++)
+		{
+			col = gCurrentSuperTileCol+i;
+			if (col >= gNumSuperTilesWide)									// check if off map
+				break;
+			if (col < 0)
+				continue;
+
+			superTileNum = gTerrainScrollBuffer[row][col];					// get supertile for that spot
+			if (superTileNum != EMPTY_SUPERTILE)
+			{
+				ReleaseSuperTileObject(superTileNum);	  						// free the terrain object
+				gTerrainScrollBuffer[row][col] = EMPTY_SUPERTILE;
+			}
+		}
+	}
+
+
+				/* CREATE NEW TOP ROW */
+
+	if (superRow < 0) 														// see if off map
+		return;
+	if (superRow >= gNumSuperTilesDeep)
+		return;
+
+	tileCol = gCurrentSuperTileCol * SUPERTILE_SIZE;						// calc col # bot left tile col
+	tileRow = superRow * SUPERTILE_SIZE;  									// calc col # bot left tile col
+
+	for (col = gCurrentSuperTileCol; col < (gCurrentSuperTileCol + SUPERTILE_DIST_WIDE); col++)
+	{
+		if (col >= gNumSuperTilesWide)										// see if off map
+			goto check_items;
+		if (col < 0)
+			goto next;
+
+		if (gTerrainScrollBuffer[superRow][col] == EMPTY_SUPERTILE)					// see if something is already there
+		{
+			if ((tileCol >= 0) && (tileCol < gTerrainTileWidth))
+			{
+				superTileNum = BuildTerrainSuperTile(tileCol,tileRow); 				// make new terrain object
+				gTerrainScrollBuffer[superRow][col] = superTileNum;					// save into scroll buffer array
+			}
+		}
+next:
+		tileCol += SUPERTILE_SIZE;
+	}
+
+check_items:
+
+			/* ADD ITEMS ON TOP */
+
+	top = superRow-ITEM_WINDOW_FAR;
+	left = superCol-ITEM_WINDOW_LEFT;
+	right = superCol+SUPERTILE_DIST_WIDE-1+ITEM_WINDOW_RIGHT;
+
+	if (left < 0)
+		left = 0;
+	else
+	if (left >= gNumSuperTilesWide)
+		return;
+
+	if (right < 0)
+		return;
+	else
+	if (right >= gNumSuperTilesWide)
+		right = gNumSuperTilesWide-1;
+
+	if (top >= gNumSuperTilesDeep)
+		return;
+	if (top < 0)
+		return;
+
+	ScanForPlayfieldItems(top,top,left,right);
+
+}
+
+
+/********************** SCROLL TERRAIN LEFT *************************/
+//
+// Assumes gCurrentSuperTileCol & gCurrentSuperTileRow are in current positions, will do gCurrentSuperTileCol++ at end of routine.
+//
+
+static void ScrollTerrainLeft(void)
+{
+long	row,top,bottom,right;
+short	superTileNum;
+long 	tileCol,tileRow,newSuperCol;
+long	bottomRow;
+
+	bottomRow = gCurrentSuperTileRow + SUPERTILE_DIST_DEEP;								// calc bottom row (+1)
+
+
+			/* PURGE OLD LEFT COL */
+
+	if ((gCurrentSuperTileCol < gNumSuperTilesWide) && (gCurrentSuperTileCol >= 0))		// check if on map
+	{
+		for (row = gCurrentSuperTileRow; row < bottomRow; row++)
+		{
+			if (row >= gNumSuperTilesDeep)												// check if off map
+				break;
+			if (row < 0)
+				continue;
+
+			superTileNum = gTerrainScrollBuffer[row][gCurrentSuperTileCol]; 			// get supertile for that spot
+			if (superTileNum != EMPTY_SUPERTILE)
+			{
+				ReleaseSuperTileObject(superTileNum);									// free the terrain object
+				gTerrainScrollBuffer[row][gCurrentSuperTileCol] = EMPTY_SUPERTILE;
+			}
+		}
+	}
+
+
+		/* CREATE NEW RIGHT COL */
+
+	newSuperCol = gCurrentSuperTileCol+SUPERTILE_DIST_WIDE;	   					// calc col # of right supertile col
+	tileCol = newSuperCol * SUPERTILE_SIZE; 		 							// calc col # of right tile col
+	tileRow = gCurrentSuperTileRow * SUPERTILE_SIZE;
+
+	if (newSuperCol >= gNumSuperTilesWide)										// see if off map
+		goto exit;
+	if (newSuperCol < 0)
+		goto exit;
+
+	for (row = gCurrentSuperTileRow; row < bottomRow; row++)
+	{
+		if (row >= gNumSuperTilesDeep)
+			break;
+		if (row < 0)
+			goto next;
+
+		if (gTerrainScrollBuffer[row][newSuperCol] == EMPTY_SUPERTILE)			// make sure nothing already here
+		{
+			superTileNum = BuildTerrainSuperTile(tileCol,tileRow); 				// make new terrain object
+			gTerrainScrollBuffer[row][newSuperCol] = superTileNum;				// save into scroll buffer array
+		}
+next:
+		tileRow += SUPERTILE_SIZE;
+	}
+
+check_items:
+
+			/* ADD ITEMS ON RIGHT */
+
+	top = gCurrentSuperTileRow-ITEM_WINDOW_FAR;
+	bottom = gCurrentSuperTileRow + (SUPERTILE_DIST_DEEP-1) + ITEM_WINDOW_NEAR;
+	right = newSuperCol+ITEM_WINDOW_RIGHT;
+
+	if (right < 0)
+		goto exit;
+	if (right >= gNumSuperTilesWide)
+		goto exit;
+
+	if (top < 0)
+		top = 0;
+//		goto exit;
+	else
+	if (top >= gNumSuperTilesDeep)
+		return;
+
+//	if (bottom >= gNumSuperTilesDeep)
+//		goto exit;
+	if (bottom < 0)
+		goto exit;
+
+	ScanForPlayfieldItems(top,bottom,right,right);
+	
+exit:
+    gCurrentSuperTileCol++;	
+}
+
+
+/********************** SCROLL TERRAIN RIGHT *************************/
+
+static void ScrollTerrainRight(long superCol, long superRow, long tileCol, long tileRow)
+{
+long	col,i,row;
+short	superTileNum;
+long	top,bottom,left;
+
+			/* PURGE OLD RIGHT ROW */
+
+	col = gCurrentSuperTileCol+SUPERTILE_DIST_WIDE-1;						// calc supertile col # for right col
+
+	if ((col < gNumSuperTilesWide) && (col >= 0))							// check if off map
+	{
+		for (i = 0; i < SUPERTILE_DIST_DEEP; i++)
+		{
+			row = gCurrentSuperTileRow+i;
+			if (row >= gNumSuperTilesDeep)									// check if off map
+				break;
+			if (row < 0)
+				continue;
+
+			superTileNum = gTerrainScrollBuffer[row][col];						// get terrain object for that spot
+			if (superTileNum != EMPTY_SUPERTILE)
+			{
+				ReleaseSuperTileObject(superTileNum);		 					// free the terrain object
+				gTerrainScrollBuffer[row][col] = EMPTY_SUPERTILE;
+			}
+		}
+	}
+
+		/* CREATE NEW LEFT ROW */
+
+	if (superCol < 0) 														// see if off map
+		return;
+	if (superCol >= gNumSuperTilesWide)
+		return;
+
+	for (row = gCurrentSuperTileRow; row < (gCurrentSuperTileRow + SUPERTILE_DIST_DEEP); row++)
+	{
+		if (row >= gNumSuperTilesDeep)										// see if off map
+			goto check_items;
+		if (row < 0)
+			goto next;
+
+		if (gTerrainScrollBuffer[row][superCol] == EMPTY_SUPERTILE)						// see if something is already there
+		{
+			if ((tileRow >= 0) && (tileRow < gTerrainTileDepth))
+			{
+				superTileNum = BuildTerrainSuperTile(tileCol,tileRow); 				// make new terrain object
+				gTerrainScrollBuffer[row][superCol] = superTileNum;					// save into scroll buffer array
+			}
+		}
+next:
+		tileRow += SUPERTILE_SIZE;
+	}
+
+			/* ADD ITEMS ON LEFT */
+
+check_items:
+	top = superRow-ITEM_WINDOW_FAR;
+	bottom = superRow + (SUPERTILE_DIST_DEEP-1)+ITEM_WINDOW_NEAR;
+	left = superCol-ITEM_WINDOW_LEFT;
+
+	if (left < 0)
+		return;
+	if (left >= gNumSuperTilesWide)
+		return;
+
+	if (top >= gNumSuperTilesDeep)
+		return;
+	if (top < 0)
+		top = 0;
+
+//	if (bottom >= gNumSuperTilesDeep)
+//		bottom = gNumSuperTilesDeep-1;
+	if (bottom < 0)
+		return;
+
+	ScanForPlayfieldItems(top,bottom,left,left);
+}
+
+
+/**************** PRIME INITIAL TERRAIN ***********************/
+
+void PrimeInitialTerrain(void)
+{
+long	i,w;
+
+	w = SUPERTILE_DIST_WIDE+ITEM_WINDOW_LEFT+1;
+
+	gCurrentSuperTileCol -= w;								// start left and scroll into position
+
+	for (i=0; i < w; i++)
+	{
+		ScrollTerrainLeft();
+		CalcNewItemDeleteWindow();							// recalc item delete window
+	}
+}
+
+#if 0
+/***************** MOVE A SUPERTILE ******************/
+//
+// The Supertile Move routine is soley used to check for tile animation!
+//
+// INPUT: gThisNodePtr = ptr to supertile
+//
+
+static void MoveASuperTile(void)
+{
+long	 	row,col,rowDiff,startRow,startCol;
+short		superTileNum;
+ObjNode 	*theNode;
+POLY_FT3	*polyPtr;
+u_short		texMapNum,tile,flipRotBits;
+short		frame,*framePtr,i;
+
+
+	theNode = gThisNodePtr;
+	superTileNum = theNode->SuperTileMemoryIndex;								// find memory block for the data
+
+	startRow = gSuperTileMemoryList[superTileNum].row;							// get row/col of tiles
+	startCol = gSuperTileMemoryList[superTileNum].col;
+
+	polyPtr = (POLY_FT3 *)theNode->PrimPtr[gCurrentPage];					// point to current polygon list
+
+
+				/*********************************/
+				/*  SCAN FOR TILES THAT ANIMATE  */
+				/*********************************/
+
+	for (row = startRow; row < (startRow + SUPERTILE_SIZE); row++)
+	{
+		for (col = startCol; col < (startCol + SUPERTILE_SIZE); col++)
+		{
+			tile = gTerrainTextureLayer[row][col];						// get macro-tile data from map
+
+			texMapNum = tile&TILENUM_MASK; 									// filter out texture #
+			if (!gQuickTileAnimListPtr[texMapNum])							// see if this is an animating tile
+			{
+				polyPtr+=2;    												// nope, skip
+				continue;
+			}
+
+					/* WE FOUND ONE THAT ANIMATES */
+
+			flipRotBits = tile&(TILE_FLIPXY_MASK|TILE_ROTATE_MASK);			// get flip & rotate bits
+
+			for (i=0; i < gNumTileAnims; i++)								// scan for correct TILE_ANIM_ENTRY
+				if (*gTileAnimEntryList[i] == texMapNum)					// check for matching baseTile #
+					goto found_match;
+			DoAlert("\pNo TILE_ANIM_ENTRY found!");
+			continue;
+
+found_match:
+
+			if (gTileAnimChangedFlag[i] == TILE_ANIM_STATE_NONE)			// see if changed since last time
+			{
+				polyPtr += 2;    											// nope, skip
+				continue;
+			}
+
+			frame = gTileAnimIndex[i];										// get frame index
+			framePtr = gTileAnimEntryList[i];
+			framePtr += 3 + frame;											// calc ptr to current frame's tile #
+			texMapNum = *framePtr;
+
+			if (texMapNum >= gNumTerrainTextureTiles)						// see if illegal tile #
+				DoFatalAlert("Illegal tile# in tile animation:",texMapNum);
+
+
+					/* CHANGE THIS POLYGON'S INFO */
+
+			if (gSuperTileMemoryList[superTileNum].splitAngle[row-startRow][col-startCol])
+				SetTileUVCoords_SplitB(texMapNum,flipRotBits, polyPtr, polyPtr);
+			else
+				SetTileUVCoords_SplitA(texMapNum,flipRotBits, polyPtr, polyPtr);
+
+			polyPtr += 2;
+   		}
+ 	}
+ }
+#endif 
+ 
+
+/***************** GET TILE ATTRIBS ******************/
+//
+// Given a world x/z coord, return the attribs there
+// NOTE: does it by calculating the row/col and then calling other routine.
+//
+// INPUT: x/z = world coords in INTEGER format
+//
+// OUTPUT: attribs
+//
+
+u_short	GetTileAttribs(long x, long z)
+{
+long	row,col;
+
+	if ((x < 0) || (z < 0))										// see if out of bounds
+		return(0);
+	if ((x >= gTerrainUnitWidth) || (z >= gTerrainUnitDepth))
+		return(0);
+
+	col = x/TERRAIN_POLYGON_SIZE;	 							// calc map row/col that the coord lies on
+	row = z/TERRAIN_POLYGON_SIZE;
+
+	return(GetTileAttribsAtRowCol(row,col));
+ }
+
+
+
+/******************** GET TILE ATTRIBS AT ROW COL *************************/
+//
+// OUTPUT: 	attrib bits
+//			gTileAttribParm0..2 = tile attribs
+//  		gTileFlipRotBits = flip/rot bits of tile
+//
+
+u_short	GetTileAttribsAtRowCol(short row, short col)
+{
+u_short	tile,texMapNum,attribBits;
+
+	tile = gTerrainTextureLayer[row][col];						// get tile data from map
+	texMapNum = tile&TILENUM_MASK; 										// filter out texture #
+	gTileFlipRotBits = tile&(TILE_FLIPXY_MASK|TILE_ROTATE_MASK);		// get flip & rotate bits
+
+	attribBits = gTileAttributes[texMapNum].bits;				// get attribute bits
+	gTileAttribParm0 = gTileAttributes[texMapNum].parm0;		// and parameters
+	gTileAttribParm1 = gTileAttributes[texMapNum].parm1;
+	gTileAttribParm2 = gTileAttributes[texMapNum].parm2;
+
+
+	return(attribBits);
+}
+
+
+
+/******************** GET TILE COLLISION BITS AT ROW COL *************************/
+//
+// Reads the tile on the *** PATH *** layer and converts it into a top/bottom/left/right bit field.
+//
+
+u_short	GetTileCollisionBitsAtRowCol(short row, short col)
+{
+u_short	tile;
+
+	tile = gTerrainPathLayer[row][col];						// get path data from map
+	tile = tile&TILENUM_MASK;							   		// filter out tile # 
+	if (tile == 0)
+		return(0);
+
+	switch(tile)
+	{
+	 	case	PATH_TILE_SOLID_ALL:
+				return(SIDE_BITS_TOP|SIDE_BITS_BOTTOM|SIDE_BITS_LEFT|SIDE_BITS_RIGHT);
+
+		case	PATH_TILE_SOLID_TOP:
+				return(SIDE_BITS_TOP);
+
+		case	PATH_TILE_SOLID_RIGHT:
+				return(SIDE_BITS_RIGHT);
+
+		case	PATH_TILE_SOLID_BOTTOM:
+				return(SIDE_BITS_BOTTOM);
+
+		case	PATH_TILE_SOLID_LEFT:
+				return(SIDE_BITS_LEFT);
+
+		case	PATH_TILE_SOLID_TOPBOTTOM:
+				return(SIDE_BITS_TOP|SIDE_BITS_BOTTOM);
+
+		case	PATH_TILE_SOLID_LEFTRIGHT:
+				return(SIDE_BITS_LEFT|SIDE_BITS_RIGHT);
+
+		case	PATH_TILE_SOLID_TOPRIGHT:
+				return(SIDE_BITS_TOP|SIDE_BITS_RIGHT);
+
+		case	PATH_TILE_SOLID_BOTTOMRIGHT:
+				return(SIDE_BITS_BOTTOM|SIDE_BITS_RIGHT);
+
+		case	PATH_TILE_SOLID_BOTTOMLEFT:
+				return(SIDE_BITS_BOTTOM|SIDE_BITS_LEFT);
+
+		case	PATH_TILE_SOLID_TOPLEFT:
+				return(SIDE_BITS_TOP|SIDE_BITS_LEFT);
+
+		case	PATH_TILE_SOLID_TOPLEFTRIGHT:
+				return(SIDE_BITS_TOP|SIDE_BITS_LEFT|SIDE_BITS_RIGHT);
+
+		case	PATH_TILE_SOLID_TOPRIGHTBOTTOM:
+				return(SIDE_BITS_TOP|SIDE_BITS_RIGHT|SIDE_BITS_BOTTOM);
+
+		case	PATH_TILE_SOLID_BOTTOMLEFTRIGHT:
+				return(SIDE_BITS_BOTTOM|SIDE_BITS_LEFT|SIDE_BITS_RIGHT);
+
+		case	PATH_TILE_SOLID_TOPBOTTOMLEFT:
+				return(SIDE_BITS_TOP|SIDE_BITS_LEFT|SIDE_BITS_BOTTOM);
+	}
+
+	return(0);
+}
+
+
+/******************** GET TILE COLLISION BITS AT ROW COL 2 *************************/
+//
+// Version #2 here uses the secondary collision tiles.  It's used for special purposes like
+// the hovercraft in LA to keep in w/in the water area.
+//
+
+u_short	GetTileCollisionBitsAtRowCol2(short row, short col)
+{
+u_short	tile;
+
+	tile = gTerrainPathLayer[row][col];						// get path data from map
+	tile = tile&TILENUM_MASK; 							  		// filter out tile #
+	if (tile == 0)
+		return(0);
+
+	switch(tile)
+	{
+	 	case	PATH_TILE_SOLID_ALL2:
+				return(SIDE_BITS_TOP|SIDE_BITS_BOTTOM|SIDE_BITS_LEFT|SIDE_BITS_RIGHT);
+
+		case	PATH_TILE_SOLID_TOP2:
+				return(SIDE_BITS_TOP);
+
+		case	PATH_TILE_SOLID_RIGHT2:
+				return(SIDE_BITS_RIGHT);
+
+		case	PATH_TILE_SOLID_BOTTOM2:
+				return(SIDE_BITS_BOTTOM);
+
+		case	PATH_TILE_SOLID_LEFT2:
+				return(SIDE_BITS_LEFT);
+
+		case	PATH_TILE_SOLID_TOPBOTTOM2:
+				return(SIDE_BITS_TOP|SIDE_BITS_BOTTOM);
+
+		case	PATH_TILE_SOLID_LEFTRIGHT2:
+				return(SIDE_BITS_LEFT|SIDE_BITS_RIGHT);
+
+		case	PATH_TILE_SOLID_TOPRIGHT2:
+				return(SIDE_BITS_TOP|SIDE_BITS_RIGHT);
+
+		case	PATH_TILE_SOLID_BOTTOMRIGHT2:
+				return(SIDE_BITS_BOTTOM|SIDE_BITS_RIGHT);
+
+		case	PATH_TILE_SOLID_BOTTOMLEFT2:
+				return(SIDE_BITS_BOTTOM|SIDE_BITS_LEFT);
+
+		case	PATH_TILE_SOLID_TOPLEFT2:
+				return(SIDE_BITS_TOP|SIDE_BITS_LEFT);
+
+		case	PATH_TILE_SOLID_TOPLEFTRIGHT2:
+				return(SIDE_BITS_TOP|SIDE_BITS_LEFT|SIDE_BITS_RIGHT);
+
+		case	PATH_TILE_SOLID_TOPRIGHTBOTTOM2:
+				return(SIDE_BITS_TOP|SIDE_BITS_RIGHT|SIDE_BITS_BOTTOM);
+
+		case	PATH_TILE_SOLID_BOTTOMLEFTRIGHT2:
+				return(SIDE_BITS_BOTTOM|SIDE_BITS_LEFT|SIDE_BITS_RIGHT);
+
+		case	PATH_TILE_SOLID_TOPBOTTOMLEFT2:
+				return(SIDE_BITS_TOP|SIDE_BITS_LEFT|SIDE_BITS_BOTTOM);
+	}
+
+	return(0);
+}
+
+/**************** INIT TILE ANIMS ***************/
+//
+// Initializes the tile anim counter (for speed) & the anim index which
+// determines which frame we're on
+//
+
+void InitTileAnims(void)
+{
+short	i;
+
+	for (i=0; i < MAX_TILE_ANIMS; i++)
+	{
+		gTileAnimCounter[i] = 0x100;
+		gTileAnimIndex[i] = 0;
+		gTileAnimChangedFlag[i] = false;
+	}
+}
+
+/**************** UPDATE TILE ANIMS ******************/
+//
+// Checks all TILE_ANIM_ENTRIES for things which change this frame
+// Call this routine once per main loop
+//
+
+static void UpdateTileAnims(void)
+{
+static short	i,*entryPtr,numFrames,animSpeed;
+
+	for (i = 0; i < gNumTileAnims; i++)
+	{
+		entryPtr = gTileAnimEntryList[i] + 1;					// skip base tile #
+		numFrames = *entryPtr++;
+		animSpeed = *entryPtr++;
+
+		gTileAnimCounter[i] -= animSpeed;
+		if (gTileAnimCounter[i] <= 0)    						// see if timed out to next frame
+		{
+			gTileAnimChangedFlag[i] = TILE_ANIM_STATE_DOIT;		// set to do 1st buffer
+			gTileAnimCounter[i] += 0x100;						// reset counter
+			if (++gTileAnimIndex[i] >= numFrames)				// see if loop back to beginning
+				gTileAnimIndex[i] = 0;
+		}
+		else
+		if (gTileAnimChangedFlag[i] != TILE_ANIM_STATE_NONE)
+			gTileAnimChangedFlag[i]--;							// dec to next state (TILE_ANIM_STATE_NONE or TILE_ANIM_STATE_DOAGAIN)
+	}
+}
+
+
+/**************** SEE IF SUPERTILE IN CONE OF VISION *******************/
+//
+// Returns false if is not in current camera's cone of vision.
+//
+
+static Boolean SeeIfSuperTileInConeOfVision(short superTileNum)
+{
+float				w1,w2;
+float				rx,ry,px,py;
+TQ3Point3D			points[2];					// [0] = point, [1] = radius
+TQ3RationalPoint4D	outPoint4D[2];
+TQ3Point3D			tempPoint;
+	
+	tempPoint.x = (gSuperTileMemoryList[superTileNum].col * TERRAIN_POLYGON_SIZE) + (TERRAIN_SUPERTILE_UNIT_SIZE/2);
+	tempPoint.z = (gSuperTileMemoryList[superTileNum].row * TERRAIN_POLYGON_SIZE) + (TERRAIN_SUPERTILE_UNIT_SIZE/2);
+	tempPoint.y = 128*HEIGHT_EXTRUDE_FACTOR;
+	Q3Point3D_Transform(&tempPoint, &gCameraWorldToViewMatrix, &points[0]);// calc world coord of object
+				
+				
+				/* SEE IF BEHIND CAMERA */
+				
+	if (points[0].z >= -HITHER_DISTANCE)									
+	{
+		if ((points[0].z - gSuperTileRadius) > -HITHER_DISTANCE)							// is entire sphere behind camera?
+			goto draw_off;
+			
+				/* PARTIALLY BEHIND */
+				
+		points[0].z -= gSuperTileRadius;													// move edge over hither plane so cone calc will work
+	}
+	else
+	{
+			/* SEE IF BEYOND YON PLANE */
+		
+		if ((points[0].z + gSuperTileRadius) < (-YON_DISTANCE))							// see if too far away
+			goto draw_off;
+	}
+
+			/*****************************/
+			/* SEE IF WITHIN VISION CONE */
+			/*****************************/
+
+	points[1].x = points[1].y = gSuperTileRadius;
+	points[1].z = points[0].z;	
+	
+	Q3Point3D_To4DTransformArray(&points[0],&gCameraViewToFrustumMatrix,
+								&outPoint4D[0],	2,sizeof(TQ3Point3D),
+								sizeof(TQ3RationalPoint4D));
+	
+	
+	w1 = outPoint4D[0].w;
+	w2 = outPoint4D[1].w;
+	
+	px = w1*outPoint4D[0].x;
+	py = w1*outPoint4D[0].y;
+	rx = w2*outPoint4D[1].x;
+	ry = w2*outPoint4D[1].y;
+
+	if ((px + rx) < -1)						// see if sphere "would be" out of bounds
+		goto draw_off;
+	if ((px - rx) > 1)
+		goto draw_off;
+	
+	if ((py + ry) < -1)						
+		goto draw_off;
+	if ((py - ry) > 1)
+		goto draw_off;
+				
+draw_on:
+	return(true);
+
+draw_off:
+	return(false);
+}
+
+
+
+
+
+
+/************************** EXTRACT TILE DATA ****************************/
+//
+// Called after a tileset is loaded to extract important tile data before
+// the file is purged.
+//
+
+void ExtractTileData(void)
+{
+Ptr		tileDataPtr;
+short	i;
+
+	tileDataPtr = (Ptr)gTileDataPtr;
+
+		/*****************************/
+		/* CONVERT TILES TO TEXTURES */
+		/*****************************/
+
+	if (gNumTerrainTextureTiles > MAX_TILES)
+		DoFatalAlert("\pgNumTerrainTextureTiles > MAX_TILES");
+
+	for (i = 0; i < gNumTerrainTextureTiles; i++)
+	{
+		gTileTextures[i] = QD3D_Data16ToTexture_NoMip(tileDataPtr, OREOMAP_TILE_SIZE, OREOMAP_TILE_SIZE);
+		tileDataPtr += OREOMAP_TILE_SIZE * OREOMAP_TILE_SIZE;
+	}
+}
+
+
+
