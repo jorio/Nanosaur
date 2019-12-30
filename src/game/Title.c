@@ -344,90 +344,6 @@ static void MovePangeaLogoPart(ObjNode *theNode)
 }
 
 
-#if CHARITY_VERSION
-/*************** SHOW CHARITY **********************/
-//
-// Shows actual charity info
-//
-
-void ShowCharity(void)
-{
-//PicHandle	pic;
-//Rect		r;
-FSSpec	spec;
-Handle	versionHand;
-VersRec	*vers;
-
-			/* DO PAGE 1 */
-
-	FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":images:Charity1.pict", &spec);	
-    DrawPictureToScreen(&spec, 0,0);
-
-//	pic = LoadAPict(&spec);
-//	SetPort(gCoverWindow);
-//	SetRect(&r,0,0,GAME_VIEW_WIDTH,GAME_VIEW_HEIGHT);
-//	DrawPicture(pic, &r);	
-//	DisposeHandle((Handle)pic);
-	ReadKeyboard();
-	
-			/* print version string */
-			
-	versionHand = GetResource('vers',1);								// load vers rez
-	if (versionHand)
-	{
-		HLock(versionHand);
-		vers = (VersRec *)*versionHand;
-		
-		MoveTo(8,10);
-		TextSize(9);
-		ForeColor(whiteColor);
-		DrawString(vers->shortVersion);
-		ReleaseResource(versionHand);
-	}
-	
-	do
-	{
-		ReadKeyboard();
-		DoSoundMaintenance();
-	}while(!(gNewKeys_Real[0] || gNewKeys_Real[1] ||  gNewKeys_Real[2] || gNewKeys_Real[3]));
-
-			/* DO PAGE 2 */
-
-	FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":images:Boot2.pict", &spec);		// load next page
-    DrawPictureToScreen(&spec, 0,0);
-
-//	pic = LoadAPict(&spec);			
-//	DrawPicture(pic, &r);	
-//	DisposeHandle((Handle)pic);
-	ReadKeyboard();
-	
-	
-	do
-	{
-		ReadKeyboard();
-		DoSoundMaintenance();
-	}while(!(gNewKeys_Real[0] || gNewKeys_Real[1] ||  gNewKeys_Real[2] || gNewKeys_Real[3]));
-
-			/* DO PAGE 3 */
-			
-	FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":images:Charity3.pict", &spec);		// load next page
-    DrawPictureToScreen(&spec, 0,0);
-//	pic = LoadAPict(&spec);
-//	DrawPicture(pic, &r);	
-//	DisposeHandle((Handle)pic);
-	ReadKeyboard();
-	
-	do
-	{
-		ReadKeyboard();
-		DoSoundMaintenance();
-	}while(!(gNewKeys_Real[0] || gNewKeys_Real[1] ||  gNewKeys_Real[2] || gNewKeys_Real[3]));
-
-	GammaFadeOut();
-}
-
-#else
-
 /*************** SHOW CHARITY **********************/
 //
 // OEM non-charity version
@@ -475,7 +391,6 @@ FSSpec	spec;
 	GammaFadeOut();
 }
 
-#endif
 
 /*************** SHOW HELP **********************/
 
