@@ -22,7 +22,9 @@ extern	WindowPtr	gCoverWindow;
 /*    PROTOTYPES            */
 /****************************/
 
+#if 0
 static Movie GetMovie(FSSpec *spec);
+#endif
 
 /****************************/
 /*    CONSTANTS             */
@@ -41,6 +43,7 @@ static Movie GetMovie(FSSpec *spec);
 
 void InitQuickTime(void)
 {
+#if 0
 OSErr	iErr;
 long	theResult;
 
@@ -50,6 +53,7 @@ long	theResult;
 	if(iErr != noErr)
 
 		DoFatalAlert("You must have QuickTime 3.0 or newer installed for this program to run.");
+#endif
 
 
 }
@@ -59,6 +63,9 @@ long	theResult;
 
 void PlayAMovie(FSSpec *spec)
 {
+#if 1
+	TODO2(Pascal2C(spec->name));
+#else
 Movie	aMovie;
 Rect	movieBox;
 Size	size;
@@ -105,11 +112,13 @@ OSErr	iErr;
 			/* QUIT QUICKTIME */
 			
 	ExitMovies();
+#endif
 }
 
 
 /***************** GET MOVIE ***************************/
 
+#if 0
 static Movie GetMovie(FSSpec *spec)
 {
 OSErr	err;
@@ -132,6 +141,7 @@ Boolean	wasChanged;
 	
 	return(aMovie);
 }
+#endif
 
 
 

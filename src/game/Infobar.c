@@ -331,8 +331,6 @@ long	width;
 Rect	r;
 static const RGBColor	color = {0x9000,0,0x0800};
 
-	SetPort(gCoverWindow);
-
 			/* GET MY HEALTH */
 			
 	health = gMyHealth;
@@ -348,6 +346,11 @@ static const RGBColor	color = {0x9000,0,0x0800};
 	r.top = HEALTH_METER_Y;
 	r.bottom = r.top + HEALTH_METER_HEIGHT;
 
+#if 1
+	TODO();
+#else
+	SetPort(gCoverWindow);
+
 	RGBForeColor(&color);
 	PaintRect(&r);
 
@@ -358,6 +361,7 @@ static const RGBColor	color = {0x9000,0,0x0800};
 	r.right = HEALTH_METER_X+HEALTH_METER_WIDTH;
 	PaintRect(&r);
 	
+#endif
 }
 
 
@@ -590,6 +594,10 @@ static TQ3Point3D				points[4] = {-GPS_DISPLAY_SIZE,GPS_DISPLAY_SIZE,0,
 	if (pict == nil)
 		DoFatalAlert("InitGPSMap: Cannot Get map image!");
 	
+#if 1
+	TODOFATAL();
+	return;
+#else
 	r = (*pict)->picFrame;													// get size of PICT
 	myErr = NewGWorld(&gGPSFullImage, 16, &r, 0, 0, 0L);					// make gworld
 	if (myErr)
@@ -615,6 +623,7 @@ static TQ3Point3D				points[4] = {-GPS_DISPLAY_SIZE,GPS_DISPLAY_SIZE,0,
 	FrameRect(&r);
 	SetGWorld (oldGW, oldGD);
 
+#endif
 
 		/* CREATE THE QD3D SHADER OBJECT */
 		
@@ -727,6 +736,9 @@ TQ3Status			status;
 	
 	if ((x != gOldGPSCoordX) || (y != gOldGPSCoordY) || forceUpdate)
 	{
+#if 1
+		TODOMINOR();
+#else
 		long	w,h;
 
 				/* COPY VISIBLE SECTION OF GWORLD */
@@ -848,6 +860,7 @@ TQ3Status			status;
 	
 		gOldGPSCoordX = x;
 		gOldGPSCoordY = y;
+#endif
 	}
 	
 	

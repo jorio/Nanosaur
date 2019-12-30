@@ -118,9 +118,11 @@ static	Boolean beenHere = false;
 //		SetDefaultOutputVolume((gOriginalSystemVolume<<16)|gOriginalSystemVolume); // reset system volume
 
 		TurnOffISp();
+#if 0
 		CleanupDisplay();								// unloads Draw Sprocket
 		
 		ISpStop();										// unload input sprocket		
+#endif
 		if (gQD3DInitialized)
 			Q3Exit();
 	}
@@ -400,6 +402,7 @@ Byte	pLength,i;
 }
 
 
+#if 0
 /***************** DRAW C STRING ********************/
 
 void DrawCString(char *string)
@@ -407,6 +410,7 @@ void DrawCString(char *string)
 	while(*string != 0x00)
 		DrawChar(*string++);
 }
+#endif
 
 #pragma mark -
 
@@ -414,6 +418,7 @@ void DrawCString(char *string)
 
 void VerifySystem(void)
 {
+#if 0
 OSErr	iErr;
 NumVersion	nVers;
 long		createdDirID;
@@ -517,6 +522,10 @@ void ApplyFrictionToDeltas(float f,TQ3Vector3D *d)
 
 OSErr DrawPictureIntoGWorld(FSSpec *myFSSpec, GWorldPtr *theGWorld)
 {
+#if 1
+	TODOMINOR();
+	return unimpErr;
+#else
 OSErr						iErr;
 GraphicsImportComponent		gi;
 Rect						r;
@@ -561,6 +570,7 @@ ComponentResult				result;
 		DisposeGWorld (*theGWorld);
 		return(result);
 	}
+#endif
 	return(noErr);
 }
 
@@ -574,6 +584,10 @@ ComponentResult				result;
 
 OSErr DrawPictureToScreen(FSSpec *myFSSpec, short x, short y)
 {
+#if 1
+	TODOMINOR();
+	return unimpErr;
+#else
 OSErr						iErr;
 GraphicsImportComponent		gi;
 Rect						r;
@@ -631,6 +645,7 @@ GWorldPtr                   gworld;
 	DisposeGWorld(gworld);
 
 	return(noErr);
+#endif
 }
 
 

@@ -102,6 +102,7 @@ OSErr		iErr;
 
  	MaxApplZone();
 	MoreMasters();	MoreMasters();
+#if 0
 	InitGraf(&qd.thePort);
 	FlushEvents ( everyEvent, REMOVE_ALL_EVENTS);
 	InitFonts();
@@ -110,6 +111,7 @@ OSErr		iErr;
 	InitCursor();
 	InitMenus();
 	TEInit();
+#endif
 	
 	CompactMem(maxSize);								// just do this to be clean
 	CompactMemSys(maxSize);
@@ -437,7 +439,9 @@ unsigned long	someLong;
 				
 	ToolBoxInit();
  	 		 	 		
+#if 0
 	InitWindowStuff();
+#endif
  	InitInput();
 
 			/* SEE IF REGISTERED */

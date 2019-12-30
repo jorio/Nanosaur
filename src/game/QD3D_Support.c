@@ -170,7 +170,7 @@ TQ3Vector3D			fillDirection2 = { -1, -1, .2 };
 	viewDef->lights.useFog = true;
 	viewDef->lights.fogHither = .4;
 	viewDef->lights.fogYon = 1.0;
-	viewDef->lights.fogMode = kQATIFogLinear;
+	TODOMINOR2("viewDef->lights.fogMode = kQATIFogLinear;");
 
 }
 
@@ -315,11 +315,15 @@ TQ3Uns32	hints;
 		
 		/* SET RENDERER FEATURES */
 		
+#if 1
+	TODOMINOR2("RAVE Context Hints");
+#else
 	Q3InteractiveRenderer_GetRAVEContextHints(gQD3D_RendererObject, &hints);
 	hints &= ~kQAContext_NoZBuffer; 				// Z buffer is on 
 	hints &= ~kQAContext_DeepZ; 					// shallow z
 	hints &= ~kQAContext_NoDither; 					// yes-dither
 	Q3InteractiveRenderer_SetRAVEContextHints(gQD3D_RendererObject, hints);	
+#endif
 	
 	Q3InteractiveRenderer_SetRAVETextureFilter(gQD3D_RendererObject,kQATextureFilter_Fast);	// texturing
 	Q3InteractiveRenderer_SetDoubleBufferBypass(gQD3D_RendererObject,kQ3True);
@@ -330,6 +334,9 @@ TQ3Uns32	hints;
 
 static void CreateDrawContext(QD3DViewDefType *viewDefPtr)
 {
+#if 1
+	TODO();
+#else
 TQ3DrawContextData		drawContexData;
 TQ3MacDrawContextData	myMacDrawContextData;
 Rect					r;
@@ -377,6 +384,7 @@ Rect					r;
 	gQD3D_DrawContext = Q3MacDrawContext_New(&myMacDrawContextData);
 	if (gQD3D_DrawContext == nil)
 		DoFatalAlert("Q3MacDrawContext_New Failed!");
+#endif
 }
 
 
@@ -384,6 +392,9 @@ Rect					r;
 
 static void CreateDrawContext_Pixmap(QD3DViewDefType *viewDefPtr)
 {
+#if 1
+	TODO();
+#else
 TQ3DrawContextData			drawContexData;
 TQ3PixmapDrawContextData	myPixDrawContextData;
 Rect						r;
@@ -440,6 +451,7 @@ long					pixelSize;
 	gQD3D_DrawContext = Q3PixmapDrawContext_New(&myPixDrawContextData);
 	if (gQD3D_DrawContext == nil)
 		DoFatalAlert("Q3PixmapDrawContext_New Failed!");
+#endif
 }
 
 
@@ -523,8 +535,12 @@ QD3DCameraDefType 				*cameraDefPtr;
 	else
 	{
 		pane.min.x = pane.min.y = 0;
+#if 1
+		TODOFATAL();
+#else
 		pane.max.x = setupDefPtr->view.gworld->portRect.right;
 		pane.max.y = setupDefPtr->view.gworld->portRect.bottom;
+#endif
 	}
 
 
@@ -635,6 +651,9 @@ TQ3Status	myErr;
 
 void QD3D_ChangeDrawSize(QD3DSetupOutputType *setupInfo)
 {
+#if 1
+	TODO();
+#else
 Rect			r;
 TQ3Area			pane;
 TQ3ViewAngleAspectCameraData	cameraData;
@@ -666,6 +685,7 @@ TQ3Status		status;
 	status = Q3ViewAngleAspectCamera_SetData(setupInfo->cameraObject,&cameraData);			// set new camera data
 	if (status == kQ3Failure)
 		DoFatalAlert("Q3ViewAngleAspectCamera_SetData Failed!");		
+#endif
 }
 
 
@@ -1122,6 +1142,11 @@ err:
 
 TQ3SurfaceShaderObject	QD3D_PICTToTexture(PicHandle picture)
 {
+#if 1
+	TODO();
+	TQ3SurfaceShaderObject shader = nil;
+	return shader;
+#else
 TQ3Mipmap 				mipmap;
 TQ3TextureObject		texture;
 TQ3SurfaceShaderObject	shader;
@@ -1150,6 +1175,7 @@ long					width,height;
 	Q3Object_Dispose (mipmap.image);			// disposes of extra reference to storage obj
 
 	return(shader);	
+#endif
 }
 
 
@@ -1195,6 +1221,9 @@ TQ3SurfaceShaderObject		shader;
 
 static void DrawPICTIntoMipmap(PicHandle pict,long width, long height, TQ3Mipmap *mipmap)
 {
+#if 1
+	TODO();
+#else
 Rect 					rectGW;
 GWorldPtr 				pGWorld;
 PixMapHandle 			hPixMap;
@@ -1254,6 +1283,7 @@ short					depth;
 	SetGWorld (oldGW, oldGD);
 	UnlockPixels (hPixMap);
 	DisposeGWorld (pGWorld);
+#endif
 }
 
 
@@ -1268,6 +1298,9 @@ short					depth;
 
 void QD3D_GWorldToMipMap(GWorldPtr pGWorld, TQ3Mipmap *mipmap, Boolean pointToGWorld)
 {
+#if 1
+	TODO();
+#else
 unsigned long 			pictMapAddr;
 PixMapHandle 			hPixMap;
 unsigned long 			pictRowBytes;
@@ -1311,6 +1344,7 @@ short					depth;
 	mipmap->mipmaps[0].height = height;
 	mipmap->mipmaps[0].rowBytes = pictRowBytes;
 	mipmap->mipmaps[0].offset = 0;
+#endif
 }
 
 
@@ -1399,7 +1433,7 @@ Str255			s;
 		if (gFramesPerSecond < DEFAULT_FPS)			// (avoid divide by 0's later)
 			gFramesPerSecond = DEFAULT_FPS;
 	
-#if 1
+#if 0
 		if (GetKeyState_Real(KEY_F8))
 		{
 			RGBColor	color;
@@ -1696,7 +1730,7 @@ UInt32		*buffer,*pixelPtr,pixmapRowbytes,size,sizeRead;
 void QD3D_SetRaveFog(QD3DSetupOutputType *setupInfo, float fogHither, float fogYon, TQ3ColorARGB *fogColor, short fogMode)
 {
 #if 1
-	TODO();
+	TODOMINOR();
 #else
 OSErr		iErr;
 
@@ -1770,10 +1804,14 @@ OSErr		iErr;
 
 void QD3D_DisableFog(void)
 {
+#if 1
+	TODOMINOR();
+#else
 	if (!gRaveDrawContext)
 		return;
 
 	QASetInt(gRaveDrawContext, (TQATagInt)kATIFogMode, kQATIFogDisable);
+#endif
 }
 
 
@@ -1781,10 +1819,14 @@ void QD3D_DisableFog(void)
 
 void QD3D_ReEnableFog(void)
 {
+#if 1
+	TODOMINOR();
+#else
 	if (!gRaveDrawContext)
 		return;
 		
 	QASetInt(gRaveDrawContext, (TQATagInt)kATIFogMode, gFogMode);
+#endif
 }
 
 
@@ -1795,10 +1837,14 @@ void QD3D_SetTextureFilter(unsigned long textureMode)
 	if (!gGamePrefs.highQualityTextures)		// see if allow high quality
 		return;
 
+#if 1
+	TODOMINOR2("textureMode"<<textureMode);
+#else
 	if (!gRaveDrawContext)
 		return;
 
 	QASetInt(gRaveDrawContext, (TQATagInt)kQATag_TextureFilter, textureMode);
+#endif
 }
 
 
@@ -1810,10 +1856,14 @@ void QD3D_SetTextureFilter(unsigned long textureMode)
 
 void QD3D_SetTriangleCacheMode(Boolean isOn)
 {
+#if 1
+	TODOMINOR2(isOn);
+#else
 	if (!gRaveDrawContext)
 		return;
 
 	QASetInt(gRaveDrawContext, (TQATagInt)kATITriCache, isOn);
+#endif
 }	
 				
 
@@ -1824,11 +1874,15 @@ void QD3D_SetTriangleCacheMode(Boolean isOn)
 
 void QD3D_SetTextureWrapMode(int mode)
 {
+#if 1
+	TODOMINOR2("wrapMode"<<mode);
+#else
 	if (!gRaveDrawContext)
 		return;
 
 	QASetInt(gRaveDrawContext, kQATagGL_TextureWrapU, mode);
 	QASetInt(gRaveDrawContext, kQATagGL_TextureWrapV, mode);
+#endif
 }
 
 
@@ -1836,6 +1890,9 @@ void QD3D_SetTextureWrapMode(int mode)
 
 void QD3D_SetBlendingMode(int mode)
 {
+#if 1
+	TODOMINOR2("blendingMode"<<mode);
+#else
 	if (gATIis431)							// only do this for ATI driver version 4.30 or newer
 	{
 		if (!gRaveDrawContext)
@@ -1843,6 +1900,7 @@ void QD3D_SetBlendingMode(int mode)
 
 		QASetInt(gRaveDrawContext,kQATag_Blend, mode);
 	}
+#endif
 }
 
 

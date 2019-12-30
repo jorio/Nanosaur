@@ -148,11 +148,15 @@ do_again:
 		int w;
 		Str255	s = "Use the Arrow Keys to change the Selection.  Press the Spacebar to make a Selection.";
 		
+#if 1
+		TODOMINOR2("arrow keys text")
+#else
 		SetPort(gCoverWindow);
 		w = TextWidth(s, 0, s[0]);
 		MoveTo(320-(w/2), 478);
 		ForeColor(whiteColor);
 		DrawString(s);
+#endif
 	}
 
 
@@ -546,6 +550,9 @@ static void MoveMenuBG(ObjNode *theNode)
 
 static void DoQualityDialog(void)
 {
+#if 1
+	TODO();
+#else
 DialogPtr 		myDialog;
 short			itemType,itemHit;
 ControlHandle	itemHandle;

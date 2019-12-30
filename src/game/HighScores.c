@@ -345,7 +345,6 @@ ObjNode		*frameObj;
 TQ3Point3D	camPt = gGameViewInfoPtr->currentCameraCoords;
 float		camWobble = 0;
 short		i;
-EventRecord	theEvent;
 
 				/*********/
 				/* SETUP */
@@ -403,11 +402,17 @@ EventRecord	theEvent;
 				/* CHECK FOR KEY */
 				
 		ReadKeyboard();
+#if 1
+		TODO2("key down event");
+		break;
+#else
+		EventRecord	theEvent;
 		if (GetNextEvent(keyDownMask, &theEvent))		// see if keydown
 		{
 			TypeNewKey(theEvent.message & charCodeMask);
 			UpdateNameAndCursor(true,LEFT_EDGE,0,0);
 		}
+#endif
 		
 				/* MOVE CAMERA */
 				
