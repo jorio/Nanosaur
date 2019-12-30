@@ -30,7 +30,6 @@ extern	unsigned long gOriginalSystemVolume;
 extern	short		gMainAppRezFile;
 extern	Boolean		gGameOverFlag,gAbortedFlag;
 extern	Boolean		gUsingDSP;
-extern	DSpContextReference 	gDisplayContext;
 extern	QD3DSetupOutputType		*gGameViewInfoPtr;
 extern	Boolean		gISpActive,gQD3DInitialized;
 extern  WindowPtr				gCoverWindow;

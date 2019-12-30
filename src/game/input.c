@@ -24,7 +24,6 @@ extern	Byte		gDemoMode;
 extern	Boolean		gAbortedFlag,gUsingDSP,gGameOverFlag,gAbortDemoFlag;
 extern	DemoCacheKeyType	*gDemoCachePtr;
 extern	long		gDemoCacheIndex;
-extern	DSpContextReference 	gDisplayContext;
 extern	WindowPtr	gCoverWindow;
 
 /**********************/
