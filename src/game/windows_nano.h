@@ -18,8 +18,6 @@ extern void	DumpGWorldToGWorld(GWorldPtr, GWorldPtr, Rect *, Rect *);
 extern void	DoLockPixels(GWorldPtr);
 extern void	DoUnlockPixels(GWorldPtr);
 extern void	UpdateAnimWindow(void);
-extern	pascal void DoBold (WindowPtr dlogPtr, short item);
-extern	pascal void DoOutline (WindowPtr dlogPtr, short item);
 extern	void Home(void);
 extern	void DoCR(void);
 extern	void InitThermometerWindow(Str255 s);
