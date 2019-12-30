@@ -46,7 +46,7 @@ void ImplementMe(const char* fn, std::string msg, int severity);
 //-----------------------------------------------------------------------------
 // FSSpec
 
-OSErr FSMakeFSSpec(short vRefNum, long dirID, const char* fileName, FSSpec* spec);
+OSErr FSMakeFSSpec(short vRefNum, long dirID, ConstStr255Param fileName, FSSpec* spec);
 
 short FSpOpenResFile(const FSSpec* spec, char permission);
 
@@ -123,6 +123,8 @@ void ExitToShell();
 void SysBeep(short duration);
 
 void FlushEvents(short, short);
+
+void NumToString(long theNum, Str255 theString);
 
 //-----------------------------------------------------------------------------
 // Input
@@ -202,6 +204,9 @@ void GetDateTime(unsigned long* secs);
 
 // Number of usecs elapsed since system startup
 void Microseconds(UnsignedWide* microTickCount);
+
+// Number of ticks elapsed since system startup (1 tick = approx. 1/60 of a second)
+UInt32 TickCount();
 
 //-----------------------------------------------------------------------------
 // Mouse cursor

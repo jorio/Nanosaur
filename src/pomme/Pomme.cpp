@@ -31,8 +31,8 @@ void ImplementMe(const char* fn, std::string msg, int severity) {
 //-----------------------------------------------------------------------------
 // FSSpec
 
-OSErr FSMakeFSSpec(short vRefNum, long dirID, const char* fileName, FSSpec* spec) {
-	TODO();
+OSErr FSMakeFSSpec(short vRefNum, long dirID, ConstStr255Param fileName, FSSpec* spec) {
+	TODO2(Pascal2C((const char *)fileName));
 	return unimpErr;
 }
 
@@ -184,6 +184,12 @@ void FlushEvents(short, short) {
 	TODOMINOR();
 }
 
+void NumToString(long theNum, Str255 theString) {
+	std::stringstream ss;
+	ss << theNum;
+	theString = Str255(ss.str().c_str());
+}
+
 //-----------------------------------------------------------------------------
 // Input
 
@@ -314,6 +320,11 @@ void Microseconds(UnsignedWide*) {
 	TODOMINOR();
 }
 
+UInt32 TickCount() {
+	TODOMINOR();
+	return 0;
+}
+
 //-----------------------------------------------------------------------------
 // Mouse cursor
 
@@ -389,6 +400,13 @@ void GammaFadeIn() {
 
 //-----------------------------------------------------------------------------
 // Our own init
+
+char* Pascal2C(const char* pstr) {
+	static char cstr[256];
+	memcpy(cstr, &pstr[1], pstr[0]);
+	cstr[pstr[0]] = '\0';
+	return cstr;
+}
 
 void InitFakeMac() {
 	std::cout << "fake mac inited\n";

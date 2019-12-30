@@ -65,16 +65,44 @@ typedef long                            Size;           // Number of bytes in a 
 //-----------------------------------------------------------------------------
 // (Pascal) String types
 
-struct Str32 {
-    unsigned char length;
-    char buf[32];
+char* Pascal2C(const char* pstr);
+
+template<int N> class PascalString {
+    char buf[N+1];
+
+public:
+    PascalString() {
+        buf[0] = 0;
+        memset(&buf[1], '~', N);
+    }
+
+    PascalString(const char* src) {
+        int len = strlen(src);
+        if (len > N) len = N;
+        if (len < 0) len = 0;
+        memcpy(&buf[1], src, len);
+        buf[0] = len;
+    }
+
+    operator char*() {
+        return &buf[0];
+    }
+
+    operator const char*() const {
+        return &buf[0];
+    }
 };
 
-// WARNING: that's not an actual pascal string!!
-typedef const char*                     Str255;
-// WARNING: that's not an actual pascal string!!
-typedef const char*                     ConstStr255Param;
-typedef char*                           StringPtr;
+struct Str32 : PascalString<32> {
+};
+
+struct Str255 : PascalString<255> {
+    Str255() : PascalString() {}
+    Str255(const char* src) : PascalString(src) {}
+};
+
+typedef const Str255&                  ConstStr255Param;
+typedef char*                          StringPtr;
 
 //-----------------------------------------------------------------------------
 // Point & Rect types
@@ -97,7 +125,7 @@ struct FSSpec {
     long parID;
 
     // The name of the specified file or directory. In Carbon, this name must be a leaf name; the name cannot contain a semicolon.
-    char name[64];
+    Str255 name;
 };
 
 typedef Handle AliasHandle;
