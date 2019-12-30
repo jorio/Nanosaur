@@ -43,7 +43,7 @@
 #include "pickups.h"
 #include "qd3d_geometry.h"
 
-extern	Boolean			gAbortDemoFlag,gRestartSavedGame,gGameIsDemoFlag,gATIBadFog,gSongPlayingFlag,gGameIsRegistered;
+extern	Boolean			gAbortDemoFlag,gRestartSavedGame,gGameIsDemoFlag,gATIBadFog,gSongPlayingFlag;
 extern	NewObjectDefinitionType	gNewObjectDefinition;
 extern	float			gFramesPerSecond,gFramesPerSecondFrac,gTimeRemaining,gMyHealth,gFuel;
 extern	TQ3Object	gGlowPodGeometry;
@@ -54,7 +54,6 @@ extern	long	gMyStartX,gMyStartZ;
 extern	Boolean	gNotGoodATI;
 extern	unsigned long 	gInfobarUpdateBits,gScore;
 extern	ObjNode		*gPlayerObj;
-extern	float		gDemoVersionTimer;
 
 /****************************/
 /*    PROTOTYPES            */
@@ -290,10 +289,6 @@ float killDelay = KILL_DELAY;						// time to wait after I'm dead before fading 
 float	fps;
 FSSpec	spec;
 
-    if (!gGameIsRegistered)                     // if not registered, then time demo
-        GetDemoTimer();
-
-
 			/* INIT LEVEL */
 			
 	InitLevel();
@@ -313,8 +308,6 @@ FSSpec	spec;
 	while(true)
 	{
 		fps = gFramesPerSecondFrac;
-		
-		gDemoVersionTimer += fps;
 		
 		ReadKeyboard();
 
@@ -427,9 +420,6 @@ cleanup:
 		PlaySong(1,true);		
 		
 	ShowHighScoresScreen(gScore);
-	
-    if (!gGameIsRegistered)                     // if not registered, then save demo timer
-        SaveDemoTimer();	
 }
 
 

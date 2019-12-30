@@ -31,10 +31,6 @@ extern	void CopyPStr(ConstStr255Param	inSourceStr, StringPtr	outDestStr);
 extern	void ShowSystemErr_NonFatal(long err);
 extern	void ApplyFrictionToDeltas(float f,TQ3Vector3D *d);
 
-void GetDemoTimer(void);
-void SaveDemoTimer(void);
-
-void CheckGameRegistration(void);
 OSErr DrawPictureIntoGWorld(FSSpec *myFSSpec, GWorldPtr *theGWorld);
 OSErr DrawPictureToScreen(FSSpec *myFSSpec, short x, short y);
 

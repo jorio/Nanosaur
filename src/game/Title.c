@@ -525,38 +525,5 @@ FSSpec	spec;
 }
 
 
-/******************* SHOW BUGDOM AD *************************/
-
-void ShowBugdomAd(void)
-{
-PicHandle	pic;
-Rect		r;
-
-			/* DO PAGE 1 */
-			
-	GammaFadeOut();
-	pic = GetPicture(130);
-	if (pic == nil)
-		return;
-	SetPort(gCoverWindow);
-	SetRect(&r,0,0,GAME_VIEW_WIDTH,GAME_VIEW_HEIGHT);
-	DrawPicture(pic, &r);	
-	GammaFadeIn();
-	KillPicture(pic);
-	ReadKeyboard();
-		
-	do
-	{
-		ReadKeyboard();
-		DoSoundMaintenance();
-		if (Button())
-			break;
-	}while(!(gNewKeys_Real[0] || gNewKeys_Real[1] ||  gNewKeys_Real[2] || gNewKeys_Real[3]));
-}
-
-
-
-
-
 
 
