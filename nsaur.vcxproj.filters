@@ -197,9 +197,6 @@
     <ClInclude Include="src\game\items.h">
       <Filter>Header Files\Game</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\lemmings.h">
-      <Filter>Header Files\Game</Filter>
-    </ClInclude>
     <ClInclude Include="src\game\main.h">
       <Filter>Header Files\Game</Filter>
     </ClInclude>

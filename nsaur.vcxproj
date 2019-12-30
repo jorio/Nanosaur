@@ -227,7 +227,6 @@
     <ClInclude Include="src\game\infobar.h" />
     <ClInclude Include="src\game\input.h" />
     <ClInclude Include="src\game\items.h" />
-    <ClInclude Include="src\game\lemmings.h" />
     <ClInclude Include="src\game\main.h" />
     <ClInclude Include="src\game\mainmenu.h" />
     <ClInclude Include="src\game\misc.h" />
