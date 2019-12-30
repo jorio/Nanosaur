@@ -19,6 +19,12 @@
     <Filter Include="Header Files\Game">
       <UniqueIdentifier>{a0f6fb5c-ea28-4f1a-978b-7b06fcc3ed3f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Pomme">
+      <UniqueIdentifier>{60c6feeb-d487-48aa-b979-ddb9200d287e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Pomme">
+      <UniqueIdentifier>{ead6350e-a646-4eab-8479-3798e9255857}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\game\3DMath.c">
@@ -150,6 +156,9 @@
     <ClCompile Include="src\nsaur.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\pomme\Pomme.cpp">
+      <Filter>Source Files\Pomme</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\game\3DMath.h">
@@ -275,6 +284,14 @@
     <ClInclude Include="src\game\windows_nano.h">
       <Filter>Header Files\Game</Filter>
     </ClInclude>
+    <ClInclude Include="src\pomme\Pomme.h">
+      <Filter>Header Files\Pomme</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pomme\PommeEnums.h">
+      <Filter>Header Files\Pomme</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pomme\PommeTypes.h">
+      <Filter>Header Files\Pomme</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

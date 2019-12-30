@@ -94,9 +94,10 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>src;src\game;src\qd3d;quesa\sdk\includes\quesa</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;src\pomme;src\game;src\qd3d;quesa\sdk\includes\quesa</AdditionalIncludeDirectories>
       <CompileAs>CompileAsCpp</CompileAs>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <ForcedIncludeFiles>Pomme.h</ForcedIncludeFiles>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -112,9 +113,10 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>src;src\game;src\qd3d;quesa\sdk\includes\quesa</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;src\pomme;src\game;src\qd3d;quesa\sdk\includes\quesa</AdditionalIncludeDirectories>
       <CompileAs>CompileAsCpp</CompileAs>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <ForcedIncludeFiles>Pomme.h</ForcedIncludeFiles>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -132,9 +134,10 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>src;src\game;src\qd3d;quesa\sdk\includes\quesa</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;src\pomme;src\game;src\qd3d;quesa\sdk\includes\quesa</AdditionalIncludeDirectories>
       <CompileAs>CompileAsCpp</CompileAs>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <ForcedIncludeFiles>Pomme.h</ForcedIncludeFiles>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -154,9 +157,10 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>src;src\game;src\qd3d;quesa\sdk\includes\quesa</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;src\pomme;src\game;src\qd3d;quesa\sdk\includes\quesa</AdditionalIncludeDirectories>
       <CompileAs>CompileAsCpp</CompileAs>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <ForcedIncludeFiles>Pomme.h</ForcedIncludeFiles>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -210,6 +214,7 @@
     <ClCompile Include="src\game\Triggers.c" />
     <ClCompile Include="src\game\Weapons.c" />
     <ClCompile Include="src\nsaur.cpp" />
+    <ClCompile Include="src\pomme\Pomme.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\game\3DMath.h" />
@@ -253,6 +258,9 @@
     <ClInclude Include="src\game\triggers.h" />
     <ClInclude Include="src\game\weapons.h" />
     <ClInclude Include="src\game\windows_nano.h" />
+    <ClInclude Include="src\pomme\Pomme.h" />
+    <ClInclude Include="src\pomme\PommeEnums.h" />
+    <ClInclude Include="src\pomme\PommeTypes.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
