@@ -90,7 +90,7 @@ float	gMySpeedPuffCounter;
 //
 // Converts keys to key control bits or reads the bit fields from the network.
 //
-// The only reason to do this instead of just calling GetKeyState directly is
+// The only reason to do this instead of just calling Nano_GetKeyState directly is
 // so it'll port to InputSprockets easier.
 //
 
@@ -113,28 +113,28 @@ KeyControlType	bits;
 	
 	bits = 0;							// init to 0
 
-	if (GetKeyState(kKey_TurnLeft))		// rot left
+	if (Nano_GetKeyState(kKey_TurnLeft))		// rot left
 		bits |= KEYCONTROL_ROTLEFT;
 	else
-	if (GetKeyState(kKey_TurnRight))	// rot right
+	if (Nano_GetKeyState(kKey_TurnRight))	// rot right
 		bits |= KEYCONTROL_ROTRIGHT;
 				
-	if (GetKeyState(kKey_Forward))		// forward
+	if (Nano_GetKeyState(kKey_Forward))		// forward
 		bits |= KEYCONTROL_FORWARD;
 	else
-	if (GetKeyState(kKey_Backward))		// backward
+	if (Nano_GetKeyState(kKey_Backward))		// backward
 		bits |= KEYCONTROL_BACKWARD;
 	
 	if (GetNewKeyState(kKey_Jump))		// jump
 		bits |= KEYCONTROL_JUMP;
 	else
-	if (GetKeyState(kKey_Attack))		// attack
+	if (Nano_GetKeyState(kKey_Attack))		// attack
 		bits |= KEYCONTROL_ATTACK;
 	else
-	if (GetKeyState(kKey_JetUp))		// Jet Up
+	if (Nano_GetKeyState(kKey_JetUp))		// Jet Up
 		bits |= KEYCONTROL_JETUP;
 	else
-	if (GetKeyState(kKey_JetDown))		// Jet Down
+	if (Nano_GetKeyState(kKey_JetDown))		// Jet Down
 		bits |= KEYCONTROL_JETDOWN;
 	
 	if (GetNewKeyState(kKey_AttackMode))	// attack mode change

@@ -139,7 +139,7 @@ extern	void InitInput(void);
 void ReadKeyboard_Real(void);
 extern	Boolean GetNewKeyState(unsigned short key);
 extern	void ReadKeyboard(void);
-extern	Boolean GetKeyState(unsigned short key);
+extern	Boolean Nano_GetKeyState(unsigned short key);
 Boolean GetKeyState_Real(unsigned short key);
 Boolean GetNewKeyState_Real(unsigned short key);
 void DoKeyConfigDialog(void);

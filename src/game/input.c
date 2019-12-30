@@ -500,7 +500,7 @@ KeyMap tempKeys;
 
 					/* SEE IF END OF DEMO */
 					
-		if (GetKeyState(KEY_ESC))
+		if (Nano_GetKeyState(KEY_ESC))
 		{
 			SaveDemoData();
 			gGameOverFlag = gAbortedFlag = gAbortDemoFlag = true;
@@ -513,7 +513,7 @@ KeyMap tempKeys;
 		CleanQuit();	
 		
 	if (gISpActive)
-		if (GetKeyState(kKey_Quit))										// see if ISP quit
+		if (Nano_GetKeyState(kKey_Quit))										// see if ISP quit
 			CleanQuit();	
 
 		
@@ -586,7 +586,7 @@ unsigned char *keyMap;
 // NOTE: Assumes that ReadKeyboard has already been called!!
 //
 
-Boolean GetKeyState(unsigned short key)
+Boolean Nano_GetKeyState(unsigned short key)
 {
 unsigned char *keyMap;
 
