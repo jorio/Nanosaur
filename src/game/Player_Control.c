@@ -802,10 +802,10 @@ ObjNode	*flameObj,*flameObj2;
 	{
 		flameObj = (ObjNode *)theNode->JetFlameObj;					// point to right flame
 		flameObj2 = (ObjNode *)flameObj->JetFlameObj;				// point to left flame
-		DeleteObject(flameObj);										// delete right flame
+		Nano_DeleteObject(flameObj);										// delete right flame
 		theNode->JetFlameObj = nil;	
 		if (flameObj2)
-			DeleteObject(flameObj2);								// delete left flame		
+			Nano_DeleteObject(flameObj2);								// delete left flame		
 	}
 }
 

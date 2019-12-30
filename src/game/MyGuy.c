@@ -833,7 +833,7 @@ static void UpdatePlayer(ObjNode *theNode)
 		{
 			if (theNode->StatusBits & STATUS_BIT_ONGROUND)
 			{
-				DeleteObject(gMyTimePortal);
+				Nano_DeleteObject(gMyTimePortal);
 				gMyTimePortal = nil;
 			}
 		}
@@ -933,7 +933,7 @@ u_char		sides;
 				if ((hitObj->Group == GLOBAL_MGroupNum_DinoSpit) && (hitObj->Type == GLOBAL_MObjType_DinoSpit))
 				{
 					QD3D_ExplodeGeometry(hitObj, 100, nil, 10, .5);
-					DeleteObject(hitObj);
+					Nano_DeleteObject(hitObj);
 				}
 			}			
 		}
@@ -1111,7 +1111,7 @@ float	fps = gFramesPerSecondFrac;
 	gShieldTimer -= fps;
 	if (gShieldTimer <= 0.0f)
 	{
-		DeleteObject(gMyShield);
+		Nano_DeleteObject(gMyShield);
 		gMyShield = nil;
 		if (gShieldChannel != -1)
 		{

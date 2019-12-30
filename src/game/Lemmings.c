@@ -399,7 +399,7 @@ static void DeleteLemming(ObjNode *theNode)
 	if (theNode->GridPosition != -1)									// free grid location
 		gGridOccupants[theNode->GridPosition] = nil;	
 	
-	DeleteObject(theNode);
+	Nano_DeleteObject(theNode);
 }
 
 

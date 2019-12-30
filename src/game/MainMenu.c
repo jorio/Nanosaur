@@ -525,7 +525,7 @@ static void MoveFallingEgg(ObjNode *theNode)
 	theNode->Coord.y -= gFramesPerSecondFrac * 70;
 	if (theNode->Coord.y < -250)
 	{
-		DeleteObject(theNode);
+		Nano_DeleteObject(theNode);
 		return;
 	}
 

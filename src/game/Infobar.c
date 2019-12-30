@@ -483,8 +483,8 @@ Boolean	toggleMusic = !gMuteMusicFlag;
 
 			/* CLEANUP */
 			
-	DeleteObject(quit);
-	DeleteObject(resume);
+	Nano_DeleteObject(quit);
+	Nano_DeleteObject(resume);
 	
 	if (toggleMusic)
 		ToggleMusic();										// restart music

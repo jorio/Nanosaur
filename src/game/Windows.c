@@ -652,7 +652,7 @@ long	percent;
 		if (percent >= 100)													// see if @ 100%
 		{
 			percent = 100;
-			DeleteObject(theNode);
+			Nano_DeleteObject(theNode);
 		}
 #if ALLOW_FADE			
 		if (gDisplayContext)
@@ -667,7 +667,7 @@ long	percent;
 		if (percent <= 0)													// see if @ 0%
 		{
 			percent = 0;
-			DeleteObject(theNode);
+			Nano_DeleteObject(theNode);
 		}
 #if ALLOW_FADE		
 		if (gDisplayContext)

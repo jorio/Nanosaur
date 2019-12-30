@@ -28,7 +28,7 @@ extern	ObjNode	*MakeNewObject(NewObjectDefinitionType *newObjDef);
 extern	void MoveObjects(void);
 extern	void DrawObjects(QD3DSetupOutputType *setupInfo);
 extern	void DeleteAllObjects(void);
-extern	void DeleteObject(ObjNode	*theNode);
+extern	void Nano_DeleteObject(ObjNode	*theNode);
 extern	void GetObjectInfo(ObjNode *theNode);
 extern	void UpdateObject(ObjNode *theNode);
 extern	ObjNode *MakeNewDisplayGroupObject(NewObjectDefinitionType *newObjDef);

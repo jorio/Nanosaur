@@ -164,7 +164,7 @@ float	y;
 	if (theNode->TerrainItemPtr)											// only if from terrain
 		if (TrackTerrainItem(theNode))						
 		{
-			DeleteObject(theNode);
+			Nano_DeleteObject(theNode);
 			return;
 		}
 
@@ -271,7 +271,7 @@ float	fps = gFramesPerSecondFrac;
 					theNode->Health -= fps * .6f;
 					if (theNode->Health <= 0.0f)
 					{
-						DeleteObject(theNode);
+						Nano_DeleteObject(theNode);
 						return;
 					}
 						
@@ -286,7 +286,7 @@ float	fps = gFramesPerSecondFrac;
 					theNode->Health -= fps * 0.3f;						// decay it
 					if (theNode->Health <= 0.0f)
 					{
-						DeleteObject(theNode);
+						Nano_DeleteObject(theNode);
 						return;
 					}		
 				}
@@ -321,7 +321,7 @@ float	fps = gFramesPerSecondFrac;
 					theNode->Health -= fps * 0.6f;						// decay it
 					if (theNode->Health <= 0.0f)
 					{
-						DeleteObject(theNode);
+						Nano_DeleteObject(theNode);
 						return;
 					}		
 				}
@@ -354,7 +354,7 @@ float	fps = gFramesPerSecondFrac;
 					theNode->Health -= fps * 0.3f;						// decay it
 					if (theNode->Health <= 0.0f)
 					{
-						DeleteObject(theNode);
+						Nano_DeleteObject(theNode);
 						return;
 					}		
 				}

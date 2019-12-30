@@ -403,7 +403,7 @@ float	y,fps;
 	if (gCoord.y <= y)
 	{
 del:	
-		DeleteObject(theNode);
+		Nano_DeleteObject(theNode);
 		return;
 	}
 

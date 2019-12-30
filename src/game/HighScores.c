@@ -526,7 +526,7 @@ char	c;
 		for (i=0; i < MAX_NAME_LENGTH; i++)								// init name to blank
 		{
 			if (gNewNameObj[i])
-				DeleteObject(gNewNameObj[i]);
+				Nano_DeleteObject(gNewNameObj[i]);
 			gNewNameObj[i] = nil;
 		}
 	}

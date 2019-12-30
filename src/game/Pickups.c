@@ -186,7 +186,7 @@ float	fps = gFramesPerSecondFrac;
 	theNode->Health -= fps * 0.4f;						// decay it
 	if (theNode->Health <= 0.0f)
 	{
-		DeleteObject(theNode);
+		Nano_DeleteObject(theNode);
 		return;
 	}		
 
@@ -241,7 +241,7 @@ static void MoveNest(ObjNode *theNode)
 {
 	if (TrackTerrainItem(theNode))							// just check to see if it's gone
 	{
-		DeleteObject(theNode);
+		Nano_DeleteObject(theNode);
 		return;
 	}
 		
@@ -320,7 +320,7 @@ float	iScale;
 		
 		if (TrackTerrainItem(theNode))								// check to see if it's gone
 		{
-			DeleteObject(theNode);
+			Nano_DeleteObject(theNode);
 			return;
 		}
 						
