@@ -95,7 +95,7 @@ Ptr		gTileFilePtr = nil;
 
 SkeletonDefType *LoadSkeletonFile(short skeletonType)
 {
-QDErr		iErr;
+OSErr		iErr;
 short		fRefNum;
 FSSpec		fsSpec;
 SkeletonDefType	*skeleton;					
