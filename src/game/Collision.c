@@ -324,10 +324,10 @@ float		originalX,originalY,originalZ;
 long		offset,maxOffsetX,maxOffsetZ,maxOffsetY;
 float		offXSign,offZSign,offYSign;
 Byte		base,target;
-ObjNode		*targetObj;
-CollisionBoxType *baseBoxPtr,*targetBoxPtr;
+ObjNode		*targetObj = nil;
+CollisionBoxType *baseBoxPtr = nil, *targetBoxPtr = nil;
 long		leftSide,rightSide,frontSide,backSide,bottomSide;
-CollisionBoxType *boxList;
+CollisionBoxType *boxList = nil;
 
 	theNode->PlatformNode = nil;							// assume not on any platforms
 

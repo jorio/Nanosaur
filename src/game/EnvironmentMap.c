@@ -212,12 +212,12 @@ static void EnvironmentMapTriMesh(TQ3Object theTriMesh, TQ3TriMeshData *inData)
 {
 TQ3Status			status;
 long				numVertecies,vertNum,numFaceAttribTypes,faceNum,numFaces;
-TQ3Point3D			*vertexList;
-TQ3TriMeshData		*triMeshDataPtr;
-TQ3TriMeshAttributeData	*attribList,*faceAttribList;
+TQ3Point3D			*vertexList = nil;
+TQ3TriMeshData		*triMeshDataPtr = nil;
+TQ3TriMeshAttributeData	*attribList = nil, *faceAttribList = nil;
 short				numVertAttribTypes,a;
-TQ3Vector3D			*normals,reflectedVector,*normals2;
-TQ3Param2D			*uvList;
+TQ3Vector3D			*normals = nil, reflectedVector, *normals2 = nil;
+TQ3Param2D			*uvList = nil;
 Boolean				hasUVs = true;
 TQ3Matrix4x4		tempm,invTranspose;
 register	float	M00, M01, M02;	
