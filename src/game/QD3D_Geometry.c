@@ -80,11 +80,11 @@ ParticleType		gParticles[MAX_PARTICLES];
 void QD3D_CalcObjectBoundingBox(QD3DSetupOutputType *setupInfo, TQ3Object theObject, TQ3BoundingBox	*boundingBox)
 {
 	if (setupInfo == nil)
-		DoFatalAlert("\pQD3D_CalcObjectBoundingBox: setupInfo = nil");
+		DoFatalAlert("QD3D_CalcObjectBoundingBox: setupInfo = nil");
 	if (theObject == nil)
-		DoFatalAlert("\pQD3D_CalcObjectBoundingBox: theObject = nil");
+		DoFatalAlert("QD3D_CalcObjectBoundingBox: theObject = nil");
 	if (boundingBox == nil)
-		DoFatalAlert("\pQD3D_CalcObjectBoundingBox: boundingBox = nil");
+		DoFatalAlert("QD3D_CalcObjectBoundingBox: boundingBox = nil");
 
 	Q3View_StartBoundingBox(setupInfo->viewObject, kQ3ComputeBoundsExact);
 	do
@@ -435,7 +435,7 @@ long				i;
 				/* DO VERTEX NORMALS */
 				
 		if (triMeshData.vertexAttributeTypes[0].attributeType != kQ3AttributeTypeNormal)
-			DoFatalAlert("\pBleep2!");
+			DoFatalAlert("Bleep2!");
 				
 		normalPtr = triMeshData.vertexAttributeTypes[0].data;			// assume vert attrib #0 == vertex normals
 		vertNormals[0] = normalPtr[ind[0]];								// get vertex normals
@@ -455,7 +455,7 @@ long				i;
 		if (triMeshData.numVertexAttributeTypes > 1)					// see if also has UV (assumed to be attrib #1)
 		{
 			if (triMeshData.vertexAttributeTypes[1].attributeType != kQ3AttributeTypeShadingUV)
-				DoFatalAlert("\pBleep3!");
+				DoFatalAlert("Bleep3!");
 		
 			uvPtr = triMeshData.vertexAttributeTypes[1].data;	
 			gParticles[i].uvs[0] = uvPtr[ind[0]];									// get vertex u/v's
@@ -836,7 +836,7 @@ int		i;
 								
 	outData->points = (TQ3Point3D *)AllocPtr(sizeof(TQ3Point3D) * numPoints);								// alloc new point array
 	if (outData->points == nil)
-		DoFatalAlert("\pQD3D_DuplicateTriMeshData: no mem for points");
+		DoFatalAlert("QD3D_DuplicateTriMeshData: no mem for points");
 
 					
 				/* ALLOC NEW ATTIRBUTE DATA BASE STRUCTURE */
@@ -852,7 +852,7 @@ int		i;
 		
 	outData->vertexAttributeTypes[0].data = (void *)AllocPtr(sizeof(TQ3Vector3D) * numPoints);				// set new data array
 	if (outData->vertexAttributeTypes[0].data == nil)
-		DoFatalAlert("\pQD3D_DuplicateTriMeshData: no mem for vert normal attribs");
+		DoFatalAlert("QD3D_DuplicateTriMeshData: no mem for vert normal attribs");
 
 
 	if (numVertexAttributeTypes > 1)
@@ -861,7 +861,7 @@ int		i;
 		
 		outData->vertexAttributeTypes[1].data = (void *)AllocPtr(sizeof(TQ3Param2D) * numPoints);			// set new data array
 		if (outData->vertexAttributeTypes[1].data == nil)
-			DoFatalAlert("\pQD3D_DuplicateTriMeshData: no mem for vert UV attribs");
+			DoFatalAlert("QD3D_DuplicateTriMeshData: no mem for vert UV attribs");
 
 		BlockMove(inData->vertexAttributeTypes[1].data, outData->vertexAttributeTypes[1].data,
 				 sizeof(TQ3Param2D) * numPoints);															// copy uv values into new array

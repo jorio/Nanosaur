@@ -270,7 +270,7 @@ FSSpec			spec;
 
 			/* LOAD ART */
 			
-	FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, "\p:models:Title.3dmf", &spec);		// load other models
+	FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":models:Title.3dmf", &spec);		// load other models
 	LoadGrouped3DMF(&spec,MODEL_GROUP_TITLE);	
 
 
@@ -360,7 +360,7 @@ VersRec	*vers;
 
 			/* DO PAGE 1 */
 
-	FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, "\p:images:Charity1.pict", &spec);	
+	FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":images:Charity1.pict", &spec);	
     DrawPictureToScreen(&spec, 0,0);
 
 //	pic = LoadAPict(&spec);
@@ -393,7 +393,7 @@ VersRec	*vers;
 
 			/* DO PAGE 2 */
 
-	FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, "\p:images:Boot2.pict", &spec);		// load next page
+	FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":images:Boot2.pict", &spec);		// load next page
     DrawPictureToScreen(&spec, 0,0);
 
 //	pic = LoadAPict(&spec);			
@@ -410,7 +410,7 @@ VersRec	*vers;
 
 			/* DO PAGE 3 */
 			
-	FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, "\p:images:Charity3.pict", &spec);		// load next page
+	FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":images:Charity3.pict", &spec);		// load next page
     DrawPictureToScreen(&spec, 0,0);
 //	pic = LoadAPict(&spec);
 //	DrawPicture(pic, &r);	
@@ -441,7 +441,7 @@ FSSpec	spec;
 
 			/* DO PAGE 1 */
 
-	FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, "\p:images:Boot1.pict", &spec);
+	FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":images:Boot1.pict", &spec);
     DrawPictureToScreen(&spec, 0,0);
 
 //	pic = LoadAPict(&spec);
@@ -459,7 +459,7 @@ FSSpec	spec;
 
 			/* DO PAGE 2 */
 			
-	FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, "\p:images:Boot2.pict", &spec);		// load next page
+	FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":images:Boot2.pict", &spec);		// load next page
     DrawPictureToScreen(&spec, 0,0);
 //	pic = LoadAPict(&spec);
 //	DrawPicture(pic, &r);	
@@ -487,7 +487,7 @@ FSSpec	spec;
 
 			/* DO PAGE 1 */
 			
-	FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, "\p:images:Help1.pict", &spec);
+	FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":images:Help1.pict", &spec);
     DrawPictureToScreen(&spec, 0,0);
 	
 //	pic = LoadAPict(&spec);
@@ -508,7 +508,7 @@ FSSpec	spec;
 
 			/* DO PAGE 2 */
 			
-	FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, "\p:images:Help2.pict", &spec);		// load next page
+	FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":images:Help2.pict", &spec);		// load next page
     DrawPictureToScreen(&spec, 0,0);
 //	pic = LoadAPict(&spec);
 //	DrawPicture(pic, &r);	

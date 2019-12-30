@@ -1366,7 +1366,7 @@ TQ3GroupPosition NewPointLightPosition( TQ3PointLightData *pPointLightData)
 		{
 			position = Q3Group_AddObject( lightGroup, pointLight);
 			if ( position == 0 )
-				DoFatalAlert("\p Q3Group_AddObject Failed!");
+				DoFatalAlert(" Q3Group_AddObject Failed!");
 		}
 		Q3Object_Dispose( pointLight);
 	}

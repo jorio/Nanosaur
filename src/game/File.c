@@ -79,7 +79,7 @@ typedef struct
 /*     VARIABLES      */
 /**********************/
 
-static	Str255		gBasePathName = "\pNewGame";
+static	Str255		gBasePathName = "NewGame";
 Ptr		gTileFilePtr = nil;
 
 
@@ -105,31 +105,31 @@ SkeletonDefType	*skeleton;
 	switch(skeletonType)
 	{
 		case	SKELETON_TYPE_PTERA:
-				FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, "\p:Skeletons:Petra.skeleton", &fsSpec);
+				FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":Skeletons:Petra.skeleton", &fsSpec);
 				break;
 
 		case	SKELETON_TYPE_REX:
-				FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, "\p:Skeletons:Rex.skeleton", &fsSpec);
+				FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":Skeletons:Rex.skeleton", &fsSpec);
 				break;
 
 		case	SKELETON_TYPE_STEGO:
-				FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, "\p:Skeletons:Stego.skeleton", &fsSpec);
+				FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":Skeletons:Stego.skeleton", &fsSpec);
 				break;
 				
 		case	SKELETON_TYPE_DEINON:
-				FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, "\p:Skeletons:Deinon.skeleton", &fsSpec);
+				FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":Skeletons:Deinon.skeleton", &fsSpec);
 				break;
 
 		case	SKELETON_TYPE_TRICER:
-				FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, "\p:Skeletons:Tricer.skeleton", &fsSpec);
+				FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":Skeletons:Tricer.skeleton", &fsSpec);
 				break;
 
 		case	SKELETON_TYPE_SPITTER:
-				FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, "\p:Skeletons:Diloph.skeleton", &fsSpec);
+				FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":Skeletons:Diloph.skeleton", &fsSpec);
 				break;
 		
 		default:
-				DoFatalAlert("\pLoadSkeleton: Unknown skeletonType!");
+				DoFatalAlert("LoadSkeleton: Unknown skeletonType!");
 	}
 	
 	
@@ -139,20 +139,20 @@ SkeletonDefType	*skeleton;
 	if (fRefNum == -1)
 	{
 		iErr = ResError();
-		DoAlert("\pError opening Skel Rez file");
+		DoAlert("Error opening Skel Rez file");
 		ShowSystemErr(iErr);
 	}
 	
 	UseResFile(fRefNum);
 	if (iErr = ResError())
-		DoFatalAlert("\pError using Rez file!");
+		DoFatalAlert("Error using Rez file!");
 
 			
 			/* ALLOC MEMORY FOR SKELETON INFO STRUCTURE */
 			
 	skeleton = (SkeletonDefType *)AllocPtr(sizeof(SkeletonDefType));
 	if (skeleton == nil)
-		DoFatalAlert("\pCannot alloc SkeletonInfoType");
+		DoFatalAlert("Cannot alloc SkeletonInfoType");
 
 
 			/* READ SKELETON RESOURCES */
@@ -199,21 +199,21 @@ SkeletonFile_AnimHeader_Type	*animHeaderPtr;
 	hand = GetResource('Hedr',1000);
 	if (hand == nil)
 	{
-		DoAlert("\pError reading header resource!");
+		DoAlert("Error reading header resource!");
 		return;
 	}
 	
 	headerPtr = (SkeletonFile_Header_Type *)*hand;
 	version = headerPtr->version;
 	if (version != SKELETON_FILE_VERS_NUM)
-		DoFatalAlert("\pSkeleton file has wrong version #");
+		DoFatalAlert("Skeleton file has wrong version #");
 	
 	numAnims = skeleton->NumAnims = headerPtr->numAnims;			// get # anims in skeleton
 	numJoints = skeleton->NumBones = headerPtr->numJoints;			// get # joints in skeleton
 	ReleaseResource(hand);
 
 	if (numJoints > MAX_JOINTS)										// check for overload
-		DoFatalAlert("\pReadDataFromSkeletonFile: numJoints > MAX_JOINTS");
+		DoFatalAlert("ReadDataFromSkeletonFile: numJoints > MAX_JOINTS");
 
 
 				/*************************************/
@@ -235,7 +235,7 @@ SkeletonFile_AnimHeader_Type	*animHeaderPtr;
 		if (!iErr)
 			LoadBonesReferenceModel(&target,skeleton);
 		else
-			DoFatalAlert("\pReadDataFromSkeletonFile: Cannot resolve alias to 3DMF file!");
+			DoFatalAlert("ReadDataFromSkeletonFile: Cannot resolve alias to 3DMF file!");
 		ReleaseResource((Handle)alias);
 	}
 
@@ -253,7 +253,7 @@ SkeletonFile_AnimHeader_Type	*animHeaderPtr;
 			
 		hand = GetResource('Bone',1000+i);
 		if (hand == nil)
-			DoFatalAlert("\pError reading Bone resource!");
+			DoFatalAlert("Error reading Bone resource!");
 		HLock(hand);
 		bonePtr = (File_BoneDefinitionType *)*hand;
 
@@ -270,17 +270,17 @@ SkeletonFile_AnimHeader_Type	*animHeaderPtr;
 				
 		skeleton->Bones[i].pointList = (u_short *)AllocPtr(sizeof(u_short) * (int)skeleton->Bones[i].numPointsAttachedToBone);
 		if (skeleton->Bones[i].pointList == nil)
-			DoFatalAlert("\pReadDataFromSkeletonFile: AllocPtr/pointList failed!");
+			DoFatalAlert("ReadDataFromSkeletonFile: AllocPtr/pointList failed!");
 
 		skeleton->Bones[i].normalList = (u_short *)AllocPtr(sizeof(u_short) * (int)skeleton->Bones[i].numNormalsAttachedToBone);
 		if (skeleton->Bones[i].normalList == nil)
-			DoFatalAlert("\pReadDataFromSkeletonFile: AllocPtr/normalList failed!");
+			DoFatalAlert("ReadDataFromSkeletonFile: AllocPtr/normalList failed!");
 
 			/* READ POINT INDEX ARRAY */
 			
 		hand = GetResource('BonP',1000+i);
 		if (hand == nil)
-			DoFatalAlert("\pError reading BonP resource!");
+			DoFatalAlert("Error reading BonP resource!");
 		HLock(hand);
 		indexPtr = (u_short *)(*hand);
 			
@@ -296,7 +296,7 @@ SkeletonFile_AnimHeader_Type	*animHeaderPtr;
 			
 		hand = GetResource('BonN',1000+i);
 		if (hand == nil)
-			DoFatalAlert("\pError reading BonN resource!");
+			DoFatalAlert("Error reading BonN resource!");
 		HLock(hand);
 		indexPtr = (u_short *)(*hand);
 			
@@ -319,12 +319,12 @@ SkeletonFile_AnimHeader_Type	*animHeaderPtr;
 	
 	hand = GetResource('RelP', 1000);
 	if (hand == nil)
-		DoFatalAlert("\pError reading RelP resource!");
+		DoFatalAlert("Error reading RelP resource!");
 	HLock(hand);
 	pointPtr = (TQ3Point3D *)*hand;
 	
 	if ((GetHandleSize(hand) / sizeof(TQ3Point3D)) != skeleton->numDecomposedPoints)
-		DoFatalAlert("\p# of points in Reference Model has changed!");
+		DoFatalAlert("# of points in Reference Model has changed!");
 	else
 		for (i = 0; i < skeleton->numDecomposedPoints; i++)
 			skeleton->decomposedPointList[i].boneRelPoint = pointPtr[i];
@@ -342,7 +342,7 @@ SkeletonFile_AnimHeader_Type	*animHeaderPtr;
 
 		hand = GetResource('AnHd',1000+i);
 		if (hand == nil)
-			DoFatalAlert("\pError getting anim header resource");
+			DoFatalAlert("Error getting anim header resource");
 		HLock(hand);
 		animHeaderPtr = (SkeletonFile_AnimHeader_Type *)*hand;
 
@@ -354,7 +354,7 @@ SkeletonFile_AnimHeader_Type	*animHeaderPtr;
 			
 		hand = GetResource('Evnt',1000+i);
 		if (hand == nil)
-			DoFatalAlert("\pError reading anim-event data resource!");
+			DoFatalAlert("Error reading anim-event data resource!");
 		animEventPtr = (AnimEventType *)*hand;
 		for (j=0;  j < skeleton->NumAnimEvents[i]; j++)
 			skeleton->AnimEventsList[i][j] = *animEventPtr++;
@@ -365,7 +365,7 @@ SkeletonFile_AnimHeader_Type	*animHeaderPtr;
 					
 		hand = GetResource('NumK',1000+i);									// read array of #'s for this anim
 		if (hand == nil)
-			DoFatalAlert("\pError reading # keyframes/joint resource!");
+			DoFatalAlert("Error reading # keyframes/joint resource!");
 		for (j=0; j < numJoints; j++)
 			skeleton->JointKeyframes[j].numKeyFrames[i] = (*hand)[j];
 		ReleaseResource(hand);
@@ -380,7 +380,7 @@ SkeletonFile_AnimHeader_Type	*animHeaderPtr;
 		
 		if ((skeleton->JointKeyframes[j].keyFrames == nil) ||
 			(skeleton->JointKeyframes[j].keyFrames[0] == nil))
-			DoFatalAlert("\pReadDataFromSkeletonFile: Error allocating Keyframe Array.");
+			DoFatalAlert("ReadDataFromSkeletonFile: Error allocating Keyframe Array.");
 
 					/* READ THIS JOINT'S KF'S FOR EACH ANIM */
 					
@@ -388,13 +388,13 @@ SkeletonFile_AnimHeader_Type	*animHeaderPtr;
 		{
 			numKeyframes = skeleton->JointKeyframes[j].numKeyFrames[i];					// get actual # of keyframes for this joint
 			if (numKeyframes > MAX_KEYFRAMES)
-				DoFatalAlert("\pError: numKeyframes > MAX_KEYFRAMES");
+				DoFatalAlert("Error: numKeyframes > MAX_KEYFRAMES");
 		
 					/* READ A JOINT KEYFRAME */
 					
 			hand = GetResource('KeyF',1000+(i*100)+j);
 			if (hand == nil)
-				DoFatalAlert("\pError reading joint keyframes resource!");
+				DoFatalAlert("Error reading joint keyframes resource!");
 			keyFramePtr = (JointKeyframeType *)*hand;
 			for (k = 0; k < numKeyframes; k++)												// copy this joint's keyframes for this anim
 				skeleton->JointKeyframes[j].keyFrames[i][k] = *keyFramePtr++;
@@ -425,7 +425,7 @@ Str255		s;
 	}
 
 	if (iErr == fnfErr)
-		DoFatalAlert2(errString,"\pFILE NOT FOUND.");
+		DoFatalAlert2(errString,"FILE NOT FOUND.");
 	else
 	{
 		NumToString(iErr,s);
@@ -452,7 +452,7 @@ long		count;
 				/* READ FILE */
 				/*************/
 					
-	FSMakeFSSpec(gPrefsFolderVRefNum, gPrefsFolderDirID, "\p:Nanosaur:Prefs", &file);
+	FSMakeFSSpec(gPrefsFolderVRefNum, gPrefsFolderDirID, ":Nanosaur:Prefs", &file);
 	iErr = FSpOpenDF(&file, fsRdPerm, &refNum);	
 	if (iErr)
 		return(iErr);
@@ -482,7 +482,7 @@ long				count;
 						
 				/* CREATE BLANK FILE */
 				
-	FSMakeFSSpec(gPrefsFolderVRefNum, gPrefsFolderDirID, "\p:Nanosaur:Prefs", &file);
+	FSMakeFSSpec(gPrefsFolderVRefNum, gPrefsFolderDirID, ":Nanosaur:Prefs", &file);
 	FSpDelete(&file);															// delete any existing file
 	iErr = FSpCreate(&file, 'NanO', 'Pref', smSystemScript);					// create blank file
 	if (iErr)
@@ -512,8 +512,8 @@ void SaveGame(void)
 {
 #if 0
 SaveGameType	**dataHandle;
-Str255		prompt = "\pSave Game As:";
-Str255		name = "\pWW Saved Game";
+Str255		prompt = "Save Game As:";
+Str255		name = "WW Saved Game";
 short		fRefNum;
 int			oldResF;
 FSSpec		*specPtr;
@@ -539,7 +539,7 @@ long		i;
 					
 	dataHandle = (SaveGameType **)AllocHandle(sizeof(SaveGameType));
 	if (dataHandle == nil)
-		DoFatalAlert("\pSaveGame: AllocHandle failed!");
+		DoFatalAlert("SaveGame: AllocHandle failed!");
 
 	(**dataHandle).score = gTotalWinnings;
 	(**dataHandle).numLevelsRemaining = gNumLevelsRemaining;
@@ -568,14 +568,14 @@ long		i;
 	FSpCreateResFile(specPtr,'Pill','Save',nil);
 	if (ResError())
 	{
-		DoAlert("\pError creating Save file");
+		DoAlert("Error creating Save file");
 		DisposeHandle((Handle)dataHandle);
 		return;
 	}
 	fRefNum = FSpOpenResFile(specPtr,fsCurPerm);
 	if (fRefNum == -1)
 	{
-		DoAlert("\pError opening Save Rez file");
+		DoAlert("Error opening Save Rez file");
 		DisposeHandle((Handle)dataHandle);
 		return;
 	}
@@ -584,7 +584,7 @@ long		i;
 	
 				/* WRITE TO FILE */
 
-	AddResource((Handle)dataHandle, 'Save', 1000, "\pSave Data");
+	AddResource((Handle)dataHandle, 'Save', 1000, "Save Data");
 	WriteResource((Handle)dataHandle);									// force the update
 	ReleaseResource((Handle)dataHandle);								// free the data
 	
@@ -603,7 +603,7 @@ OSErr LoadSavedGame(void)
 {
 #if 0
 SaveGameType	**dataHandle;
-Str255		prompt = "\pSelect A Saved Game:";
+Str255		prompt = "Select A Saved Game:";
 short		fRefNum;
 int			oldResF;
 FSSpec		*specPtr;
@@ -639,7 +639,7 @@ SFTypeList	typeList;
 	dataHandle = (SaveGameType **)GetResource('Save',1000);
 	if (dataHandle == nil)
 	{
-		DoAlert("\pError reading save game resource!");
+		DoAlert("Error reading save game resource!");
 		return(!noErr);
 	}
 	
@@ -689,7 +689,7 @@ Ptr		data;
 	iErr = FSpOpenDF(fsSpec, fsRdPerm, &fRefNum);
 	if (iErr != noErr)
 	{
-		DoAlert("\pLoadAFile: FSpOpenDF failed!");
+		DoAlert("LoadAFile: FSpOpenDF failed!");
 		DoFatalAlert(fsSpec->name);
 	}
 
@@ -697,28 +697,28 @@ Ptr		data;
 			
 	iErr = GetEOF(fRefNum, &size);
 	if (iErr != noErr)
-		DoFatalAlert("\pLoadAFile: GetEOF failed!");
+		DoFatalAlert("LoadAFile: GetEOF failed!");
 
 
 			/* ALLOC MEMORY FOR FILE */
 			
 	data = AllocPtr(size);	
 	if (data == nil)
-		DoFatalAlert("\pLoadAFile: AllocPtr failed!");
+		DoFatalAlert("LoadAFile: AllocPtr failed!");
 	
 	
 			/* READ DATA */
 
 	iErr = FSRead(fRefNum, &size, data);
 	if (iErr != noErr)
-		DoFatalAlert("\pLoadAFile: FSRead failed!");
+		DoFatalAlert("LoadAFile: FSRead failed!");
 
 
 		/*  CLOSE THE FILE */
 				
 	iErr = FSClose(fRefNum);
 	if (iErr != noErr)
-		DoFatalAlert("\pLoadAFile: FSClose failed!");
+		DoFatalAlert("LoadAFile: FSClose failed!");
 	
 	return(data);
 }
@@ -735,7 +735,7 @@ long		*longPtr;
 			
 	gTileFilePtr = LoadAFile(fsSpec);
 	if (gTileFilePtr == nil)
-		DoFatalAlert("\pLoadTerrainTileset: LoadAFile failed!");
+		DoFatalAlert("LoadTerrainTileset: LoadAFile failed!");
 
 
 			/*********************/
@@ -748,7 +748,7 @@ long		*longPtr;
 				
 	gNumTerrainTextureTiles = *longPtr++;   													// get # texture tiles
 	if (gNumTerrainTextureTiles > MAX_TERRAIN_TILES)
-		DoFatalAlert("\pLoadTerrainTileset: gNumTerrainTextureTiles > MAX_TERRAIN_TILES");
+		DoFatalAlert("LoadTerrainTileset: gNumTerrainTextureTiles > MAX_TERRAIN_TILES");
 
 	gTileDataPtr = (u_short *)longPtr;															// point to tile data
 
@@ -778,7 +778,7 @@ long		dummy1,dummy2;
 			
 	gTerrainPtr = LoadAFile(fsSpec);
 	if (gTerrainPtr == nil)
-		DoAlert("\pError loading Terrain file!");
+		DoAlert("Error loading Terrain file!");
 
 
 			/*********************/
@@ -877,7 +877,7 @@ long		dummy1,dummy2;
 	gNumTileAnims = *longPtr++;									// get # tile anims
 
 	if (gNumTileAnims > MAX_TILE_ANIMS)
-		DoAlert("\pToo many tile anims!");
+		DoAlert("Too many tile anims!");
 
 	for (i=0; i < gNumTileAnims; i++)
 	{
@@ -923,24 +923,24 @@ char				pictHeader[PICT_HEADER_SIZE];
 
 	iErr = FSpOpenDF(specPtr,fsCurPerm,&fRefNum);
 	if (iErr)
-		DoFatalAlert("\pLoadAPict: FSpOpenDF failed!");
+		DoFatalAlert("LoadAPict: FSpOpenDF failed!");
 
 	if	(GetEOF(fRefNum,&pictSize) != noErr)								// get size of file		
-		DoFatalAlert("\pLoadAPict:  GetEOF failed");
+		DoFatalAlert("LoadAPict:  GetEOF failed");
 			
 	headerSize = PICT_HEADER_SIZE;										// check the header					
 	if (FSRead(fRefNum,&headerSize,pictHeader) != noErr)
-		DoFatalAlert("\pLoadAPict:  FSRead failed!!");
+		DoFatalAlert("LoadAPict:  FSRead failed!!");
 
 	if ((pictSize -= PICT_HEADER_SIZE) <= 0)
-		DoFatalAlert("\pError reading PICT file!");
+		DoFatalAlert("Error reading PICT file!");
 		
 	if ((picture = (PicHandle)AllocHandle(pictSize)) == nil)
-		DoFatalAlert("\pLoadAPict: enough memory to read PICT file!");
+		DoFatalAlert("LoadAPict: enough memory to read PICT file!");
 	HLock((Handle)picture);
 		
 	if (FSRead(fRefNum,&pictSize,*picture) != noErr)
-		DoFatalAlert("\pLoadAPict: reading PICT file!");
+		DoFatalAlert("LoadAPict: reading PICT file!");
 		
 	FSClose(fRefNum);	
 	
@@ -958,10 +958,10 @@ FSSpec	spec;
 
 			/* LOAD GLOBAL STUFF */
 
-	FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, "\p:models:Global_Models.3dmf", &spec);
+	FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":models:Global_Models.3dmf", &spec);
 	LoadGrouped3DMF(&spec,MODEL_GROUP_GLOBAL);	
 			
-	FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, "\p:Audio:Main.sounds", &spec);
+	FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":Audio:Main.sounds", &spec);
 	LoadSoundBank(&spec, SOUND_BANK_DEFAULT);
 	
 			/* LOAD LEVEL SPECIFIC STUFF */
@@ -971,21 +971,21 @@ FSSpec	spec;
 		case	LEVEL_NUM_0:
 		
 				
-				FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, "\p:terrain:level1.trt", &spec);
+				FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":terrain:level1.trt", &spec);
 				LoadTerrainTileset(&spec);
 				
 #ifdef PRO_MODE
-				FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, "\p:terrain:level1pro.ter", &spec);
+				FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":terrain:level1pro.ter", &spec);
 #else	
-				FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, "\p:terrain:level1.ter", &spec);
+				FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":terrain:level1.ter", &spec);
 #endif				
 				LoadTerrain(&spec);
 
 				/* LOAD MODELS */
 						
-				FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, "\p:models:Level1_Models.3dmf", &spec);
+				FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":models:Level1_Models.3dmf", &spec);
 				LoadGrouped3DMF(&spec,MODEL_GROUP_LEVEL0);	
-				FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, "\p:models:Infobar_Models.3dmf", &spec);
+				FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":models:Infobar_Models.3dmf", &spec);
 				LoadGrouped3DMF(&spec,MODEL_GROUP_INFOBAR);	
 				
 				
@@ -1000,14 +1000,14 @@ FSSpec	spec;
 					
 				/* LOAD SPRITES FILES */
 
-				FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, "\p:sprites:infobar.frames", &spec);
+				FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":sprites:infobar.frames", &spec);
 				LoadFramesFile(&spec, 0);
 				break;
 
 	
 
 		default:
-				DoFatalAlert("\pLoadLevelArt: unsupported level #");
+				DoFatalAlert("LoadLevelArt: unsupported level #");
 	}
 }
 

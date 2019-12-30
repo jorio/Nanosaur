@@ -427,7 +427,7 @@ OSErr	err;
 		hand = TempNewHandle(size,&err);			// try TEMP mem
 		if (hand == nil)
 		{
-			DoFatalAlert("\pAllocHandle: failed!");
+			DoFatalAlert("AllocHandle: failed!");
 			return(nil);
 		}
 		else
@@ -449,7 +449,7 @@ Ptr	pr;
 	{
 		pr = NewPtrSys(size);				// alloc in SYS
 		if (pr == nil)
-			DoFatalAlert("\pAllocPtr: failed!");	
+			DoFatalAlert("AllocPtr: failed!");	
 		return(pr);
 	}
 	else
@@ -496,9 +496,9 @@ long		createdDirID;
 	iErr = FindFolder(kOnSystemDisk,kPreferencesFolderType,kDontCreateFolder,		// locate the folder
 					&gPrefsFolderVRefNum,&gPrefsFolderDirID);
 	if (iErr != noErr)
-		DoAlert("\pWarning: Cannot locate Preferences folder.");
+		DoAlert("Warning: Cannot locate Preferences folder.");
 
-	DirCreate(gPrefsFolderVRefNum,gPrefsFolderDirID,"\pNanosaur",&createdDirID);		// make PillowF folder in there
+	DirCreate(gPrefsFolderVRefNum,gPrefsFolderDirID,"Nanosaur",&createdDirID);		// make PillowF folder in there
 
 
 			/* VERIFY MACHINE IS OEM */
@@ -507,7 +507,7 @@ long		createdDirID;
 #if OEM
 	if (!VerifyAppleOEMMachine())
 	{
-		DoFatalAlert("\pSorry, but this free OEM version of Nanosaur is not licensed for this machine.  To get your own copy of Nanosaur, please visit www.pangeasoft.net");
+		DoFatalAlert("Sorry, but this free OEM version of Nanosaur is not licensed for this machine.  To get your own copy of Nanosaur, please visit www.pangeasoft.net");
 	}
 #endif
 #endif
@@ -517,7 +517,7 @@ long		createdDirID;
 	nVers = SndSoundManagerVersion();
 	if ((nVers.majorRev < 3) ||
 		((nVers.majorRev == 3) && (nVers.minorAndBugRev < 1)))
-		DoFatalAlert("\pThis program requires Sound Manager 3.1 or better to run.");
+		DoFatalAlert("This program requires Sound Manager 3.1 or better to run.");
 		
 
 }
@@ -535,7 +535,7 @@ void CheckGameRegistration(void)
 #else
 OSErr   		iErr;
 FSSpec 			spec;
-Str255 			regFileName = "\p:Nanosaur:Info";
+Str255 			regFileName = ":Nanosaur:Info";
 short			fRefNum;
 long        	numBytes = REG_LENGTH;
 unsigned char	regInfo[REG_LENGTH];
@@ -682,7 +682,7 @@ Str255          regInfo;
                     }
                     else
                     {
-                        DoAlert("\pSorry, that registration code is not valid.  Note that validation codes are case sensitive.  Please try again.");
+                        DoAlert("Sorry, that registration code is not valid.  Note that validation codes are case sensitive.  Please try again.");
                     }
 					break;
 
@@ -812,10 +812,10 @@ StringPtr				macName			= nil,
 
 	if (macName != nil)
 	{
-		if ((CompareString(macName, "\pPowerMac2,2", nil) == 0) 	||			// see if either machine name is an EXACT match
-			(CompareString(macName, "\pPowerBook2,2", nil) == 0) 	||
-			(CompareString(macName, "\pPowerMac2,1", nil) == 0) 	||
-			(CompareString(macName, "\pPowerBook2,1", nil) == 0))
+		if ((CompareString(macName, "PowerMac2,2", nil) == 0) 	||			// see if either machine name is an EXACT match
+			(CompareString(macName, "PowerBook2,2", nil) == 0) 	||
+			(CompareString(macName, "PowerMac2,1", nil) == 0) 	||
+			(CompareString(macName, "PowerBook2,1", nil) == 0))
 		{
 			result = true;
 		}
@@ -903,7 +903,7 @@ long				count;
 
 				/* READ TIMER FROM FILE */
 					
-	FSMakeFSSpec(gPrefsFolderVRefNum, gPrefsFolderDirID, "\pDriveData", &file);
+	FSMakeFSSpec(gPrefsFolderVRefNum, gPrefsFolderDirID, "DriveData", &file);
 	iErr = FSpOpenDF(&file, fsRdPerm, &refNum);	
 	if (iErr)
 		gDemoVersionTimer = 0;
@@ -935,7 +935,7 @@ long				count;
 
 				/* CREATE BLANK FILE */
 				
-	FSMakeFSSpec(gPrefsFolderVRefNum, gPrefsFolderDirID, "\pDriveData", &file);
+	FSMakeFSSpec(gPrefsFolderVRefNum, gPrefsFolderDirID, "DriveData", &file);
 	FSpDelete(&file);															// delete any existing file
 	iErr = FSpCreate(&file, '????', 'xxxx', smSystemScript);					// create blank file
 	if (iErr)
@@ -944,7 +944,7 @@ long				count;
 
 				/* OPEN FILE */
 					
-	FSMakeFSSpec(gPrefsFolderVRefNum, gPrefsFolderDirID, "\pDriveData", &file);
+	FSMakeFSSpec(gPrefsFolderVRefNum, gPrefsFolderDirID, "DriveData", &file);
 	iErr = FSpOpenDF(&file, fsRdWrPerm, &refNum);
 	if (iErr)
 		return;
@@ -983,7 +983,7 @@ ComponentResult				result;
 	result = GetGraphicsImporterForFile(myFSSpec, &gi);		// load importer for this image file
 	if (result != noErr)
 	{
-		DoAlert("\pDrawPictureIntoGWorld: GetGraphicsImporterForFile failed!");
+		DoAlert("DrawPictureIntoGWorld: GetGraphicsImporterForFile failed!");
 		return(result);
 	}
 	GraphicsImportGetBoundsRect(gi, &r);					// get dimensions of image
@@ -997,7 +997,7 @@ ComponentResult				result;
 		iErr = NewGWorld(theGWorld, 16, &r, nil, nil, useTempMem);		// try sys mem
 		if (iErr)
 		{
-			DoAlert("\pDrawPictureIntoGWorld: MakeMyGWorld failed");
+			DoAlert("DrawPictureIntoGWorld: MakeMyGWorld failed");
 			return(1);
 		}
 	}
@@ -1011,7 +1011,7 @@ ComponentResult				result;
 	CloseComponent(gi);										// cleanup
 	if (result != noErr)
 	{
-		DoAlert("\pDrawPictureIntoGWorld: GraphicsImportDraw failed!");
+		DoAlert("DrawPictureIntoGWorld: GraphicsImportDraw failed!");
 		ShowSystemErr(result);
 		DisposeGWorld (*theGWorld);
 		return(result);
@@ -1041,7 +1041,7 @@ GWorldPtr                   gworld;
 	result = GetGraphicsImporterForFile(myFSSpec, &gi);		// load importer for this image file
 	if (result != noErr)
 	{
-		DoAlert("\pDrawPictureIntoGWorld: GetGraphicsImporterForFile failed!");
+		DoAlert("DrawPictureIntoGWorld: GetGraphicsImporterForFile failed!");
 		return(result);
 	}
 	GraphicsImportGetBoundsRect(gi, &r);					// get dimensions of image
@@ -1055,7 +1055,7 @@ GWorldPtr                   gworld;
 		iErr = NewGWorld(&gworld, 16, &r, nil, nil, useTempMem);		// try sys mem
 		if (iErr)
 		{
-			DoAlert("\pDrawPictureIntoGWorld: MakeMyGWorld failed");
+			DoAlert("DrawPictureIntoGWorld: MakeMyGWorld failed");
 			return(1);
 		}
 	}
@@ -1069,7 +1069,7 @@ GWorldPtr                   gworld;
 	CloseComponent(gi);										// cleanup
 	if (result != noErr)
 	{
-		DoAlert("\pDrawPictureIntoGWorld: GraphicsImportDraw failed!");
+		DoAlert("DrawPictureIntoGWorld: GraphicsImportDraw failed!");
 		ShowSystemErr(result);
 		DisposeGWorld (gworld);
 		return(result);

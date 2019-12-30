@@ -26,7 +26,7 @@
 
 
 #define	MOVE_TO_FRONT		(WindowPtr)-1L
-#define	NIL_STRING			"\p"
+#define	NIL_STRING			""
 #define	PICT_HEADER_SIZE	512
 #define REMOVE_ALL_EVENTS	 0
 

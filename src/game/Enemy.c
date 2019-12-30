@@ -288,7 +288,7 @@ ObjNode	*newObj;
 
 	newObj = MakeNewSkeletonObject(&gNewObjectDefinition);
 	if (newObj == nil)
-		DoFatalAlert("\pMakeEnemySkeleton: MakeNewSkeletonObject failed!");
+		DoFatalAlert("MakeEnemySkeleton: MakeNewSkeletonObject failed!");
 	
 	
 				/* SET DEFAULT COLLISION INFO */

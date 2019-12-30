@@ -201,7 +201,7 @@ QD3DSetupInputType		viewDef;
 
 		/* LOAD MODELS */
 		
-	FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, "\p:models:HighScores.3dmf", &file);		
+	FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":models:HighScores.3dmf", &file);		
 	LoadGrouped3DMF(&file, MODEL_GROUP_HIGHSCORES);
 
 	
@@ -224,13 +224,13 @@ long				count;
 
 				/* OPEN FILE */
 					
-	FSMakeFSSpec(gPrefsFolderVRefNum, gPrefsFolderDirID, "\p:Nanosaur:HighScores", &file);
+	FSMakeFSSpec(gPrefsFolderVRefNum, gPrefsFolderDirID, ":Nanosaur:HighScores", &file);
 	iErr = FSpOpenDF(&file, fsRdPerm, &refNum);	
 	if (iErr == fnfErr)
 		ClearHighScores();
 	else
 	if (iErr)
-		DoFatalAlert("\pError opening High Scores file!");
+		DoFatalAlert("Error opening High Scores file!");
 	else
 	{
 		count = sizeof(HighScoreType) * NUM_SCORES;
@@ -239,7 +239,7 @@ long				count;
 		{
 			FSClose(refNum);			
 			FSpDelete(&file);												// file is corrupt, so delete
-//			DoAlert("\pLoadHighScores: FSRead failed!");
+//			DoAlert("LoadHighScores: FSRead failed!");
 //			ShowSystemErr(iErr);
 			return;
 		}
@@ -259,7 +259,7 @@ long				count;
 
 				/* CREATE BLANK FILE */
 				
-	FSMakeFSSpec(gPrefsFolderVRefNum, gPrefsFolderDirID, "\p:Nanosaur:HighScores", &file);
+	FSMakeFSSpec(gPrefsFolderVRefNum, gPrefsFolderDirID, ":Nanosaur:HighScores", &file);
 	FSpDelete(&file);															// delete any existing file
 	iErr = FSpCreate(&file, 'NanO', 'Skor', smSystemScript);					// create blank file
 	if (iErr)
@@ -268,12 +268,12 @@ long				count;
 
 				/* OPEN FILE */
 					
-	FSMakeFSSpec(gPrefsFolderVRefNum, gPrefsFolderDirID, "\p:Nanosaur:HighScores", &file);
+	FSMakeFSSpec(gPrefsFolderVRefNum, gPrefsFolderDirID, ":Nanosaur:HighScores", &file);
 	iErr = FSpOpenDF(&file, fsRdWrPerm, &refNum);
 	if (iErr)
 	{
 err:	
-		DoAlert("\pUnable to Save High Scores file!");
+		DoAlert("Unable to Save High Scores file!");
 		return;
 	}
 

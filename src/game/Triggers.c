@@ -261,7 +261,7 @@ short	n;
 
 	n = itemPtr->parm[0];												// parm0 = powerup type
 	if ((n < 0) || (n > 6))
-		DoFatalAlert("\pAddPowerUp: illegal powerup subtype");
+		DoFatalAlert("AddPowerUp: illegal powerup subtype");
 	
 	gNewObjectDefinition.group = MODEL_GROUP_GLOBAL;	
 	gNewObjectDefinition.type = types[n];									

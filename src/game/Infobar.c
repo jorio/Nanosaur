@@ -162,7 +162,7 @@ FSSpec	spec;
 	
 			/* DRAW INFOBAR */
 
-	FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, "\p:images:infobar.pict", &spec);
+	FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":images:infobar.pict", &spec);
     DrawPictureToScreen(&spec, 0,0);
 	
 //	pic = LoadAPict(&spec);
@@ -589,12 +589,12 @@ static TQ3Point3D				points[4] = {-GPS_DISPLAY_SIZE,GPS_DISPLAY_SIZE,0,
 			
 	pict = GetPicture(128);													// load map PICT
 	if (pict == nil)
-		DoFatalAlert("\pInitGPSMap: Cannot Get map image!");
+		DoFatalAlert("InitGPSMap: Cannot Get map image!");
 	
 	r = (*pict)->picFrame;													// get size of PICT
 	myErr = NewGWorld(&gGPSFullImage, 16, &r, 0, 0, 0L);					// make gworld
 	if (myErr)
-		DoFatalAlert("\pInitGPSMap: NewGWorld failed!");
+		DoFatalAlert("InitGPSMap: NewGWorld failed!");
 	
 	
 	GetGWorld(&oldGW, &oldGD);								
@@ -609,7 +609,7 @@ static TQ3Point3D				points[4] = {-GPS_DISPLAY_SIZE,GPS_DISPLAY_SIZE,0,
 	SetRect(&r, 0, 0, GPS_MAP_SIZE+2, GPS_MAP_SIZE+2);							// set dimensions
 	myErr = NewGWorld(&gGPSGWorld, 16, &r, 0, 0, 0L);						// make gworld
 	if (myErr)
-		DoFatalAlert("\pInitGPSMap: NewGWorld failed!");
+		DoFatalAlert("InitGPSMap: NewGWorld failed!");
 
 	SetGWorld(gGPSGWorld, nil);	
 	ForeColor(blackColor);
@@ -621,14 +621,14 @@ static TQ3Point3D				points[4] = {-GPS_DISPLAY_SIZE,GPS_DISPLAY_SIZE,0,
 		
 	gGPSShaderObject = QD3D_GWorldToTexture(gGPSGWorld,true);
 	if (gGPSShaderObject == nil)
-		DoFatalAlert("\pInitGPSMap: QD3D_GWorldToTexture failed!");
+		DoFatalAlert("InitGPSMap: QD3D_GWorldToTexture failed!");
 
 
 			/* CREATE AN ATTRIBUTE FOR SHADER */
 			
 	attrib = Q3AttributeSet_New();
 	if (attrib == nil)
-		DoFatalAlert("\pInitGPSMap: Q3AttributeSet_New failed!");
+		DoFatalAlert("InitGPSMap: Q3AttributeSet_New failed!");
 	Q3AttributeSet_Add(attrib, kQ3AttributeTypeSurfaceShader, &gGPSShaderObject);
 
 
@@ -664,7 +664,7 @@ static TQ3Point3D				points[4] = {-GPS_DISPLAY_SIZE,GPS_DISPLAY_SIZE,0,
 		
 	gGPSTriMesh = Q3TriMesh_New(&triMeshData);
 	if (gGPSTriMesh == nil)
-		DoFatalAlert("\pInitGPSMap: Q3TriMesh_New failed!");
+		DoFatalAlert("InitGPSMap: Q3TriMesh_New failed!");
 
 	Q3Object_Dispose(attrib);										// nuke extra ref to shader attribs
 
@@ -831,19 +831,19 @@ TQ3Status			status;
 						
 		status = Q3TextureShader_GetTexture(gGPSShaderObject, &texture);		// get texture from shader
 		if (status == kQ3Failure)
-			DoFatalAlert("\pMoveGPS: Q3TextureShader_GetTexture failed!");
+			DoFatalAlert("MoveGPS: Q3TextureShader_GetTexture failed!");
 		
 		status = Q3MipmapTexture_GetMipmap(texture, &mipmap);					// get mipmap from texture
 		if (status == kQ3Failure)
-			DoFatalAlert("\pMoveGPS: Q3MipmapTexture_GetMipmap failed!");
+			DoFatalAlert("MoveGPS: Q3MipmapTexture_GetMipmap failed!");
 						
 		status = Q3MemoryStorage_GetBuffer(mipmap.image, &buffer, &validSize, &bufferSize);	// get buffer
 		if (status == kQ3Failure)
-			DoFatalAlert("\pMoveGPS: Q3MemoryStorage_GetBuffer failed!");
+			DoFatalAlert("MoveGPS: Q3MemoryStorage_GetBuffer failed!");
 		
 		status = Q3MemoryStorage_SetBuffer(mipmap.image, buffer, validSize, bufferSize);		// set buffer
 		if (status == kQ3Failure)
-			DoFatalAlert("\pMoveGPS: Q3MemoryStorage_SetBuffer failed!");
+			DoFatalAlert("MoveGPS: Q3MemoryStorage_SetBuffer failed!");
 		
 		Q3Object_Dispose(texture);										// nuke extra ref
 	

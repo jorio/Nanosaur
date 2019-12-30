@@ -52,8 +52,8 @@ long	theResult;
 			
 	iErr = Gestalt(gestaltQuickTime,&theResult);
 	if(iErr != noErr)
-		DoFatalAlert("\pYou must have QuickTime 3.0 or newer installed for this program to run.");
 
+		DoFatalAlert("You must have QuickTime 3.0 or newer installed for this program to run.");
 
 
 }
@@ -74,7 +74,7 @@ OSErr	iErr;
 			
 	iErr = EnterMovies();
 	if (iErr)
-		DoFatalAlert("\pPlayAMovie: EnterMovies failed!");
+		DoFatalAlert("PlayAMovie: EnterMovies failed!");
 
 
 	SetPort(gCoverWindow);
@@ -124,13 +124,13 @@ Boolean	wasChanged;
 
 	err = OpenMovieFile(spec, &movieResFile, fsRdPerm);
 	if (err)
-		DoFatalAlert("\pGetMovie: OpenMovieFile failed!");
+		DoFatalAlert("GetMovie: OpenMovieFile failed!");
 
 	movieResID = 0;								// want 1st movie
 
 	err = NewMovieFromFile(&aMovie, movieResFile, &movieResID, movieName, newMovieActive, &wasChanged);
 	if (err)
-		DoFatalAlert("\pGetMovie: NewMovieFromFile failed!");
+		DoFatalAlert("GetMovie: NewMovieFromFile failed!");
 		
 	CloseMovieFile(movieResFile);
 	

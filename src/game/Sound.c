@@ -175,7 +175,7 @@ short		i;
 	{
 		gMusicBuffer = AllocPtr(STREAM_BUFFER_SIZE);
 		if (gMusicBuffer == nil)
-			DoFatalAlert("\pInitSoundTools: gMusicBuffer == nil");
+			DoFatalAlert("InitSoundTools: gMusicBuffer == nil");
 	}
 }
 
@@ -185,13 +185,13 @@ short		i;
 void LoadSoundBank(FSSpec *spec, long bankNum)
 {
 short			srcFile1,numSoundsInBank,i;
-Str255			error = "\pCouldnt Open Sound Resource File.";
+Str255			error = "Couldnt Open Sound Resource File.";
 OSErr			iErr;
 
 	StopAllEffectChannels();
 
 	if (bankNum >= MAX_SOUND_BANKS)
-		DoFatalAlert("\pLoadSoundBank: bankNum >= MAX_SOUND_BANKS");
+		DoFatalAlert("LoadSoundBank: bankNum >= MAX_SOUND_BANKS");
 
 			/* DISPOSE OF EXISTING BANK */
 			
@@ -202,7 +202,7 @@ OSErr			iErr;
 			
 	srcFile1 = FSpOpenResFile(spec, fsRdPerm);
 	if (srcFile1 == -1)
-		DoFatalAlert("\pLoadSoundBank: OpenResFile failed!");
+		DoFatalAlert("LoadSoundBank: OpenResFile failed!");
 
 
 			/* LOAD ALL EFFECTS IN BANK */
@@ -210,7 +210,7 @@ OSErr			iErr;
 	UseResFile( srcFile1 );												// open sound resource fork
 	numSoundsInBank = Count1Resources('snd ');							// count # snd's in this bank
 	if (numSoundsInBank > MAX_EFFECTS)
-		DoFatalAlert("\pLoadSoundBank: numSoundsInBank > MAX_EFFECTS");
+		DoFatalAlert("LoadSoundBank: numSoundsInBank > MAX_EFFECTS");
 
 	for (i=0; i < numSoundsInBank; i++)
 	{
@@ -218,9 +218,9 @@ OSErr			iErr;
 		if (gSndHandles[bankNum][i] == nil) 
 		{
 			iErr = ResError();
-			DoAlert("\pLoadSoundBank: GetResource failed!");
+			DoAlert("LoadSoundBank: GetResource failed!");
 			if (iErr == memFullErr)
-				DoFatalAlert("\pLoadSoundBank: Out of Memory");		
+				DoFatalAlert("LoadSoundBank: Out of Memory");		
 			else
 				ShowSystemErr(iErr);
 		}
@@ -359,7 +359,7 @@ SCStatus				theStatus;
 void PlaySong(short songNum, Boolean loopFlag)
 {
 OSErr 	iErr;
-Str255	errStr = "\pPlaySong: Couldnt Open Music AIFF File.";
+Str255	errStr = "PlaySong: Couldnt Open Music AIFF File.";
 static	SndCommand 		mySndCmd;
 
 	if (songNum == gCurrentSong)					// see if this is already playing
@@ -385,20 +385,20 @@ static	SndCommand 		mySndCmd;
 	switch(songNum)
 	{
 		case	0:
-				OpenGameFile("\p:audio:gamesong.aiff",&gMusicFileRefNum,errStr);		
+				OpenGameFile(":audio:gamesong.aiff",&gMusicFileRefNum,errStr);		
 				break;
 
 		case	1:
-				OpenGameFile("\p:audio:titlesong.aiff",&gMusicFileRefNum,errStr);		
+				OpenGameFile(":audio:titlesong.aiff",&gMusicFileRefNum,errStr);		
 				break;
 
 		case	2:
-				OpenGameFile("\p:audio:song_pangea",&gMusicFileRefNum,errStr);		
+				OpenGameFile(":audio:song_pangea",&gMusicFileRefNum,errStr);		
 				break;
 	
 
 		default:
-				DoFatalAlert("\pPlaySong: unknown song #");
+				DoFatalAlert("PlaySong: unknown song #");
 	}
 
 	gCurrentSong = songNum;
@@ -415,14 +415,14 @@ static	SndCommand 		mySndCmd;
 	mySndCmd.param2 = 0;
 	iErr = SndDoImmediate(gMusicChannel, &mySndCmd);
 	if (iErr)
-	    DoFatalAlert("\pPlaySong: SndDoImmediate failed");
+	    DoFatalAlert("PlaySong: SndDoImmediate failed");
 		
 	mySndCmd.cmd 	= rateCmd;										// set playback rate
 	mySndCmd.param1 = 0;
 	mySndCmd.param2 = NORMAL_CHANNEL_RATE;	
 	iErr = SndDoImmediate(gMusicChannel, &mySndCmd);
 	if (iErr)
-	    DoFatalAlert("\pPlaySong: SndDoImmediate failed");
+	    DoFatalAlert("PlaySong: SndDoImmediate failed");
 			
 			
 			/* START PLAYING FROM FILE */
@@ -434,7 +434,7 @@ stream_again:
 	{
 		FSClose(gMusicFileRefNum);								// close the file
 		gMusicFileRefNum = 0x0ded;
-		DoAlert("\pPlaySong: SndStartFilePlay failed!");
+		DoAlert("PlaySong: SndStartFilePlay failed!");
 		ShowSystemErr(iErr);
 	}
 	gSongPlayingFlag = true;
@@ -474,13 +474,13 @@ OSErr	iErr;
 	SndStopFilePlay(gMusicChannel, true);								// stop it
 	
 	if (gMusicFileRefNum == 0x0ded)
-		DoAlert("\pKillSong: gMusicFileRefNum == 0x0ded");
+		DoAlert("KillSong: gMusicFileRefNum == 0x0ded");
 	else
 	{
 		iErr = FSClose(gMusicFileRefNum);								// close the file
 		if (iErr)
 		{
-			DoAlert("\pKillSong: FSClose failed!");
+			DoAlert("KillSong: FSClose failed!");
 			ShowSystemErr_NonFatal(iErr);
 		}
 	}
@@ -524,7 +524,7 @@ OSErr	myErr;
 
 	if (soundNum >= gNumSndsInBank[bankNum])					// see if illegal sound #
 	{
-		DoAlert("\pIllegal sound number!");
+		DoAlert("Illegal sound number!");
 		ShowSystemErr(effectNum);	
 	}
 

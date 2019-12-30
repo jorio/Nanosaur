@@ -148,7 +148,7 @@ do_again:
 
 	{
 		int w;
-		Str255	s = "\pUse the Arrow Keys to change the Selection.  Press the Spacebar to make a Selection.";
+		Str255	s = "Use the Arrow Keys to change the Selection.  Press the Spacebar to make a Selection.";
 		
 		SetPort(gCoverWindow);
 		w = TextWidth(s, 0, s[0]);
@@ -160,11 +160,11 @@ do_again:
 
 			/* LOAD ART & SOUND */
 			
-	FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, "\p:models:MenuInterface.3dmf", &file);
+	FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":models:MenuInterface.3dmf", &file);
 	LoadGrouped3DMF(&file, MODEL_GROUP_MENU);
 	LoadASkeleton(SKELETON_TYPE_DEINON);
 
-	FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, "\p:Audio:Menu.sounds", &file);
+	FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":Audio:Menu.sounds", &file);
 	LoadSoundBank(&file, SOUND_BANK_MENU);
 
 

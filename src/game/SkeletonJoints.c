@@ -194,7 +194,7 @@ BoneDefinitionType	*bonePtr;
 
 	if ((jointNum >= skeletonDefPtr->NumBones)	||						// check for illegal joints
 		(jointNum < 0))
-		DoFatalAlert("\pFindJointFullMatrix: illegal jointNum!");
+		DoFatalAlert("FindJointFullMatrix: illegal jointNum!");
 
 	bonePtr = skeletonDefPtr->Bones;									// point to bones list
 

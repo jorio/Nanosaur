@@ -77,11 +77,11 @@ short		fRefNum;
 			
 	fRefNum = FSpOpenResFile(inFile,fsRdPerm);
 	if (fRefNum == -1)
-		DoFatalAlert("\pLoadFramesFile: Error opening Frames Rez file");
+		DoFatalAlert("LoadFramesFile: Error opening Frames Rez file");
 				
 	UseResFile(fRefNum);
 	if (iErr = ResError())
-		DoFatalAlert("\pError using Rez file!");
+		DoFatalAlert("Error using Rez file!");
 
 			/* EXTRACT INFO FROM FILE */
 
@@ -92,7 +92,7 @@ short		fRefNum;
 			
 	CloseResFile(fRefNum);
 	if (iErr = ResError())
-		DoFatalAlert("\pError closing Rez file!");
+		DoFatalAlert("Error closing Rez file!");
 	
 	UseResFile(gMainAppRezFile);		
 }
@@ -116,7 +116,7 @@ Boolean					hasMask;
 	hand = GetResource('Hedr',1000);
 	if (hand == nil)
 	{
-		DoAlert("\pError reading header resource!");
+		DoAlert("Error reading header resource!");
 		return;
 	}
 	
@@ -127,7 +127,7 @@ Boolean					hasMask;
 	ReleaseResource(hand);
 
 	if (numAnims > MAX_SHAPE_ANIMS)									// see if overload
-		DoFatalAlert("\pnumAnims > MAX_SHAPE_ANIMS");
+		DoFatalAlert("numAnims > MAX_SHAPE_ANIMS");
 
 	gShapeTables[groupNum].numFrames = numFrames;				// set # frames
 	gShapeTables[groupNum].numAnims = numAnims;					// set # anims
@@ -137,7 +137,7 @@ Boolean					hasMask;
 				
 	gShapeTables[groupNum].frameHeaders = (ShapeFrameHeader **)AllocHandle(sizeof(ShapeFrameHeader) * numFrames);
 	if (gShapeTables[groupNum].frameHeaders == nil)
-		DoFatalAlert("\pLoadFramesFile: AllocHandle failed");
+		DoFatalAlert("LoadFramesFile: AllocHandle failed");
 
 
 
@@ -269,7 +269,7 @@ u_long	*srcPtr,*destPtr,*maskPtr,rowBytes;
 u_short	i;
 
 	if (frame >= gShapeTables[group].numFrames)
-		DoFatalAlert("\pDrawSpriteFrameToScreen: illegal frame #");
+		DoFatalAlert("DrawSpriteFrameToScreen: illegal frame #");
 
 
 	sfh = *gShapeTables[group].frameHeaders;						// get ptr to frame header array
@@ -295,7 +295,7 @@ u_short	i;
 	if ((x < 0) || ((x+width) > GAME_VIEW_WIDTH) || (y < 0) ||
 		((y+height) >= GAME_VIEW_HEIGHT))
 	{
-		DoFatalAlert("\pClipped sprite code not written yet!");
+		DoFatalAlert("Clipped sprite code not written yet!");
 	}
 			/**************/
 			/* DON'T CLIP */

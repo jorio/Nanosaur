@@ -86,14 +86,14 @@ Ptr	mem;
 				
 	theNode->NumCollisionBoxes = numBoxes;
 	if (numBoxes == 0)
-		DoFatalAlert("\pAllocateCollisionBoxMemory with 0 boxes?");
+		DoFatalAlert("AllocateCollisionBoxMemory with 0 boxes?");
 
 
 				/* CURRENT LIST */
 				
 	mem = AllocPtr(sizeof(CollisionBoxType)*numBoxes);
 	if (mem == nil)
-		DoFatalAlert("\pCouldnt alloc collision box memory");
+		DoFatalAlert("Couldnt alloc collision box memory");
 	theNode->CollisionBoxes = (CollisionBoxType *)mem;
 }
 
@@ -139,7 +139,7 @@ void CalcObjectBoxFromNode(ObjNode *theNode)
 CollisionBoxType *boxPtr;
 
 	if (theNode->CollisionBoxes == nil)
-		DoFatalAlert("\pCalcObjectBox on objnode with no CollisionBoxType");
+		DoFatalAlert("CalcObjectBox on objnode with no CollisionBoxType");
 		
 	boxPtr = theNode->CollisionBoxes;					// get ptr to 1st box (presumed only box)
 
@@ -168,7 +168,7 @@ CollisionBoxType *boxPtr;
 		return;
 
 	if (theNode->CollisionBoxes == nil)
-		DoFatalAlert("\pCalcObjectBoxFromGlobal: CalcObjectBox on objnode with no CollisionBoxType");
+		DoFatalAlert("CalcObjectBoxFromGlobal: CalcObjectBox on objnode with no CollisionBoxType");
 		
 	boxPtr = theNode->CollisionBoxes;					// get ptr to 1st box (presumed only box)
 

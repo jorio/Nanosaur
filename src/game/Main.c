@@ -133,12 +133,12 @@ OSErr		iErr;
 			/* MAKE FSSPEC FOR DATA FOLDER */
 			
 #ifdef PRO_MODE			
-	iErr = FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, "\p:DataExtreme:Images", &gDataSpec);
+	iErr = FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":DataExtreme:Images", &gDataSpec);
 #else
-	iErr = FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, "\p:Data:Images", &gDataSpec);
+	iErr = FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":Data:Images", &gDataSpec);
 #endif	
 	if (iErr)
-		DoFatalAlert("\pCannot locate the Nanosaur Data folder.");
+		DoFatalAlert("Cannot locate the Nanosaur Data folder.");
 
 
 
@@ -156,7 +156,7 @@ OSErr		iErr;
 		{
 			case	gestaltCPU601:				// 601 is only that doesnt support it
 					gCanDo_frsqrte = false;
-					DoFatalAlert("\pSorry, but Nanosaur will not run on a PowerPC 601, only on newer Macintoshes.");
+					DoFatalAlert("Sorry, but Nanosaur will not run on a PowerPC 601, only on newer Macintoshes.");
 					break;
 			
 			default:	
@@ -426,7 +426,7 @@ cleanup:
 	
 	if (gWonGameFlag)
 	{
-		FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, "\p:movies:Win.mov", &spec);
+		FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":movies:Win.mov", &spec);
 		PlayAMovie(&spec);
 		GammaFadeOut();
 	}
@@ -434,7 +434,7 @@ cleanup:
 			/* PLAY LOSE MOVIE */
 	else
 	{
-		FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, "\p:movies:Lose.mov", &spec);
+		FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":movies:Lose.mov", &spec);
 		PlayAMovie(&spec);
 		GammaFadeOut();
 	}

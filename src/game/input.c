@@ -61,7 +61,7 @@ Boolean	gISpActive = false;
 static ISpNeed		gControlNeeds[NUM_CONTROL_NEEDS] =
 {
 	{													// 0
-		"\pJump",
+		"Jump",
 		138,
 		0,
 		0,
@@ -74,7 +74,7 @@ static ISpNeed		gControlNeeds[NUM_CONTROL_NEEDS] =
 	},
 	
 	{													// 1
-		"\pFire",
+		"Fire",
 		131,
 		0,
 		0,
@@ -86,7 +86,7 @@ static ISpNeed		gControlNeeds[NUM_CONTROL_NEEDS] =
 		0
 	},
 	{													// 2
-		"\pSelect Weapon",
+		"Select Weapon",
 		136,
 		0,
 		0,
@@ -100,7 +100,7 @@ static ISpNeed		gControlNeeds[NUM_CONTROL_NEEDS] =
 
 
 	{													// 3
-		"\pJet Up",
+		"Jet Up",
 		148,
 		0,
 		0,
@@ -112,7 +112,7 @@ static ISpNeed		gControlNeeds[NUM_CONTROL_NEEDS] =
 		0
 	},
 	{													// 4
-		"\pJet Down",
+		"Jet Down",
 		149,
 		0,
 		0,
@@ -126,7 +126,7 @@ static ISpNeed		gControlNeeds[NUM_CONTROL_NEEDS] =
 	
 	
 	{													// 5
-		"\pWalk Forward",
+		"Walk Forward",
 		132,
 		0,
 		0,
@@ -138,7 +138,7 @@ static ISpNeed		gControlNeeds[NUM_CONTROL_NEEDS] =
 		0
 	},
 	{													// 6
-		"\pWalk Backward",
+		"Walk Backward",
 		133,
 		0,
 		0,
@@ -150,7 +150,7 @@ static ISpNeed		gControlNeeds[NUM_CONTROL_NEEDS] =
 		0
 	},
 	{													// 7
-		"\pTurn Left",
+		"Turn Left",
 		134,
 		0,
 		0,
@@ -162,7 +162,7 @@ static ISpNeed		gControlNeeds[NUM_CONTROL_NEEDS] =
 		0
 	},
 	{													// 8
-		"\pTurn Right",
+		"Turn Right",
 		135,
 		0,
 		0,
@@ -175,7 +175,7 @@ static ISpNeed		gControlNeeds[NUM_CONTROL_NEEDS] =
 	},
 	
 	{													// 9
-		"\pPause",
+		"Pause",
 		137,
 		0,
 		0,
@@ -188,7 +188,7 @@ static ISpNeed		gControlNeeds[NUM_CONTROL_NEEDS] =
 	},
 	
 	{													// 10
-		"\pSwivel Camera Left",
+		"Swivel Camera Left",
 		141,
 		0,
 		0,
@@ -200,7 +200,7 @@ static ISpNeed		gControlNeeds[NUM_CONTROL_NEEDS] =
 		0
 	},
 	{													// 11
-		"\pSwivel Camera Right",
+		"Swivel Camera Right",
 		142,
 		0,
 		0,
@@ -212,7 +212,7 @@ static ISpNeed		gControlNeeds[NUM_CONTROL_NEEDS] =
 		0
 	},
 	{													// 12
-		"\pZoom In",
+		"Zoom In",
 		143,
 		0,
 		0,
@@ -224,7 +224,7 @@ static ISpNeed		gControlNeeds[NUM_CONTROL_NEEDS] =
 		0
 	},
 	{													// 13
-		"\pZoom Out",
+		"Zoom Out",
 		144,
 		0,
 		0,
@@ -236,7 +236,7 @@ static ISpNeed		gControlNeeds[NUM_CONTROL_NEEDS] =
 		0
 	},
 	{													// 14
-		"\pChange Camera Mode",
+		"Change Camera Mode",
 		140,
 		0,
 		0,
@@ -249,7 +249,7 @@ static ISpNeed		gControlNeeds[NUM_CONTROL_NEEDS] =
 	},
 	
 	{													// 15
-		"\pPickup/Throw",
+		"Pickup/Throw",
 		147,
 		0,
 		0,
@@ -262,7 +262,7 @@ static ISpNeed		gControlNeeds[NUM_CONTROL_NEEDS] =
 	},
 
 	{													// 16
-		"\pToggle Music",
+		"Toggle Music",
 		129,
 		0,
 		0,
@@ -274,7 +274,7 @@ static ISpNeed		gControlNeeds[NUM_CONTROL_NEEDS] =
 		0
 	},
 	{													// 17
-		"\pToggle Ambient Sound",
+		"Toggle Ambient Sound",
 		130,
 		0,
 		0,
@@ -286,7 +286,7 @@ static ISpNeed		gControlNeeds[NUM_CONTROL_NEEDS] =
 		0
 	},
 	{													// 18
-		"\pRaise Volume",
+		"Raise Volume",
 		145,
 		0,
 		0,
@@ -298,7 +298,7 @@ static ISpNeed		gControlNeeds[NUM_CONTROL_NEEDS] =
 		0
 	},
 	{													// 19
-		"\pLower Volume",
+		"Lower Volume",
 		139,
 		0,
 		0,
@@ -311,7 +311,7 @@ static ISpNeed		gControlNeeds[NUM_CONTROL_NEEDS] =
 	},
 	
 	{													// 20
-		"\pToggle GPS",
+		"Toggle GPS",
 		146,
 		0,
 		0,
@@ -324,7 +324,7 @@ static ISpNeed		gControlNeeds[NUM_CONTROL_NEEDS] =
 	},
 
 	{													// 21
-		"\pQuit Application",
+		"Quit Application",
 		202,
 		0,
 		0,
@@ -389,14 +389,14 @@ UInt32		count = 0;
 	iErr = ISpElement_NewVirtualFromNeeds(NUM_CONTROL_NEEDS, gControlNeeds, gVirtualElements, 0);
 	if (iErr)
 	{
-		DoAlert("\pInitInput: ISpElement_NewVirtualFromNeeds failed!");
+		DoAlert("InitInput: ISpElement_NewVirtualFromNeeds failed!");
 		ShowSystemErr(iErr);
 	}
 		
 	iErr = ISpInit(NUM_CONTROL_NEEDS, gControlNeeds, gVirtualElements, 'NanO','Nan2', 0, 1000, 0);
 	if (iErr)
 	{
-		DoAlert("\pInitInput: ISpInit failed!");
+		DoAlert("InitInput: ISpInit failed!");
 		ShowSystemErr(iErr);
 	}
 	 
@@ -405,10 +405,10 @@ UInt32		count = 0;
 	gISpActive = true;
 	iErr = ISpDevices_Extract(10,&count,dev);
 	if (iErr)
-		DoFatalAlert("\pInitInput: ISpDevices_Extract failed!");
+		DoFatalAlert("InitInput: ISpDevices_Extract failed!");
 	iErr = ISpDevices_Activate(count, dev);
 	if (iErr)
-		DoFatalAlert("\pInitInput: ISpDevices_Activate failed!");
+		DoFatalAlert("InitInput: ISpDevices_Activate failed!");
 
 
 			/* DEACTIVATE JUST THE MOUSE SINCE WE DONT NEED THAT */
@@ -496,7 +496,7 @@ KeyMap tempKeys;
 		}
 		
 		if ((sizeof(DemoCacheKeyType) * gDemoCacheIndex) >= MAX_DEMO_SIZE)	// see if overflowed
-			DoFatalAlert("\pDemo Record Buffer Overflow!");
+			DoFatalAlert("Demo Record Buffer Overflow!");
 
 					/* SEE IF END OF DEMO */
 					
@@ -689,10 +689,10 @@ OSErr		iErr;
 
 		iErr = ISpDevices_Extract(10,&count,dev);
 		if (iErr)
-			DoFatalAlert("\pTurnOnISp: ISpDevices_Extract failed!");
+			DoFatalAlert("TurnOnISp: ISpDevices_Extract failed!");
 		iErr = ISpDevices_Activate(count, dev);
 		if (iErr)
-			DoFatalAlert("\pTurnOnISp: ISpDevices_Activate failed!");
+			DoFatalAlert("TurnOnISp: ISpDevices_Activate failed!");
 			
 			/* DEACTIVATE JUST THE MOUSE SINCE WE DONT NEED THAT */
 				

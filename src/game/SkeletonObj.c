@@ -136,7 +136,7 @@ float	max,originX,originY,originZ;
 			
 	newNode->Skeleton = MakeNewSkeletonBaseData(newObjDef->type);	// alloc & set skeleton data
 	if (newNode->Skeleton == nil)
-		DoFatalAlert("\pMakeNewSkeletonObject: MakeNewSkeletonBaseData == nil");
+		DoFatalAlert("MakeNewSkeletonObject: MakeNewSkeletonBaseData == nil");
 
 	UpdateObjectTransforms(newNode);
 
@@ -215,38 +215,38 @@ long	numAnims,numJoints;
 
 	skeleton->NumAnimEvents = (Byte *)AllocPtr(sizeof(Byte)*numAnims);		// array which holds # events for each anim
 	if (skeleton->NumAnimEvents == nil)
-		DoFatalAlert("\pNot enough memory to alloc NumAnimEvents");
+		DoFatalAlert("Not enough memory to alloc NumAnimEvents");
 
 	skeleton->AnimEventsList = (AnimEventType **)AllocPtr(sizeof(AnimEventType *)*numAnims);	// alloc 1st dimension (for each anim)
 	if (skeleton->AnimEventsList == nil)
-		DoFatalAlert("\pNot enough memory to alloc AnimEventsList");
+		DoFatalAlert("Not enough memory to alloc AnimEventsList");
 	for (i=0; i < numAnims; i++)
 	{
 		skeleton->AnimEventsList[i] = (AnimEventType *)AllocPtr(sizeof(AnimEventType)*MAX_ANIM_EVENTS);	// alloc 2nd dimension (for max events)
 		if (skeleton->AnimEventsList[i] == nil)
-			DoFatalAlert("\pNot enough memory to alloc AnimEventsList");
+			DoFatalAlert("Not enough memory to alloc AnimEventsList");
 	}	
 	
 			/* ALLOC BONE INFO */
 			
 	skeleton->Bones = (BoneDefinitionType *)AllocPtr(sizeof(BoneDefinitionType)*numJoints);	
 	if (skeleton->Bones == nil)
-		DoFatalAlert("\pNot enough memory to alloc Bones");
+		DoFatalAlert("Not enough memory to alloc Bones");
 
 
 		/* ALLOC DECOMPOSED DATA */
 			
 	skeleton->decomposedTriMeshes = (TQ3TriMeshData *)AllocPtr(sizeof(TQ3TriMeshData)*MAX_DECOMPOSED_TRIMESHES);		
 	if (skeleton->decomposedTriMeshes == nil)
-		DoFatalAlert("\pNot enough memory to alloc decomposedTriMeshes");
+		DoFatalAlert("Not enough memory to alloc decomposedTriMeshes");
 
 	skeleton->decomposedPointList = (DecomposedPointType *)AllocPtr(sizeof(DecomposedPointType)*MAX_DECOMPOSED_POINTS);		
 	if (skeleton->decomposedPointList == nil)
-		DoFatalAlert("\pNot enough memory to alloc decomposedPointList");
+		DoFatalAlert("Not enough memory to alloc decomposedPointList");
 
 	skeleton->decomposedNormalsList = (TQ3Vector3D *)AllocPtr(sizeof(TQ3Vector3D)*MAX_DECOMPOSED_NORMALS);		
 	if (skeleton->decomposedNormalsList == nil)
-		DoFatalAlert("\pNot enough memory to alloc decomposedNormalsList");
+		DoFatalAlert("Not enough memory to alloc decomposedNormalsList");
 			
 	
 }
@@ -337,14 +337,14 @@ short				i;
 
 	skeletonDefPtr = gLoadedSkeletonsList[sourceSkeletonNum];				// get ptr to source skeleton definition info
 	if (skeletonDefPtr == nil)
-		DoFatalAlert("\pCopySkeletonInfoToNewSkeleton: Skeleton data isnt loaded!");
+		DoFatalAlert("CopySkeletonInfoToNewSkeleton: Skeleton data isnt loaded!");
 		
 
 			/* ALLOC MEMORY FOR NEW SKELETON OBJECT DATA STRUCTURE */
 			
 	skeletonData = (SkeletonObjDataType *)AllocPtr(sizeof(SkeletonObjDataType));
 	if (skeletonData == nil)
-		DoFatalAlert("\pMakeNewSkeletonBaseData: Cannot alloc new SkeletonObjDataType");
+		DoFatalAlert("MakeNewSkeletonBaseData: Cannot alloc new SkeletonObjDataType");
 
 
 			/* INIT NEW SKELETON */

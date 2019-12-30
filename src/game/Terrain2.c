@@ -139,18 +139,18 @@ TerrainItemEntryType *lastPtr;
 		itemCol = gMasterItemList[itemNum].x / (SUPERTILE_SIZE*OREOMAP_TILE_SIZE);	// get column of item (supertile relative)
 		if (itemCol >= gNumSuperTilesWide)
 		{
-			DoAlert("\pWarning! Item off right side of universe!");
+			DoAlert("Warning! Item off right side of universe!");
 			goto trail;
 		}
 		else
 		if (itemCol < 0)
 		{
-			DoAlert("\pWarning! Item off left side of universe!");
+			DoAlert("Warning! Item off left side of universe!");
 			goto trail;
 		}
 
 		if (itemCol < prevCol)										// see if ERROR - list not sorted correctly!!!
-			DoAlert("\pError! ObjectList not sorted right!");
+			DoAlert("Error! ObjectList not sorted right!");
 
 		if (itemCol > prevCol)										// see if changed
 		{
@@ -215,7 +215,7 @@ long	i;
 			return;
 		}
 
-	DoAlert("\pNo Start Coord or Teleporter Item Found!");
+	DoAlert("No Start Coord or Teleporter Item Found!");
 
 	gMyStartX = 0;
 	gMyStartZ = 0;
@@ -260,7 +260,7 @@ long			realX,realZ;
 				type = itemPtr->type;							// get item #
 				if (type > MAX_ITEM_NUM)						// error check!
 				{
-					DoAlert("\pIllegal Map Item Type!");
+					DoAlert("Illegal Map Item Type!");
 					ShowSystemErr(type);
 				}
 				else

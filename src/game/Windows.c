@@ -107,7 +107,7 @@ int		neededTexMem = 0x170000;			// need 1.5 megs free to play
 				
 	iErr = DSpContext_GetFrontBuffer(gDisplayContext,(CGrafPtr *)&gCoverWindow);
 	if (iErr)
-		DoFatalAlert("\pInitWindowStuff: DSpContext_GetFrontBuffer failed!");
+		DoFatalAlert("InitWindowStuff: DSpContext_GetFrontBuffer failed!");
 		
 		
 				/* HACK TO FIX QD3D BUG */
@@ -134,7 +134,7 @@ int		neededTexMem = 0x170000;			// need 1.5 megs free to play
 		r.top += (height-GAME_VIEW_HEIGHT)/2;
 		r.bottom = r.top + GAME_VIEW_HEIGHT;
 
-		gCoverWindow = NewCWindow(nil, &r, "\p", true, plainDBox,	// make new window to cover screen
+		gCoverWindow = NewCWindow(nil, &r, "", true, plainDBox,	// make new window to cover screen
 								 MOVE_TO_FRONT, false, nil);
 	
 	}
@@ -189,7 +189,7 @@ int		neededTexMem = 0x170000;			// need 1.5 megs free to play
 
 #if WARN_ATI						
 		if (!gATI)
-			DoAlert("\pFor best results, Nanosaur should be run with an ATI 3D card.");
+			DoAlert("For best results, Nanosaur should be run with an ATI 3D card.");
 #endif		
 		
 			/*********************************************/
@@ -215,7 +215,7 @@ int		neededTexMem = 0x170000;			// need 1.5 megs free to play
 					/* SEE IF PRE 4.0 */
 					
 			if (major < 4)
-				DoFatalAlert("\pThis version of the ATI 3D Accelerator Extension is ancient.  Get the latest version from ATI");
+				DoFatalAlert("This version of the ATI 3D Accelerator Extension is ancient.  Get the latest version from ATI");
 				
 					/* SEE IF EARLIER THAN 4.3 */
 
@@ -247,7 +247,7 @@ int		neededTexMem = 0x170000;			// need 1.5 megs free to play
 			if (QAEngineGestalt(myEngine, kQAGestalt_FastTextureMemory,&u32FastTexMem ) == kQANoErr)
 			{
 				if (u32FastTexMem < neededTexMem)
-					DoFatalAlert("\pSorry, but you don't seem to have enough VRAM installed on this 3D accelerator card.  This version of Nanosaur requires 4 Megs of VRAM.");
+					DoFatalAlert("Sorry, but you don't seem to have enough VRAM installed on this 3D accelerator card.  This version of Nanosaur requires 4 Megs of VRAM.");
 			}
 #endif			
 	}
@@ -332,7 +332,7 @@ Boolean					canSelect,confirmIt = false;
 	theError = DSpStartup();
 	if( theError )
 	{
-		DoFatalAlert("\pDSpStartup failed!");
+		DoFatalAlert("DSpStartup failed!");
 	}
 	gLoadedDrawSprocket = true;
 
@@ -380,14 +380,14 @@ findit:
 		theError = DSpFindBestContext( &displayConfig, &gDisplayContext );
 		if (theError)
 		{
-			DoFatalAlert("\pPrepDrawSprockets: DSpFindBestContext failed");
+			DoFatalAlert("PrepDrawSprockets: DSpFindBestContext failed");
 		}
 	}
 				/* RESERVE IT */
 
 	theError = DSpContext_Reserve( gDisplayContext, &displayConfig );
 	if( theError )
-		DoFatalAlert("\pPrepDrawSprockets: DSpContext_Reserve failed");
+		DoFatalAlert("PrepDrawSprockets: DSpContext_Reserve failed");
 		
 			/* MAKE STATE ACTIVE */
 	
@@ -401,7 +401,7 @@ findit:
 	{
 		DSpContext_Release( gDisplayContext );
 		gDisplayContext = nil;
-		DoFatalAlert("\pPrepDrawSprockets: DSpContext_SetState failed");
+		DoFatalAlert("PrepDrawSprockets: DSpContext_SetState failed");
 		return;
 	}
 
@@ -801,7 +801,7 @@ got_it:
 	y = 0; //portRect.top;
 	
 	if ((**portPixMap).pixelSize != 16)				// make sure 16bit
-		DoFatalAlert("\pGetWindowDrawInfo: The monitor is not set to 16-bit display mode.");
+		DoFatalAlert("GetWindowDrawInfo: The monitor is not set to 16-bit display mode.");
 	
 //	addr += (y * (*rowBytes)) + (x*2);				// calc window addr for 16bit pixels
 	
@@ -835,11 +835,11 @@ GWorldPtr	oldGW;
 
 	pm = GetGWorldPixMap(thisWorld);	
 	if ((pm == nil) | (*pm == nil) )
-		DoAlert("\pPixMap Handle or Ptr = Null?!");
+		DoAlert("PixMap Handle or Ptr = Null?!");
 
 	pm2 = GetGWorldPixMap(destWorld);	
 	if ((pm2 == nil) | (*pm2 == nil) )
-		DoAlert("\pPixMap Handle or Ptr = Null?!");
+		DoAlert("PixMap Handle or Ptr = Null?!");
 
 		
 	CopyBits((BitMap *)*pm,(BitMap *)*pm2,
@@ -864,7 +864,7 @@ GrafPtr		oldPort;
 	GetPort(&oldPort);
 	pm = GetGWorldPixMap(thisWorld);	
 	if ((pm == nil) | (*pm == nil) )
-		DoAlert("\pPixMap Handle or Ptr = Null?!");
+		DoAlert("PixMap Handle or Ptr = Null?!");
 
 	SetPort(thisWindow);
 
@@ -884,7 +884,7 @@ PixMapHandle pm;
 	
 	pm = GetGWorldPixMap(world);
 	if (LockPixels(pm) == false)
-		DoFatalAlert("\pPixMap Went Bye,Bye?!");
+		DoFatalAlert("PixMap Went Bye,Bye?!");
 }
 
 
