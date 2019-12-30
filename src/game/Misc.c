@@ -24,7 +24,7 @@
 
 #include	"globals.h"
 #include	"misc.h"
-#include	"windows.h"
+#include	"windows_nano.h"
 #include "sound2.h"
 #include "file.h"
 #include "player_control.h"

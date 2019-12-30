@@ -16,7 +16,7 @@
 #include 	<Rave.h>
 #include 	<CodeFragments.h>
 #include	"globals.h"
-#include	"windows.h"
+#include	"windows_nano.h"
 #include	"misc.h"
 #include "objects.h"
 #include "file.h"

@@ -16,7 +16,6 @@
 
 #include "globals.h"
 #include "objects.h"
-#include "windows.h"
 #include "misc.h"
 #include "skeletonanim.h"
 #include "skeletonobj.h"

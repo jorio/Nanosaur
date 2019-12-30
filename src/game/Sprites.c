@@ -12,7 +12,7 @@
 #include "globals.h"
 #include "misc.h"
 #include "sprites.h"
-#include "windows.h"
+#include "windows_nano.h"
 
 extern	short		gMainAppRezFile;
 extern	UInt16		*gCoverWindowPixPtr;

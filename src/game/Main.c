@@ -17,7 +17,7 @@
 #include "globals.h"
 #include "mobjtypes.h"
 #include "objects.h"
-#include "windows.h"
+#include "windows_nano.h"
 #include "main.h"
 #include "misc.h"
 #include "skeletonobj.h"

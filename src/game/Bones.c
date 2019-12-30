@@ -23,7 +23,6 @@
 #include "misc.h"
 #include "bones.h"
 #include "objects.h"
-#include "windows.h"
 #include "3dmf.h"
 #include "3dmath.h"
 #include "skeletonJoints.h"

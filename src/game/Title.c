@@ -20,7 +20,7 @@
 #include "title.h"
 #include "3dmf.h"
 #include "mobjtypes.h"
-#include "windows.h"
+#include "windows_nano.h"
 #include "input.h"
 #include "file.h"
 #include "SkeletonObj.h"

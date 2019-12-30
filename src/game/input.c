@@ -17,7 +17,7 @@
 #include "input.h"
 #include "player_control.h"
 #include "selfrundemo.h"
-#include "windows.h"
+#include "windows_nano.h"
 #include "title.h"
 
 extern	unsigned long gOriginalSystemVolume;

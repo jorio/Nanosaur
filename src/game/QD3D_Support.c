@@ -28,7 +28,7 @@
 #include "misc.h"
 #include "qd3d_support.h"
 #include "input.h"
-#include "windows.h"
+#include "windows_nano.h"
 #include "atirave.h"
 #include "camera.h"
 #include "3dmath.h"

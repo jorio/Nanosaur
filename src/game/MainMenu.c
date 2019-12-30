@@ -21,7 +21,7 @@
 #include "mainmenu.h"
 #include "3dmf.h"
 #include "input.h"
-#include "windows.h"
+#include "windows_nano.h"
 #include "SkeletonObj.h"
 #include "sound2.h"
 #include "title.h"

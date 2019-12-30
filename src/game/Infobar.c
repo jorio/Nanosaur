@@ -14,7 +14,7 @@
 #include <QD3DStorage.h>
 #include "globals.h"
 #include "objects.h"
-#include "windows.h"
+#include "windows_nano.h"
 #include "misc.h"
 #include "infobar.h"
 #include "file.h"

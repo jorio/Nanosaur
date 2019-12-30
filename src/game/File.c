@@ -22,7 +22,7 @@
 #include	"3dmf.h"
 #include 	"mobjtypes.h"
 #include	"file.h"
-#include 	"windows.h"
+#include 	"windows_nano.h"
 #include 	"main.h"
 #include 	"terrain.h"
 #include 	"sprites.h"
