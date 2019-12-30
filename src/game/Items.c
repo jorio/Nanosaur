@@ -428,7 +428,7 @@ int		i;
 ObjNode	*newObj;
 float	yoff,scale;
 TQ3BoundingBox *bbox;
-static const scales[] =
+static const float scales[] =
 {
 	1.0,				// fern
 	1.1,				// stickpalm

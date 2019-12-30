@@ -223,7 +223,7 @@ long	start;
 unsigned char *NumToHex(unsigned short n)
 {
 static unsigned char format[] = "0xXXXX";				// Declare format static so we can return a pointer to it.
-char *conv = "0123456789ABCDEF";
+static const char *conv = "0123456789ABCDEF";
 short i;
 
 	for (i = 0; i < 4; n >>= 4, ++i)
@@ -239,8 +239,8 @@ short i;
 
 unsigned char *NumToHex2(unsigned long n, short digits)
 {
-static unsigned char format[] = "\p$XXXXXXXX";				// Declare format static so we can return a pointer to it
-char *conv = "0123456789ABCDEF";
+static unsigned char format[] = "_$XXXXXXXX";				// Declare format static so we can return a pointer to it
+static const char *conv = "0123456789ABCDEF";
 unsigned long i;
 
 	if (digits > 8 || digits < 0)
@@ -260,8 +260,8 @@ unsigned long i;
 
 unsigned char *NumToDec(unsigned long n)
 {
-static unsigned char format[] = "\pXXXXXXXX";				// Declare format static so we can return a pointer to it
-char *conv = "0123456789";
+static unsigned char format[] = "_XXXXXXXX";				// Declare format static so we can return a pointer to it
+static const char *conv = "0123456789";
 short		 i,digits;
 unsigned long temp;
 
@@ -709,7 +709,7 @@ Str255          regInfo;
 void RegulateSpeed(short fps)
 {
 short	n;
-static oldTick = 0;
+static UInt32 oldTick = 0;
 	
 	n = 60 / fps;
 	while ((TickCount() - oldTick) < n);			// wait for n ticks
