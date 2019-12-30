@@ -15,8 +15,8 @@
 #include "windows.h"
 
 extern	short		gMainAppRezFile;
-extern	u_short		*gCoverWindowPixPtr;
-extern	u_long		gCoverWindowRowBytes,gCoverWindowRowBytes2;
+extern	UInt16		*gCoverWindowPixPtr;
+extern	UInt32		gCoverWindowRowBytes,gCoverWindowRowBytes2;
 
 
 
@@ -106,7 +106,7 @@ Handle					hand;
 FramesFile_Header_Type	*headerPtr;
 FrameHeaderType			*frameHeaderPtr;
 long					i,w,h,j;
-u_short					*pixelPtr,**destPixelHand,*destPixelPtr;
+UInt16					*pixelPtr,**destPixelHand,*destPixelPtr;
 short					numAnims,numFrames,numLines;
 ShapeFrameHeader		*sfh;
 Boolean					hasMask;
@@ -171,11 +171,11 @@ Boolean					hasMask;
 		h = sfh->height;		
 								
 		if (sfh->hasMask)
-			destPixelHand = sfh->pixelData = (u_short **)AllocHandle(w*h*2*2);	// alloc mem for pix & mask
+			destPixelHand = sfh->pixelData = (UInt16 **)AllocHandle(w*h*2*2);	// alloc mem for pix & mask
 		else
-			destPixelHand = sfh->pixelData = (u_short **)AllocHandle(w*h*2);	// alloc mem for just pix
+			destPixelHand = sfh->pixelData = (UInt16 **)AllocHandle(w*h*2);	// alloc mem for just pix
 		
-		pixelPtr = (u_short *)*hand;										// get ptr to file's data
+		pixelPtr = (UInt16 *)*hand;										// get ptr to file's data
 		destPixelPtr = *destPixelHand;										// get ptr to dest 				
 
 
@@ -259,14 +259,14 @@ ShapeFrameHeader	*sfh;
 //
 //
 
-void DrawSpriteFrameToScreen(u_long group, u_long frame, long x, long y)
+void DrawSpriteFrameToScreen(UInt32 group, UInt32 frame, long x, long y)
 {
 ShapeFrameHeader	*sfh;
-u_long	width,height,h,v;
+UInt32	width,height,h,v;
 long	xoff,yoff;
 Boolean	hasMask;
-u_long	*srcPtr,*destPtr,*maskPtr,rowBytes;
-u_short	i;
+UInt32	*srcPtr,*destPtr,*maskPtr,rowBytes;
+UInt16	i;
 
 	if (frame >= gShapeTables[group].numFrames)
 		DoFatalAlert("DrawSpriteFrameToScreen: illegal frame #");
@@ -280,7 +280,7 @@ u_short	i;
 	xoff 	= sfh->xoffset;								// get frame xoffset
 	yoff 	= sfh->yoffset;								// get frame yoffset
 	hasMask = sfh->hasMask;								// get frame has mask flag
-	srcPtr 	= (u_long *)*(sfh->pixelData);				// get ptr to pixel/mask data
+	srcPtr 	= (UInt32 *)*(sfh->pixelData);				// get ptr to pixel/mask data
 
 	x += xoff;											// adjust draw coords
 	y += yoff;
@@ -302,7 +302,7 @@ u_short	i;
 			/**************/
 	else
 	{
-		destPtr = (u_long *)(gCoverWindowPixPtr + (y * gCoverWindowRowBytes2) + x);		// calc start addr
+		destPtr = (UInt32 *)(gCoverWindowPixPtr + (y * gCoverWindowRowBytes2) + x);		// calc start addr
 	
 	
 				/* DRAW WITH MASK */

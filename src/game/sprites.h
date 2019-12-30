@@ -21,7 +21,7 @@ typedef struct
 	short			xoffset;
 	short			yoffset;
 	Boolean			hasMask;
-	u_short			**pixelData;			// pointer to pixel & mask data
+	UInt16			**pixelData;			// pointer to pixel & mask data
 }ShapeFrameHeader;
 
 
@@ -34,10 +34,10 @@ typedef struct
 
 typedef struct
 {
-	u_short				numFrames;		// # frames in this shape table/frames file
+	UInt16				numFrames;		// # frames in this shape table/frames file
 	ShapeFrameHeader	**frameHeaders;
 
-	u_short				numAnims;		// # anims in this shape table/frames file
+	UInt16				numAnims;		// # anims in this shape table/frames file
 	ShapeAnimHeader		anims[MAX_SHAPE_ANIMS];
 }ShapeTableHeader;
 
@@ -46,9 +46,9 @@ typedef struct
 		
 typedef struct
 {
-	u_short		version;
-	u_short		numFrames;
-	u_short		numAnims;
+	UInt16		version;
+	UInt16		numFrames;
+	UInt16		numAnims;
 	RGBColor	xColor;
 }FramesFile_Header_Type;
 
@@ -68,7 +68,7 @@ typedef struct FrameHeaderType FrameHeaderType;
 
 struct AnimHeaderType
 {
-	u_short			numLines;
+	UInt16			numLines;
 };
 typedef struct AnimHeaderType AnimHeaderType;
 
@@ -80,7 +80,7 @@ typedef struct AnimHeaderType AnimHeaderType;
 extern	void InitSpriteManager(void);
 extern	void LoadFramesFile(FSSpec *inFile, short groupNum);
 extern	void DisposeSpriteGroup(short groupNum);
-extern	void DrawSpriteFrameToScreen(u_long group, u_long frame, long x, long y);
+extern	void DrawSpriteFrameToScreen(UInt32 group, UInt32 frame, long x, long y);
 
 
 

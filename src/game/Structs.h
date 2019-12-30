@@ -68,10 +68,10 @@ typedef struct
 	TQ3TransformObject	ignored3;
 	unsigned char		ignored4[32];		
 	TQ3Point3D			coord;							// absolute coord (not relative to parent!) 
-	u_short				numPointsAttachedToBone;		// # vertices/points that this bone has
-	u_short				*pointList;						// indecies into gDecomposedPointList
-	u_short				numNormalsAttachedToBone;		// # vertex normals this bone has
-	u_short				*normalList;					// indecies into gDecomposedNormalsList
+	UInt16				numPointsAttachedToBone;		// # vertices/points that this bone has
+	UInt16				*pointList;						// indecies into gDecomposedPointList
+	UInt16				numNormalsAttachedToBone;		// # vertex normals this bone has
+	UInt16				*normalList;					// indecies into gDecomposedNormalsList
 }BoneDefinitionType;
 
 
@@ -186,11 +186,11 @@ typedef struct
 
 struct TerrainItemEntryType
 {
-	u_short	x,y;
-	u_short	type;
+	UInt16	x,y;
+	UInt16	type;
 	Byte	parm[4];
 	
-	u_short	flags;									
+	UInt16	flags;									
 	struct	TerrainItemEntryType	*prevItem;		// ptr to previous item in linked list (nil == none)
 	struct	TerrainItemEntryType	*nextItem;		// ptr to next item in linked list
 };

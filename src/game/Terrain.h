@@ -124,7 +124,7 @@ struct SuperTileMemoryType
 {
 	Byte				mode;									// free, used, etc.
 	Byte				hiccupTimer;							// timer to delay drawing to avoid hiccup of texture upload
-	u_short				row,col;								// supertile's map position
+	UInt16				row,col;								// supertile's map position
 	TQ3Point3D			coord;									// world coords
 	long				left,back;								// integer coords of back/left corner
 	TQ3GeometryObject	triMesh;								// trimeshes for the supertile
@@ -143,7 +143,7 @@ typedef struct SuperTileMemoryType SuperTileMemoryType;
 
 typedef struct TileAttribType
 {
-	u_short	bits;
+	UInt16	bits;
 	short	parm0;
 	Byte	parm1,parm2;
 	short	undefined;
@@ -189,10 +189,10 @@ extern 	void DisposeTerrain(void);
 extern	void DrawTerrain(QD3DSetupOutputType *setupInfo);
 extern 	float	GetTerrainHeightAtCoord(float x, float z);
 extern	float	GetTerrainHeightAtCoord_Quick(long x, long z);
-extern 	u_short	GetTileAttribsAtRowCol(short row, short col);
-extern	u_short	GetTileCollisionBitsAtRowCol(short row, short col, Boolean checkAlt);
-extern 	u_short	GetTileCollisionBitsAtRowCol2(short row, short col);
-extern	u_short	GetTileAttribs(long x, long z);
+extern 	UInt16	GetTileAttribsAtRowCol(short row, short col);
+extern	UInt16	GetTileCollisionBitsAtRowCol(short row, short col, Boolean checkAlt);
+extern 	UInt16	GetTileCollisionBitsAtRowCol2(short row, short col);
+extern	UInt16	GetTileAttribs(long x, long z);
 extern	void GetSuperTileInfo(long x, long z, long *superCol, long *superRow, long *tileCol, long *tileRow);
 extern	void InitTerrainManager(void);
 extern	void ClearScrollBuffer(void);
@@ -210,9 +210,9 @@ extern 	Boolean NilAdd(TerrainItemEntryType *itemPtr,long x, long z);
 extern	void PrimeInitialTerrain(void);
 extern 	void FindMyStartCoordItem(void);
 extern 	Boolean TrackTerrainItem_Far(ObjNode *theNode, long range);
-extern 	u_short	GetPathTileNum(float x, float z);
+extern 	UInt16	GetPathTileNum(float x, float z);
 extern 	void MakeBackupOfItemList(void);
-extern	u_short	GetPathTileNumAtRowCol(long row, long col);
+extern	UInt16	GetPathTileNumAtRowCol(long row, long col);
 extern	void RotateOnTerrain(ObjNode *theNode, float sideOff, float endOff);
 extern	void DoMyTerrainUpdate(void);
 

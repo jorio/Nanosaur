@@ -39,7 +39,7 @@ extern	long	gPrefsFolderDirID,gNumTerrainTextureTiles,gNumTileAnims;
 extern	Ptr		gTerrainPtr,gTerrainHeightMapPtrs[];
 extern	long	gTerrainTileWidth,gTerrainTileDepth,gTerrainUnitWidth,gTerrainUnitDepth;		
 extern	long	gNumSuperTilesDeep,gNumSuperTilesWide;
-extern	u_short	**gTerrainTextureLayer,**gTerrainHeightMapLayer,**gTerrainPathLayer,*gTileDataPtr;
+extern	UInt16	**gTerrainTextureLayer,**gTerrainHeightMapLayer,**gTerrainPathLayer,*gTileDataPtr;
 extern	TileAttribType	*gTileAttributes;
 extern	short	*gTileAnimEntryList[];
 extern	long	gCurrentSuperTileRow,gCurrentSuperTileCol;
@@ -247,7 +247,7 @@ SkeletonFile_AnimHeader_Type	*animHeaderPtr;
 	for (i=0; i < numJoints; i++)
 	{
 		File_BoneDefinitionType	*bonePtr;
-		u_short					*indexPtr;
+		UInt16					*indexPtr;
 
 			/* READ BONE DATA */
 			
@@ -268,11 +268,11 @@ SkeletonFile_AnimHeader_Type	*animHeaderPtr;
 
 			/* ALLOC THE POINT & NORMALS SUB-ARRAYS */
 				
-		skeleton->Bones[i].pointList = (u_short *)AllocPtr(sizeof(u_short) * (int)skeleton->Bones[i].numPointsAttachedToBone);
+		skeleton->Bones[i].pointList = (UInt16 *)AllocPtr(sizeof(UInt16) * (int)skeleton->Bones[i].numPointsAttachedToBone);
 		if (skeleton->Bones[i].pointList == nil)
 			DoFatalAlert("ReadDataFromSkeletonFile: AllocPtr/pointList failed!");
 
-		skeleton->Bones[i].normalList = (u_short *)AllocPtr(sizeof(u_short) * (int)skeleton->Bones[i].numNormalsAttachedToBone);
+		skeleton->Bones[i].normalList = (UInt16 *)AllocPtr(sizeof(UInt16) * (int)skeleton->Bones[i].numNormalsAttachedToBone);
 		if (skeleton->Bones[i].normalList == nil)
 			DoFatalAlert("ReadDataFromSkeletonFile: AllocPtr/normalList failed!");
 
@@ -282,7 +282,7 @@ SkeletonFile_AnimHeader_Type	*animHeaderPtr;
 		if (hand == nil)
 			DoFatalAlert("Error reading BonP resource!");
 		HLock(hand);
-		indexPtr = (u_short *)(*hand);
+		indexPtr = (UInt16 *)(*hand);
 			
 
 			/* COPY POINT INDEX ARRAY INTO BONE STRUCT */
@@ -298,7 +298,7 @@ SkeletonFile_AnimHeader_Type	*animHeaderPtr;
 		if (hand == nil)
 			DoFatalAlert("Error reading BonN resource!");
 		HLock(hand);
-		indexPtr = (u_short *)(*hand);
+		indexPtr = (UInt16 *)(*hand);
 			
 			/* COPY NORMAL INDEX ARRAY INTO BONE STRUCT */
 
@@ -750,7 +750,7 @@ long		*longPtr;
 	if (gNumTerrainTextureTiles > MAX_TERRAIN_TILES)
 		DoFatalAlert("LoadTerrainTileset: gNumTerrainTextureTiles > MAX_TERRAIN_TILES");
 
-	gTileDataPtr = (u_short *)longPtr;															// point to tile data
+	gTileDataPtr = (UInt16 *)longPtr;															// point to tile data
 
 
 //	ExtractTileData();
@@ -767,7 +767,7 @@ long		*longPtr;
 
 void LoadTerrain(FSSpec *fsSpec)
 {
-u_short 	*shortPtr;
+UInt16		*shortPtr;
 long		offset;
 Ptr			miscPtr;
 long		row,i,x,y;
@@ -797,11 +797,11 @@ long		dummy1,dummy2;
 
 			/* INIT TEXTURE_LAYER */
 
-	gTerrainTextureLayer = (u_short **)AllocPtr(sizeof(short *)*				// alloc mem for 1st dimension of array (map is 1/2 dimensions of wid/dep values!)
+	gTerrainTextureLayer = (UInt16 **)AllocPtr(sizeof(short *)*				// alloc mem for 1st dimension of array (map is 1/2 dimensions of wid/dep values!)
 							gTerrainTileDepth);
 
 	offset = *((long *)(gTerrainPtr+0));										// get offset to TEXTURE_LAYER
-	shortPtr = (u_short *)(gTerrainPtr+offset);									// calc ptr to TEXTURE_LAYER
+	shortPtr = (UInt16 *)(gTerrainPtr+offset);									// calc ptr to TEXTURE_LAYER
 
 	for (row = 0; row < gTerrainTileDepth; row++)
 	{
@@ -812,13 +812,13 @@ long		dummy1,dummy2;
 
 			/* INIT HEIGHTMAP_LAYER */
 
-	gTerrainHeightMapLayer = (u_short **)AllocPtr(sizeof(short *)*				// alloc mem for 1st dimension of array (map is 1/2 dimensions of wid/dep values!)
+	gTerrainHeightMapLayer = (UInt16 **)AllocPtr(sizeof(short *)*				// alloc mem for 1st dimension of array (map is 1/2 dimensions of wid/dep values!)
 							gTerrainTileDepth);
 							
 	offset = *((long *)(gTerrainPtr+4));										// get offset to HEIGHTMAP_LAYER
 	if (offset > 0)
 	{
-		shortPtr = (u_short *)(gTerrainPtr+offset);								// calc ptr to HEIGHTMAP_LAYER
+		shortPtr = (UInt16 *)(gTerrainPtr+offset);								// calc ptr to HEIGHTMAP_LAYER
 
 		for (row = 0; row < gTerrainTileDepth; row++)
 		{
@@ -830,13 +830,13 @@ long		dummy1,dummy2;
 
 			/* INIT PATH_LAYER */
 
-	gTerrainPathLayer = (u_short **)AllocPtr(sizeof(short *)*					// alloc mem for 1st dimension of array (map is 1/2 dimensions of wid/dep values!)
+	gTerrainPathLayer = (UInt16 **)AllocPtr(sizeof(short *)*					// alloc mem for 1st dimension of array (map is 1/2 dimensions of wid/dep values!)
 							gTerrainTileDepth);
 							
 	offset = *((long *)(gTerrainPtr+8));										// get offset to PATH_LAYER
 	if (offset > 0)
 	{
-		shortPtr = (u_short *)(gTerrainPtr+offset);								// calc ptr to PATH_LAYER
+		shortPtr = (UInt16 *)(gTerrainPtr+offset);								// calc ptr to PATH_LAYER
 
 		for (row = 0; row < gTerrainTileDepth; row++)
 		{

@@ -35,7 +35,7 @@ extern	void GammaOn(void);
 extern	void GameScreenToBlack(void);
 extern	void CleanScreenBorder(void);
 
-extern	void GetWindowDrawInfo(WindowPtr w, u_short **pixelPtr, u_long *rowBytes);
+extern	void GetWindowDrawInfo(WindowPtr w, UInt16 **pixelPtr, UInt32 *rowBytes);
 
 void DumpGWorld2(GWorldPtr thisWorld, WindowPtr thisWindow,Rect *destRect);
 void DoLockPixels(GWorldPtr world);

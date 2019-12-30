@@ -36,7 +36,7 @@ extern	float		gFramesPerSecond,gFramesPerSecondFrac;
 /*    PROTOTYPES            */
 /****************************/
 
-static void AddBGCollisions(ObjNode *theNode, float realDX, float realDZ, u_long cType);
+static void AddBGCollisions(ObjNode *theNode, float realDX, float realDZ, UInt32 cType);
 static void AllocateCollisionTriangleMemory(ObjNode *theNode, long numTriangles);
 static void GetTrianglesFromTriMesh(TQ3Object obj);
 static void ScanForTriangles_Recurse(TQ3Object obj);
@@ -575,11 +575,11 @@ next:
 
 /**************** ADD BG COLLISIONS *********************/
 
-static void AddBGCollisions(ObjNode *theNode, float realDX, float realDZ, u_long cType)
+static void AddBGCollisions(ObjNode *theNode, float realDX, float realDZ, UInt32 cType)
 {
 short		oldRow,left,right,oldCol,back,front;
 short		count,num;
-u_short		bits;
+UInt16		bits;
 CollisionBoxType *boxList;
 float		leftSide,rightSide,frontSide,backSide;
 float		oldLeftSide,oldRightSide,oldFrontSide,oldBackSide;
@@ -1372,7 +1372,7 @@ signed char	wind;										// current winding number
 // OUTPUT: # collisions detected
 //
 
-short DoSimplePointCollision(TQ3Point3D *thePoint, u_long cType)
+short DoSimplePointCollision(TQ3Point3D *thePoint, UInt32 cType)
 {
 ObjNode	*thisNode;
 short	targetNumBoxes,target;

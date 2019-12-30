@@ -27,9 +27,9 @@ typedef struct
 	long 				parentBone;			 		// index to previous bone
 	unsigned char		name[32];					// text string name for bone
 	TQ3Point3D			coord;						// absolute coord (not relative to parent!) 
-	u_short				numPointsAttachedToBone;	// # vertices/points that this bone has
-	u_short				numNormalsAttachedToBone;	// # vertex normals this bone has
-	u_long				reserved[8];				// reserved for future use
+	UInt16				numPointsAttachedToBone;	// # vertices/points that this bone has
+	UInt16				numNormalsAttachedToBone;	// # vertex normals this bone has
+	UInt32				reserved[8];				// reserved for future use
 }File_BoneDefinitionType;
 
 

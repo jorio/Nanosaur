@@ -74,9 +74,6 @@ typedef union {
 	Handle 	B;
 } UniversalHandle;
 
-typedef	unsigned char u_char;
-typedef	unsigned long u_long;
-typedef	unsigned short u_short;
 
 
 #define	PI					kQ3Pi	//3.141592654

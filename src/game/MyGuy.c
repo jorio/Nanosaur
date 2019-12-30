@@ -39,7 +39,7 @@ extern	float	gFramesPerSecondFrac,gMostRecentCharacterFloorY,gFuel;
 extern	WindowPtr		gCoverWindow;
 extern	short		gNumCollisions;
 extern	CollisionRec	gCollisionList[];
-extern	u_short	**gTerrainPathLayer;
+extern	UInt16	**gTerrainPathLayer;
 extern	unsigned long 	gInfobarUpdateBits,gScore;
 extern	float	gMySpeedPuffCounter,gMyHeightOffGround;
 extern	Boolean	gPlayerGotKilledFlag,gGameOverFlag,gWonGameFlag;
@@ -112,7 +112,7 @@ ObjNode		*gPlayerObj,*gMyTimePortal,*gMyShield;
 float		gMyHealth = 1.0;
 float		gLavaSmokeCounter;
 static float gMyTimePortalTimer;
-u_short		gMyLatestPathTileNum = 0, gMyLatestTileAttribs = 0;
+UInt16		gMyLatestPathTileNum = 0, gMyLatestTileAttribs = 0;
 float		gShieldTimer = 0;
 short		gShieldChannel = -1;
 Byte		gMyStartAim;
@@ -871,7 +871,7 @@ ObjNode	*hitObj;
 unsigned long	ctype;
 TQ3Point3D		oldCoord;
 float		y,oldDY;
-u_char		sides;
+UInt8		sides;
 
 	oldCoord = gCoord;
 	oldDY = gDelta.y;
@@ -980,7 +980,7 @@ static Boolean DoMyKickCollision(ObjNode *theNode)
 TQ3Point3D	footCoord;
 short		n,i;
 ObjNode		*hitObj;
-u_long		ctype;
+UInt32		ctype;
 
 				/* CALC COORD OF FOOT */
 

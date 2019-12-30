@@ -72,8 +72,8 @@ Boolean					gATI = false;
 static unsigned long	gVideoModeTimoutCounter;
 static Boolean			gVideoModeTimedOut;
 
-u_short					*gCoverWindowPixPtr;
-u_long					gCoverWindowRowBytes,gCoverWindowRowBytes2;
+UInt16					*gCoverWindowPixPtr;
+UInt32					gCoverWindowRowBytes,gCoverWindowRowBytes2;
 
 TQADevice	gATIRaveDevice;
 TQAEngine	*gATIRaveEngine;
@@ -95,7 +95,7 @@ DisplayIDType	displayID;
 DSpContextAttributes 	realConfig;
 TQADevice	raveDevice;
 TQAEngine	*myEngine;
-u_long	u32FastTexMem;
+UInt32	u32FastTexMem;
 int		neededTexMem = 0x170000;			// need 1.5 megs free to play
 
 			/* INIT WITH DRAW SPROCKETS */
@@ -739,7 +739,7 @@ Rect	r;
 //				rowBytes	:	Ptr to variable to contain the rowbytes of the window.
 //
 
-void GetWindowDrawInfo(WindowPtr w, u_short **pixelPtr, u_long *rowBytes)
+void GetWindowDrawInfo(WindowPtr w, UInt16 **pixelPtr, UInt32 *rowBytes)
 {
 Rect			portRect;
 PixMapHandle	portPixMap;
@@ -805,7 +805,7 @@ got_it:
 	
 //	addr += (y * (*rowBytes)) + (x*2);				// calc window addr for 16bit pixels
 	
-	*pixelPtr = (u_short *)addr;					// return ptr
+	*pixelPtr = (UInt16 *)addr;					// return ptr
 }
 
 

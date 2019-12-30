@@ -317,7 +317,7 @@ QD3DSetupOutputType	*data;
 static void CreateView(QD3DSetupInputType *setupDefPtr)
 {
 TQ3Status	status;
-unsigned long	hints;
+TQ3Uns32	hints;
 
 				/* CREATE NEW VIEW OBJECT */
 				
@@ -1666,7 +1666,7 @@ TQ3Status	status;
 TQ3TextureObject	texture;
 TQ3Mipmap			mipmap;
 short		width,height,x,y;
-u_long		*buffer,*pixelPtr,pixmapRowbytes,size,sizeRead;
+UInt32		*buffer,*pixelPtr,pixmapRowbytes,size,sizeRead;
 
 	if (gQD3D_gShadowTexture)
 		return;
@@ -1696,7 +1696,7 @@ u_long		*buffer,*pixelPtr,pixmapRowbytes,size,sizeRead;
 	if (status == kQ3Failure)
 		DoFatalAlert("MakeShadowTexture: Q3Storage_GetSize failed!");
 
-	buffer = (u_long *)AllocPtr(size);										// alloc buffer for pixel data
+	buffer = (UInt32 *)AllocPtr(size);										// alloc buffer for pixel data
 	if (buffer == nil)
 		DoFatalAlert("MakeShadowTexture: AllocPtr failed!");		
 

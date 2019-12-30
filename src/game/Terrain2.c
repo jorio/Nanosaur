@@ -27,7 +27,7 @@ extern	Ptr		gTerrainPtr;
 extern	long	gTerrainItemDeleteWindow_Near,gTerrainItemDeleteWindow_Far,
 				gTerrainItemDeleteWindow_Left,gTerrainItemDeleteWindow_Right;
 extern	ObjNode		*gThisNodePtr;
-extern	u_long		gControllerA;
+extern	UInt32		gControllerA;
 extern	long		gDX,gDY,gDZ,gX,gY,gZ;
 extern	long		gMyStartX,gMyStartZ;
 extern	long	gNumTerrainTextureTiles;
@@ -35,7 +35,7 @@ extern	long	*gTerrainTexturePtrs;
 extern	long	gNumSuperTilesDeep,gNumSuperTilesWide,gCurrentActiveBuildingID;
 extern	Boolean		gLevelHasHeightMaps[],gCanDo_frsqrte;
 extern	long	gTerrainUnitWidth,gTerrainUnitDepth;
-extern	u_short	**gTerrainHeightMapLayer,**gTerrainPathLayer;
+extern	UInt16	**gTerrainHeightMapLayer,**gTerrainPathLayer;
 extern	TQ3Point3D	gCoord,gMyCoord;
 extern	const float	gOneOver_TERRAIN_POLYGON_SIZE;
 extern	Byte		gMyStartAim;
@@ -352,7 +352,7 @@ long	x,z;
 // OUTPUT: tile #
 //
 
-u_short	GetPathTileNum(float x, float z)
+UInt16	GetPathTileNum(float x, float z)
 {
 long	row,col,y;
 
@@ -379,9 +379,9 @@ long	row,col,y;
 // OUTPUT: tile #
 //
 
-u_short	GetPathTileNumAtRowCol(long row, long col)
+UInt16	GetPathTileNumAtRowCol(long row, long col)
 {
-u_short tile;
+UInt16 tile;
 
 	tile = gTerrainPathLayer[row][col];							// get path data from map
 	tile = tile&TILENUM_MASK; 							  		// filter out tile # 

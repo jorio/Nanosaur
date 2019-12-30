@@ -55,7 +55,7 @@ typedef struct
 
 typedef struct
 {
-	u_short	effectNum;
+	UInt16	effectNum;
 	float	volumeAdjust;
 }ChannelInfoType;
 

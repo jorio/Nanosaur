@@ -36,8 +36,8 @@ extern	WindowPtr				gCoverWindow;
 extern	Boolean			gPossibleAttackModes[],gGameOverFlag,gAbortedFlag;
 extern	short			gWeaponInventory[];
 extern	ObjNode			*gPlayerObj;
-extern	u_short		*gCoverWindowPixPtr;
-extern	u_long		gCoverWindowRowBytes,gCoverWindowRowBytes2;
+extern	UInt16		*gCoverWindowPixPtr;
+extern	UInt32		gCoverWindowRowBytes,gCoverWindowRowBytes2;
 extern	QD3DSetupOutputType		*gGameViewInfoPtr;
 extern	TQ3Matrix4x4	gCameraAdjustMatrix;
 extern	TQ3Point3D	gMyCoord;
@@ -117,7 +117,7 @@ short			gRecoveredEggs[NUM_EGG_SPECIES];
 
 static GWorldPtr gGPSGWorld = nil,gGPSFullImage = nil;
 static Ptr 		gGPSPixels = nil;
-static u_long	gGPSRowBytes;
+static UInt32	gGPSRowBytes;
 static TQ3SurfaceShaderObject	gGPSShaderObject = nil;
 static TQ3GeometryObject		gGPSTriMesh = nil;
 static	ObjNode 	*gGPSObj;
@@ -704,7 +704,7 @@ GDHandle				oldGD;
 GWorldPtr				oldGW;
 Boolean					forceUpdate = false;
 unsigned char 		*buffer;
-u_long				validSize,bufferSize;
+TQ3Uns32			validSize,bufferSize;
 TQ3Status			status;
 
 

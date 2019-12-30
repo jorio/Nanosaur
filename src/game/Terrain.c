@@ -50,14 +50,14 @@ static inline void ReleaseSuperTileObject(short superTileNum);
 static void CalcNewItemDeleteWindow(void);
 static float	GetTerrainHeightAtRowCol(long row, long col);
 static void MoveASuperTile(void);
-static void SetTileUVCoords_SplitA(u_short flipRotBits, TQ3TriMeshData *triMeshData);
-static void SetTileUVCoords_SplitB(u_short flipRotBits, TQ3TriMeshData *triMeshData);
+static void SetTileUVCoords_SplitA(UInt16 flipRotBits, TQ3TriMeshData *triMeshData);
+static void SetTileUVCoords_SplitB(UInt16 flipRotBits, TQ3TriMeshData *triMeshData);
 static void CreateSuperTileMemoryList(void);
 static short	BuildTerrainSuperTile(long	startCol, long startRow);
 static Boolean SeeIfSuperTileInConeOfVision(short superTileNum);
-static void DrawTileIntoMipmap(u_short tile, short row, short col, u_short *buffer);
+static void DrawTileIntoMipmap(UInt16 tile, short row, short col, UInt16 *buffer);
 static void BuildTerrainSuperTile_Flat(SuperTileMemoryType *, long startCol, long startRow);
-static inline void	ShrinkSuperTileTextureMap(u_short *srcPtr,u_short *destPtr);
+static inline void	ShrinkSuperTileTextureMap(UInt16 *srcPtr,UInt16 *destPtr);
 static inline void ReleaseAllSuperTiles(void);
 
 
@@ -81,14 +81,14 @@ enum
 /*     VARIABLES      */
 /**********************/
 
-static u_char	gHiccupEliminator = 0;
+static UInt8	gHiccupEliminator = 0;
 
 Ptr		gTerrainPtr = nil;								// points to terrain file data
-u_short	*gTileDataPtr;
+UInt16	*gTileDataPtr;
 
-u_short	**gTerrainTextureLayer = nil;					// 2 dimensional array of u_shorts (allocated below)
-u_short	**gTerrainHeightMapLayer = nil;
-u_short	**gTerrainPathLayer = nil;
+UInt16	**gTerrainTextureLayer = nil;					// 2 dimensional array of UInt16s (allocated below)
+UInt16	**gTerrainHeightMapLayer = nil;
+UInt16	**gTerrainPathLayer = nil;
 
 long	gTerrainTileWidth,gTerrainTileDepth;			// width & depth of terrain in tiles
 long	gTerrainUnitWidth,gTerrainUnitDepth;			// width & depth of terrain in world units (see TERRAIN_POLYGON_SIZE)
@@ -99,7 +99,7 @@ Ptr		gTerrainHeightMapPtrs[MAX_HEIGHTMAP_TILES];
 long	gNumSuperTilesDeep,gNumSuperTilesWide;	  		// dimensions of terrain in terms of supertiles
 long	gCurrentSuperTileRow,gCurrentSuperTileCol;
 
-static u_char	gTerrainScrollBuffer[MAX_SUPERTILES_DEEP][MAX_SUPERTILES_WIDE];		// 2D array which has index to supertiles for each possible supertile
+static UInt8	gTerrainScrollBuffer[MAX_SUPERTILES_DEEP][MAX_SUPERTILES_WIDE];		// 2D array which has index to supertiles for each possible supertile
 
 short	gNumFreeSupertiles;
 static	SuperTileMemoryType		gSuperTileMemoryList[MAX_SUPERTILES];
@@ -114,7 +114,7 @@ TileAttribType	*gTileAttributes = nil;
 
 //SVECTOR		gTerrainSVECTORS[MAX_SUPERTILES][SUPERTILE_SIZE+1][SUPERTILE_SIZE+1];
 
-u_short		gTileFlipRotBits;
+UInt16		gTileFlipRotBits;
 short		gTileAttribParm0;
 Byte		gTileAttribParm1,gTileAttribParm2;
 
@@ -168,7 +168,7 @@ static	Byte			gTileTriangles2_B[SUPERTILE_SIZE][SUPERTILE_SIZE][3] =
 
 
 TQ3Point3D		gWorkGrid[SUPERTILE_SIZE+1][SUPERTILE_SIZE+1];
-u_short			*gTempTextureBuffer = nil;
+UInt16			*gTempTextureBuffer = nil;
 
 TQ3Vector3D		gRecentTerrainNormal;							// from _Planar
 
@@ -188,7 +188,7 @@ void InitTerrainManager(void)
 			/* ALLOC TEMP TEXTURE BUFF */
 			
 	if (gTempTextureBuffer == nil)
-		gTempTextureBuffer = (u_short *)AllocPtr(TEMP_TEXTURE_BUFF_SIZE * TEMP_TEXTURE_BUFF_SIZE * sizeof(u_short *));
+		gTempTextureBuffer = (UInt16 *)AllocPtr(TEMP_TEXTURE_BUFF_SIZE * TEMP_TEXTURE_BUFF_SIZE * sizeof(UInt16 *));
 }
 
 
@@ -516,13 +516,13 @@ TQ3Vector3D			normals[SUPERTILE_SIZE+1][SUPERTILE_SIZE+1];
 TQ3GeometryObject	theTriMesh;
 TQ3TriMeshData		triMeshData;
 TQ3Vector3D			*normalPtr,*vertexNormalList;
-u_short				tile;
+UInt16				tile;
 short				h1,h2,h3,h4;
 TQ3Point3D			*pointList;
 TQ3TriMeshTriangleData	*triangleList;
 TQ3StorageObject	mipmapStorage;
 unsigned char		*buffer;
-u_long				validSize,bufferSize;
+UInt32				validSize,bufferSize;
 TQ3Status			status;
 SuperTileMemoryType	*superTilePtr;
 
@@ -832,7 +832,7 @@ SuperTileMemoryType	*superTilePtr;
 	mipmapStorage = QD3D_GetMipmapStorageObjectFromAttrib(triMeshData.triMeshAttributeSet);	// get storage object
 	status = Q3MemoryStorage_GetBuffer(mipmapStorage, &buffer, &validSize, &bufferSize);	// get ptr to the buffer
 			
-	ShrinkSuperTileTextureMap(gTempTextureBuffer,(u_short *)buffer);						// shrink to 128x128
+	ShrinkSuperTileTextureMap(gTempTextureBuffer,(UInt16 *)buffer);						// shrink to 128x128
 			
 	status = Q3MemoryStorage_SetBuffer(mipmapStorage, buffer, validSize, bufferSize);
 	Q3Object_Dispose(mipmapStorage);												// nuke the mipmap storage object
@@ -858,8 +858,8 @@ TQ3Point3D			*pointList;
 TQ3StorageObject	mipmapStorage;
 TQ3Status			status;
 long				row2,col2,row,col;
-u_long				validSize,bufferSize;
-u_short				tile;
+UInt32				validSize,bufferSize;
+UInt16				tile;
 unsigned char		*buffer;
 TQ3PlaneEquation	planeEq;
 
@@ -930,7 +930,7 @@ TQ3PlaneEquation	planeEq;
 	mipmapStorage = QD3D_GetMipmapStorageObjectFromAttrib(triMeshData.triMeshAttributeSet);	// get storage object
 	status = Q3MemoryStorage_GetBuffer(mipmapStorage, &buffer, &validSize, &bufferSize);	// get ptr to the buffer
 
-	ShrinkSuperTileTextureMap(gTempTextureBuffer,(u_short *)buffer);						// shrink to 128x128
+	ShrinkSuperTileTextureMap(gTempTextureBuffer,(UInt16 *)buffer);						// shrink to 128x128
 				
 	status = Q3MemoryStorage_SetBuffer(mipmapStorage, buffer, validSize, bufferSize);
 	Q3Object_Dispose(mipmapStorage);														// nuke the mipmap storage object
@@ -946,13 +946,13 @@ TQ3PlaneEquation	planeEq;
 
 /********************* DRAW TILE INTO MIPMAP *************************/
 
-static void DrawTileIntoMipmap(u_short tile, short row, short col, u_short *buffer)
+static void DrawTileIntoMipmap(UInt16 tile, short row, short col, UInt16 *buffer)
 {
-u_short		texMapNum,flipRotBits;
+UInt16		texMapNum,flipRotBits;
 double		*tileData;		
 Byte		y;	
 double		*dPtr;
-u_short		*sPtr,*tileDataS;
+UInt16		*sPtr,*tileDataS;
 
 			/* EXTRACT BITS INFO FROM TILE */
 				
@@ -1001,8 +1001,8 @@ u_short		*sPtr,*tileDataS;
 
 		case	TILE_FLIPX_MASK:
 		case	TILE_FLIPY_MASK | TILE_ROT2:
-				sPtr = (u_short *)buffer;
-				tileDataS = (u_short *)tileData;
+				sPtr = (UInt16 *)buffer;
+				tileDataS = (UInt16 *)tileData;
 				for (y =  0; y < OREOMAP_TILE_SIZE; y++)
 				{
 					sPtr[0] = tileDataS[31];
@@ -1072,8 +1072,8 @@ u_short		*sPtr,*tileDataS;
 
 		case	TILE_FLIPXY_MASK:
 		case	TILE_ROT2:
-				sPtr = (u_short *)buffer;
-				tileDataS = (u_short *)(tileData + (OREOMAP_TILE_SIZE*(OREOMAP_TILE_SIZE-1)*2)/8);
+				sPtr = (UInt16 *)buffer;
+				tileDataS = (UInt16 *)(tileData + (OREOMAP_TILE_SIZE*(OREOMAP_TILE_SIZE-1)*2)/8);
 				for (y =  0; y < OREOMAP_TILE_SIZE; y++)
 				{
 					sPtr[0] = tileDataS[31];
@@ -1119,8 +1119,8 @@ u_short		*sPtr,*tileDataS;
 
 		case	TILE_ROT1:
 		case	TILE_FLIPXY_MASK | TILE_ROT3:
-				sPtr = (u_short *)buffer + (OREOMAP_TILE_SIZE-1);			// draw to right col from top row of src
-				tileDataS = (u_short *)tileData;
+				sPtr = (UInt16 *)buffer + (OREOMAP_TILE_SIZE-1);			// draw to right col from top row of src
+				tileDataS = (UInt16 *)tileData;
 				for (y =  0; y < OREOMAP_TILE_SIZE; y++)
 				{
 					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*0] = tileDataS[0];
@@ -1166,8 +1166,8 @@ u_short		*sPtr,*tileDataS;
 
 		case	TILE_ROT3:
 		case	TILE_FLIPXY_MASK | TILE_ROT1:
-				sPtr = (u_short *)buffer;
-				tileDataS = (u_short *)tileData;
+				sPtr = (UInt16 *)buffer;
+				tileDataS = (UInt16 *)tileData;
 				for (y =  0; y < OREOMAP_TILE_SIZE; y++)
 				{
 					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*31] = tileDataS[0];
@@ -1213,8 +1213,8 @@ u_short		*sPtr,*tileDataS;
 
 		case	TILE_FLIPX_MASK | TILE_ROT1:
 		case	TILE_FLIPY_MASK | TILE_ROT3:
-				sPtr = (u_short *)buffer + (OREOMAP_TILE_SIZE-1);
-				tileDataS = (u_short *)tileData;
+				sPtr = (UInt16 *)buffer + (OREOMAP_TILE_SIZE-1);
+				tileDataS = (UInt16 *)tileData;
 				for (y =  0; y < OREOMAP_TILE_SIZE; y++)
 				{
 					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*31] = tileDataS[0];
@@ -1260,8 +1260,8 @@ u_short		*sPtr,*tileDataS;
 
 		case	TILE_FLIPX_MASK | TILE_ROT3:
 		case	TILE_FLIPY_MASK | TILE_ROT1:
-				sPtr = (u_short *)buffer;							// draw to right col from top row of src
-				tileDataS = (u_short *)tileData;
+				sPtr = (UInt16 *)buffer;							// draw to right col from top row of src
+				tileDataS = (UInt16 *)tileData;
 				for (y =  0; y < OREOMAP_TILE_SIZE; y++)
 				{
 					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*0] = tileDataS[0];
@@ -1310,7 +1310,7 @@ u_short		*sPtr,*tileDataS;
 
 /******************** SET TILE UV COORDS: SPLIT / **********************/
 
-static void SetTileUVCoords_SplitA(u_short flipRotBits, TQ3TriMeshData *triMeshData)
+static void SetTileUVCoords_SplitA(UInt16 flipRotBits, TQ3TriMeshData *triMeshData)
 {
 Byte		i;
 TQ3Param2D	uv[2][3],*uvPtr;
@@ -1548,7 +1548,7 @@ TQ3TriMeshAttributeData	*attribs;
 
 /******************** SET TILE UV COORDS: SPLIT B \ **********************/
 
-static void SetTileUVCoords_SplitB(u_short flipRotBits, TQ3TriMeshData *triMeshData)
+static void SetTileUVCoords_SplitB(UInt16 flipRotBits, TQ3TriMeshData *triMeshData)
 {
 Byte	i;
 TQ3Param2D	uv[2][3],*uvPtr;
@@ -1791,7 +1791,7 @@ TQ3TriMeshAttributeData	*attribs;
 // Shrinks a 160x160 src texture to a 64x64 dest texture
 //
 
-static inline void	ShrinkSuperTileTextureMap(u_short *srcPtr,u_short *destPtr)
+static inline void	ShrinkSuperTileTextureMap(UInt16 *srcPtr,UInt16 *destPtr)
 {
 #if (SUPERTILE_TEXMAP_SIZE != 64)
 	ReWrite this!
@@ -1917,7 +1917,7 @@ short	y,v;
 // Shrinks a 160x160 src texture to a 128x128 dest texture
 //
 
-static inline void	ShrinkSuperTileTextureMap(u_short *srcPtr,u_short *destPtr)
+static inline void	ShrinkSuperTileTextureMap(UInt16 *srcPtr,UInt16 *destPtr)
 {
 #if (SUPERTILE_TEXMAP_SIZE != 128)
 	ReWrite this!
@@ -2196,10 +2196,10 @@ float	GetTerrainHeightAtCoord(float x, float z)
 {
 long	row,col,offx,offy;
 short	height[2][2];
-u_short tileNum,tile,flipBits;
+UInt16	tileNum,tile,flipBits;
 float	heightf,fracX,fracZ;
 long	newX[2][2],newZ[2][2];
-u_char	h,v;
+UInt8	h,v;
 
 
 			/* CALC X/Z FOR 4 PIXELS */
@@ -2271,8 +2271,8 @@ float	GetTerrainHeightAtCoord_Planar(float x, float z)
 {
 short			superTileX,superTileZ;
 long			xi,zi;
-u_short			col,row;
-u_char			superTileNum;
+UInt16			col,row;
+UInt8			superTileNum;
 SuperTileMemoryType	*superTilePtr;
 TQ3PlaneEquation	*planeEq;
 
@@ -2372,7 +2372,7 @@ float	GetTerrainHeightAtCoord_Quick(long x, long z)
 {
 long	row,col,offx,offy;
 short	height;
-u_short tileNum,tile,flipBits;
+UInt16	tileNum,tile,flipBits;
 Ptr		pixelPtr;
 float	heightf;
 
@@ -2425,7 +2425,7 @@ static float	GetTerrainHeightAtRowCol(long row, long col)
 {
 long	offx,offy;
 unsigned char	height;
-u_short tileNum,tile,flipBits;
+UInt16	tileNum,tile,flipBits;
 Ptr		pixelPtr;
 float	heightf;
 
@@ -2997,7 +2997,7 @@ long	i,w;
 // OUTPUT: attribs
 //
 
-u_short	GetTileAttribs(long x, long z)
+UInt16	GetTileAttribs(long x, long z)
 {
 long	row,col;
 
@@ -3021,9 +3021,9 @@ long	row,col;
 //  		gTileFlipRotBits = flip/rot bits of tile
 //
 
-u_short	GetTileAttribsAtRowCol(short row, short col)
+UInt16	GetTileAttribsAtRowCol(short row, short col)
 {
-u_short	tile,texMapNum,attribBits;
+UInt16	tile,texMapNum,attribBits;
 
 	tile = gTerrainTextureLayer[row][col];						// get tile data from map
 	texMapNum = tile&TILENUM_MASK; 										// filter out texture #
@@ -3047,9 +3047,9 @@ u_short	tile,texMapNum,attribBits;
 // INPUT:	checkAlt = also check seconday collision tiles (for enemies usually)
 //
 
-u_short	GetTileCollisionBitsAtRowCol(short row, short col, Boolean checkAlt)
+UInt16	GetTileCollisionBitsAtRowCol(short row, short col, Boolean checkAlt)
 {
-u_short	tile;
+UInt16	tile;
 
 	tile = gTerrainPathLayer[row][col];						// get path data from map
 	tile = tile&TILENUM_MASK;							   		// filter out tile # 
@@ -3168,9 +3168,9 @@ u_short	tile;
 // Version #2 here only checks the secondary collision tiles.
 //
 
-u_short	GetTileCollisionBitsAtRowCol2(short row, short col)
+UInt16	GetTileCollisionBitsAtRowCol2(short row, short col)
 {
-u_short	tile;
+UInt16	tile;
 
 	tile = gTerrainPathLayer[row][col];						// get path data from map
 	tile = tile&TILENUM_MASK; 							  		// filter out tile #

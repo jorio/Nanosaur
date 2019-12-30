@@ -41,7 +41,7 @@ extern	Byte			gNumPlayers;
 extern	TQ3Vector3D		gRecentTerrainNormal;
 extern	TQ3Matrix4x4	gRecentJointFullMatrix;
 extern	NewObjectDefinitionType	gNewObjectDefinition;
-extern	u_short			gMyLatestPathTileNum,gMyLatestTileAttribs;
+extern	UInt16			gMyLatestPathTileNum,gMyLatestTileAttribs;
 
 
 /****************************/
@@ -757,7 +757,7 @@ ObjNode	*newObj,*newObj2;
 	MakeObjectTransparent(newObj, .5);							// make transparent
 	MakeObjectKeepBackfaces(newObj);							// also keep backfaces
 	
-	theNode->JetFlameObj = (u_long)newObj;						// point to this flame
+	theNode->JetFlameObj = (UInt32)newObj;						// point to this flame
 	theNode->ExhaustTimer = 0;									// init exhaust timer
 
 		/* MAKE LEFT FLAME */	
@@ -770,8 +770,8 @@ ObjNode	*newObj,*newObj2;
 	
 	MakeObjectTransparent(newObj2, .5);							// make transparent
 	
-	newObj->JetFlameObj = (u_long)newObj2;						// other flame points to this flame	
-	newObj2->JetFlameObj = (u_long)theNode;						// this flame points back to player
+	newObj->JetFlameObj = (UInt32)newObj2;						// other flame points to this flame	
+	newObj2->JetFlameObj = (UInt32)theNode;						// this flame points back to player
 	
 			/* JET SOUND */
 			
