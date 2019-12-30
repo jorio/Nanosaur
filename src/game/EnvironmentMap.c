@@ -24,7 +24,6 @@
 #include "objects.h"
 #include "3dmath.h"
 
-extern	Boolean	gCanDo_frsqrte;
 extern	TQ3Matrix4x4 		gWorkMatrix;
 extern	WindowPtr		gCoverWindow;
 extern	ObjNode			*gFirstNodePtr;

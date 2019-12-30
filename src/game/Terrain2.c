@@ -33,7 +33,7 @@ extern	long		gMyStartX,gMyStartZ;
 extern	long	gNumTerrainTextureTiles;
 extern	long	*gTerrainTexturePtrs;
 extern	long	gNumSuperTilesDeep,gNumSuperTilesWide,gCurrentActiveBuildingID;
-extern	Boolean		gLevelHasHeightMaps[],gCanDo_frsqrte;
+extern	Boolean		gLevelHasHeightMaps[];
 extern	long	gTerrainUnitWidth,gTerrainUnitDepth;
 extern	UInt16	**gTerrainHeightMapLayer,**gTerrainPathLayer;
 extern	TQ3Point3D	gCoord,gMyCoord;
@@ -405,7 +405,6 @@ float	rotY;
 float	sinRot,cosRot;
 TQ3Matrix4x4	*matrix = &theNode->BaseTransformMatrix;
 TQ3Vector3D		lookAt,upVector,theXAxis;
-Boolean			fastNormalize = gCanDo_frsqrte;
 
 	Q3Matrix4x4_SetIdentity(matrix);											// init the matrix
 	
@@ -440,9 +439,6 @@ Boolean			fastNormalize = gCanDo_frsqrte;
 
 			/* CALC LOOK-AT VECTOR */
 
-	if (fastNormalize)						
-		FastNormalizeVector(front.x-back.x, front.y-back.y,front.z-back.z, &lookAt);
-	else
 	{
 		lookAt.x = front.x-back.x;
 		lookAt.y = front.y-back.y;
@@ -459,9 +455,6 @@ Boolean			fastNormalize = gCanDo_frsqrte;
 
 			/* CALC UP VECTOR */
 
-	if (fastNormalize)						
-		FastNormalizeVector( right.x - left.x, right.y - left.y,right.z - left.z, &theXAxis);
-	else
 	{
 		theXAxis.x = right.x - left.x;							// first calc left->right vector
 		theXAxis.y = right.y - left.y;	

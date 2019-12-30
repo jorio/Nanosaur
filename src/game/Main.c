@@ -78,7 +78,7 @@ static void PlayLevel(void);
 
 
 short		gMainAppRezFile;
-Boolean		gGameOverFlag,gAbortedFlag,gCanDo_frsqrte;
+Boolean		gGameOverFlag,gAbortedFlag;
 Boolean		gPlayerGotKilledFlag,gWonGameFlag;
 
 QD3DSetupOutputType		*gGameViewInfoPtr = nil;
@@ -144,23 +144,6 @@ OSErr		iErr;
 			
 	QD3D_Boot();
 	InitQuickTime();
-
-
-		/* SEE IF PROCESSOR SUPPORTS frsqrte */
-	
-	if (!Gestalt(gestaltNativeCPUtype, &response))
-	{
-		switch(response)
-		{
-			case	gestaltCPU601:				// 601 is only that doesnt support it
-					gCanDo_frsqrte = false;
-					DoFatalAlert("Sorry, but Nanosaur will not run on a PowerPC 601, only on newer Macintoshes.");
-					break;
-			
-			default:	
-					gCanDo_frsqrte = true;
-		}
-	}
 
 
 			/* INIT SOME OF MY STUFF */
