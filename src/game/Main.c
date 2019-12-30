@@ -427,7 +427,7 @@ cleanup:
 /************************************************************/
 
 
-void main(void)
+void GameMain(void)
 {
 unsigned long	someLong;
 
