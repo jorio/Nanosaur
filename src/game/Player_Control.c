@@ -49,7 +49,6 @@ extern	UInt16			gMyLatestPathTileNum,gMyLatestTileAttribs;
 /****************************/
 
 static KeyControlType KeysToControlBits(void);
-static pascal Boolean KeySetupDialogCallback (DialogPtr dp,EventRecord *event, short *item);
 static void MakeSpeedPuff(void);
 static void StartJetPack(ObjNode *theNode);
 static void MoveJetPackFlame(ObjNode *theNode);
