@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "Pomme.h"
+#include "PommeInternal.h"
 
 //-----------------------------------------------------------------------------
 // Our own utils
@@ -30,16 +31,6 @@ void ImplementMe(const char* fn, std::string msg, int severity) {
 
 //-----------------------------------------------------------------------------
 // FSSpec
-
-OSErr FSMakeFSSpec(short vRefNum, long dirID, ConstStr255Param fileName, FSSpec* spec) {
-	TODO2(Pascal2C((const char *)fileName));
-	return unimpErr;
-}
-
-short FSpOpenResFile(const FSSpec* spec, char permission) {
-	TODO();
-	return -1;
-}
 
 OSErr FSpOpenDF(const FSSpec* spec, char permission, short* refNum) {
 	TODO();
@@ -96,11 +87,6 @@ OSErr SetEOF(short refNum, long logEOF) {
 
 //-----------------------------------------------------------------------------
 // Resource file management
-
-OSErr ResError(void) {
-	TODO();
-	return unimpErr;
-}
 
 void UseResFile(short refNum) {
 	TODO();
@@ -408,6 +394,7 @@ char* Pascal2C(const char* pstr) {
 	return cstr;
 }
 
-void InitFakeMac() {
+void Pomme::Init() {
+	Pomme::InitFiles("._Nanosaur™");
 	std::cout << "fake mac inited\n";
 }

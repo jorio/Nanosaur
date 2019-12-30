@@ -215,8 +215,10 @@
     <ClCompile Include="src\game\Weapons.c" />
     <ClCompile Include="src\nsaur.cpp" />
     <ClCompile Include="src\pomme\Pomme.cpp" />
+    <ClCompile Include="src\pomme\PommeFiles.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="PommeInternal.h" />
     <ClInclude Include="src\game\3DMath.h" />
     <ClInclude Include="src\game\3dmf.h" />
     <ClInclude Include="src\game\affectors.h" />
