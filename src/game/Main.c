@@ -9,8 +9,6 @@
 /*    EXTERNALS             */
 /****************************/
 
-#include <Fonts.h>
-#include <Gestalt.h>
 #include <QD3D.h>
 #include <QD3DErrors.h>
 #include <QD3DMath.h>

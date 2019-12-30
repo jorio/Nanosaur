@@ -15,8 +15,6 @@
 #include <QD3DGroup.h>
 #include "QD3DMath.h"
 #include <QD3DTransform.h>
-#include <Rave.h>
-#include <TextUtils.h>
 
 #include "objects.h"
 #include "misc.h"

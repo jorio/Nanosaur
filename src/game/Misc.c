@@ -9,18 +9,9 @@
 /* EXTERNALS   */
 /***************/
 
-#include <TextUtils.h>
 #include <QD3D.h>
 #include <QD3DErrors.h>
 #include <math.h>
-#include <sound.h>
-#include <folders.h>
-#include <palettes.h>
-#include <osutils.h>
-#include <timer.h>
-#include 	<DrawSprocket.h>
-#include <InputSprocket.h>
-#include 	<Gestalt.h>
 
 #include	"globals.h"
 #include	"misc.h"

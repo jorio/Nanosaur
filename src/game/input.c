@@ -9,8 +9,6 @@
 /* EXTERNALS   */
 /***************/
 
-#include 	<DrawSprocket.h>
-#include <InputSprocket.h>
 
 #include "globals.h"
 #include "misc.h"

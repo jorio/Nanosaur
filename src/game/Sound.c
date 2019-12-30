@@ -9,7 +9,6 @@
 /* EXTERNALS   */
 /***************/
 #include "globals.h"
-#include <sound.h>
 #include "misc.h"
 #include "sound2.h"
 #include "file.h"

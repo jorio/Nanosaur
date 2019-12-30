@@ -9,8 +9,6 @@
 /* EXTERNALS   */
 /***************/
 
-#include 	<TextUtils.h>
-#include 	<Aliases.h>
 #include 	<QD3D.h>
 #include 	<QD3DErrors.h>
 #include	"globals.h"

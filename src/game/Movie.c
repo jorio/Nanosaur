@@ -12,11 +12,7 @@
 #include	"globals.h"
 #include	"misc.h"
 #include	"movie.h"
-#include	<Movies.h>
-#include 	<Sound.h>
-#include 	<QuickTimeComponents.h>
 #include	"input.h"
-#include 	<Gestalt.h>
 #include	"sound2.h"
 
 extern	WindowPtr	gCoverWindow;

@@ -16,13 +16,10 @@
 #include <QD3DTransform.h>
 #include <QD3DStorage.h>
 #include <QD3DMath.h>
-#include <QD3DAcceleration.h>
 #include <QD3DGeometry.h>
 #include <QD3DErrors.h>
 #include <QD3DView.h>
-#include <CodeFragments.h>
 
-#include <timer.h>
 #include "globals.h"
 #include "misc.h"
 #include "qd3d_geometry.h"

@@ -8,11 +8,9 @@
 /*    EXTERNALS             */
 /****************************/
 
-#include <InputSprocket.h>
 #include <QD3D.h>
 #include <QD3DTransform.h>
 #include <QD3DMath.h>
-#include 	<DrawSprocket.h>
 #include <math.h>
 #include "globals.h"
 #include "misc.h"

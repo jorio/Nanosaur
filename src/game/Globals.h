@@ -14,8 +14,6 @@
 #include <QD3D.h>
 #include <QD3DMath.h>
 
-#include <qdoffscreen.h>
-#include "pitsTT6.h"
 
 
 			/* SOME FLOATING POINT HELPERS */

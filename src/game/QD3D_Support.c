@@ -15,21 +15,13 @@
 #include <QD3DTransform.h>
 #include <QD3DStorage.h>
 #include <QD3DMath.h>
-#include <QD3DAcceleration.h>
 #include <QD3DErrors.h>
-#include <CodeFragments.h>
-#include <Rave.h>
-#include <PictUtils.h>
-#include <Gestalt.h>
-#include <TextUtils.h>
 
-#include <timer.h>
 #include "globals.h"
 #include "misc.h"
 #include "qd3d_support.h"
 #include "input.h"
 #include "windows_nano.h"
-#include "atirave.h"
 #include "camera.h"
 #include "3dmath.h"
 #include "selfrundemo.h"

@@ -10,13 +10,11 @@
 /****************************/
 
 #include "globals.h"
-#include <InputSprocket.h>
 
 #include <QD3D.h>
 #include <QD3DGroup.h>
 #include <QD3DMath.h>
 #include <math.h>
-#include <Script.h>
 
 #include "objects.h"
 #include "mobjtypes.h"
@@ -27,7 +25,6 @@
 #include "sound2.h"
 #include "title.h"
 #include "input.h"
-#include "atirave.h"
 #include "windows_nano.h"
 
 extern	NewObjectDefinitionType	gNewObjectDefinition;

@@ -9,19 +9,14 @@
 /* EXTERNALS   */
 /***************/
 
-#include 	<Folders.h>
-#include 	<DrawSprocket.h>
 #include 	<stdlib.h>
 #include 	<QD3D.h>
-#include 	<Rave.h>
-#include 	<CodeFragments.h>
 #include	"globals.h"
 #include	"windows_nano.h"
 #include	"misc.h"
 #include "objects.h"
 #include "file.h"
 #include "input.h"
-#include <TextUtils.h>
 
 
 extern	NewObjectDefinitionType	gNewObjectDefinition;

@@ -16,7 +16,6 @@
 #include <QD3DGroup.h>
 #include <QD3DMath.h>
 #include	<QD3DTransform.h>
-#include	<Rave.h>
 
 #include "globals.h"
 #include "qd3d_support.h"
