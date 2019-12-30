@@ -1463,9 +1463,7 @@ Str255		s;
 
 void QD3D_DoMemoryError(void)
 {
-	InitCursor();
-	NoteAlert(129,nil);
-	CleanQuit();
+	DoFatalAlert("QD3D Memory Error!");
 }
 
 

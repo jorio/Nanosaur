@@ -57,10 +57,6 @@ void ShowSystemErr(long err)
 {
 Str255		numStr;
 
-	if (gDisplayContext)
-		GammaOn();
-	FlushEvents ( everyEvent, REMOVE_ALL_EVENTS);
-	UseResFile(gMainAppRezFile);
 	NumToString(err, numStr);
 	DoAlert (numStr);
 	CleanQuit();
@@ -74,10 +70,6 @@ void ShowSystemErr_NonFatal(long err)
 {
 Str255		numStr;
 
-	if (gDisplayContext)
-		GammaOn();
-	FlushEvents ( everyEvent, REMOVE_ALL_EVENTS);
-	UseResFile(gMainAppRezFile);
 	NumToString(err, numStr);
 	DoAlert (numStr);
 }
@@ -86,15 +78,7 @@ Str255		numStr;
 
 void DoAlert(Str255 s)
 {
-
-	if (gDisplayContext)
-		GammaOn();
-	FlushEvents ( everyEvent, REMOVE_ALL_EVENTS);
-	TurnOffISp();										// MUST TURN OFF INPUT SPROK TO GET KEYBOARD EVENTS!!!
-	UseResFile(gMainAppRezFile);
-	InitCursor();
-	ParamText(s,NIL_STRING,NIL_STRING,NIL_STRING);
-	NoteAlert(ERROR_ALERT_ID,nil);
+	MessageBoxA(NULL, Pascal2C(s), "Nanosaur Alert", MB_OK | MB_ICONEXCLAMATION);
 }
 
 		
@@ -102,17 +86,7 @@ void DoAlert(Str255 s)
 
 void DoFatalAlert(Str255 s)
 {
-OSErr	iErr;
-	
-	if (gDisplayContext)
-		GammaOn();
-	FlushEvents ( everyEvent, REMOVE_ALL_EVENTS);
-	TurnOffISp();										// MUST TURN OFF INPUT SPROK TO GET KEYBOARD EVENTS!!!
-	UseResFile(gMainAppRezFile);
-
-	InitCursor();
-	ParamText(s,NIL_STRING,NIL_STRING,NIL_STRING);
-	iErr = NoteAlert(ERROR_ALERT_ID,nil);
+	MessageBoxA(NULL, Pascal2C(s), "Nanosaur Fatal Error", MB_OK | MB_ICONERROR);
 	CleanQuit();
 }
 
@@ -120,15 +94,9 @@ OSErr	iErr;
 
 void DoFatalAlert2(Str255 s1, Str255 s2)
 {
-	if (gDisplayContext)
-		GammaOn();
-	FlushEvents ( everyEvent, REMOVE_ALL_EVENTS);
-	TurnOffISp();										// MUST TURN OFF INPUT SPROK TO GET KEYBOARD EVENTS!!!
-	UseResFile(gMainAppRezFile);
-	InitCursor();
-	ParamText(s1,s2,NIL_STRING,NIL_STRING);
-	Alert(402,nil);
-//	ShowMenuBar();
+	std::stringstream ss;
+	ss << Pascal2C(s1) << "\n" << Pascal2C(s2);
+	MessageBoxA(NULL, ss.str().c_str(), "Fatal Error", MB_OK | MB_ICONERROR);
 	ExitToShell();
 }
 
