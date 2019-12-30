@@ -38,8 +38,6 @@ extern	KeyMap gNewKeys_Real;
 extern	Boolean		gSongPlayingFlag,gResetSong,gDisableAnimSounds,gSongPlayingFlag;
 extern	FSSpec		gDataSpec;
 extern	PrefsType	gGamePrefs;
-extern	Boolean			gNotGoodATI;
-extern	Boolean		gATIBadFog;
 
 /****************************/
 /*    PROTOTYPES            */
@@ -106,14 +104,13 @@ TQ3Point3D		cameraFrom2 = { 110, 90, 190.0 };
 	viewDef.camera.from 			= cameraFrom;
 #endif
 	
-	if (TWO_MEG_VERSION || (!gGamePrefs.canDoFog))		// if no fog possible, then bg is black
+	if (!gGamePrefs.canDoFog)		// if no fog possible, then bg is black
 	{
 		viewDef.view.clearColor.r = 0;
 		viewDef.view.clearColor.g = 0;
 		viewDef.view.clearColor.b = 0;
 	}
-	else
-	if (!gNotGoodATI && !gATIBadFog)					// set fog since I think it'll work
+	else							// set fog since I think it'll work
 	{
 		viewDef.view.clearColor.r = 
 		viewDef.view.clearColor.g = 

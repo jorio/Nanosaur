@@ -41,7 +41,6 @@ extern	float		gFramesPerSecondFrac;
 extern	TQ3ShaderObject	gQD3D_gShadowTexture;
 extern	ObjNode		*gPlayerObj;
 extern	QD3DSetupOutputType		*gGameViewInfoPtr;
-extern	Boolean		gNotGoodATI;
 
 
 /****************************/

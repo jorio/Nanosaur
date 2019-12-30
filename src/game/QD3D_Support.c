@@ -28,9 +28,6 @@
 
 extern	WindowPtr			gCoverWindow;
 extern	long		gScreenXOffset,gScreenYOffset;
-extern	Boolean		gATI,gATIBadFog,gATIis431;
-extern	TQADevice	gATIRaveDevice;
-extern	TQAEngine	*gATIRaveEngine;
 extern	Byte		gDemoMode;
 extern	PrefsType	gGamePrefs;
 
@@ -82,7 +79,6 @@ float	gAdditionalClipping = 0;
 
 TQADrawContext	*gRaveDrawContext = nil;
 short			gFogMode;
-Boolean			gNotGoodATI = false;
 
 Boolean			gQD3DInitialized = false;
 
@@ -1730,6 +1726,9 @@ UInt32		*buffer,*pixelPtr,pixmapRowbytes,size,sizeRead;
 
 void QD3D_SetRaveFog(QD3DSetupOutputType *setupInfo, float fogHither, float fogYon, TQ3ColorARGB *fogColor, short fogMode)
 {
+#if 1
+	TODO();
+#else
 OSErr		iErr;
 
 				/********************/
@@ -1751,7 +1750,7 @@ OSErr		iErr;
 		
 						/* SET FOG PARAMETERS */
 						
-				if (gGamePrefs.canDoFog && !gATIBadFog)		// see if allow fog
+				if (gGamePrefs.canDoFog)		// see if allow fog
 				{
 					gFogMode = fogMode;
 					QASetInt(gRaveDrawContext, (TQATagInt)kATIFogMode, fogMode);
@@ -1793,6 +1792,7 @@ OSErr		iErr;
 		Q3View_Cancel(setupInfo->viewObject);		// stop rendering state
 		Q3View_EndRendering(setupInfo->viewObject);		
 	}	
+#endif
 }
 
 

@@ -43,7 +43,7 @@
 #include "pickups.h"
 #include "qd3d_geometry.h"
 
-extern	Boolean			gAbortDemoFlag,gRestartSavedGame,gGameIsDemoFlag,gATIBadFog,gSongPlayingFlag;
+extern	Boolean			gAbortDemoFlag,gRestartSavedGame,gGameIsDemoFlag,gSongPlayingFlag;
 extern	NewObjectDefinitionType	gNewObjectDefinition;
 extern	float			gFramesPerSecond,gFramesPerSecondFrac,gTimeRemaining,gMyHealth,gFuel;
 extern	TQ3Object	gGlowPodGeometry;
@@ -51,7 +51,6 @@ extern	Byte		gMyCharacterType,gDemoMode;
 extern	WindowPtr	gCoverWindow;
 extern	TQ3Point3D	gCoord;
 extern	long	gMyStartX,gMyStartZ;
-extern	Boolean	gNotGoodATI;
 extern	unsigned long 	gInfobarUpdateBits,gScore;
 extern	ObjNode		*gPlayerObj;
 
@@ -211,14 +210,13 @@ TQ3ColorRGB		c2 = { 1, .9, .6 };
 	viewDef.lights.fillBrightness[0] = 1.2;
 	viewDef.lights.fillBrightness[1] = .4;
 	
-	if (TWO_MEG_VERSION || (!gGamePrefs.canDoFog))		// if no fog possible, then bg is black
+	if (!gGamePrefs.canDoFog)		// if no fog possible, then bg is black
 	{
 		viewDef.view.clearColor.r = 0;
 		viewDef.view.clearColor.g = 0;
 		viewDef.view.clearColor.b = 0;
 	}
-	else
-	if (!gNotGoodATI && !gATIBadFog)					// set fog since I think it'll work
+	else							// set fog since I think it'll work
 	{
 		viewDef.view.clearColor.r = .95;
 		viewDef.view.clearColor.g = .95;
