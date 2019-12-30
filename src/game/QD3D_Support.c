@@ -1087,7 +1087,7 @@ char				pictHeader[PICT_HEADER_SIZE];
 		}
 		HLock((Handle)picture);
 			
-		if (FSRead(fRefNum,&pictSize,*picture) != noErr)
+		if (FSRead(fRefNum,&pictSize,(Ptr)*picture) != noErr)
 		{
 			DisposeHandle((Handle)picture);
 			goto err;

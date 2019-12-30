@@ -26,7 +26,7 @@
 #include "skeletonobj.h"
 #include "title.h"
 
-extern	unsigned long gOriginalSystemVolume;
+extern	long		gOriginalSystemVolume;
 extern	short		gMainAppRezFile;
 extern	Boolean		gGameOverFlag,gAbortedFlag;
 extern	Boolean		gUsingDSP;

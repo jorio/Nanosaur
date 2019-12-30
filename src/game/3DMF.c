@@ -246,7 +246,7 @@ TQ3Object		myObject;
 void LoadGrouped3DMF(FSSpec *spec, Byte groupNum)
 {
 TQ3Object		the3DMFFile;
-unsigned long	nObjects;
+TQ3Uns32		nObjects;
 TQ3Status 		status;
 short			i;
 TQ3GroupPosition	position;

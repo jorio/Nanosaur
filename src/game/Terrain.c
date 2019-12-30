@@ -740,9 +740,9 @@ SuperTileMemoryType	*superTilePtr;
 	Q3TriMesh_GetData(theTriMesh,&triMeshData);
 	pointList = triMeshData.points;												// get ptr to point/vertex list
 	triangleList = triMeshData.triangles;										// get ptr to triangle index list
-	vertexNormalList = triMeshData.vertexAttributeTypes[0].data;				// get ptr to vertex normals
+	vertexNormalList = (TQ3Vector3D*)triMeshData.vertexAttributeTypes[0].data;				// get ptr to vertex normals
 	
-	normalPtr = triMeshData.triangleAttributeTypes->data;						// get ptr to face normals
+	normalPtr = (TQ3Vector3D*)triMeshData.triangleAttributeTypes->data;						// get ptr to face normals
 	
 	
 			/* SET BOUNDING BOX */
@@ -1533,7 +1533,7 @@ TQ3TriMeshAttributeData	*attribs;
 			/* UPDATE UV'S IN ATTRIBUTE LIST */
 			
 	attribs = triMeshData->vertexAttributeTypes;						// point to vertex attribute list
-	uvPtr = attribs[1].data;											// point to 2nd attribute's data (the uv list)
+	uvPtr = (TQ3Param2D*)attribs[1].data;											// point to 2nd attribute's data (the uv list)
 
 	for (i = 0; i < 2; i++)
 	{
@@ -1771,7 +1771,7 @@ TQ3TriMeshAttributeData	*attribs;
 			/* UPDATE UV'S IN ATTRIBUTE LIST */
 			
 	attribs = triMeshData->vertexAttributeTypes;						// point to vertex attribute list
-	uvPtr = attribs[1].data;											// point to 2nd attribute's data (the uv list)
+	uvPtr = (TQ3Param2D*)attribs[1].data;											// point to 2nd attribute's data (the uv list)
 
 	for (i = 0; i < 2; i++)
 	{

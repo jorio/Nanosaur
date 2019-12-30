@@ -498,7 +498,7 @@ kill:
 				/* WRITE DATA */
 
 	count = sizeof(PrefsType);
-	FSWrite(refNum, &count, prefs);	
+	FSWrite(refNum, &count, (Ptr)prefs);	
 	FSClose(refNum);
 }
 
@@ -936,7 +936,7 @@ char				pictHeader[PICT_HEADER_SIZE];
 		DoFatalAlert("LoadAPict: enough memory to read PICT file!");
 	HLock((Handle)picture);
 		
-	if (FSRead(fRefNum,&pictSize,*picture) != noErr)
+	if (FSRead(fRefNum,&pictSize,(Ptr)*picture) != noErr)
 		DoFatalAlert("LoadAPict: reading PICT file!");
 		
 	FSClose(fRefNum);	

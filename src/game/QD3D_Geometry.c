@@ -433,7 +433,7 @@ long				i;
 		if (triMeshData.vertexAttributeTypes[0].attributeType != kQ3AttributeTypeNormal)
 			DoFatalAlert("Bleep2!");
 				
-		normalPtr = triMeshData.vertexAttributeTypes[0].data;			// assume vert attrib #0 == vertex normals
+		normalPtr = (TQ3Vector3D*)triMeshData.vertexAttributeTypes[0].data;			// assume vert attrib #0 == vertex normals
 		vertNormals[0] = normalPtr[ind[0]];								// get vertex normals
 		vertNormals[1] = normalPtr[ind[1]];
 		vertNormals[2] = normalPtr[ind[2]];
@@ -453,7 +453,7 @@ long				i;
 			if (triMeshData.vertexAttributeTypes[1].attributeType != kQ3AttributeTypeShadingUV)
 				DoFatalAlert("Bleep3!");
 		
-			uvPtr = triMeshData.vertexAttributeTypes[1].data;	
+			uvPtr = (TQ3Param2D*)triMeshData.vertexAttributeTypes[1].data;	
 			gParticles[i].uvs[0] = uvPtr[ind[0]];									// get vertex u/v's
 			gParticles[i].uvs[1] = uvPtr[ind[1]];								
 			gParticles[i].uvs[2] = uvPtr[ind[2]];								

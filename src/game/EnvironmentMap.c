@@ -262,7 +262,7 @@ register 	float	x,y,z;
 		if ((attribList[a].attributeType == kQ3AttributeTypeSurfaceUV) || 
 			(attribList[a].attributeType == kQ3AttributeTypeShadingUV))
 		{
-			uvList = attribList[a].data;										// point to list of normals
+			uvList = (TQ3Param2D*)attribList[a].data;										// point to list of normals
 			goto got_uv;
 		}
 	}
@@ -305,7 +305,7 @@ got_uv:
 	{
 		if (attribList[a].attributeType == kQ3AttributeTypeNormal)
 		{
-			normals = attribList[a].data;										// point to list of normals
+			normals = (TQ3Vector3D*)attribList[a].data;										// point to list of normals
 
 			for (vertNum = 0; vertNum < numVertecies; vertNum++)				// transform all normals
 			{				
@@ -329,7 +329,7 @@ got_uv:
 	{
 		if (faceAttribList[a].attributeType == kQ3AttributeTypeNormal)
 		{
-			normals2 = faceAttribList[a].data;								// point to list of normals
+			normals2 = (TQ3Vector3D*)faceAttribList[a].data;								// point to list of normals
 
 			for (faceNum = 0; faceNum < numFaces; faceNum++)				// transform all normals
 			{				

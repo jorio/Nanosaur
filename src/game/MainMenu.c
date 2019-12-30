@@ -622,7 +622,8 @@ done:
 	DisposeDialog(myDialog);
 	
 	HideCursor();	
-	SavePrefs(&gGamePrefs);	
+#endif
+	SavePrefs(&gGamePrefs);
 }
 
 
