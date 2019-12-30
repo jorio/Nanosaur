@@ -131,7 +131,7 @@ err:
 #endif	
 			/* VERIFY LIBRARIES HAVE BEEN LOADED */
 
-	iErr = GetSharedLibrary("\pQuickDrawª 3D",kAnyCFragArch,kFindCFrag,&connID,&mainAddr,errName);
+	iErr = GetSharedLibrary("\pQuickDraw\xAA 3D",kAnyCFragArch,kFindCFrag,&connID,&mainAddr,errName);
 	if (iErr)
 		DoFatalAlert("\pQuickDraw 3D could not be loaded.  Either it is not installed or there is not enough memory available.");
 

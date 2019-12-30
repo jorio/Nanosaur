@@ -1,6 +1,6 @@
 /****************************/
 /*    	TRIGGERS            */
-/*    ©1997 Pangea Software */
+/* (c) 1997 Pangea Software */
 /* By Brian Greenstone      */
 /****************************/
 
