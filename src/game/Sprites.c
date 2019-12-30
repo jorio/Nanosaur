@@ -16,7 +16,7 @@
 
 extern	short		gMainAppRezFile;
 extern	UInt16		*gCoverWindowPixPtr;
-extern	UInt32		gCoverWindowRowBytes,gCoverWindowRowBytes2;
+extern	UInt32		gCoverWindowRowBytes2;
 
 
 
