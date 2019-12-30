@@ -38,7 +38,6 @@ static void MyGetKeys(KeyMap *keyMap);
 /*    CONSTANTS             */
 /****************************/
 
-#define	USE_ISP		1
 
 /**********************/
 /*     VARIABLES      */
@@ -47,295 +46,10 @@ static void MyGetKeys(KeyMap *keyMap);
 
 KeyMap gKeyMap,gNewKeys,gOldKeys,gKeyMap_Real,gNewKeys_Real,gOldKeys_Real;
 
-Boolean	gReadFromInputSprockets = false;
-Boolean	gISpActive = false;							
-
 
 		/* CONTORL NEEDS */
 		
 #define	NUM_CONTROL_NEEDS	22
-static ISpNeed		gControlNeeds[NUM_CONTROL_NEEDS] =
-{
-	{													// 0
-		"Jump",
-		138,
-		0,
-		0,
-		kISpElementKind_Button,
-		kISpElementLabel_Btn_Jump,
-		0,
-		0,
-		0,
-		0
-	},
-	
-	{													// 1
-		"Fire",
-		131,
-		0,
-		0,
-		kISpElementKind_Button,
-		kISpElementLabel_Btn_Fire,
-		0,
-		0,
-		0,
-		0
-	},
-	{													// 2
-		"Select Weapon",
-		136,
-		0,
-		0,
-		kISpElementKind_Button,
-		kISpElementLabel_Btn_Select,
-		0,
-		0,
-		0,
-		0
-	},
-
-
-	{													// 3
-		"Jet Up",
-		148,
-		0,
-		0,
-		kISpElementKind_Button,
-		kISpElementLabel_Btn_Fire,
-		0,
-		0,
-		0,
-		0
-	},
-	{													// 4
-		"Jet Down",
-		149,
-		0,
-		0,
-		kISpElementKind_Button,
-		kISpElementLabel_Btn_Select,
-		0,
-		0,
-		0,
-		0
-	},
-	
-	
-	{													// 5
-		"Walk Forward",
-		132,
-		0,
-		0,
-		kISpElementKind_Button,
-		kISpElementLabel_Btn_MoveForward,
-		0,
-		0,
-		0,
-		0
-	},
-	{													// 6
-		"Walk Backward",
-		133,
-		0,
-		0,
-		kISpElementKind_Button,
-		kISpElementLabel_Btn_MoveBackward,
-		0,
-		0,
-		0,
-		0
-	},
-	{													// 7
-		"Turn Left",
-		134,
-		0,
-		0,
-		kISpElementKind_Button,
-		kISpElementLabel_Btn_TurnLeft,
-		0,
-		0,
-		0,
-		0
-	},
-	{													// 8
-		"Turn Right",
-		135,
-		0,
-		0,
-		kISpElementKind_Button,
-		kISpElementLabel_Btn_TurnRight,
-		0,
-		0,
-		0,
-		0
-	},
-	
-	{													// 9
-		"Pause",
-		137,
-		0,
-		0,
-		kISpElementKind_Button,
-		kISpElementLabel_Btn_StartPause,
-		0,
-		0,
-		0,
-		0
-	},
-	
-	{													// 10
-		"Swivel Camera Left",
-		141,
-		0,
-		0,
-		kISpElementKind_Button,
-		kISpElementLabel_Btn_LookLeft,
-		0,
-		0,
-		0,
-		0
-	},
-	{													// 11
-		"Swivel Camera Right",
-		142,
-		0,
-		0,
-		kISpElementKind_Button,
-		kISpElementLabel_Btn_LookRight,
-		0,
-		0,
-		0,
-		0
-	},
-	{													// 12
-		"Zoom In",
-		143,
-		0,
-		0,
-		kISpElementKind_Button,
-		kISpElementLabel_Pad_Move,
-		0,
-		0,
-		0,
-		0
-	},
-	{													// 13
-		"Zoom Out",
-		144,
-		0,
-		0,
-		kISpElementKind_Button,
-		kISpElementLabel_Pad_Move,
-		1,
-		0,
-		0,
-		0
-	},
-	{													// 14
-		"Change Camera Mode",
-		140,
-		0,
-		0,
-		kISpElementKind_Button,
-		kISpElementLabel_None,
-		0,
-		0,
-		0,
-		0
-	},
-	
-	{													// 15
-		"Pickup/Throw",
-		147,
-		0,
-		0,
-		kISpElementKind_Button,
-		kISpElementLabel_None,
-		0,
-		0,
-		0,
-		0
-	},
-
-	{													// 16
-		"Toggle Music",
-		129,
-		0,
-		0,
-		kISpElementKind_Button,
-		kISpElementLabel_None,
-		0,
-		0,
-		0,
-		0
-	},
-	{													// 17
-		"Toggle Ambient Sound",
-		130,
-		0,
-		0,
-		kISpElementKind_Button,
-		kISpElementLabel_None,
-		0,
-		0,
-		0,
-		0
-	},
-	{													// 18
-		"Raise Volume",
-		145,
-		0,
-		0,
-		kISpElementKind_Button,
-		kISpElementLabel_None,
-		0,
-		0,
-		0,
-		0
-	},
-	{													// 19
-		"Lower Volume",
-		139,
-		0,
-		0,
-		kISpElementKind_Button,
-		kISpElementLabel_None,
-		0,
-		0,
-		0,
-		0
-	},
-	
-	{													// 20
-		"Toggle GPS",
-		146,
-		0,
-		0,
-		kISpElementKind_Button,
-		kISpElementLabel_None,
-		0,
-		0,
-		0,
-		0
-	},
-
-	{													// 21
-		"Quit Application",
-		202,
-		0,
-		0,
-		kISpElementKind_Button,
-		kISpElementLabel_Btn_Quit,
-		0,
-		0,
-		0,
-		0
-	}
-};
-
-
-ISpElementReference	gVirtualElements[NUM_CONTROL_NEEDS];
-
 
 short	gNeedToKey[NUM_CONTROL_NEEDS] =				// table to convert need # into key equate value
 {
@@ -374,51 +88,6 @@ short	gNeedToKey[NUM_CONTROL_NEEDS] =				// table to convert need # into key equ
 
 void InitInput(void)
 {
-#if USE_ISP	
-OSErr		iErr;
-ISpDeviceReference	dev[10];
-UInt32		count = 0;
-
-
-				/* CREATE NEW NEEDS */
-	
-	iErr = ISpElement_NewVirtualFromNeeds(NUM_CONTROL_NEEDS, gControlNeeds, gVirtualElements, 0);
-	if (iErr)
-	{
-		DoAlert("InitInput: ISpElement_NewVirtualFromNeeds failed!");
-		ShowSystemErr(iErr);
-	}
-		
-	iErr = ISpInit(NUM_CONTROL_NEEDS, gControlNeeds, gVirtualElements, 'NanO','Nan2', 0, 1000, 0);
-	if (iErr)
-	{
-		DoAlert("InitInput: ISpInit failed!");
-		ShowSystemErr(iErr);
-	}
-	 
-			/* ACTIVATE ALL DEVICES */
-
-	gISpActive = true;
-	iErr = ISpDevices_Extract(10,&count,dev);
-	if (iErr)
-		DoFatalAlert("InitInput: ISpDevices_Extract failed!");
-	iErr = ISpDevices_Activate(count, dev);
-	if (iErr)
-		DoFatalAlert("InitInput: ISpDevices_Activate failed!");
-
-
-			/* DEACTIVATE JUST THE MOUSE SINCE WE DONT NEED THAT */
-				
-//	ISpDevices_ExtractByClass(kISpDeviceClass_Mouse,10,&count,dev);
-//	ISpDevices_Deactivate(count, dev);
-
-
-	TurnOffISp();
-
- #else
-	gISpActive = false;	
-	gReadFromInputSprockets = false;
-#endif	
 }
 
 
@@ -507,10 +176,6 @@ KeyMap tempKeys;
 				
 	if (GetKeyState_Real(KEY_Q) && GetKeyState_Real(KEY_APPLE))			// see if key quit
 		CleanQuit();	
-		
-	if (gISpActive)
-		if (Nano_GetKeyState(kKey_Quit))										// see if ISP quit
-			CleanQuit();	
 
 		
 			/* REMEMBER AS OLD MAP */
@@ -612,35 +277,8 @@ unsigned char *keyMap;
 
 static void MyGetKeys(KeyMap *keyMap)
 {
-short	i,key,j,q;
-UInt32	keyState;
-unsigned char *keyBytes;
-
-	ReadKeyboard_Real();												// always read real keyboard anyway
-
-	if (!gReadFromInputSprockets)
-	{
-		GetKeys(*keyMap);
-	}
-	else
-	{
-		keyBytes = (unsigned char *)keyMap;
-		(*keyMap)[0] = (*keyMap)[1] = (*keyMap)[2] = (*keyMap)[3] = 0;		// clear out keymap
-		
-			/* POLL KEYS FROM INPUT SPROCKETS */
-			
-		for (i = 0; i < NUM_CONTROL_NEEDS; i++)	
-		{
-			ISpElement_GetSimpleState(gVirtualElements[i],&keyState);		// get state of this one
-			if (keyState == kISpButtonDown)
-			{
-				key = gNeedToKey[i];										// get keymap value for this "need"
-				j = key>>3;	
-				q = (1<<(key&7));		
-				keyBytes[j] |= q;											// set correct bit in keymap	
-			}
-		}
-	}
+	ReadKeyboard_Real();
+	GetKeys(*keyMap);
 }
 
 
@@ -649,20 +287,7 @@ unsigned char *keyBytes;
 
 void DoKeyConfigDialog(void)
 {
-Boolean	o = gISpActive;
-
-	FlushEvents (everyEvent, REMOVE_ALL_EVENTS);
-
-				/* DO ISP CONFIG DIALOG */
-			
-	if (!gISpActive)
-		TurnOnISp();
-		
-	ISpConfigure(nil);	
-	
-	
-	if (!o)
-		TurnOffISp() ;
+	// no-op without inputsprockets
 }
 
 
@@ -670,54 +295,14 @@ Boolean	o = gISpActive;
 
 void TurnOnISp(void)
 {
-#if USE_ISP
-ISpDeviceReference	dev[10];
-UInt32		count = 0;
-OSErr		iErr;
-
-	if (!gISpActive)
-	{
-		gReadFromInputSprockets = true;								// player control uses input sprockets
-		ISpResume();
-		gISpActive = true;
-		
-				/* ACTIVATE ALL DEVICES */
-
-		iErr = ISpDevices_Extract(10,&count,dev);
-		if (iErr)
-			DoFatalAlert("TurnOnISp: ISpDevices_Extract failed!");
-		iErr = ISpDevices_Activate(count, dev);
-		if (iErr)
-			DoFatalAlert("TurnOnISp: ISpDevices_Activate failed!");
-			
-			/* DEACTIVATE JUST THE MOUSE SINCE WE DONT NEED THAT */
-				
-//		ISpDevices_ExtractByClass(kISpDeviceClass_Mouse,10,&count,dev);
-//		ISpDevices_Deactivate(count, dev);
-	}
-#endif	
+	// no-op without inputsprockets
 }
 
 /******************** TURN OFF ISP *********************/
 
 void TurnOffISp(void)
 {
-#if USE_ISP
-ISpDeviceReference	dev[10];
-UInt32		count = 0;
-
-	if (gISpActive)
-	{	
-				/* DEACTIVATE ALL DEVICES */
-
-		ISpDevices_Extract(10,&count,dev);
-		ISpDevices_Deactivate(count, dev);
-		ISpSuspend();		
-	
-		gISpActive = false;
-		gReadFromInputSprockets = false;
-	}
-#endif	
+	// no-op without inputsprockets
 }
 
 

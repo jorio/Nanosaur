@@ -31,7 +31,7 @@ extern	short		gMainAppRezFile;
 extern	Boolean		gGameOverFlag,gAbortedFlag;
 extern	Boolean		gUsingDSP;
 extern	QD3DSetupOutputType		*gGameViewInfoPtr;
-extern	Boolean		gISpActive,gQD3DInitialized;
+extern	Boolean		gQD3DInitialized;
 extern  WindowPtr				gCoverWindow;
 
 /****************************/
@@ -86,7 +86,6 @@ Str255		numStr;
 
 void DoAlert(Str255 s)
 {
-Boolean	oldISpFlag = gISpActive;
 
 	if (gDisplayContext)
 		GammaOn();
@@ -96,9 +95,6 @@ Boolean	oldISpFlag = gISpActive;
 	InitCursor();
 	ParamText(s,NIL_STRING,NIL_STRING,NIL_STRING);
 	NoteAlert(ERROR_ALERT_ID,nil);
-
-	if (oldISpFlag)
-		TurnOnISp();									// resume input sprockets if needed	
 }
 
 		
