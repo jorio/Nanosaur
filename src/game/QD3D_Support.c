@@ -91,37 +91,8 @@ Boolean			gQD3DInitialized = false;
 
 void QD3D_Boot(void)
 {
-OSErr	iErr;
-CFragConnectionID	connID;
-Ptr		mainAddr;
-Str255	errName;
-long	response;
 TQ3Status	myStatus;
 
-			/* SEE IF AVAILABLE */
-	
-	if((void *)Q3Initialize == (void *)kUnresolvedCFragSymbolAddress)
-		DoFatalAlert("QD3D must be installed for this application to run!");
-
-#if 1
-	Gestalt(gestaltQD3D, &response);
-	if (response & (1<<gestaltQD3DPresent))
-	{	
-		Gestalt(gestaltQD3DVersion,&response);
-		if (response < 0x10500)						// must be using 1.5 or better
-		{
-err:		
-			DoFatalAlert("QuickDraw 3D version 1.5 or better is required to run this application!");
-		}
-	}
-	else
-		goto err;
-#endif	
-			/* VERIFY LIBRARIES HAVE BEEN LOADED */
-
-	iErr = GetSharedLibrary("QuickDraw\xAA 3D",kAnyCFragArch,kFindCFrag,&connID,&mainAddr,errName);
-	if (iErr)
-		DoFatalAlert("QuickDraw 3D could not be loaded.  Either it is not installed or there is not enough memory available.");
 
 				/* LET 'ER RIP! */
 				
