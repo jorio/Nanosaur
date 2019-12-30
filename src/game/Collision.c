@@ -27,7 +27,6 @@ extern	TQ3Vector3D	gDelta;
 extern	TQ3Matrix4x4	gWorkMatrix;
 extern	ObjNode		*gFirstNodePtr;
 extern	long	gTerrainUnitDepth,gTerrainUnitWidth;
-extern	const float	gOneOver_TERRAIN_POLYGON_SIZE;
 extern	WindowPtr	gCoverWindow;
 extern	float		gFramesPerSecond,gFramesPerSecondFrac;
 

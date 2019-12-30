@@ -37,7 +37,6 @@ extern	Boolean		gLevelHasHeightMaps[];
 extern	long	gTerrainUnitWidth,gTerrainUnitDepth;
 extern	UInt16	**gTerrainHeightMapLayer,**gTerrainPathLayer;
 extern	TQ3Point3D	gCoord,gMyCoord;
-extern	const float	gOneOver_TERRAIN_POLYGON_SIZE;
 extern	Byte		gMyStartAim;
 
 /****************************/

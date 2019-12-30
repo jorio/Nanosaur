@@ -10,6 +10,7 @@
 #define	MAP_ITEM_MYSTARTCOORD		0				// map item # for my start coords
 #define	MAP_ITEM_TIMEPORTAL			9				// map item # for TIME PORTAL
 
+extern	const float	gOneOver_TERRAIN_POLYGON_SIZE;
 
 		/* PATH TILES */
 
