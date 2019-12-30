@@ -30,7 +30,6 @@
 #include "objects.h"
 #include "terrain.h"
 
-extern	EventRecord			gTheEvent;
 extern	WindowPtr			gCoverWindow;
 extern	NewObjectDefinitionType	gNewObjectDefinition;
 extern	ObjNode				*gCurrentNode;

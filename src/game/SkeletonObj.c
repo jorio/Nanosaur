@@ -27,7 +27,6 @@
 #include "sound2.h"
 #include "bones.h"
 
-extern	EventRecord			gTheEvent;
 extern	NewObjectDefinitionType	gNewObjectDefinition;
 extern	ObjNode				*gPlayerNode[];
 extern	QD3DSetupOutputType		*gGameViewInfoPtr;

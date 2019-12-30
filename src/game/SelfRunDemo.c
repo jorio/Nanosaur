@@ -21,7 +21,6 @@
 #include "skeletonobj.h"
 #include "input.h"
 
-extern	EventRecord		gTheEvent;
 extern	short			gMainAppRezFile;
 extern	KeyMap 			gOldKeys;
 extern	Byte			gCurrentLevel,gMyCharacterType;

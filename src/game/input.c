@@ -20,7 +20,6 @@
 #include "windows.h"
 #include "title.h"
 
-extern	EventRecord	gTheEvent;
 extern	unsigned long gOriginalSystemVolume;
 extern	short		gMainAppRezFile;
 extern	Byte		gDemoMode;

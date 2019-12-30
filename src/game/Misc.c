@@ -35,7 +35,6 @@
 #include "skeletonobj.h"
 #include "title.h"
 
-extern	EventRecord	gTheEvent;
 extern	unsigned long gOriginalSystemVolume;
 extern	short		gMainAppRezFile;
 extern	Boolean		gGameOverFlag,gAbortedFlag;
