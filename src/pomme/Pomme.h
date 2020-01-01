@@ -88,7 +88,9 @@ short CurResFile();
 
 void CloseResFile(short refNum);
 
-int Count1Resources(ResType);
+// Returns total number of resources of the given type
+// in the current resource file only.
+short Count1Resources(ResType);
 
 Handle GetResource(ResType theType, short theID);
 
@@ -101,6 +103,10 @@ void AddResource(Handle theData, ResType theType, short theID, const char* name)
 void WriteResource(Handle theResource);
 
 void DetachResource(Handle theResource);
+
+long GetResourceSizeOnDisk(Handle);
+
+long SizeResource(Handle);
 
 //-----------------------------------------------------------------------------
 // QuickDraw 2D

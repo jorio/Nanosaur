@@ -88,7 +88,7 @@ OSErr SetEOF(short refNum, long logEOF) {
 //-----------------------------------------------------------------------------
 // Resource file management
 
-int Count1Resources(ResType theType) {
+short Count1Resources(ResType theType) {
 	TODO();
 	return 0;
 }
@@ -116,6 +116,15 @@ void WriteResource(Handle theResource) {
 
 void DetachResource(Handle theResource) {
 	TODO();
+}
+
+long GetResourceSizeOnDisk(Handle theResource) {
+	TODO();
+	return -1;
+}
+
+long SizeResource(Handle theResource) {
+	return GetResourceSizeOnDisk(theResource);
 }
 
 //-----------------------------------------------------------------------------
