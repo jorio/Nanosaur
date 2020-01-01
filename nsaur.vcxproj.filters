@@ -296,7 +296,7 @@
     <ClInclude Include="src\pomme\PommeTypes.h">
       <Filter>Header Files\Pomme</Filter>
     </ClInclude>
-    <ClInclude Include="PommeInternal.h">
+    <ClInclude Include="src\pomme\PommeInternal.h">
       <Filter>Header Files\Pomme</Filter>
     </ClInclude>
   </ItemGroup>

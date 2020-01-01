@@ -218,7 +218,6 @@
     <ClCompile Include="src\pomme\PommeFiles.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="PommeInternal.h" />
     <ClInclude Include="src\game\3DMath.h" />
     <ClInclude Include="src\game\3dmf.h" />
     <ClInclude Include="src\game\affectors.h" />
@@ -262,6 +261,7 @@
     <ClInclude Include="src\game\windows_nano.h" />
     <ClInclude Include="src\pomme\Pomme.h" />
     <ClInclude Include="src\pomme\PommeEnums.h" />
+    <ClInclude Include="src\pomme\PommeInternal.h" />
     <ClInclude Include="src\pomme\PommeTypes.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
