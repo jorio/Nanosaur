@@ -108,7 +108,11 @@ typedef char*                          StringPtr;
 // Point & Rect types
 
 struct Point { SInt16 v, h; };
-struct Rect { SInt16 top, left, bottom, right; };
+struct Rect {
+    SInt16 top, left, bottom, right;
+    int width() const { return right - left; }
+    int height() const { return bottom - top; }
+};
 typedef Point* PointPtr;
 typedef Rect* RectPtr;
 struct FixedPoint { Fixed x, y; };

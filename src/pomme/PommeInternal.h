@@ -36,6 +36,19 @@ namespace Pomme {
 		std::map<ResType, std::map<short, Rez> > rezMap;
 	};
 
+	struct Pixmap {
+		int width;
+		int height;
+		std::vector<Byte> data;
+
+		Pixmap();
+		Pixmap(int w, int h);
+		void WriteTGA(const char* path);
+	};
+
+
 	void Init();
 	void InitFiles(const char* applName);
+
+	Pixmap ReadPICT(std::istream& f, bool skip512 = true);
 }

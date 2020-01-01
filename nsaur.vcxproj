@@ -217,6 +217,7 @@
     <ClCompile Include="src\pomme\BigEndianIStream.cpp" />
     <ClCompile Include="src\pomme\Pomme.cpp" />
     <ClCompile Include="src\pomme\PommeFiles.cpp" />
+    <ClCompile Include="src\pomme\PommePICT.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\game\3DMath.h" />
