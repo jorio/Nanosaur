@@ -2,6 +2,8 @@
 #include <filesystem>
 #include <iostream>
 #include <fstream>
+#include <sstream>
+#include <strstream>
 
 constexpr auto MAX_OPEN_FILES = 32767;
 
@@ -20,6 +22,7 @@ std::vector<std::filesystem::path> fsspecParentDirectories;
 InternalMacFileHandle openFiles[MAX_OPEN_FILES];
 short nextFileSlot = -1;
 short currentResFile = -1;
+Pomme::RezFork curRezFork;
 
 //-----------------------------------------------------------------------------
 // Utilities
@@ -168,7 +171,7 @@ short FSpOpenResFile(const FSSpec* spec0, char permission) {
 	// ----------------
 	// Load resource fork
 
-	Pomme::RezFork rezFork;
+	curRezFork.rezMap.clear();
 
 	// ----------------
 	// Detect AppleDouble
@@ -263,7 +266,7 @@ short FSpOpenResFile(const FSSpec* spec0, char permission) {
 			r.flags = resFlags;
 			r.name = name;
 			r.data = buf;
-			rezFork.rezMap[resType][resID] = r;
+			curRezFork.rezMap[resType][resID] = r;
 
 			std::cout << spec.cppPath() << ": "
 				<< fourCCstr(resType) << " #" << resID
@@ -273,4 +276,43 @@ short FSpOpenResFile(const FSSpec* spec0, char permission) {
 	}
 
 	return slot;
+}
+
+//-----------------------------------------------------------------------------
+// Resource file management
+
+void UseResFile(short refNum) {
+	// See MoreMacintoshToolbox:1-69
+
+	lastResError = unimpErr;
+
+	if (refNum == 0)
+		TODOFATAL2("using the System file's resource fork is not implemented");
+	if (refNum <= 0)
+		TODOFATAL2("illegal refNum " << refNum);
+
+	if (!openFiles[refNum].rf.is_open()) {
+		std::cerr << "can't UseResFile on this refNum " << refNum << "\n";
+		return;
+	}
+
+	lastResError = noErr;
+	currentResFile = refNum;
+}
+
+short CurResFile() {
+	return currentResFile;
+}
+
+void CloseResFile(short refNum) {
+	if (refNum == 0)
+		TODOFATAL2("closing the System file's resource fork is not implemented");
+	if (refNum <= 0)
+		TODOFATAL2("illegal refNum " << refNum);
+	if (!openFiles[refNum].rf.is_open())
+		TODOFATAL2("already closed res file " << refNum);
+	//UpdateResFile(refNum); // MMT:1-110
+	openFiles[refNum].rf.close();
+	if (refNum == currentResFile)
+		currentResFile = -1;
 }

@@ -88,19 +88,6 @@ OSErr SetEOF(short refNum, long logEOF) {
 //-----------------------------------------------------------------------------
 // Resource file management
 
-void UseResFile(short refNum) {
-	TODO();
-}
-
-short CurResFile() {
-	TODO();
-	return -1;
-}
-
-void CloseResFile(short refNum) {
-	TODO();
-}
-
 int Count1Resources(ResType theType) {
 	TODO();
 	return 0;
