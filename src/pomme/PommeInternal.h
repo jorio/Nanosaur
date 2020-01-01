@@ -4,6 +4,15 @@
 #include <map>
 
 namespace Pomme {
+	class StreamPosGuard {
+		std::istream& stream;
+		const std::streampos backup;
+
+	public:
+		StreamPosGuard(std::istream& f);
+		~StreamPosGuard();
+	};
+
 	class BigEndianIStream {
 		std::istream& stream;
 
@@ -11,7 +20,10 @@ namespace Pomme {
 		BigEndianIStream(std::istream& theStream);
 		void Read(char* dst, int n);
 		void Skip(int n);
+		void Goto(int absoluteOffset);
 		std::streampos Tell() const;
+		StreamPosGuard GuardPos();
+		std::vector<Byte> ReadBytes(int n);
 
 		template<typename T> T Read() {
 			char b[sizeof(T)];

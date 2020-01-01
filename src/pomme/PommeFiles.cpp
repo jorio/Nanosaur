@@ -27,15 +27,6 @@ Pomme::RezFork curRezFork;
 //-----------------------------------------------------------------------------
 // Utilities
 
-template<typename T> T ReadBE(std::ifstream& i) {
-	char b[sizeof(T)];
-	i.read(b, sizeof(T));
-#if !(TARGET_RT_BIGENDIAN)
-	std::reverse(b, b + sizeof(T));
-#endif
-	return *(T*)b;
-}
-
 static const char* fourCCstr(ResType t) {
 	static char b[5];
 	*(ResType*)b = t;
@@ -50,23 +41,6 @@ static const char* fourCCstr(ResType t) {
 	b[4] = '\0';
 	return b;
 }
-
-class FilePosGuard {
-	std::ifstream& _f;
-	const std::streampos _backup;
-
-public:
-	FilePosGuard(std::ifstream& f) :
-		_f(f),
-		_backup(_f.tellg())
-	{
-	}
-
-	~FilePosGuard()
-	{
-		_f.seekg(_backup, std::ios_base::beg);
-	}
-};
 
 class FSSpecEx {
 public:
@@ -173,21 +147,23 @@ short FSpOpenResFile(const FSSpec* spec0, char permission) {
 
 	curRezFork.rezMap.clear();
 
+	auto f = Pomme::BigEndianIStream(openFiles[slot].rf);
+
 	// ----------------
 	// Detect AppleDouble
-	auto& f = openFiles[slot].rf;
-	if (0x0005160700020000ULL != ReadBE<UInt64>(f))
+	
+	if (0x0005160700020000ULL != f.Read<UInt64>())
 		TODOFATAL2("Not ADF magic");
-	f.seekg(16, std::ios_base::cur);
-	auto numOfEntries = ReadBE<UInt16>(f);
+	f.Skip(16);
+	auto numOfEntries = f.Read<UInt16>();
 	UInt32 adfResForkLen = 0;
 	UInt32 adfResForkOff = 0;
 	for (int i = 0; i < numOfEntries; i++) {
-		auto entryID	= ReadBE<UInt32>(f);
-		auto offset		= ReadBE<UInt32>(f);
-		auto length		= ReadBE<UInt32>(f);
+		auto entryID	= f.Read<UInt32>();
+		auto offset		= f.Read<UInt32>();
+		auto length		= f.Read<UInt32>();
 		if (entryID == 2) {
-			f.seekg(offset, std::ios_base::beg);
+			f.Goto(offset);
 			adfResForkLen = length;
 			adfResForkOff = offset;
 			break;
@@ -196,43 +172,43 @@ short FSpOpenResFile(const FSSpec* spec0, char permission) {
 
 	// -------------------
 	// Resource Header
-	UInt32 dataSectionOff		= ReadBE<UInt32>(f) + adfResForkOff;
-	UInt32 mapSectionOff		= ReadBE<UInt32>(f) + adfResForkOff;
-	UInt32 dataSectionLen		= ReadBE<UInt32>(f);
-	UInt32 mapSectionLen		= ReadBE<UInt32>(f);
-	f.seekg(112 + 128, std::ios_base::cur); // system- (112) and app- (128) reserved data
+	UInt32 dataSectionOff		= f.Read<UInt32>() + adfResForkOff;
+	UInt32 mapSectionOff		= f.Read<UInt32>() + adfResForkOff;
+	UInt32 dataSectionLen		= f.Read<UInt32>();
+	UInt32 mapSectionLen		= f.Read<UInt32>();
+	f.Skip(112 + 128); // system- (112) and app- (128) reserved data
 
-	if (f.tellg() != dataSectionOff)
+	if (f.Tell() != dataSectionOff)
 		TODOFATAL2("unexpected data offset");
 
-	f.seekg(mapSectionOff, std::ios_base::beg);
+	f.Goto(mapSectionOff);
 
 	// map header
-	f.seekg(16 + 4 + 2, std::ios_base::cur); // junk
-	UInt16 fileAttr				= ReadBE<UInt16>(f);
-	UInt32 typeListOff			= ReadBE<UInt16>(f) + mapSectionOff;
-	UInt32 resNameListOff		= ReadBE<UInt16>(f) + mapSectionOff;
+	f.Skip(16 + 4 + 2); // junk
+	UInt16 fileAttr				= f.Read<UInt16>();
+	UInt32 typeListOff			= f.Read<UInt16>() + mapSectionOff;
+	UInt32 resNameListOff		= f.Read<UInt16>() + mapSectionOff;
 
 	// all resource types
-	int nResTypes = 1 + ReadBE<UInt16>(f);
+	int nResTypes = 1 + f.Read<UInt16>();
 	for (int i = 0; i < nResTypes; i++) {
-		UInt32 resType			= ReadBE<OSType>(f);
-		int    resCount			= ReadBE<UInt16>(f) + 1;
-		UInt32 resRefListOff	= ReadBE<UInt16>(f) + typeListOff;
+		UInt32 resType			= f.Read<OSType>();
+		int    resCount			= f.Read<UInt16>() + 1;
+		UInt32 resRefListOff	= f.Read<UInt16>() + typeListOff;
 
 		// The guard will rewind the file cursor to the pos in the next iteration
-		FilePosGuard filepos1(f);
+		auto guard1 = f.GuardPos();
 
-		f.seekg(resRefListOff, std::ios_base::beg);
+		f.Goto(resRefListOff);
 
 		for (int j = 0; j < resCount; j++) {
-			SInt16 resID				= ReadBE<UInt16>(f);
-			UInt16 resNameRelativeOff	= ReadBE<UInt16>(f);
-			UInt32 resPackedAttr		= ReadBE<UInt32>(f);
-			f.seekg(4, std::ios_base::cur); // junk
+			SInt16 resID				= f.Read<UInt16>();
+			UInt16 resNameRelativeOff	= f.Read<UInt16>();
+			UInt32 resPackedAttr		= f.Read<UInt32>();
+			f.Skip(4); // junk
 
 			// The guard will rewind the file cursor to the pos in the next iteration
-			FilePosGuard filepos2(f);
+			auto guard2 = f.GuardPos();
 
 			// unpack attributes
 			Byte   resFlags = (resPackedAttr & 0xFF000000) >> 24;
@@ -244,21 +220,20 @@ short FSpOpenResFile(const FSSpec* spec0, char permission) {
 			// Read name
 			std::string name;
 			if (resNameRelativeOff != 0xFFFF) {
-				f.seekg(resNameListOff + resNameRelativeOff, std::ios_base::beg);
+				f.Goto(resNameListOff + resNameRelativeOff);
 				// read pascal string
-				UInt8 pascalStrLen = ReadBE<UInt8>(f);
+				UInt8 pascalStrLen = f.Read<UInt8>();
 				char str[256];
-				f.read(str, pascalStrLen);
+				f.Read(str, pascalStrLen);
 				str[pascalStrLen] = '\0';
 				name = std::string(str);
 			}
 
 			// Read data
-			f.seekg(resDataOff, std::ios_base::beg);
-			UInt32 resLen = ReadBE<UInt32>(f);
+			f.Goto(resDataOff);
+			UInt32 resLen = f.Read<UInt32>();
 
-			std::vector<Byte> buf(resLen);
-			f.read(reinterpret_cast<char*>(buf.data()), resLen);
+			std::vector<Byte> buf = f.ReadBytes(resLen);
 
 			Pomme::Rez r;
 			r.fourCC = resType;
