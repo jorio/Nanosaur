@@ -214,6 +214,7 @@
     <ClCompile Include="src\game\Triggers.c" />
     <ClCompile Include="src\game\Weapons.c" />
     <ClCompile Include="src\nsaur.cpp" />
+    <ClCompile Include="src\pomme\BigEndianIStream.cpp" />
     <ClCompile Include="src\pomme\Pomme.cpp" />
     <ClCompile Include="src\pomme\PommeFiles.cpp" />
   </ItemGroup>

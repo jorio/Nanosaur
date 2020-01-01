@@ -162,6 +162,9 @@
     <ClCompile Include="src\pomme\PommeFiles.cpp">
       <Filter>Source Files\Pomme</Filter>
     </ClCompile>
+    <ClCompile Include="src\pomme\BigEndianIStream.cpp">
+      <Filter>Source Files\Pomme</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\game\3DMath.h">
