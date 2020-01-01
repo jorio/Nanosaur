@@ -37,11 +37,6 @@ OSErr FSpOpenDF(const FSSpec* spec, char permission, short* refNum) {
 	return unimpErr;
 }
 
-OSErr FSpOpenRF(const FSSpec* spec, char permission, short* refNum) {
-	TODO();
-	return unimpErr;
-}
-
 OSErr FSpCreate(const FSSpec* spec, OSType creator, OSType fileType, ScriptCode scriptTag) {
 	TODO();
 	return unimpErr;
@@ -87,16 +82,6 @@ OSErr SetEOF(short refNum, long logEOF) {
 
 //-----------------------------------------------------------------------------
 // Resource file management
-
-short Count1Resources(ResType theType) {
-	TODO();
-	return 0;
-}
-
-Handle GetResource(ResType theType, short theID) {
-	TODO();
-	return nil;
-}
 
 void ReleaseResource(Handle theResource) {
 	TODO();

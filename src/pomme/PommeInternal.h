@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <map>
+#include <fstream>
 
 namespace Pomme {
 	class StreamPosGuard {
@@ -62,5 +63,7 @@ namespace Pomme {
 	void Init();
 	void InitFiles(const char* applName);
 
+	std::ifstream& GetIStreamRF(short refNum);
+	
 	Pixmap ReadPICT(std::istream& f, bool skip512 = true);
 }
