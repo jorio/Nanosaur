@@ -165,6 +165,9 @@
     <ClCompile Include="src\pomme\PommePICT.cpp">
       <Filter>Source Files\Pomme</Filter>
     </ClCompile>
+    <ClCompile Include="src\pomme\PommeMemory.cpp">
+      <Filter>Source Files\Pomme</Filter>
+    </ClCompile>
     <ClCompile Include="src\pomme\BigEndianIStream.cpp">
       <Filter>Source Files\Pomme</Filter>
     </ClCompile>

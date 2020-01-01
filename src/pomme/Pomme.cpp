@@ -240,29 +240,6 @@ void NoPurgePixels(PixMapHandle) {
 //-----------------------------------------------------------------------------
 // Memory: Handle
 
-Handle NewHandleClear(Size byteCount) {
-	TODOFATAL();
-	return nil;
-}
-
-Handle TempNewHandle(Size byteCount, OSErr* err) {
-	TODOFATAL();
-	return nil;
-}
-
-Size GetHandleSize(Handle) {
-	TODOFATAL();
-	return 0;
-}
-
-void SetHandleSize(Handle handle, Size byteCount) {
-	TODOFATAL();
-}
-
-void DisposeHandle(Handle) {
-	TODOMINOR();
-}
-
 //-----------------------------------------------------------------------------
 // Memory: Ptr
 

@@ -172,6 +172,8 @@ Boolean LockPixels(PixMapHandle); // shall return true always
 //-----------------------------------------------------------------------------
 // Memory: Handle
 
+Handle NewHandle(Size);
+
 // Allocate prezeroed memory
 Handle NewHandleClear(Size);
 
