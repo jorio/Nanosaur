@@ -3,6 +3,7 @@
 #include <vector>
 #include <map>
 #include <fstream>
+#include <string>
 
 namespace Pomme {
 	class StreamPosGuard {
@@ -66,4 +67,6 @@ namespace Pomme {
 	std::ifstream& GetIStreamRF(short refNum);
 	
 	Pixmap ReadPICT(std::istream& f, bool skip512 = true);
+
+	std::string FourCCString(FourCharCode t);
 }

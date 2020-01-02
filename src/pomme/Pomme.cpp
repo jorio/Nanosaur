@@ -29,6 +29,21 @@ void ImplementMe(const char* fn, std::string msg, int severity) {
 	}
 }
 
+std::string Pomme::FourCCString(FourCharCode t) {
+	char b[5];
+	*(ResType*)b = t;
+#if !(TARGET_RT_BIGENDIAN)
+	std::reverse(b, b + 4);
+#endif
+	// replace non-ascii with '?'
+	for (int i = 0; i < 4; i++) {
+		char c = b[i];
+		if (c < ' ' || c > '~') b[i] = '?';
+	}
+	b[4] = '\0';
+	return b;
+}
+
 //-----------------------------------------------------------------------------
 // FSSpec
 

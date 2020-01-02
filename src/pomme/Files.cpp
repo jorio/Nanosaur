@@ -4,6 +4,10 @@
 #include <fstream>
 #include <sstream>
 
+#ifdef WIN32
+#include <shlobj.h>
+#endif
+
 using namespace Pomme;
 
 constexpr auto MAX_OPEN_FILES = 32767;
@@ -24,59 +28,38 @@ struct InternalMacFileHandle {
 //-----------------------------------------------------------------------------
 // State
 
-std::vector<std::filesystem::path> fsspecParentDirectories;
+std::vector<std::filesystem::path> directories;
 InternalMacFileHandle openFiles[MAX_OPEN_FILES];
 short nextFileSlot = -1;
 
 //-----------------------------------------------------------------------------
 // Utilities
 
-static const char* fourCCstr(ResType t) {
-	static char b[5];
-	*(ResType*)b = t;
-#if !(TARGET_RT_BIGENDIAN)
-	std::reverse(b, b + 4);
-#endif
-	// replace non-ascii with '?'
-	for (int i = 0; i < 4; i++) {
-		char c = b[i];
-		if (c < ' ' || c > '~') b[i] = '?';
-	}
-	b[4] = '\0';
-	return b;
+std::filesystem::path GetPath(short vRefNum, long parID, ConstStr255Param name) {
+	std::filesystem::path path(directories[parID]);
+	path += std::filesystem::path::preferred_separator;
+	path += Pascal2C(name);
+	return path.lexically_normal();
 }
 
-class FSSpecEx {
-public:
-	const FSSpec& spec;
+short GetVolumeID(const std::filesystem::path& path) {
+	return 0;
+}
 
-	FSSpecEx(const FSSpec& theSpec) :
-		spec(theSpec)
-	{
+long GetDirectoryID(const std::filesystem::path& dirPath) {
+	if (std::filesystem::exists(dirPath) && !std::filesystem::is_directory(dirPath)) {
+		std::cerr << "Warning: GetDirID should only be used on directories! " << dirPath << "\n";
 	}
-
-	bool exists() const {
-		return std::filesystem::exists(cppPath());
-	}
-
-	bool isFile() const {
-		return std::filesystem::is_regular_file(cppPath());
-	}
-
-	std::filesystem::path cppPath() const {
-		std::filesystem::path path(fsspecParentDirectories[spec.parID]);
-		path += std::filesystem::path::preferred_separator;
-		path += Pascal2C(spec.name);
-		return path;
-	}
-};
+	directories.emplace_back(dirPath);
+	return directories.size() - 1;
+}
 
 //-----------------------------------------------------------------------------
 // Init
 
 void Pomme::InitFiles(const char* applName) {
 	// default directory (ID 0)
-	fsspecParentDirectories.push_back(std::filesystem::current_path());
+	directories.push_back(std::filesystem::current_path());
 
 	nextFileSlot = 1; // file 0 is System
 
@@ -91,31 +74,35 @@ void Pomme::InitFiles(const char* applName) {
 //-----------------------------------------------------------------------------
 // Implementation
 
+FSSpec ToFSSpec(const std::filesystem::path& fullPath) {
+	auto parentPath = fullPath;
+	parentPath.remove_filename();
+
+	FSSpec spec;
+	spec.vRefNum = GetVolumeID(parentPath);
+	spec.parID = GetDirectoryID(parentPath);
+	spec.name = Str255(fullPath.filename().string().c_str());
+	return spec;
+}
+
 OSErr FSMakeFSSpec(short vRefNum, long dirID, ConstStr255Param pascalFileName, FSSpec* spec)
 {
 	if (vRefNum != 0)
 		TODOFATAL2("can't handle anything but the default volume");
 
-	if (fsspecParentDirectories.empty())
+	if (directories.empty())
 		TODOFATAL2("did you init the fake mac?");
 
-	auto fullPath = fsspecParentDirectories[dirID];
+	auto fullPath = directories[dirID];
 	auto newFN = std::string(Pascal2C(pascalFileName));
 	std::replace(newFN.begin(), newFN.end(), '/', '_');
 	std::replace(newFN.begin(), newFN.end(), ':', '/');
 	fullPath += '/' + newFN;
-	fullPath.make_preferred();
+	fullPath = fullPath.lexically_normal();
 
-	std::cout << "FSMakeFSSpec: " << fullPath << "\n";
+	LOG << "FSMakeFSSpec: " << fullPath << "\n";
 
-	auto parentPath = fullPath;
-	parentPath.remove_filename();
-
-	fsspecParentDirectories.emplace_back(parentPath);
-
-	spec->vRefNum = 0;
-	spec->parID = fsspecParentDirectories.size() - 1; // the index of the one we've just pushed
-	spec->name = Str255(fullPath.filename().string().c_str());
+	*spec = ToFSSpec(fullPath);
 
 	if (std::filesystem::exists(fullPath))
 		return noErr;
@@ -127,10 +114,10 @@ std::ifstream& Pomme::GetIStreamRF(short refNum) {
 	return openFiles[refNum].rf;
 }
 
-OSErr FSpOpenRF(const FSSpec* spec0, char permission, short* refNum) {
+OSErr FSpOpenRF(const FSSpec* spec, char permission, short* refNum) {
 	short slot = nextFileSlot;
 
-	const FSSpecEx spec(*spec0);
+	const auto path = GetPath(spec->vRefNum, spec->parID, spec->name);
 
 	if (nextFileSlot == MAX_OPEN_FILES)
 		TODOFATAL2("too many files have been opened");
@@ -138,15 +125,65 @@ OSErr FSpOpenRF(const FSSpec* spec0, char permission, short* refNum) {
 	if (permission != fsRdPerm)
 		TODOFATAL2("only fsRdPerm is implemented");
 
-	if (!spec.isFile()) {
+	if (!std::filesystem::is_regular_file(path)) {
 		*refNum = -1;
 		return fnfErr;
 	}
 
 	nextFileSlot++;
-	openFiles[slot].rf = std::ifstream(spec.cppPath(), std::ios::binary);
+	openFiles[slot].rf = std::ifstream(path, std::ios::binary);
 	*refNum = slot;
-	std::cout << "Opened RF " << spec.cppPath() << " at slot " << *refNum << "\n";
+	LOG << "Opened RF " << path << " at slot " << *refNum << "\n";
 
+	return noErr;
+}
+
+OSErr FindFolder(short vRefNum, OSType folderType, Boolean createFolder, short* foundVRefNum, long* foundDirID)
+{
+	switch (folderType) {
+	case kPreferencesFolderType:
+	{
+#ifdef WIN32
+		PWSTR wpath;
+		// If we ever want to port to something older than Vista, this won't work.
+		SHGetKnownFolderPath(FOLDERID_RoamingAppData, 0, 0, &wpath);
+		auto path = std::filesystem::path(wpath).lexically_normal();
+		*foundVRefNum = GetVolumeID(path);
+		*foundDirID = GetDirectoryID(path);
+		return noErr;
+#else
+		TODO2("your OS is not supported yet for folder type " << Pomme::fourCCstr(folderTYpe));
+		break;
+#endif
+	}
+
+	default:
+		TODO2("folder type '" << Pomme::FourCCString(folderType) << "' isn't supported yet");
+		return fnfErr;
+	}
+}
+
+OSErr DirCreate(short vRefNum, long parentDirID, ConstStr255Param directoryName, long* createdDirID)
+{
+	const auto path = GetPath(vRefNum, parentDirID, directoryName);
+
+	if (std::filesystem::exists(path)) {
+		if (std::filesystem::is_directory(path)) {
+			LOG << __func__ << ": directory already exists: " << path << "\n";
+			return noErr;
+		} else {
+			std::cerr << __func__ << ": a file with the same name already exists: " << path << "\n";
+			return bdNamErr;
+		}
+	}
+
+	try {
+		std::filesystem::create_directory(path);
+	} catch (const std::filesystem::filesystem_error& e) {
+		std::cerr << __func__ << " threw " << e.what() << "\n";
+		return ioErr;
+	}
+
+	LOG << __func__ << ": created " << path << "\n";
 	return noErr;
 }

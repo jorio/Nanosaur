@@ -12,6 +12,42 @@ enum EFSPermissions {
 };
 
 //-----------------------------------------------------------------------------
+// Folder types
+
+enum {
+    kSystemFolderType                   = 'macs',
+    kDesktopFolderType                  = 'desk',
+    kSystemDesktopFolderType            = 'sdsk',
+    kTrashFolderType                    = 'trsh',
+    kSystemTrashFolderType              = 'strs',
+    kWhereToEmptyTrashFolderType        = 'empt',
+    kPrintMonitorDocsFolderType         = 'prnt',
+    kStartupFolderType                  = 'strt',
+    kShutdownFolderType                 = 'shdf',
+    kAppleMenuFolderType                = 'amnu',
+    kControlPanelFolderType             = 'ctrl',
+    kSystemControlPanelFolderType       = 'sctl',
+    kExtensionFolderType                = 'extn',
+    kFontsFolderType                    = 'font',
+    kPreferencesFolderType              = 'pref',
+    kSystemPreferencesFolderType        = 'sprf',
+    kTemporaryFolderType                = 'temp'
+};
+
+enum {
+    kOnSystemDisk                       = -32768L,
+    kOnAppropriateDisk                  = -32767,
+    kSystemDomain                       = -32766,
+    kLocalDomain                        = -32765,
+    kNetworkDomain                      = -32764,
+    kUserDomain                         = -32763,
+    kClassicDomain                      = -32762
+};
+
+#define kCreateFolder       true
+#define kDontCreateFolder   false
+
+//-----------------------------------------------------------------------------
 // Error codes (OSErr)
 
 enum EErrors {

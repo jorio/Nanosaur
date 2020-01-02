@@ -68,6 +68,10 @@ OSErr FSpDelete(const FSSpec* spec);
 
 OSErr ResolveAlias(const FSSpec* spec, AliasHandle alias, FSSpec* target, Boolean* wasChanged);
 
+OSErr FindFolder(short vRefNum, OSType folderType, Boolean createFolder, short* foundVRefNum, long* foundDirID);
+
+OSErr DirCreate(short vRefNum, long parentDirID, ConstStr255Param directoryName, long* createdDirID);
+
 //-----------------------------------------------------------------------------
 // File I/O
 
