@@ -11,8 +11,11 @@ using namespace Pomme;
 
 #define PRINT_PROGRESS_EVERY 16
 
-//static std::ostream& LOG = std::cout;
+#ifdef POMME_DEBUG_PICT
+static std::ostream& LOG = std::cout;
+#else
 static std::ostringstream LOG;
+#endif
 
 //-----------------------------------------------------------------------------
 // Rect helpers

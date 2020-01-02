@@ -2,6 +2,12 @@
 #include "PommeInternal.h"
 #include <strstream>
 
+#ifdef POMME_DEBUG_RESOURCES
+static std::ostream& LOG = std::cout;
+#else
+static std::ostringstream LOG;
+#endif
+
 using namespace Pomme;
 
 //-----------------------------------------------------------------------------
@@ -141,11 +147,12 @@ short FSpOpenResFile(const FSSpec* spec, char permission) {
 				auto pm = Pomme::ReadPICT(substream, false);
 				std::stringstream tgaFN; tgaFN << "PICT" << resID << ".TGA";
 				pm.WriteTGA(tgaFN.str().c_str());
-				std::cout << "Wrote " << tgaFN.str().c_str() << "\n";
+				LOG << "Wrote " << tgaFN.str().c_str() << "\n";
 			}
+			*/
 
 			/*
-			std::cout << spec.cppPath() << ": "
+			LOG << spec.cppPath() << ": "
 				<< fourCCstr(resType) << " #" << resID
 				<< " " << resLen << " bytes "
 				<< " '" << name << "' " << "\n";

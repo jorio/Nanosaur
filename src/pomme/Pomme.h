@@ -13,6 +13,12 @@
 // Quickdraw.h: https://github.com/phracker/MacOSX-SDKs/blob/master/MacOSX10.9.sdk/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/QD.framework/Versions/A/Headers/Quickdraw.h
 // Sound manager: http://www.few.vu.nl/~A.Eliens/research/media/lib-of-vs-libs-QTDevWin-CIncludes-Sound.h
 
+#define POMME_DEBUG_MEMORY
+#define POMME_DEBUG_SOUND
+//#define POMME_DEBUG_PICT
+#define POMME_DEBUG_FILES
+#define POMME_DEBUG_RESOURCES
+
 //-----------------------------------------------------------------------------
 // PowerPC intrinsics
 

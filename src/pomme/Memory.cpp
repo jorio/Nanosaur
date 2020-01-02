@@ -2,8 +2,11 @@
 #include <vector>
 #include <queue>
 
-//static std::ostream& LOG = std::cout;
+#ifdef POMME_DEBUG_MEMORY
+static std::ostream& LOG = std::cout;
+#else
 static std::ostringstream LOG;
+#endif
 
 struct BlockDescriptor {
 	Ptr buf;

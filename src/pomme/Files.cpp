@@ -8,6 +8,12 @@ using namespace Pomme;
 
 constexpr auto MAX_OPEN_FILES = 32767;
 
+#ifdef POMME_DEBUG_FILES
+static std::ostream& LOG = std::cout;
+#else
+static std::ostringstream LOG;
+#endif
+
 //-----------------------------------------------------------------------------
 // Types
 
