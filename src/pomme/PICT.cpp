@@ -71,12 +71,13 @@ void Pixmap::WriteTGA(const char* path) {
 	short tgaHdr[] = { 0,2,0,0,0,0,(short)width,(short)height,0x2020 };
 	tga.write((const char*)tgaHdr, sizeof(tgaHdr));
 	for (int i = 0; i < 4 * width * height; i += 4) {
-		tga.put(data[i + 2]); //b
-		tga.put(data[i + 1]); //g
-		tga.put(data[i + 0]); //r
-		tga.put(data[i + 3]); //a
+		tga.put(data[i + 3]); //b
+		tga.put(data[i + 2]); //g
+		tga.put(data[i + 1]); //r
+		tga.put(data[i + 0]); //a
 	}
 	tga.close();
+	std::cout << "wrote " << path << "\n";
 }
 
 //-----------------------------------------------------------------------------
@@ -155,10 +156,10 @@ Pixmap Unpack3(BigEndianIStream& f, int w, int h, UInt16 rowbytes)
 	for (int i = 0; i < unpacked.size(); i++) {
 		if (i % (w*PRINT_PROGRESS_EVERY) == 0) LOG << ".";
 		UInt16 px = unpacked[i];
-		dst.data.push_back(((px >> 10) & 0x1F) << 3); // r
-		dst.data.push_back(((px >> 5) & 0x1F) << 3); // g
-		dst.data.push_back(((px >> 0) & 0x1F) << 3); // b
 		dst.data.push_back(0xFF); // a
+		dst.data.push_back(((px >> 10) & 0x1F) << 3); // r
+		dst.data.push_back(((px >>  5) & 0x1F) << 3); // g
+		dst.data.push_back(((px >>  0) & 0x1F) << 3); // b
 	}
 	LOG << "\n";
 	return dst;
@@ -175,18 +176,18 @@ Pixmap Unpack4(BigEndianIStream& f, int w, int h, UInt16 rowbytes, int numPlanes
 		if (y % PRINT_PROGRESS_EVERY == 0) LOG << ".";
 		if (numPlanes == 3) {
 			for (int x = 0; x < w; x++) {
+				dst.data.push_back(0xFF);
 				dst.data.push_back(unpacked[y*w*3 + x + w*0]); // red
 				dst.data.push_back(unpacked[y*w*3 + x + w*1]); // grn
 				dst.data.push_back(unpacked[y*w*3 + x + w*2]); // blu
-				dst.data.push_back(0xFF);
 			}
 		}
 		else {
 			for (int x = 0; x < w; x++) {
+				dst.data.push_back(unpacked[y*w*3 + x + w*0]); // alpha
 				dst.data.push_back(unpacked[y*w*3 + x + w*1]); // red
 				dst.data.push_back(unpacked[y*w*3 + x + w*2]); // grn
 				dst.data.push_back(unpacked[y*w*3 + x + w*3]); // blu
-				dst.data.push_back(unpacked[y*w*3 + x + w*0]); // alpha
 			}
 		}
 	}
