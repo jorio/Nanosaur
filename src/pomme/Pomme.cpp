@@ -238,26 +238,6 @@ void NoPurgePixels(PixMapHandle) {
 }
 
 //-----------------------------------------------------------------------------
-// Memory: Handle
-
-//-----------------------------------------------------------------------------
-// Memory: Ptr
-
-Ptr NewPtr(Size byteCount) {
-	TODOFATAL();
-	return nil;
-}
-
-Ptr NewPtrSys(Size byteCount) {
-	TODOFATAL();
-	return nil;
-}
-
-void DisposePtr(Ptr p) {
-	TODOMINOR();
-}
-
-//-----------------------------------------------------------------------------
 // Memory: BlockMove
 
 void BlockMove(const void* srcPtr, void* destPtr, Size byteCount) {

@@ -8,6 +8,9 @@ static std::ostream& LOG = std::cout;
 static std::ostringstream LOG;
 #endif
 
+//-----------------------------------------------------------------------------
+// Implementation-specific stuff
+
 struct BlockDescriptor {
 	Ptr buf;
 	Size size;
@@ -21,6 +24,9 @@ std::deque<int> freeBlocks;
 BlockDescriptor& HandleToBlock(Handle h) {
 	return *(BlockDescriptor*)h;
 }
+
+//-----------------------------------------------------------------------------
+// Memory: Handle
 
 Handle NewHandle(Size s) {
 	BlockDescriptor block;
@@ -80,4 +86,19 @@ void DisposeHandle(Handle h) {
 		freeBlocks.pop_back();
 		blocks.pop_back();
 	}
+}
+
+//-----------------------------------------------------------------------------
+// Memory: Ptr
+
+Ptr NewPtr(Size byteCount) {
+	return new char[byteCount];
+}
+
+Ptr NewPtrSys(Size byteCount) {
+	return new char[byteCount];
+}
+
+void DisposePtr(Ptr p) {
+	delete[] p;
 }
