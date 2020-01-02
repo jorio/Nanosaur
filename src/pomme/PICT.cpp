@@ -365,7 +365,7 @@ Pixmap Pomme::ReadPICT(std::istream& theF, bool skip512) {
 
 		case 0x00FF: // done
 		case 0xFFFF:
-			return Pixmap();
+			return pm;
 
 		default:
 			std::cerr << "unknown opcode " << opcode << "\n";
