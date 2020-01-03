@@ -51,6 +51,10 @@ long GetDirectoryID(const std::filesystem::path& dirPath) {
 	return directories.size() - 1;
 }
 
+bool Pomme::IsRefNumLegal(short refNum) {
+	return refNum > 0 && refNum < MAX_OPEN_FILES && refNum < nextFileSlot;
+}
+
 std::fstream& Pomme::GetStream(short refNum) {
 	return openFiles[refNum];
 }
@@ -146,13 +150,19 @@ OSErr FSpOpenDF(const FSSpec* spec, char permission, short* refNum) {
 OSErr FSpOpenRF(const FSSpec* spec, char permission, short* refNum) {
 	short slot = nextFileSlot;
 
-	const auto path = ToPath(*spec);
-
 	if (nextFileSlot == MAX_OPEN_FILES)
 		TODOFATAL2("too many files have been opened");
 
 	if (permission != fsRdPerm)
 		TODOFATAL2("only fsRdPerm is implemented");
+
+	auto path = ToPath(*spec);
+
+	// ADF filename
+	std::stringstream adfFilename;
+	adfFilename << "._" << Pascal2C(spec->name);
+	// TODO: on osx, we could try {name}/..namedfork/rsrc
+	path.replace_filename(adfFilename.str());
 
 	if (!std::filesystem::is_regular_file(path)) {
 		*refNum = -1;
@@ -243,8 +253,12 @@ OSErr FSWrite(short refNum, long* count, Ptr buffPtr) {
 }
 
 OSErr FSClose(short refNum) {
-	TODO();
-	return unimpErr;
+	if (!IsRefNumLegal(refNum))
+		return rfNumErr;
+	if (!IsStreamOpen(refNum))
+		return fnOpnErr;
+	CloseStream(refNum);
+	return noErr;
 }
 
 OSErr GetEOF(short refNum, long* logEOF) {

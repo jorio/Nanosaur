@@ -32,7 +32,7 @@ void GameYield() {
 }
 
 void AppMain() {
-    Pomme::Init("._Nanosaur\u2122");
+    Pomme::Init("Nanosaur\u2122");
     GameMain();
 }
 
