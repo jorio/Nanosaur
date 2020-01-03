@@ -98,10 +98,6 @@ OSErr SetEOF(short refNum, long logEOF) {
 //-----------------------------------------------------------------------------
 // Resource file management
 
-void ReleaseResource(Handle theResource) {
-	TODO();
-}
-
 void RemoveResource(Handle theResource) {
 	TODO();
 }

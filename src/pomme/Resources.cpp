@@ -201,3 +201,7 @@ Handle GetResource(ResType theType, short theID) {
 		return nil;
 	}
 }
+
+void ReleaseResource(Handle theResource) {
+	DisposeHandle(theResource);
+}
