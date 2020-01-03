@@ -96,34 +96,6 @@ OSErr SetEOF(short refNum, long logEOF) {
 }
 
 //-----------------------------------------------------------------------------
-// Resource file management
-
-void RemoveResource(Handle theResource) {
-	TODO();
-}
-
-void AddResource(Handle theData, ResType theType, short theID, const char* name) {
-	TODO();
-}
-
-void WriteResource(Handle theResource) {
-	TODO();
-}
-
-void DetachResource(Handle theResource) {
-	TODO();
-}
-
-long GetResourceSizeOnDisk(Handle theResource) {
-	TODO();
-	return -1;
-}
-
-long SizeResource(Handle theResource) {
-	return GetResourceSizeOnDisk(theResource);
-}
-
-//-----------------------------------------------------------------------------
 // QuickDraw 2D
 
 // pictureID = resource ID for a 'PICT' resource
