@@ -779,6 +779,7 @@ Qut_RenderFrame(void)
 
 
     // Render another frame
+    /*
     qd3dStatus = Q3View_StartRendering(gView);
     if (qd3dStatus == kQ3Success)
         {
@@ -789,6 +790,9 @@ Qut_RenderFrame(void)
             }
         while (Q3View_EndRendering(gView) == kQ3ViewStatusRetraverse);
         }
+        */
+
+    gFuncAppRender(gView);
 
 
 
