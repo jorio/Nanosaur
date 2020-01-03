@@ -223,3 +223,23 @@ typedef FilePlayCompletionProcPtr FilePlayCompletionUPP;
 // Keyboard input types
 
 typedef UInt32 KeyMap[4];
+
+//-----------------------------------------------------------------------------
+// 'vers' resource
+
+#if TARGET_RT_BIG_ENDIAN
+//BCD encoded, e.g. "4.2.1a3" is 0x04214003
+struct NumVersion {
+    UInt8               majorRev;               // 1st part of version number in BCD
+    UInt8               minorAndBugRev;         // 2nd & 3rd part of version number share a byte
+    UInt8               stage;                  // stage code: dev, alpha, beta, final
+    UInt8               nonRelRev;              // revision level of non-released version
+};
+#else
+struct NumVersion {
+    UInt8               nonRelRev;              // revision level of non-released version
+    UInt8               stage;                  // stage code: dev, alpha, beta, final
+    UInt8               minorAndBugRev;         // 2nd & 3rd part of version number share a byte
+    UInt8               majorRev;               // 1st part of version number in BCD
+};
+#endif
