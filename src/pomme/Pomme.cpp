@@ -1,4 +1,5 @@
 #include <iostream>
+#include <unordered_set>
 
 #include "Pomme.h"
 #include "PommeInternal.h"
@@ -6,20 +7,31 @@
 //-----------------------------------------------------------------------------
 // Our own utils
 
+std::unordered_set<std::string> implementMeAlreadySaid;
+
 void ImplementMe(const char* fn, std::string msg, int severity) {
 	if (severity >= 0) {
-		std::cerr << "ImplementMe[" << severity << "] " << fn;
-		if (!msg.empty())
-			std::cerr << ": " << msg;
-		std::cerr << "\n";
+		std::stringstream ss;
+		ss << "TODO[" << severity << "] " << fn << "()"; 
+		if (!msg.empty()) ss << ": " << msg;
+		auto str = ss.str();
+		if (implementMeAlreadySaid.find(str) == implementMeAlreadySaid.end()) {
+			std::cerr << (severity > 0? "\x1b[31m": "\x1b[33m") << str << "\x1b[0m\n";
+			implementMeAlreadySaid.insert(str);
+		}
 	}
 	
 	if (severity >= 1) {
 		std::stringstream ss;
-		ss << "TODO" << severity << ": " << fn << "()\n";
+		ss << fn << "()\n";
 		if (!msg.empty())
-			ss << "Message: " << msg << "\n";
-		if (IDOK != MessageBoxA(NULL, ss.str().c_str(), "ImplementMe", MB_ICONWARNING | MB_OKCANCEL)) {
+			ss << msg << "\n";
+		UINT mbflags = 0;
+		if (severity >= 2)
+			mbflags = MB_ICONERROR | MB_OK;
+		else
+			mbflags = MB_ICONWARNING | MB_OKCANCEL;
+		if (IDOK != MessageBoxA(NULL, ss.str().c_str(), "TODO", mbflags)) {
 			exit(1);
 		}
 	}

@@ -65,11 +65,20 @@ int main(int argc, char** argv) {
 #else
 
 void App_Initialise(void) {
+#if WIN32
     AllocConsole();
     FILE* junk;
-    freopen_s(&junk, "conin$",  "r", stdin);
+    freopen_s(&junk, "conin$", "r", stdin);
     freopen_s(&junk, "conout$", "w", stdout);
     freopen_s(&junk, "conout$", "w", stderr);
+
+    DWORD outMode = 0;
+    HANDLE stdoutHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+    if (!GetConsoleMode(stdoutHandle, &outMode)) exit(GetLastError());
+    // Enable ANSI escape codes
+    outMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+    if (!SetConsoleMode(stdoutHandle, outMode)) exit(GetLastError());
+#endif
 
 	// Install error handlers.
 	//Q3Error_Register(errorCallback, 0);
