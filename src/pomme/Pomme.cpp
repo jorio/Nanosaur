@@ -98,11 +98,6 @@ OSErr SetEOF(short refNum, long logEOF) {
 //-----------------------------------------------------------------------------
 // QuickDraw 2D
 
-// pictureID = resource ID for a 'PICT' resource
-PicHandle GetPicture(short pictureID) {
-	TODO2("pictureID" << pictureID);  return nil;
-}
-
 void DisposeGWorld(GWorldPtr offscreenGWorld) {
 	TODO();
 }

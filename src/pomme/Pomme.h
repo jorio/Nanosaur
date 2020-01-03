@@ -49,6 +49,8 @@ void ImplementMe(const char* fn, std::string msg, int severity);
 #define TODOFATAL()      TODOCUSTOM("", 2)
 #define TODOFATAL2(x)    TODOCUSTOM(x, 2)
 
+std::ostream& operator<<(std::ostream& s, const Rect& r);
+
 //-----------------------------------------------------------------------------
 // FSSpec
 
@@ -121,8 +123,7 @@ long SizeResource(Handle);
 //-----------------------------------------------------------------------------
 // QuickDraw 2D
 
-// pictureID = resource ID for a 'PICT' resource
-PicHandle GetPicture(short pictureID);
+PicHandle GetPicture(short PICTresourceID);
 
 void DisposeGWorld(GWorldPtr offscreenGWorld);
 
