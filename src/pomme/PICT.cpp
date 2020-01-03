@@ -18,6 +18,21 @@ static std::ostringstream LOG;
 #endif
 
 //-----------------------------------------------------------------------------
+// Color
+
+Pomme::Color::Color(UInt8 r_, UInt8 g_, UInt8 b_) :
+	r(r_), g(g_), b(b_), a(0xFF)
+{}
+
+Pomme::Color::Color(UInt8 r_, UInt8 g_, UInt8 b_, UInt8 a_) :
+	r(r_), g(g_), b(b_), a(a_)
+{}
+
+Pomme::Color::Color() :
+	r(0xFF), g(0x00), b(0xFF), a(0xFF)
+{}
+
+//-----------------------------------------------------------------------------
 // Rect helpers
 
 Rect ReadRect(BigEndianIStream& f) {
@@ -85,7 +100,7 @@ void Pixmap::WriteTGA(const char* path) {
 
 template<typename T> std::vector<T> UnpackBits(BigEndianIStream& f, UInt16 rowbytes, int packedLength)
 {
-	LOG << "UnpackBits rowbytes=" << rowbytes << " packedlength=" << packedLength << "\n";
+	//LOG << "UnpackBits rowbytes=" << rowbytes << " packedlength=" << packedLength << "\n";
 
 	std::vector<T> unpacked;
 
@@ -146,6 +161,27 @@ template<typename T> std::vector<T> UnpackAllRows(BigEndianIStream& f, int w, in
 	return data;
 }
 
+// Unpack pixel type 0 (16 bits, chunky)
+Pixmap Unpack0(BigEndianIStream& f, int w, int h, const std::vector<Color>& palette)
+{
+	auto unpacked = UnpackAllRows<UInt8>(f, w, h, w, w * h);
+	Pomme::Pixmap dst(w, h);
+	dst.data.clear();
+	LOG << "indexed to RGBA";
+	for (int i = 0; i < unpacked.size(); i++) {
+		if (i % (w * PRINT_PROGRESS_EVERY) == 0) LOG << ".";
+		UInt8 px = unpacked[i];
+		if (px >= palette.size()) throw "illegal color index in pixmap";
+		Color c = palette[px];
+		dst.data.push_back(c.a);
+		dst.data.push_back(c.r);
+		dst.data.push_back(c.g);
+		dst.data.push_back(c.b);
+	}
+	LOG << "\n";
+	return dst;
+}
+
 // Unpack pixel type 4 (16 bits, chunky)
 Pixmap Unpack3(BigEndianIStream& f, int w, int h, UInt16 rowbytes)
 {
@@ -199,11 +235,11 @@ Pixmap Unpack4(BigEndianIStream& f, int w, int h, UInt16 rowbytes, int numPlanes
 // PICT header
 
 Pixmap ReadPICTBits(BigEndianIStream& f, int opcode, const Rect& canvasRect) {
-	bool is9Aor9B = opcode == 0x009A || opcode == 0x009B;
+	bool directBitsOpcode = opcode == 0x009A || opcode == 0x009B;
 
 	//printf("@@@ ReadPictBits %04x ", opcode); LOG << "canvasRect: " << canvasRect << "\n";
 	
-	if (is9Aor9B) f.Skip(4); //skip junk
+	if (directBitsOpcode) f.Skip(4); //skip junk
 	int rowbytes = f.Read<SInt16>();
 	//LOG << "**** rowbytes = " << rowbytes << "\n";
 
@@ -212,12 +248,13 @@ Pixmap ReadPICTBits(BigEndianIStream& f, int opcode, const Rect& canvasRect) {
 	if (frameRect != canvasRect)
 		throw "frame dims != canvas dims 1";
 
+	int packType;
 	int pixelSize = -1;
 	int componentCount = -1;
 
-	if (is9Aor9B || (rowbytes & 0x8000) != 0) {
+	if (directBitsOpcode || (rowbytes & 0x8000) != 0) {
 		SInt16 pixmapVersion	= f.Read<SInt16>();
-		SInt16 packType			= f.Read<SInt16>();
+		packType			    = f.Read<SInt16>();
 		SInt32 packSize			= f.Read<SInt32>();
 		Fixed hResolution		= f.Read<Fixed >();
 		Fixed vResolution		= f.Read<Fixed >();
@@ -247,13 +284,33 @@ Pixmap ReadPICTBits(BigEndianIStream& f, int opcode, const Rect& canvasRect) {
 		if (componentSize <= 0) throw "pixmap invalid compo sz";
 	}
 
-	if (!is9Aor9B) {
-		TODO2("Colormap");
-		int nColors = 2;
-		if (rowbytes & 0x8000 != 0) {
-			f.Skip(4);
-			UInt16 flags = f.Read<UInt16>();
-			nColors = 1 + f.Read<UInt16>();
+	auto palette = std::vector<Color>();
+	if (!directBitsOpcode) {
+		f.Skip(4);
+		UInt16 flags = f.Read<UInt16>();
+		int nColors = 1 + f.Read<UInt16>();
+
+		LOG << "Colormap: " << nColors << " colors\n";
+		if (nColors <= 0 || nColors > 256) throw "unsupported palette size";
+
+		palette.resize(nColors);
+
+		for (int i = 0; i < nColors; i++) {
+			int index;
+			if (flags & 0x8000) {
+				// ignore junk index (usually just set to 0)
+				f.Skip(2);
+				index = i;
+			} else {
+				index = f.Read<UInt16>();
+				if (index >= nColors)
+					throw "illegal color index in palette definition";
+			}
+
+			UInt8 r = (f.Read<UInt16>() >> 8) & 0xFF;
+			UInt8 g = (f.Read<UInt16>() >> 8) & 0xFF;
+			UInt8 b = (f.Read<UInt16>() >> 8) & 0xFF;
+			palette[index] = Color(r, g, b);
 		}
 	}
 
@@ -267,14 +324,17 @@ Pixmap ReadPICTBits(BigEndianIStream& f, int opcode, const Rect& canvasRect) {
 		throw "unimplemented opcodes";
 	}
 
-	if (!is9Aor9B && (rowbytes & 0x8000) == 0) {
+	if (!directBitsOpcode && (rowbytes & 0x8000) == 0) {
 		throw "negative rowbytes";
 	} else {
-		switch (pixelSize) {
-		case 16:
+		switch (packType) {
+		case 0: // 8-bit indexed color, packed bytewise
+			return Unpack0(f, canvasRect.width(), canvasRect.height(), palette);
+
+		case 3: // 16-bit color, stored chunky, packed pixelwise
 			return Unpack3(f, canvasRect.width(), canvasRect.height(), rowbytes);
 
-		case 32:
+		case 4: // 24- or 32-bit color, stored planar, packed bytewise
 			return Unpack4(f, canvasRect.width(), canvasRect.height(), rowbytes, componentCount);
 
 		default:
@@ -297,8 +357,10 @@ Pixmap Pomme::ReadPICT(std::istream& theF, bool skip512) {
 	f.Skip(2); // picture size? in two bytes only? huh...
 
 	Rect canvasRect = ReadRect(f);
-	if (canvasRect.width() <= 0 || canvasRect.height() <= 0)
+	if (canvasRect.width() < 0 || canvasRect.height() < 0) {
+		LOG << "canvas rect: " << canvasRect << "\n";
 		throw "invalid width/height";
+	}
 
 	LOG << std::dec << "Pict canvas: " << canvasRect << "\n";
 
@@ -369,8 +431,8 @@ Pixmap Pomme::ReadPICT(std::istream& theF, bool skip512) {
 			return pm;
 
 		default:
-			std::cerr << "unknown opcode " << opcode << "\n";
-			throw "unknown PICT opcode";
+			std::cerr << "unsupported opcode " << opcode << "\n";
+			throw "unsupported PICT opcode";
 		}
 	}
 

@@ -84,6 +84,13 @@ namespace Pomme {
 		std::map<ResType, std::map<short, Rez> > rezMap;
 	};
 
+	struct Color {
+		UInt8 a, r, g, b;
+		Color(UInt8 red, UInt8 green, UInt8 blue);
+		Color(UInt8 red, UInt8 green, UInt8 blue, UInt8 alpha);
+		Color();
+	};
+
 	struct Pixmap {
 		int width;
 		int height;
