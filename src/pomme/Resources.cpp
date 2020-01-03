@@ -133,30 +133,6 @@ short FSpOpenResFile(const FSSpec* spec, char permission) {
 			r.name = name;
 			r.data = buf;
 			curRezFork.rezMap[resType][resID] = r;
-
-			if (resType == 'PICT') {
-				std::stringstream pictFN; pictFN << "PICT" << resID << ".PICT";
-
-				std::ofstream outPict;
-				outPict.open(pictFN.str(), std::ios::out | std::ios::binary);
-				for (int i = 0; i < 512; i++) outPict.write("", 1); // 512-byte PICT header (required to be readable by external tools)
-				outPict.write((const char*)r.data.data(), r.data.size());
-				outPict.close();
-
-				std::istrstream substream((char*)r.data.data(), r.data.size());
-				auto pm = Pomme::ReadPICT(substream, false);
-				std::stringstream tgaFN; tgaFN << "PICT" << resID << ".TGA";
-				pm.WriteTGA(tgaFN.str().c_str());
-				LOG << "Wrote " << tgaFN.str().c_str() << "\n";
-			}
-			*/
-
-			/*
-			LOG << spec.cppPath() << ": "
-				<< fourCCstr(resType) << " #" << resID
-				<< " " << resLen << " bytes "
-				<< " '" << name << "' " << "\n";
-			*/
 		}
 	}
 
@@ -215,6 +191,7 @@ Handle GetResource(ResType theType, short theID) {
 
 	try {
 		const auto& data = curRezFork.rezMap.at(theType).at(theID).data;
+		LOG << "GetResource " << FourCCString(theType) << " " << theID << ": " << data.size() << "\n";
 		Handle h = NewHandle(data.size());
 		memcpy(*h, data.data(), data.size());
 		return h;
