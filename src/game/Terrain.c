@@ -2139,7 +2139,7 @@ TQ3Status	myStatus;
 				/* DRAW STUFF */
 				
 	QD3D_SetTextureFilter(kQATextureFilter_Mid);						// set nice textures
-	TODOMINOR("QD3D_SetTextureWrapMode(kQAGL_Clamp);");								// clap textures for nicer seams
+	TODOMINOR2("QD3D_SetTextureWrapMode(kQAGL_Clamp);");								// clap textures for nicer seams
 	
 	for (i = 0; i < MAX_SUPERTILES; i++)
 	{
@@ -2172,7 +2172,7 @@ TQ3Status	myStatus;
 		
 	}
 	QD3D_SetTextureFilter(kQATextureFilter_Fast);						// make it fast again
-	TODOMINOR("QD3D_SetTextureWrapMode(kQAGL_Repeat);");								// let textures wrap/repeat
+	TODOMINOR2("QD3D_SetTextureWrapMode(kQAGL_Repeat);");								// let textures wrap/repeat
 
 
 		/* DRAW OBJECTS */
