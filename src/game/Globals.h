@@ -18,7 +18,9 @@
 
 			/* SOME FLOATING POINT HELPERS */
 			
+/* Commented out due to collision with some windows macro - unused in nanosaur
 #define INFINITE	1e20
+*/
 #define EPS 1e-5					// a very small number which is useful for FP compares close to 0
 #define	IS_ZERO(_x)  (fabs(_x) < EPS)
 
