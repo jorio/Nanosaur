@@ -216,3 +216,43 @@ OSErr DirCreate(short vRefNum, long parentDirID, ConstStr255Param directoryName,
 	LOG << __func__ << ": created " << path << "\n";
 	return noErr;
 }
+
+OSErr FSpCreate(const FSSpec* spec, OSType creator, OSType fileType, ScriptCode scriptTag) {
+	TODO();
+	return unimpErr;
+}
+
+OSErr FSpDelete(const FSSpec* spec) {
+	TODO();
+	return unimpErr;
+}
+
+OSErr ResolveAlias(const FSSpec* spec, AliasHandle alias, FSSpec* target, Boolean* wasChanged) {
+	TODO();
+	return unimpErr;
+}
+
+OSErr FSRead(short refNum, long* count, Ptr buffPtr) {
+	TODO();
+	return unimpErr;
+}
+
+OSErr FSWrite(short refNum, long* count, Ptr buffPtr) {
+	TODO();
+	return unimpErr;
+}
+
+OSErr FSClose(short refNum) {
+	TODO();
+	return unimpErr;
+}
+
+OSErr GetEOF(short refNum, long* logEOF) {
+	TODO();
+	return unimpErr;
+}
+
+OSErr SetEOF(short refNum, long logEOF) {
+	TODO();
+	return unimpErr;
+}
