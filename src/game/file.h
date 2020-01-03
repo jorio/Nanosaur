@@ -10,10 +10,10 @@
 			
 typedef struct
 {
-	short	version;			// 0xaa.bb
-	short	numAnims;			// gNumAnims
-	short	numJoints;			// gNumJoints
-	short	num3DMFLimbs;		// gNumLimb3DMFLimbs
+	BE<SInt16>	version;			// 0xaa.bb
+	BE<SInt16>	numAnims;			// gNumAnims
+	BE<SInt16>	numJoints;			// gNumJoints
+	BE<SInt16>	num3DMFLimbs;		// gNumLimb3DMFLimbs
 }SkeletonFile_Header_Type;
 
 			/* Bone resource */
@@ -24,12 +24,12 @@ typedef struct
 			
 typedef struct
 {
-	long 				parentBone;			 		// index to previous bone
+	BE<SInt32> 			parentBone;			 		// index to previous bone
 	unsigned char		name[32];					// text string name for bone
 	TQ3Point3D			coord;						// absolute coord (not relative to parent!) 
-	UInt16				numPointsAttachedToBone;	// # vertices/points that this bone has
-	UInt16				numNormalsAttachedToBone;	// # vertex normals this bone has
-	UInt32				reserved[8];				// reserved for future use
+	BE<UInt16>			numPointsAttachedToBone;	// # vertices/points that this bone has
+	BE<UInt16>			numNormalsAttachedToBone;	// # vertex normals this bone has
+	BE<UInt32>			reserved[8];				// reserved for future use
 }File_BoneDefinitionType;
 
 
@@ -40,9 +40,9 @@ typedef struct
 {
 	TQ3Vector3D		maxRot;						// max rot values of joint
 	TQ3Vector3D		minRot;						// min rot values of joint
-	long 			parentBone; 		// index to previous link joint definition
-	unsigned char	name[32];						// text string name for joint
-	long			limbIndex;					// index into limb list
+	BE<SInt32> 		parentBone; 				// index to previous link joint definition
+	unsigned char	name[32];					// text string name for joint
+	BE<SInt32>		limbIndex;					// index into limb list
 }Joit_Rez_Type;
 
 
@@ -53,7 +53,7 @@ typedef struct
 typedef struct
 {
 	Str32	animName;			
-	short	numAnimEvents;	
+	BE<SInt16>	numAnimEvents;	
 }SkeletonFile_AnimHeader_Type;
 
 

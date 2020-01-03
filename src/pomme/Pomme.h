@@ -20,6 +20,30 @@
 #define POMME_DEBUG_RESOURCES
 
 //-----------------------------------------------------------------------------
+// Big-endian transparent conversion
+
+template<typename T> T BEByteSwap(T x) {
+#if TARGET_RT_BIGENDIAN
+	return x;
+#else
+	char* b = (char*)&x;
+	std::reverse(b, b + sizeof(T));
+	return x;
+#endif
+}
+
+template<typename T> T ToBE(T x) { return BEByteSwap(x); }
+template<typename T> T FromBE(T x) { return BEByteSwap(x); }
+
+template<typename T> class BE {
+	T bigEndian;
+public:
+	BE() : bigEndian(0) {}
+	BE(const T& x) : bigEndian(ToBE(x)) {}
+	operator T() const { return FromBE(bigEndian); }
+};
+
+//-----------------------------------------------------------------------------
 // PowerPC intrinsics
 
 #define __fres(x) (1.0f/x)
