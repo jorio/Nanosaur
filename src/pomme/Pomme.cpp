@@ -98,14 +98,6 @@ void DisposeGWorld(GWorldPtr offscreenGWorld) {
 }
 
 //-----------------------------------------------------------------------------
-// QuickDraw 3D
-
-TQ3StorageObject Q3FSSpecStorage_New(const FSSpec* fs) {
-	TODO();
-	return nil;
-}
-
-//-----------------------------------------------------------------------------
 // Misc
 
 void ExitToShell() {

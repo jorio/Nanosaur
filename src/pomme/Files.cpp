@@ -28,11 +28,15 @@ short nextFileSlot = -1;
 //-----------------------------------------------------------------------------
 // Utilities
 
-std::filesystem::path GetPath(short vRefNum, long parID, ConstStr255Param name) {
+std::filesystem::path Pomme::ToPath(short vRefNum, long parID, ConstStr255Param name) {
 	std::filesystem::path path(directories[parID]);
 	path += std::filesystem::path::preferred_separator;
 	path += Pascal2C(name);
 	return path.lexically_normal();
+}
+
+std::filesystem::path Pomme::ToPath(const FSSpec& spec) {
+	return Pomme::ToPath(spec.vRefNum, spec.parID, spec.name);
 }
 
 short GetVolumeID(const std::filesystem::path& path) {
@@ -118,7 +122,7 @@ OSErr FSMakeFSSpec(short vRefNum, long dirID, ConstStr255Param pascalFileName, F
 OSErr FSpOpenDF(const FSSpec* spec, char permission, short* refNum) {
 	short slot = nextFileSlot;
 
-	const auto path = GetPath(spec->vRefNum, spec->parID, spec->name);
+	const auto path = ToPath(*spec);
 
 	if (nextFileSlot == MAX_OPEN_FILES)
 		TODOFATAL2("too many files have been opened");
@@ -142,7 +146,7 @@ OSErr FSpOpenDF(const FSSpec* spec, char permission, short* refNum) {
 OSErr FSpOpenRF(const FSSpec* spec, char permission, short* refNum) {
 	short slot = nextFileSlot;
 
-	const auto path = GetPath(spec->vRefNum, spec->parID, spec->name);
+	const auto path = ToPath(*spec);
 
 	if (nextFileSlot == MAX_OPEN_FILES)
 		TODOFATAL2("too many files have been opened");
@@ -190,7 +194,7 @@ OSErr FindFolder(short vRefNum, OSType folderType, Boolean createFolder, short* 
 
 OSErr DirCreate(short vRefNum, long parentDirID, ConstStr255Param directoryName, long* createdDirID)
 {
-	const auto path = GetPath(vRefNum, parentDirID, directoryName);
+	const auto path = ToPath(vRefNum, parentDirID, directoryName);
 
 	if (std::filesystem::exists(path)) {
 		if (std::filesystem::is_directory(path)) {

@@ -5,6 +5,7 @@
 #include <fstream>
 #include <string>
 #include <deque>
+#include <filesystem>
 
 namespace Pomme {
 	class StreamPosGuard {
@@ -109,6 +110,9 @@ namespace Pomme {
 	std::fstream& GetStream(short refNum);
 	bool IsStreamOpen(short refNum);
 	void CloseStream(short refNum);
+
+	std::filesystem::path ToPath(short vRefNum, long parID, ConstStr255Param name);
+	std::filesystem::path ToPath(const FSSpec& spec);
 	
 	Pixmap ReadPICT(std::istream& f, bool skip512 = true);
 
