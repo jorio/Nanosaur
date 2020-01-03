@@ -103,6 +103,7 @@ namespace Pomme {
 
 
 	void Init(const char* applName);
+	void InitTimeManager();
 	void InitFiles(const char* applName);
 
 	std::fstream& GetStream(short refNum);

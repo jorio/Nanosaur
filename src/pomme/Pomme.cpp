@@ -207,22 +207,6 @@ void BlockMoveData(const void* srcPtr, void* destPtr, Size byteCount) {
 }
 
 //-----------------------------------------------------------------------------
-// Time Manager
-
-void GetDateTime(unsigned long* secs) {
-	TODOMINOR();
-}
-
-void Microseconds(UnsignedWide*) {
-	TODOMINOR();
-}
-
-UInt32 TickCount() {
-	TODOMINOR();
-	return 0;
-}
-
-//-----------------------------------------------------------------------------
 // Mouse cursor
 
 void InitCursor() {
@@ -259,6 +243,7 @@ char* Pascal2C(const char* pstr) {
 }
 
 void Pomme::Init(const char* applName) {
+	Pomme::InitTimeManager();
 	Pomme::InitFiles(applName);
 	std::cout << "Pomme initialized\n";
 }
