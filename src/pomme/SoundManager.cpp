@@ -33,7 +33,7 @@ OSErr SndChannelStatus(SndChannelPtr chan, short theLength, SCStatusPtr theStatu
 
 OSErr SndDoImmediate(SndChannelPtr chan, const SndCommand* cmd) {
 	TODOMINOR();
-	return unimpErr;
+	return noErr;
 }
 
 OSErr GetSoundHeaderOffset(SndListHandle sndHandle, long* offset) {
@@ -43,7 +43,7 @@ OSErr GetSoundHeaderOffset(SndListHandle sndHandle, long* offset) {
 
 OSErr SndStartFilePlay(SndChannelPtr chan, short fRefNum, short resNum, long bufferSize, Ptr theBuffer, /*AudioSelectionPtr*/ void* theSelection, FilePlayCompletionUPP theCompletion, Boolean async) {
 	TODOMINOR();
-	return unimpErr;
+	return noErr;
 }
 
 OSErr SndPauseFilePlay(SndChannelPtr chan) {
