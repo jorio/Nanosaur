@@ -224,6 +224,7 @@ void DetachResource(Handle theResource) {
 
 long GetResourceSizeOnDisk(Handle theResource) {
 	TODO();
+	return -1;
 }
 
 long SizeResource(Handle theResource) {
