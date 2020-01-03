@@ -258,7 +258,7 @@ char* Pascal2C(const char* pstr) {
 	return cstr;
 }
 
-void Pomme::Init() {
-	Pomme::InitFiles("._Nanosaur™");
-	std::cout << "fake mac inited\n";
+void Pomme::Init(const char* applName) {
+	Pomme::InitFiles(applName);
+	std::cout << "Pomme initialized\n";
 }

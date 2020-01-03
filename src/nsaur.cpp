@@ -7,8 +7,31 @@ UInt32                  gCoverWindowRowBytes2;
 
 void GameMain(void);
 
-int main(int argc, char** argv) {
-    Pomme::Init();
+void AppMain() {
+    Pomme::Init("._Nanosaur\u2122");
     GameMain();
+}
+
+int main(int argc, char** argv) {
+    try {
+        AppMain();
+    }
+    catch (const std::exception & ex) {
+        TODOFATAL2("unhandled exception: " << ex.what());
+        throw;
+    }
+    catch (const std::string & ex) {
+        TODOFATAL2("unhandled exception: " << ex);
+        throw;
+    }
+    catch (const char* ex) {
+        TODOFATAL2("unhandled exception: " << ex);
+        throw;
+    }
+    catch (...) {
+        TODOFATAL2("unhandled exception");
+        throw;
+    }
+
     return 0;
 }
