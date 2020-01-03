@@ -418,7 +418,6 @@ void DrawCString(char *string)
 
 void VerifySystem(void)
 {
-#if 0
 OSErr	iErr;
 NumVersion	nVers;
 long		createdDirID;
@@ -442,7 +441,6 @@ long		createdDirID;
 		DoFatalAlert("This program requires Sound Manager 3.1 or better to run.");
 		
 
-#endif
 }
 
 
