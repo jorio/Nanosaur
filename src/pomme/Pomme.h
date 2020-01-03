@@ -254,6 +254,8 @@ OSErr SndPauseFilePlay(SndChannelPtr chan);
 
 OSErr SndStopFilePlay(SndChannelPtr chan, Boolean quietNow);
 
+NumVersion SndSoundManagerVersion();
+
 //-----------------------------------------------------------------------------
 // Fade
 
