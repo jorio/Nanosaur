@@ -131,18 +131,6 @@ void NumToString(long theNum, Str255 theString) {
 }
 
 //-----------------------------------------------------------------------------
-// Input
-
-void GetKeys(KeyMap) {
-	TODOMINOR();
-}
-
-Boolean Button(void) {
-	TODOMINOR();
-	return false;
-}
-
-//-----------------------------------------------------------------------------
 // No-op memory junk
 
 void MaxApplZone(void) {
