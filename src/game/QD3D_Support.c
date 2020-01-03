@@ -26,6 +26,9 @@
 #include "3dmath.h"
 #include "selfrundemo.h"
 
+#include "Qut.h"
+#include "QutInternal.h" // for gView
+
 extern	WindowPtr			gCoverWindow;
 extern	long		gScreenXOffset,gScreenYOffset;
 extern	Byte		gDemoMode;
@@ -138,7 +141,7 @@ TQ3Vector3D			fillDirection2 = { -1, -1, .2 };
 	else
 		viewDef->view.useWindow 	=	true;							// assume going to window
 	viewDef->view.displayWindow 	= theWindow;
-	viewDef->view.rendererType 		= kQ3RendererTypeInteractive;
+	viewDef->view.rendererType      = kQ3RendererTypeOpenGL;//kQ3RendererTypeInteractive;
 	viewDef->view.clearColor 		= clearColor;
 	viewDef->view.paneClip.left 	= 0;
 	viewDef->view.paneClip.right 	= 0;
@@ -284,6 +287,7 @@ TQ3Uns32	hints;
 	if (gQD3D_ViewObject == nil)
 		DoFatalAlert("Q3View_New failed!");
 
+	gView = gQD3D_ViewObject;
 
 			/* CREATE & SET DRAW CONTEXT */
 	
@@ -335,7 +339,7 @@ TQ3Uns32	hints;
 static void CreateDrawContext(QD3DViewDefType *viewDefPtr)
 {
 #if 1
-	TODO();
+	gQD3D_DrawContext = Qut_CreateDrawContext();
 #else
 TQ3DrawContextData		drawContexData;
 TQ3MacDrawContextData	myMacDrawContextData;
@@ -382,19 +386,17 @@ Rect					r;
 			/* CREATE DRAW CONTEXT */
 
 	gQD3D_DrawContext = Q3MacDrawContext_New(&myMacDrawContextData);
+#endif
 	if (gQD3D_DrawContext == nil)
 		DoFatalAlert("Q3MacDrawContext_New Failed!");
-#endif
 }
 
 
+#if 0
 /**************** CREATE DRAW CONTEXT: PIXMAP *********************/
 
 static void CreateDrawContext_Pixmap(QD3DViewDefType *viewDefPtr)
 {
-#if 1
-	TODO();
-#else
 TQ3DrawContextData			drawContexData;
 TQ3PixmapDrawContextData	myPixDrawContextData;
 Rect						r;
@@ -451,8 +453,8 @@ long					pixelSize;
 	gQD3D_DrawContext = Q3PixmapDrawContext_New(&myPixDrawContextData);
 	if (gQD3D_DrawContext == nil)
 		DoFatalAlert("Q3PixmapDrawContext_New Failed!");
-#endif
 }
+#endif
 
 
 /**************** SET STYLES ****************/
@@ -536,7 +538,9 @@ QD3DCameraDefType 				*cameraDefPtr;
 	{
 		pane.min.x = pane.min.y = 0;
 #if 1
-		TODOFATAL();
+		pane.max.x = 640;
+		pane.max.y = 480;
+		TODOMINOR2("actually set pane max x/y");
 #else
 		pane.max.x = setupDefPtr->view.gworld->portRect.right;
 		pane.max.y = setupDefPtr->view.gworld->portRect.bottom;
@@ -745,6 +749,8 @@ TQ3ViewStatus			myViewStatus;
 		myViewStatus = Q3View_EndRendering(setupInfo->viewObject);
 		if ( myViewStatus == kQ3ViewStatusError)
 			DoFatalAlert("QD3D_DrawScene: Q3View_EndRendering failed!");
+		else if (myViewStatus == kQ3ViewStatusRetraverse)
+			DoFatalAlert("QD3D_DrawScene: we need to retraverse!");
 		
 	} while ( myViewStatus == kQ3ViewStatusRetraverse );	
 }

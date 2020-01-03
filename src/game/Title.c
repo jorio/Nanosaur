@@ -4,6 +4,8 @@
 /* By Brian Greenstone      */
 /****************************/
 
+// Added for source port
+void GameYield(void);
 
 /****************************/
 /*    EXTERNALS             */
@@ -313,6 +315,7 @@ FSSpec			spec;
 		CalcEnvironmentMappingCoords(&gGameViewInfoPtr->currentCameraCoords);
 		QD3D_DrawScene(gGameViewInfoPtr,DrawObjects);	
 		QD3D_CalcFramesPerSecond();					
+		GameYield();
 	}
 	GammaFadeOut();
 

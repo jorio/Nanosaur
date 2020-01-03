@@ -20,21 +20,18 @@ std::atomic<int> turn(Turn_MAIN);
 std::thread gameThread;
 
 void RenderYield(TQ3ViewObject theView) {
-    std::cout << "RenderYield\n";
     turn = Turn_GAME;
     while (turn != Turn_MAIN)
         std::this_thread::yield();
 }
 
 void GameYield() {
-    std::cout << "GameYield\n";
     while (turn != Turn_GAME)
         std::this_thread::yield();
     turn = Turn_MAIN;
 }
 
 void AppMain() {
-    std::cout << "AppMain\n";
     Pomme::Init("._Nanosaur\u2122");
     GameMain();
 }
@@ -91,6 +88,8 @@ void App_Initialise(void) {
 
     turn = Turn_GAME;
     gameThread = std::thread(AppMain);
+
+    RenderYield(nil);
 }
 
 void App_Terminate(void) {
