@@ -1142,11 +1142,6 @@ err:
 
 TQ3SurfaceShaderObject	QD3D_PICTToTexture(PicHandle picture)
 {
-#if 1
-	TODO();
-	TQ3SurfaceShaderObject shader = nil;
-	return shader;
-#else
 TQ3Mipmap 				mipmap;
 TQ3TextureObject		texture;
 TQ3SurfaceShaderObject	shader;
@@ -1175,7 +1170,6 @@ long					width,height;
 	Q3Object_Dispose (mipmap.image);			// disposes of extra reference to storage obj
 
 	return(shader);	
-#endif
 }
 
 
@@ -1219,10 +1213,49 @@ TQ3SurfaceShaderObject		shader;
 // OUTPUT: mipmap = new mipmap holding texture image
 //
 
+static void DrawPICTIntoMipmap2(PicHandle pict, long width, long height, TQ3Mipmap* mipmap)
+{
+OSErr					myErr;
+short					depth;
+
+	depth = 32;
+	if (width  != (**pict).picFrame.right  - (**pict).picFrame.left) TODO2("unexpected width");
+	if (height != (**pict).picFrame.bottom - (**pict).picFrame.top)  TODO2("unexpected height");
+	Ptr pictMapAddr = (**pict).__pomme_pixelsARGB32;
+	auto pictRowBytes = width * (depth / 8);
+
+	/*
+	if (pointToGWorld)
+	{
+		LockPixels(hPixMap);										// we don't want this to move on us
+		mipmap->image = Q3MemoryStorage_NewBuffer((unsigned char*)pictMapAddr, pictRowBytes * height, pictRowBytes * height);
+	}
+	else
+	*/
+		mipmap->image = Q3MemoryStorage_New((unsigned char*)pictMapAddr, pictRowBytes * height);
+	
+	if (mipmap->image == nil)
+	DoFatalAlert("Q3MemoryStorage_New Failed!");
+
+	mipmap->useMipmapping = kQ3False;							// not actually using mipmaps (just 1 srcmap)
+	if (depth == 16)
+		mipmap->pixelType = kQ3PixelTypeRGB16;
+	else
+		mipmap->pixelType = kQ3PixelTypeARGB32;					// if 32bit, assume alpha
+
+	mipmap->bitOrder = kQ3EndianBig;
+	mipmap->byteOrder = kQ3EndianBig;
+	mipmap->reserved = nil;
+	mipmap->mipmaps[0].width = width;
+	mipmap->mipmaps[0].height = height;
+	mipmap->mipmaps[0].rowBytes = pictRowBytes;
+	mipmap->mipmaps[0].offset = 0;
+}
+
 static void DrawPICTIntoMipmap(PicHandle pict,long width, long height, TQ3Mipmap *mipmap)
 {
 #if 1
-	TODO();
+	DrawPICTIntoMipmap2(pict, width, height, mipmap);
 #else
 Rect 					rectGW;
 GWorldPtr 				pGWorld;

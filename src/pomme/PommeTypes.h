@@ -108,13 +108,20 @@ typedef char*                          StringPtr;
 // Point & Rect types
 
 struct Point { SInt16 v, h; };
+
 struct Rect {
     SInt16 top, left, bottom, right;
-    int width() const { return right - left; }
-    int height() const { return bottom - top; }
+
+    // ---- Pomme extensions ----
+    Rect();
+    Rect(SInt16 t, SInt16 l, SInt16 b, SInt16 r);
+    int width() const;
+    int height() const;
 };
+
 typedef Point* PointPtr;
 typedef Rect* RectPtr;
+
 struct FixedPoint { Fixed x, y; };
 struct FixedRect { Fixed left, top, right, bottom; };
 
@@ -144,9 +151,18 @@ struct RGBColor {
 };
 
 struct Picture {
+    // Version 1 size.
+    // Not used for version 2 PICTs, as the size may easily exceed 16 bits.
     SInt16 picSize;
+
     Rect picFrame;
+
+    // Raw raster image decoded from PICT opcodes. Shouldn't be accessed
+    // directly by the Mac application as it is stored in a format internal
+    // to the Pomme implementation for rendering (typically ARGB32).
+    Ptr __pomme_pixelsARGB32;
 };
+
 
 typedef Picture* PicPtr;
 typedef PicPtr* PicHandle;
