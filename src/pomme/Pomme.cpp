@@ -47,11 +47,6 @@ std::string Pomme::FourCCString(FourCharCode t) {
 //-----------------------------------------------------------------------------
 // FSSpec
 
-OSErr FSpOpenDF(const FSSpec* spec, char permission, short* refNum) {
-	TODO();
-	return unimpErr;
-}
-
 OSErr FSpCreate(const FSSpec* spec, OSType creator, OSType fileType, ScriptCode scriptTag) {
 	TODO();
 	return unimpErr;

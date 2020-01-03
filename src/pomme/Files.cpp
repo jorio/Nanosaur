@@ -19,17 +19,10 @@ static std::ostringstream LOG;
 #endif
 
 //-----------------------------------------------------------------------------
-// Types
-
-struct InternalMacFileHandle {
-	std::ifstream rf;
-};
-
-//-----------------------------------------------------------------------------
 // State
 
 std::vector<std::filesystem::path> directories;
-InternalMacFileHandle openFiles[MAX_OPEN_FILES];
+std::fstream openFiles[MAX_OPEN_FILES];
 short nextFileSlot = -1;
 
 //-----------------------------------------------------------------------------
@@ -52,6 +45,18 @@ long GetDirectoryID(const std::filesystem::path& dirPath) {
 	}
 	directories.emplace_back(dirPath);
 	return directories.size() - 1;
+}
+
+std::fstream& Pomme::GetStream(short refNum) {
+	return openFiles[refNum];
+}
+
+void Pomme::CloseStream(short refNum) {
+	openFiles[refNum].close();
+}
+
+bool Pomme::IsStreamOpen(short refNum) {
+	return openFiles[refNum].is_open();
 }
 
 //-----------------------------------------------------------------------------
@@ -110,8 +115,28 @@ OSErr FSMakeFSSpec(short vRefNum, long dirID, ConstStr255Param pascalFileName, F
 		return fnfErr;
 }
 
-std::ifstream& Pomme::GetIStreamRF(short refNum) {
-	return openFiles[refNum].rf;
+OSErr FSpOpenDF(const FSSpec* spec, char permission, short* refNum) {
+	short slot = nextFileSlot;
+
+	const auto path = GetPath(spec->vRefNum, spec->parID, spec->name);
+
+	if (nextFileSlot == MAX_OPEN_FILES)
+		TODOFATAL2("too many files have been opened");
+
+	if (permission != fsRdPerm)
+		TODOFATAL2("only fsRdPerm is implemented");
+
+	if (!std::filesystem::is_regular_file(path)) {
+		*refNum = -1;
+		return fnfErr;
+	}
+
+	nextFileSlot++;
+	openFiles[slot] = std::fstream(path, std::ios::binary | std::ios::in);
+	*refNum = slot;
+	LOG << "Opened DF " << path << " at slot " << *refNum << "\n";
+
+	return noErr;
 }
 
 OSErr FSpOpenRF(const FSSpec* spec, char permission, short* refNum) {
@@ -131,7 +156,7 @@ OSErr FSpOpenRF(const FSSpec* spec, char permission, short* refNum) {
 	}
 
 	nextFileSlot++;
-	openFiles[slot].rf = std::ifstream(path, std::ios::binary);
+	openFiles[slot] = std::fstream(path, std::ios::binary | std::ios::in);
 	*refNum = slot;
 	LOG << "Opened RF " << path << " at slot " << *refNum << "\n";
 

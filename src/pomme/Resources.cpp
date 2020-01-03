@@ -38,7 +38,7 @@ short FSpOpenResFile(const FSSpec* spec, char permission) {
 
 	curRezFork.rezMap.clear();
 
-	auto f = Pomme::BigEndianIStream(GetIStreamRF(slot));
+	auto f = Pomme::BigEndianIStream(GetStream(slot));
 
 	// ----------------
 	// Detect AppleDouble
@@ -149,7 +149,7 @@ void UseResFile(short refNum) {
 	if (refNum <= 0)
 		TODOFATAL2("illegal refNum " << refNum);
 
-	if (!GetIStreamRF(refNum).is_open()) {
+	if (!IsStreamOpen(refNum)) {
 		std::cerr << "can't UseResFile on this refNum " << refNum << "\n";
 		return;
 	}
@@ -167,10 +167,11 @@ void CloseResFile(short refNum) {
 		TODOFATAL2("closing the System file's resource fork is not implemented");
 	if (refNum <= 0)
 		TODOFATAL2("illegal refNum " << refNum);
-	if (!GetIStreamRF(refNum).is_open())
+	if (!IsStreamOpen(refNum))
 		TODOFATAL2("already closed res file " << refNum);
 	//UpdateResFile(refNum); // MMT:1-110
-	GetIStreamRF(refNum).close();
+	CloseStream(refNum);
+
 	if (refNum == currentResFile)
 		currentResFile = -1;
 }
