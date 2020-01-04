@@ -94,11 +94,11 @@ typedef struct
 		
 typedef struct
 {
-	long		tick;					// time at which this state exists
-	long		accelerationMode;		// mode of in/out acceleration
-	TQ3Point3D	coord;					// current 3D coords of joint (relative to link)
-	TQ3Vector3D	rotation;				// current rotation values of joint (relative to link)
-	TQ3Vector3D	scale;					// current scale values of joint mesh
+	BE<long>		tick;					// time at which this state exists
+	BE<long>		accelerationMode;		// mode of in/out acceleration
+	BE<TQ3Point3D>	coord;					// current 3D coords of joint (relative to link)
+	BE<TQ3Vector3D>	rotation;				// current rotation values of joint (relative to link)
+	BE<TQ3Vector3D>	scale;					// current scale values of joint mesh
 }JointKeyframeType;
 
 
