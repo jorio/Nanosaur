@@ -64,3 +64,9 @@ NumVersion SndSoundManagerVersion() {
 	v.nonRelRev = 0;
 	return v;
 }
+
+//-----------------------------------------------------------------------------
+// Init Sound Manager
+
+void Pomme::InitSoundManager() {
+}

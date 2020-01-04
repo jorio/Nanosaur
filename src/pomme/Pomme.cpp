@@ -180,5 +180,6 @@ char* Pascal2C(const char* pstr) {
 void Pomme::Init(const char* applName) {
 	Pomme::InitTimeManager();
 	Pomme::InitFiles(applName);
+	Pomme::InitSoundManager();
 	std::cout << "Pomme initialized\n";
 }
