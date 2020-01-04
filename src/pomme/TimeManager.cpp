@@ -8,6 +8,9 @@
 
 std::chrono::time_point<std::chrono::steady_clock> bootTP;
 
+// timestamp (from unix epoch) of the mac epoch, Jan 1, 1904, 00:00:00
+constexpr int JANUARY_1_1904 = -2'082'844'800;
+
 //-----------------------------------------------------------------------------
 // Time Manager
 
@@ -16,7 +19,7 @@ void Pomme::InitTimeManager() {
 }
 
 void GetDateTime(unsigned long* secs) {
-	TODOMINOR();
+	*secs = std::time(nullptr) + JANUARY_1_1904;
 }
 
 void Microseconds(UnsignedWide* usecs) {
