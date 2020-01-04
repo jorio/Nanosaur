@@ -306,8 +306,16 @@ OSErr ResolveAlias(const FSSpec* spec, AliasHandle alias, FSSpec* target, Boolea
 }
 
 OSErr FSRead(short refNum, long* count, Ptr buffPtr) {
-	TODO();
-	return unimpErr;
+	if (*count < 0) return paramErr;
+	if (!IsRefNumLegal(refNum)) return rfNumErr;
+	if (!IsStreamOpen(refNum)) return fnOpnErr;
+
+	auto& f = GetStream(refNum);
+	f.read(buffPtr, *count);
+	*count = f.gcount();
+	if (f.eof()) return eofErr;
+
+	return noErr;
 }
 
 OSErr FSWrite(short refNum, long* count, Ptr buffPtr) {
