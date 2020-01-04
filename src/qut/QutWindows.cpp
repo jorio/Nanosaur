@@ -1,7 +1,7 @@
 #include "Qut.h"
 #include "QutInternal.h"
 
-constexpr auto kQutWindowClass = "Qut";
+constexpr auto kQutWindowClass = L"Qut";
 
 HINSTANCE				gInstance    = NULL;
 HDC						gDC          = NULL;
@@ -42,8 +42,10 @@ Qut_CreateWindow(const char		*windowTitle,
 					TQ3Uns32	theHeight,
 					TQ3Boolean	canResize)
 {
+	wchar_t wString[4096];
+	MultiByteToWideChar(CP_ACP, 0, windowTitle, -1, wString, 4096);
 	// Create the window
-	gWindow = (void *) CreateWindow(kQutWindowClass, windowTitle,
+	gWindow = (void *) CreateWindow(kQutWindowClass, wString,
 									WS_OVERLAPPEDWINDOW |
 									WS_CLIPCHILDREN     |
 									WS_CLIPSIBLINGS,
