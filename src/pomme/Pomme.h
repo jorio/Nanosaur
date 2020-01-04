@@ -283,7 +283,3 @@ void MakeFadeEvent(Boolean fadeIn);
 void GammaFadeOut();
 
 void GammaFadeIn();
-
-//-----------------------------------------------------------------------------
-
-void InitFakeMac();
