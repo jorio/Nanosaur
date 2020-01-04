@@ -94,7 +94,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_SILENCE_CXX17_STRSTREAM_DEPRECATION_WARNING;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>src;src\pomme;src\game;src\qd3d;src\qut;quesa\sdk\includes\quesa</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;src\pomme;src\game;src\qd3d;quesa\sdk\includes\quesa</AdditionalIncludeDirectories>
       <CompileAs>CompileAsCpp</CompileAs>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <ForcedIncludeFiles>Pomme.h</ForcedIncludeFiles>
@@ -113,7 +113,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_SILENCE_CXX17_STRSTREAM_DEPRECATION_WARNING;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>src;src\pomme;src\game;src\qd3d;src\qut;quesa\sdk\includes\quesa</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;src\pomme;src\game;src\qd3d;quesa\sdk\includes\quesa</AdditionalIncludeDirectories>
       <CompileAs>CompileAsCpp</CompileAs>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <ForcedIncludeFiles>Pomme.h</ForcedIncludeFiles>
@@ -134,7 +134,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_SILENCE_CXX17_STRSTREAM_DEPRECATION_WARNING;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>src;src\pomme;src\game;src\qd3d;src\qut;quesa\sdk\includes\quesa</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;src\pomme;src\game;src\qd3d;quesa\sdk\includes\quesa</AdditionalIncludeDirectories>
       <CompileAs>CompileAsCpp</CompileAs>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <ForcedIncludeFiles>Pomme.h</ForcedIncludeFiles>
@@ -157,7 +157,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_SILENCE_CXX17_STRSTREAM_DEPRECATION_WARNING;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>src;src\pomme;src\game;src\qd3d;src\qut;quesa\sdk\includes\quesa</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;src\pomme;src\game;src\qd3d;quesa\sdk\includes\quesa</AdditionalIncludeDirectories>
       <CompileAs>CompileAsCpp</CompileAs>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <ForcedIncludeFiles>Pomme.h</ForcedIncludeFiles>
@@ -171,7 +171,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\qut\QutWindows.cpp" />
     <ClCompile Include="src\game\3DMath.c" />
     <ClCompile Include="src\game\3DMF.c" />
     <ClCompile Include="src\game\Bones.c" />
@@ -226,10 +225,9 @@
     <ClCompile Include="src\pomme\SoundManager.cpp" />
     <ClCompile Include="src\pomme\TimeManager.cpp" />
     <ClCompile Include="src\pomme\WinInput.cpp" />
+    <ClCompile Include="src\QutWindows.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\qut\Qut.h" />
-    <ClInclude Include="src\qut\QutInternal.h" />
     <ClInclude Include="src\game\3DMath.h" />
     <ClInclude Include="src\game\3dmf.h" />
     <ClInclude Include="src\game\affectors.h" />
@@ -275,6 +273,8 @@
     <ClInclude Include="src\pomme\PommeEnums.h" />
     <ClInclude Include="src\pomme\PommeInternal.h" />
     <ClInclude Include="src\pomme\PommeTypes.h" />
+    <ClInclude Include="src\Qut.h" />
+    <ClInclude Include="src\QutInternal.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
