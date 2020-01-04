@@ -185,7 +185,7 @@ AliasHandle				alias;
 OSErr					iErr;
 FSSpec					target;
 Boolean					wasChanged;
-TQ3Point3D				*pointPtr;
+BE<TQ3Point3D>			*pointPtr;
 SkeletonFile_AnimHeader_Type	*animHeaderPtr;
 
 
@@ -318,13 +318,13 @@ SkeletonFile_AnimHeader_Type	*animHeaderPtr;
 	if (hand == nil)
 		DoFatalAlert("Error reading RelP resource!");
 	HLock(hand);
-	pointPtr = (TQ3Point3D *)*hand;
+	pointPtr = (BE<TQ3Point3D> *)*hand;
 	
 	if ((GetHandleSize(hand) / sizeof(TQ3Point3D)) != skeleton->numDecomposedPoints)
 		DoFatalAlert("# of points in Reference Model has changed!");
 	else
 		for (i = 0; i < skeleton->numDecomposedPoints; i++)
-			skeleton->decomposedPointList[i].boneRelPoint = FromBE(pointPtr[i]);
+			skeleton->decomposedPointList[i].boneRelPoint = pointPtr[i];
 
 	ReleaseResource(hand);
 	

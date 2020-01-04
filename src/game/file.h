@@ -26,7 +26,7 @@ typedef struct
 {
 	BE<SInt32> 			parentBone;			 		// index to previous bone
 	unsigned char		name[32];					// text string name for bone
-	TQ3Point3D			coord;						// absolute coord (not relative to parent!) 
+	BE<TQ3Point3D>		coord;						// absolute coord (not relative to parent!) 
 	BE<UInt16>			numPointsAttachedToBone;	// # vertices/points that this bone has
 	BE<UInt16>			numNormalsAttachedToBone;	// # vertex normals this bone has
 	BE<UInt32>			reserved[8];				// reserved for future use
@@ -38,8 +38,8 @@ typedef struct
 			
 typedef struct
 {
-	TQ3Vector3D		maxRot;						// max rot values of joint
-	TQ3Vector3D		minRot;						// min rot values of joint
+	BE<TQ3Vector3D>	maxRot;						// max rot values of joint
+	BE<TQ3Vector3D>	minRot;						// min rot values of joint
 	BE<SInt32> 		parentBone; 				// index to previous link joint definition
 	unsigned char	name[32];					// text string name for joint
 	BE<SInt32>		limbIndex;					// index into limb list

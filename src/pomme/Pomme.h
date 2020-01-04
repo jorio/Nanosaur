@@ -34,6 +34,23 @@ public:
 	BE() : bigEndian(0) {}
 	BE(const T& x) : bigEndian(ToBE(x)) {}
 	operator T() const { return FromBE(bigEndian); }
+	T operator +=(const T& rhs) { bigEndian += ToBE(rhs); return FromBE(bigEndian); }
+	T operator -=(const T& rhs) { bigEndian -= ToBE(rhs); return FromBE(bigEndian); }
+	T operator |=(const T& rhs) { bigEndian |= ToBE(rhs); return FromBE(bigEndian); }
+	T operator &=(const T& rhs) { bigEndian &= ToBE(rhs); return FromBE(bigEndian); }
+};
+
+template<> class BE<TQ3Point3D> {
+public:
+	BE<float> x, y, z;
+	BE() {}
+	BE(const TQ3Point3D& p) : x(p.x), y(p.y), z(p.z) {}
+	operator TQ3Point3D() const { return TQ3Point3D{ (float)x, (float)y, (float)z }; }
+};
+
+template<> class BE<TQ3Vector3D> {
+public:
+	BE<float> x, y, z;
 };
 
 //-----------------------------------------------------------------------------
