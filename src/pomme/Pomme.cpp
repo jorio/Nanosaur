@@ -142,17 +142,6 @@ void NoPurgePixels(PixMapHandle) {
 }
 
 //-----------------------------------------------------------------------------
-// Memory: BlockMove
-
-void BlockMove(const void* srcPtr, void* destPtr, Size byteCount) {
-	TODOFATAL();
-}
-
-void BlockMoveData(const void* srcPtr, void* destPtr, Size byteCount) {
-	TODOFATAL();
-}
-
-//-----------------------------------------------------------------------------
 // Mouse cursor
 
 void InitCursor() {

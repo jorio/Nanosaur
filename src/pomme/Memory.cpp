@@ -87,3 +87,14 @@ Ptr NewPtrSys(Size byteCount) {
 void DisposePtr(Ptr p) {
 	delete[] p;
 }
+
+//-----------------------------------------------------------------------------
+// Memory: BlockMove
+
+void BlockMove(const void* srcPtr, void* destPtr, Size byteCount) {
+	memcpy(destPtr, srcPtr, byteCount);
+}
+
+void BlockMoveData(const void* srcPtr, void* destPtr, Size byteCount) {
+	TODOFATAL();
+}
