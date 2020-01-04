@@ -65,7 +65,7 @@ int main(int argc, char** argv) {
 #else
 
 void App_Initialise(void) {
-#if WIN32
+#ifdef WIN32
     AllocConsole();
     FILE* junk;
     freopen_s(&junk, "conin$", "r", stdin);

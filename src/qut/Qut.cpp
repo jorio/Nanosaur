@@ -110,7 +110,7 @@ static TQ3SubdivisionStyleData  gStyleDataSubdivision;
 static double
 qut_CPU_time()
 {
-#if WIN32
+#ifdef WIN32
 	// I hear that on Windows, clock() is broken in the sense that it reports
 	// wall clock time, not CPU time.
 	FILETIME	ft[4];
