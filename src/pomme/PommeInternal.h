@@ -107,6 +107,7 @@ namespace Pomme {
 	void InitTimeManager();
 	void InitFiles(const char* applName);
 
+	bool IsDirIDLegal(long dirID);
 	bool IsRefNumLegal(short refNum);
 	std::fstream& GetStream(short refNum);
 	bool IsStreamOpen(short refNum);

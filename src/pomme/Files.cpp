@@ -3,6 +3,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <strstream>
 
 #ifdef WIN32
 #include <shlobj.h>
@@ -49,6 +50,10 @@ long GetDirectoryID(const std::filesystem::path& dirPath) {
 	}
 	directories.emplace_back(dirPath);
 	return directories.size() - 1;
+}
+
+bool Pomme::IsDirIDLegal(long dirID) {
+	return dirID >= 0 && dirID < directories.size();
 }
 
 bool Pomme::IsRefNumLegal(short refNum) {
@@ -238,8 +243,66 @@ OSErr FSpDelete(const FSSpec* spec) {
 }
 
 OSErr ResolveAlias(const FSSpec* spec, AliasHandle alias, FSSpec* target, Boolean* wasChanged) {
-	TODO();
-	return unimpErr;
+	*wasChanged = false;
+
+	int aliasSize = GetHandleSize(alias);
+
+	// the target FN is at offset 50, and the target FN is a Str63, so 50+64
+	if (aliasSize < 50+64) {
+		std::cerr << "unexpected size of alias: " << aliasSize << "\n";
+		return unimpErr;
+	}
+
+	std::istrstream istr(*alias, GetHandleSize(alias));
+	Pomme::BigEndianIStream f(istr);
+
+	f.Skip(4); // application signature
+
+	if (f.Read<UInt16>() != aliasSize) {
+		std::cerr << "unexpected size field in alias\n";
+		return unimpErr;
+	}
+
+	if (f.Read<UInt16>() != 2) {
+		std::cerr << "unexpected alias version number\n";
+		return unimpErr;
+	}
+
+	auto kind = f.Read<UInt16>();
+	if (kind > 2) {
+		std::cerr << "unsupported alias kind " << kind << "\n";
+		return unimpErr;
+	}
+
+	f.Skip(28); // volume name pascal string
+	f.Skip(4); // volume creation date
+	f.Skip(2); // volume signature (RW, BD, H+)
+	f.Skip(2); // drive type (0=HD, 1=network, 2=400K FD, 3=800K FD, 4=1.4M FD, 5=misc.ejectable)
+	f.Skip(4); // parent directory ID
+
+	auto targetFilenameStr63 = f.ReadBytes(64);
+
+	memcpy((char*)target->name, targetFilenameStr63.data(), 64);
+	target->parID = spec->parID;
+	target->vRefNum = spec->vRefNum;
+
+	if (!IsDirIDLegal(target->parID)) {
+		TODO2("illegal alis parID " << target->parID);
+		return dirNFErr;
+	}
+
+	auto path = Pomme::ToPath(*target);
+	if (kind == 0 && !std::filesystem::is_regular_file(path)) {
+		std::cerr << "alias target file doesn't exist: " << path << "\n";
+		return fnfErr;
+	}
+	else if (kind == 1 && !std::filesystem::is_directory(path)) {
+		std::cerr << "alias target dir doesn't exist: " << path << "\n";
+		return dirNFErr;
+	}
+
+	LOG << "alias OK: " << Pascal2C(target->name) << "\n";
+	return noErr;
 }
 
 OSErr FSRead(short refNum, long* count, Ptr buffPtr) {
