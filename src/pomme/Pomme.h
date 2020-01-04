@@ -6,12 +6,6 @@
 #include "PommeTypes.h"
 #include "PommeEnums.h"
 
-// https://www.cocoawithlove.com/blog/porting-from-macos8-to-sierra.html
-
-// basic types: https://opensource.apple.com/source/CarbonHeaders/CarbonHeaders-18.1/MacTypes.h.auto.html
-// Time Manager: http://mirror.informatimago.com/next/developer.apple.com/documentation/Carbon/Reference/Time_Manager/Time_Manager.pdf
-// Quickdraw.h: https://github.com/phracker/MacOSX-SDKs/blob/master/MacOSX10.9.sdk/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/QD.framework/Versions/A/Headers/Quickdraw.h
-// Sound manager: http://www.few.vu.nl/~A.Eliens/research/media/lib-of-vs-libs-QTDevWin-CIncludes-Sound.h
 
 #define POMME_DEBUG_MEMORY
 #define POMME_DEBUG_SOUND
