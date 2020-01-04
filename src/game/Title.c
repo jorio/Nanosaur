@@ -315,7 +315,6 @@ FSSpec			spec;
 		CalcEnvironmentMappingCoords(&gGameViewInfoPtr->currentCameraCoords);
 		QD3D_DrawScene(gGameViewInfoPtr,DrawObjects);	
 		QD3D_CalcFramesPerSecond();					
-		GameYield();
 	}
 	GammaFadeOut();
 

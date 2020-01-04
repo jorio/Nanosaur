@@ -91,14 +91,8 @@ void App_Initialise(void) {
 	// Initialise Qut
 	Qut_CreateWindow("Nanosaur\u2122", 640, 480, kQ3False);
 
-    //Qut_CreateView(Q3View_New, appConfigureView);
-    //Qut_SetMouseTrackFunc(appMouseTrack);
-    Qut_SetRenderFunc(RenderYield);
-
     turn = Turn_GAME;
     gameThread = std::thread(AppMain);
-
-    RenderYield(nil);
 }
 
 void App_Terminate(void) {
