@@ -161,7 +161,7 @@ template<typename T> std::vector<T> UnpackAllRows(BigEndianIStream& f, int w, in
 	return data;
 }
 
-// Unpack pixel type 0 (16 bits, chunky)
+// Unpack pixel type 0 (8-bit indexed)
 Pixmap Unpack0(BigEndianIStream& f, int w, int h, const std::vector<Color>& palette)
 {
 	auto unpacked = UnpackAllRows<UInt8>(f, w, h, w, w * h);
