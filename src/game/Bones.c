@@ -176,7 +176,8 @@ DecomposedPointType	*decomposedPoint;
 		{
 			decomposedPoint = &gCurrentSkeleton->decomposedPointList[pointNum];					// point to this decomposed point
 			
-			if (PointsAreCloseEnough(&vertexList[vertNum],&decomposedPoint->realPoint))			// see if close enough to match
+			TQ3Point3D tqpp = decomposedPoint->realPoint;
+			if (PointsAreCloseEnough(&vertexList[vertNum],&tqpp))			// see if close enough to match
 			{
 					/* ADD ANOTHER REFERENCE */
 					
