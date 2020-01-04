@@ -21,7 +21,7 @@ void ImplementMe(const char* fn, std::string msg, int severity) {
 		}
 	}
 	
-	if (severity >= 1) {
+	if (severity >= 2) {
 		std::stringstream ss;
 		ss << fn << "()\n";
 		if (!msg.empty())

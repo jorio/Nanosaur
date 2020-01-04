@@ -6,12 +6,11 @@
 #include "PommeTypes.h"
 #include "PommeEnums.h"
 
-
-#define POMME_DEBUG_MEMORY
+//#define POMME_DEBUG_MEMORY
 #define POMME_DEBUG_SOUND
 //#define POMME_DEBUG_PICT
 #define POMME_DEBUG_FILES
-#define POMME_DEBUG_RESOURCES
+//#define POMME_DEBUG_RESOURCES
 
 //-----------------------------------------------------------------------------
 // Big-endian transparent conversion
