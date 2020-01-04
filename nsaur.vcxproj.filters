@@ -311,9 +311,6 @@
     <ClCompile Include="src\pomme\WinInput.cpp">
       <Filter>Pomme</Filter>
     </ClCompile>
-    <ClCompile Include="src\qut\Qut.cpp">
-      <Filter>Qut</Filter>
-    </ClCompile>
     <ClCompile Include="src\qut\QutWindows.cpp">
       <Filter>Qut</Filter>
     </ClCompile>
@@ -600,10 +597,5 @@
     <Filter Include="Pomme">
       <UniqueIdentifier>{c97c0370-55d1-410e-953a-12e57f54ca31}</UniqueIdentifier>
     </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="src\qut\Qut.rc">
-      <Filter>Qut</Filter>
-    </ResourceCompile>
   </ItemGroup>
 </Project>

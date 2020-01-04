@@ -171,7 +171,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\qut\Qut.cpp" />
     <ClCompile Include="src\qut\QutWindows.cpp" />
     <ClCompile Include="src\game\3DMath.c" />
     <ClCompile Include="src\game\3DMF.c" />
@@ -276,9 +275,6 @@
     <ClInclude Include="src\pomme\PommeEnums.h" />
     <ClInclude Include="src\pomme\PommeInternal.h" />
     <ClInclude Include="src\pomme\PommeTypes.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="src\qut\Qut.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
