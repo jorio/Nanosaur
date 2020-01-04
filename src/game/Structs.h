@@ -114,7 +114,7 @@ typedef struct
 			
 typedef struct
 {
-	short	time;
+	BE<short>	time;
 	Byte	type;
 	Byte	value;
 }AnimEventType;
