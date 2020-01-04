@@ -118,5 +118,5 @@ namespace Pomme {
 	
 	Pixmap ReadPICT(std::istream& f, bool skip512 = true);
 
-	std::string FourCCString(FourCharCode t);
+	std::string FourCCString(FourCharCode t, char filler = '?');
 }

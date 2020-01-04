@@ -41,7 +41,7 @@ void ImplementMe(const char* fn, std::string msg, int severity) {
 	}
 }
 
-std::string Pomme::FourCCString(FourCharCode t) {
+std::string Pomme::FourCCString(FourCharCode t, char filler) {
 	char b[5];
 	*(ResType*)b = t;
 #if !(TARGET_RT_BIGENDIAN)
@@ -50,7 +50,7 @@ std::string Pomme::FourCCString(FourCharCode t) {
 	// replace non-ascii with '?'
 	for (int i = 0; i < 4; i++) {
 		char c = b[i];
-		if (c < ' ' || c > '~') b[i] = '?';
+		if (c < ' ' || c > '~') b[i] = filler;
 	}
 	b[4] = '\0';
 	return b;

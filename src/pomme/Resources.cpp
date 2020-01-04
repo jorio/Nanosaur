@@ -195,6 +195,17 @@ Handle GetResource(ResType theType, short theID) {
 		LOG << "GetResource " << FourCCString(theType) << " " << theID << ": " << data.size() << "\n";
 		Handle h = NewHandle(data.size());
 		memcpy(*h, data.data(), data.size());
+		
+		/*
+		std::stringstream fn;
+		fn << "rez_" << theID << "." << Pomme::FourCCString(theType, '_');
+		std::ofstream dump(fn.str());
+		for (int j = 0; j < data.size(); j++)
+			dump.put(data[j]);
+		dump.close();
+		std::cout << "wrote " << fn.str() << "\n";
+		*/
+
 		return h;
 	}
 	catch (std::out_of_range) {
