@@ -325,8 +325,15 @@ OSErr FSClose(short refNum) {
 }
 
 OSErr GetEOF(short refNum, long* logEOF) {
-	TODO();
-	return unimpErr;
+	if (!IsRefNumLegal(refNum)) return rfNumErr;
+	if (!IsStreamOpen(refNum)) return fnOpnErr;
+
+	auto& f = GetStream(refNum);
+	StreamPosGuard guard(f);
+	f.seekg(0, std::ios::end);
+	*logEOF = f.tellg();
+
+	return noErr;
 }
 
 OSErr SetEOF(short refNum, long logEOF) {
