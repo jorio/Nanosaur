@@ -285,7 +285,7 @@ SkeletonFile_AnimHeader_Type	*animHeaderPtr;
 			/* COPY POINT INDEX ARRAY INTO BONE STRUCT */
 
 		for (j=0; j < skeleton->Bones[i].numPointsAttachedToBone; j++)
-			skeleton->Bones[i].pointList[j] = indexPtr[j];
+			skeleton->Bones[i].pointList[j] = FromBE(indexPtr[j]);
 		ReleaseResource(hand);
 
 
@@ -300,7 +300,7 @@ SkeletonFile_AnimHeader_Type	*animHeaderPtr;
 			/* COPY NORMAL INDEX ARRAY INTO BONE STRUCT */
 
 		for (j=0; j < skeleton->Bones[i].numNormalsAttachedToBone; j++)
-			skeleton->Bones[i].normalList[j] = indexPtr[j];
+			skeleton->Bones[i].normalList[j] = FromBE(indexPtr[j]);
 		ReleaseResource(hand);
 						
 	}
@@ -324,7 +324,7 @@ SkeletonFile_AnimHeader_Type	*animHeaderPtr;
 		DoFatalAlert("# of points in Reference Model has changed!");
 	else
 		for (i = 0; i < skeleton->numDecomposedPoints; i++)
-			skeleton->decomposedPointList[i].boneRelPoint = pointPtr[i];
+			skeleton->decomposedPointList[i].boneRelPoint = FromBE(pointPtr[i]);
 
 	ReleaseResource(hand);
 	
