@@ -15,32 +15,31 @@ static std::ostringstream LOG;
 struct BlockDescriptor {
 	Ptr buf;
 	Size size;
-	int index;
 };
 
 // these must not move around
-Pomme::Pool<BlockDescriptor, long> blocks;
+Pomme::Pool<BlockDescriptor, UInt16, 1000> blocks(1);
 
-BlockDescriptor& HandleToBlock(Handle h) {
-	return *(BlockDescriptor*)h;
+BlockDescriptor* HandleToBlock(Handle h) {
+	return (BlockDescriptor*)h;
 }
 
 //-----------------------------------------------------------------------------
 // Memory: Handle
 
 Handle NewHandle(Size s) {
-	long index;
-	BlockDescriptor& block = blocks.Alloc(&index);
-	block.index = index;
-	block.buf = new char[s];
-	block.size = s;
+	if (s < 0) throw std::invalid_argument("trying to alloc negative size handle");
 
-	if ((void*)&block.buf != (void*)&block)
+	BlockDescriptor* block = blocks.Alloc();
+	block->buf = new char[s];
+	block->size = s;
+
+	if ((Ptr)&block->buf != (Ptr)block)
 		throw std::exception("buffer address mismatches block address");
 
-	LOG << "NewHandle " << (void*)block.buf << " size " << s << "\n";
+	LOG << "[mem] " << __func__ << (void*)block->buf << ", size " << s << "\n";
 
-	return &block.buf;
+	return &block->buf;
 }
 
 Handle NewHandleClear(Size s) {
@@ -56,7 +55,7 @@ Handle TempNewHandle(Size s, OSErr* err) {
 }
 
 Size GetHandleSize(Handle h) {
-	return HandleToBlock(h).size;
+	return HandleToBlock(h)->size;
 }
 
 void SetHandleSize(Handle handle, Size byteCount) {
@@ -64,23 +63,24 @@ void SetHandleSize(Handle handle, Size byteCount) {
 }
 
 void DisposeHandle(Handle h) {
-	LOG << "DisposeHandle " << (void*)*h << "\n";
-
-	BlockDescriptor b = HandleToBlock(h);
-	delete[] b.buf;
-	b.buf = 0;
-	b.size = -1;
-	blocks.Dispose(b.index);
+	std::cout << "[mem] DisposeHandle " << (void*)*h << "\n";
+	BlockDescriptor* b = HandleToBlock(h);
+	delete[] b->buf;
+	b->buf = 0;
+	b->size = -1;
+	blocks.Dispose(b);
 }
 
 //-----------------------------------------------------------------------------
 // Memory: Ptr
 
 Ptr NewPtr(Size byteCount) {
+	if (byteCount < 0) throw std::invalid_argument("trying to NewPtr negative size");
 	return new char[byteCount];
 }
 
 Ptr NewPtrSys(Size byteCount) {
+	if (byteCount < 0) throw std::invalid_argument("trying to NewPtrSys negative size");
 	return new char[byteCount];
 }
 

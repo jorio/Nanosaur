@@ -4,7 +4,6 @@
 #include <map>
 #include <fstream>
 #include <string>
-#include <deque>
 #include <filesystem>
 
 namespace Pomme {
@@ -42,36 +41,40 @@ namespace Pomme {
 		}
 	};
 
-	template<typename TPooledRecord, typename TId>
+	template<typename TPooledRecord, typename TId, int N>
 	class Pool {
-	public:
-		std::vector<TPooledRecord> pool;
-		std::deque<TId> freeIDs;
+		// fixed size array so that pointers to the elements don't move around in memory
+		// (unlike how a vector might move around elements on resize)
+		TPooledRecord pool[N];
+		std::vector<TId> freeIDs;
+		int inUse, inUsePeak;
 
 	public:
-		TPooledRecord& Alloc(TId* outId) {
-			TId id;
-			if (freeIDs.empty()) {
-				id = pool.size();
-				pool.emplace_back();
-			}
-			else {
-				id = freeIDs.front();
-				freeIDs.pop_front();
-			}
-			if (outId)
-				*outId = id;
-			return pool[id];
+		Pool(int k) {
+			inUse = 0;
+			inUsePeak = 0;
+			freeIDs.reserve(N);
+			for (int i = N-1; i >= 0; i--)
+				freeIDs.push_back(i);
 		}
 
-		void Dispose(TId id) {
-			freeIDs.push_back(id);
+		TPooledRecord* Alloc() {
+			if (freeIDs.empty())
+				throw std::length_error("pool exhausted");
+			TId id = freeIDs.back();
+			freeIDs.pop_back();
+			inUse++;
+			if (inUse > inUsePeak)
+				inUsePeak = inUse;
+			return &pool[id];
+		}
 
-			// compact end
-			while (freeIDs.size() > 0 && freeIDs.back() == pool.size() - 1) {
-				freeIDs.pop_back();
-				pool.pop_back();
-			}
+		void Dispose(TPooledRecord* obj) {
+			long id = obj - &pool[0];
+			if (id < 0 || id >= N)
+				throw std::invalid_argument("obj isn't stored in pool");
+			inUse--;
+			freeIDs.push_back(id);
 		}
 	};
 
