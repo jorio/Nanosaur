@@ -14,8 +14,28 @@ using namespace Pomme;
 // State
 
 OSErr lastResError;
-short currentResFile = -1;
-RezFork curRezFork;
+
+std::vector<RezFork> rezSearchStack;
+int rezSearchStackIndex = 0;
+
+//-----------------------------------------------------------------------------
+// Internal
+
+RezFork& GetCurRF() {
+	return rezSearchStack[rezSearchStackIndex];
+}
+
+static void PrintStack(const char* msg) {
+	LOG << "------ RESOURCE SEARCH STACK " << msg << " -------\n";
+	for (int i = rezSearchStack.size() - 1; i >= 0; i--) {
+		LOG	<< (rezSearchStackIndex == i? " =====> " : "        ")
+			<< " StackPos=" << i << " "
+			<< " RefNum=" << rezSearchStack[i].fileRefNum << " "
+			<< GetFilenameFromRefNum__debug(rezSearchStack[i].fileRefNum)
+			<< "\n";
+	}
+	LOG << "------------------------------------\n";
+}
 
 //-----------------------------------------------------------------------------
 // Resource file management
@@ -32,11 +52,6 @@ short FSpOpenResFile(const FSSpec* spec, char permission) {
 	if (noErr != lastResError) {
 		return -1;
 	}
-
-	// ----------------
-	// Load resource fork
-
-	curRezFork.rezMap.clear();
 
 	auto f = Pomme::BigEndianIStream(GetStream(slot));
 
@@ -60,6 +75,14 @@ short FSpOpenResFile(const FSSpec* spec, char permission) {
 			break;
 		}
 	}
+
+	// ----------------
+	// Load resource fork
+
+	rezSearchStack.emplace_back();
+	rezSearchStackIndex = rezSearchStack.size() - 1;
+	GetCurRF().fileRefNum = slot;
+	GetCurRF().rezMap.clear();
 
 	// -------------------
 	// Resource Header
@@ -132,9 +155,11 @@ short FSpOpenResFile(const FSSpec* spec, char permission) {
 			r.flags = resFlags;
 			r.name = name;
 			r.data = buf;
-			curRezFork.rezMap[resType][resID] = r;
+			GetCurRF().rezMap[resType][resID] = r;
 		}
 	}
+
+	PrintStack("FSPOPENRESFILE");
 
 	return slot;
 }
@@ -154,12 +179,21 @@ void UseResFile(short refNum) {
 		return;
 	}
 
-	lastResError = noErr;
-	currentResFile = refNum;
+	for (int i = 0; i < rezSearchStack.size(); i++) {
+		if (rezSearchStack[i].fileRefNum == refNum) {
+			lastResError = noErr;
+			rezSearchStackIndex = i;
+			PrintStack("AFTER USERESFILE");
+			return;
+		}
+	}
+
+	std::cerr << "no RF open with refNum " << rfNumErr << "\n";
+	lastResError = rfNumErr;
 }
 
 short CurResFile() {
-	return currentResFile;
+	return GetCurRF().fileRefNum;
 }
 
 void CloseResFile(short refNum) {
@@ -172,15 +206,24 @@ void CloseResFile(short refNum) {
 	//UpdateResFile(refNum); // MMT:1-110
 	CloseStream(refNum);
 
-	if (refNum == currentResFile)
-		currentResFile = -1;
+	auto it = rezSearchStack.begin();
+	while (it != rezSearchStack.end()) {
+		if (it->fileRefNum == refNum)
+			it = rezSearchStack.erase(it);
+		else
+			it++;
+	}
+
+	rezSearchStackIndex = min(rezSearchStackIndex, rezSearchStack.size()-1);
+
+	PrintStack("CLOSERESFILE");
 }
 
 short Count1Resources(ResType theType) {
 	lastResError = noErr;
 
 	try {
-		return curRezFork.rezMap.at(theType).size();
+		return GetCurRF().rezMap.at(theType).size();
 	}
 	catch (std::out_of_range) {
 		return 0;
@@ -190,28 +233,36 @@ short Count1Resources(ResType theType) {
 Handle GetResource(ResType theType, short theID) {
 	lastResError = noErr;
 
-	try {
-		const auto& data = curRezFork.rezMap.at(theType).at(theID).data;
-		LOG << "GetResource " << FourCCString(theType) << " " << theID << ": " << data.size() << "\n";
-		Handle h = NewHandle(data.size());
-		memcpy(*h, data.data(), data.size());
-		
-		/*
-		std::stringstream fn;
-		fn << "rez_" << theID << "." << Pomme::FourCCString(theType, '_');
-		std::ofstream dump(fn.str());
-		for (int j = 0; j < data.size(); j++)
-			dump.put(data[j]);
-		dump.close();
-		std::cout << "wrote " << fn.str() << "\n";
-		*/
+	for (int i = rezSearchStackIndex; i >= 0; i--) {
+		PrintStack("GetResource");
 
-		return h;
+		try {
+			const auto& data = rezSearchStack[i].rezMap.at(theType).at(theID).data;
+			std::cout << "GetResource " << FourCCString(theType) << " " << theID << ": " << data.size() << "\n";
+			Handle h = NewHandle(data.size());
+			memcpy(*h, data.data(), data.size());
+
+			/*
+			std::stringstream fn;
+			fn << "b:\\rez_" << theID << "." << Pomme::FourCCString(theType, '_');
+			std::ofstream dump(fn.str(), std::ofstream::binary);
+			for (int j = 0; j < data.size(); j++)
+				dump.put(data[j]);
+			dump.close();
+			std::cout << "wrote " << fn.str() << "\n";
+			*/
+
+			return h;
+		}
+		catch (std::out_of_range) {
+			LOG << "Resource not found, go deeper in stack of open resource forks\n";
+			continue;
+		}
 	}
-	catch (std::out_of_range) {
-		lastResError = resNotFound;
-		return nil;
-	}
+
+	std::cerr << "Couldn't get resource " << FourCCString(theType) << " #" << theID << "\n";
+	lastResError = resNotFound;
+	return nil;
 }
 
 void ReleaseResource(Handle theResource) {
@@ -219,6 +270,7 @@ void ReleaseResource(Handle theResource) {
 }
 
 void RemoveResource(Handle theResource) {
+	DisposeHandle(theResource);
 	TODO();
 }
 

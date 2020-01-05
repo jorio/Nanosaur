@@ -24,6 +24,7 @@ static std::ostringstream LOG;
 
 std::vector<std::filesystem::path> directories;
 std::fstream openFiles[MAX_OPEN_FILES];
+std::string openFilesDebugPaths[MAX_OPEN_FILES];
 short nextFileSlot = -1;
 
 //-----------------------------------------------------------------------------
@@ -70,6 +71,10 @@ void Pomme::CloseStream(short refNum) {
 
 bool Pomme::IsStreamOpen(short refNum) {
 	return openFiles[refNum].is_open();
+}
+
+std::string Pomme::GetFilenameFromRefNum__debug(short refNum) {
+	return openFilesDebugPaths[refNum];
 }
 
 //-----------------------------------------------------------------------------
@@ -146,6 +151,7 @@ OSErr FSpOpenDF(const FSSpec* spec, char permission, short* refNum) {
 
 	nextFileSlot++;
 	openFiles[slot] = std::fstream(path, std::ios::binary | std::ios::in);
+	openFilesDebugPaths[slot] = Pascal2C(spec->name);
 	*refNum = slot;
 	LOG << "Opened DF " << path << " at slot " << *refNum << "\n";
 
@@ -176,6 +182,7 @@ OSErr FSpOpenRF(const FSSpec* spec, char permission, short* refNum) {
 
 	nextFileSlot++;
 	openFiles[slot] = std::fstream(path, std::ios::binary | std::ios::in);
+	openFilesDebugPaths[slot] = Pascal2C(spec->name);
 	*refNum = slot;
 	LOG << "Opened RF " << path << " at slot " << *refNum << "\n";
 

@@ -87,6 +87,7 @@ namespace Pomme {
 	};
 
 	struct RezFork {
+		SInt16 fileRefNum;
 		std::map<ResType, std::map<short, Rez> > rezMap;
 	};
 
@@ -121,6 +122,7 @@ namespace Pomme {
 
 	std::filesystem::path ToPath(short vRefNum, long parID, ConstStr255Param name);
 	std::filesystem::path ToPath(const FSSpec& spec);
+	std::string GetFilenameFromRefNum__debug(short refNum);
 	
 	Pixmap ReadPICT(std::istream& f, bool skip512 = true);
 
