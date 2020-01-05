@@ -314,6 +314,12 @@
     <ClCompile Include="src\QutWindows.cpp">
       <Filter>Qut</Filter>
     </ClCompile>
+    <ClCompile Include="src\pomme\IEEEExtended.c">
+      <Filter>Pomme</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pomme\AIFF.cpp">
+      <Filter>Pomme</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\pomme\PommeEnums.h">
@@ -585,6 +591,9 @@
     </ClInclude>
     <ClInclude Include="src\QutInternal.h">
       <Filter>Qut</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pomme\IEEEExtended.h">
+      <Filter>Pomme</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

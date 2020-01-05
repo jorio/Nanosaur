@@ -1,4 +1,5 @@
 #include "PommeInternal.h"
+#include "IEEEExtended.h"
 
 Pomme::StreamPosGuard::StreamPosGuard(std::istream& theStream) :
 	stream(theStream),
@@ -25,6 +26,18 @@ std::vector<Byte> Pomme::BigEndianIStream::ReadBytes(int n) {
 	std::vector<Byte> buf(n);
 	Read(reinterpret_cast<char*>(buf.data()), n);
 	return buf;
+}
+
+std::string Pomme::BigEndianIStream::ReadPascalString() {
+	int length = Read<UInt8>();
+	auto bytes = ReadBytes(length);
+	bytes.push_back('\0');
+	return std::string((const char*)&bytes.data()[0]);
+}
+
+double Pomme::BigEndianIStream::Read80BitFloat() {
+	auto bytes = ReadBytes(10);
+	return ConvertFromIeeeExtended(bytes.data());
 }
 
 void Pomme::BigEndianIStream::Goto(int absoluteOffset) {

@@ -218,8 +218,10 @@
     <ClCompile Include="src\game\Triggers.c" />
     <ClCompile Include="src\game\Weapons.c" />
     <ClCompile Include="src\nsaur.cpp" />
+    <ClCompile Include="src\pomme\AIFF.cpp" />
     <ClCompile Include="src\pomme\BigEndianIStream.cpp" />
     <ClCompile Include="src\pomme\Files.cpp" />
+    <ClCompile Include="src\pomme\IEEEExtended.c" />
     <ClCompile Include="src\pomme\Memory.cpp" />
     <ClCompile Include="src\pomme\PICT.cpp" />
     <ClCompile Include="src\pomme\Pomme.cpp" />
@@ -273,6 +275,7 @@
     <ClInclude Include="src\game\triggers.h" />
     <ClInclude Include="src\game\weapons.h" />
     <ClInclude Include="src\game\windows_nano.h" />
+    <ClInclude Include="src\pomme\IEEEExtended.h" />
     <ClInclude Include="src\pomme\Pomme.h" />
     <ClInclude Include="src\pomme\PommeEnums.h" />
     <ClInclude Include="src\pomme\PommeInternal.h" />

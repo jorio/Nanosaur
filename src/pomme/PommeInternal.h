@@ -28,6 +28,8 @@ namespace Pomme {
 		std::streampos Tell() const;
 		StreamPosGuard GuardPos();
 		std::vector<Byte> ReadBytes(int n);
+		std::string ReadPascalString();
+		double Read80BitFloat();
 
 		template<typename T> T Read() {
 			char b[sizeof(T)];
@@ -118,6 +120,8 @@ namespace Pomme {
 	std::filesystem::path ToPath(const FSSpec& spec);
 	
 	Pixmap ReadPICT(std::istream& f, bool skip512 = true);
+
+	void ReadAIFF(std::istream& f);
 
 	std::string FourCCString(FourCharCode t, char filler = '?');
 }
