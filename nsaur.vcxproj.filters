@@ -320,6 +320,9 @@
     <ClCompile Include="src\pomme\AIFF.cpp">
       <Filter>Pomme</Filter>
     </ClCompile>
+    <ClCompile Include="src\pomme\MACE.cpp">
+      <Filter>Pomme</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\pomme\PommeEnums.h">

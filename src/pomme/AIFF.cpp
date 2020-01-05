@@ -102,7 +102,22 @@ void Pomme::ReadAIFF(std::istream& theF) {
 		{
 			if (f.Read<UInt64>() != 0) throw AIFFException("unexpected offset/blockSize in SSND");
 			// sampled sound data is here
-			f.Goto(endOfChunk);
+
+			auto ssnd = f.ReadBytes(ckSize - 8);
+			LOG << "SSND bytes " << ssnd.size() << "\n";
+
+			switch (COMM.compressionType) {
+			case 'MAC3':
+			{
+				auto decomp = Pomme::DecodeMACE3(ssnd, COMM.numChannels);
+				DumpAU("AIFCMAC3.AU", decomp, COMM.numChannels, COMM.sampleRate);
+				break;
+			}
+			default:
+				TODO2("unknown compression type " << FourCCString(COMM.compressionType));
+				break;
+			}
+
 			break;
 		}
 

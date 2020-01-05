@@ -122,6 +122,7 @@ namespace Pomme {
 	Pixmap ReadPICT(std::istream& f, bool skip512 = true);
 
 	void ReadAIFF(std::istream& f);
+	std::vector<SInt16> DecodeMACE3(const std::vector<Byte>& input, const int nChannels);
 
 	std::string FourCCString(FourCharCode t, char filler = '?');
 }

@@ -222,6 +222,7 @@
     <ClCompile Include="src\pomme\BigEndianIStream.cpp" />
     <ClCompile Include="src\pomme\Files.cpp" />
     <ClCompile Include="src\pomme\IEEEExtended.c" />
+    <ClCompile Include="src\pomme\MACE.cpp" />
     <ClCompile Include="src\pomme\Memory.cpp" />
     <ClCompile Include="src\pomme\PICT.cpp" />
     <ClCompile Include="src\pomme\Pomme.cpp" />
