@@ -123,6 +123,7 @@ namespace Pomme {
 
 	void ReadAIFF(std::istream& f);
 	std::vector<SInt16> DecodeMACE3(const std::vector<Byte>& input, const int nChannels);
+	std::vector<SInt16> DecodeIMA4(const std::vector<Byte>& input, const int nChannels);
 
 	std::string FourCCString(FourCharCode t, char filler = '?');
 }

@@ -323,6 +323,9 @@
     <ClCompile Include="src\pomme\MACE.cpp">
       <Filter>Pomme</Filter>
     </ClCompile>
+    <ClCompile Include="src\Pomme\IMA4.cpp">
+      <Filter>Pomme</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\pomme\PommeEnums.h">

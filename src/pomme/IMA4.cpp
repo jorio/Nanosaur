@@ -1,0 +1,139 @@
+// Adapted from ffmpeg. Look at libavcodec/adpcm{,_data}.{c,h}
+
+/*
+ * Portions Copyright (c) 2001-2003 The FFmpeg project
+ *
+ * FFmpeg is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * FFmpeg is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with FFmpeg; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+ */
+
+#include <vector>
+#include <strstream>
+#include "PommeInternal.h"
+
+const int8_t ff_adpcm_index_table[16] = {
+	-1, -1, -1, -1, 2, 4, 6, 8,
+	-1, -1, -1, -1, 2, 4, 6, 8,
+};
+
+const int16_t ff_adpcm_step_table[89] = {
+		7,     8,     9,    10,    11,    12,    13,    14,    16,    17,
+	   19,    21,    23,    25,    28,    31,    34,    37,    41,    45,
+	   50,    55,    60,    66,    73,    80,    88,    97,   107,   118,
+	  130,   143,   157,   173,   190,   209,   230,   253,   279,   307,
+	  337,   371,   408,   449,   494,   544,   598,   658,   724,   796,
+	  876,   963,  1060,  1166,  1282,  1411,  1552,  1707,  1878,  2066,
+	 2272,  2499,  2749,  3024,  3327,  3660,  4026,  4428,  4871,  5358,
+	 5894,  6484,  7132,  7845,  8630,  9493, 10442, 11487, 12635, 13899,
+	15289, 16818, 18500, 20350, 22385, 24623, 27086, 29794, 32767
+};
+
+struct ADPCMChannelStatus {
+	int predictor;
+	int16_t step_index;
+	int step;
+};
+
+struct ADPCMDecodeContext {
+	ADPCMChannelStatus status[14];
+};
+
+static inline int sign_extend(int val, unsigned bits)
+{
+	unsigned shift = 8 * sizeof(int) - bits;
+	union { unsigned u; int s; } v = { (unsigned)val << shift };
+	return v.s >> shift;
+}
+
+static inline int adpcm_ima_qt_expand_nibble(ADPCMChannelStatus* c, int nibble, int shift)
+{
+	int step_index;
+	int predictor;
+	int diff, step;
+
+	step = ff_adpcm_step_table[c->step_index];
+	step_index = c->step_index + ff_adpcm_index_table[nibble];
+	step_index = std::clamp(step_index, 0, 88);
+
+	diff = step >> 3;
+	if (nibble & 4) diff += step;
+	if (nibble & 2) diff += step >> 1;
+	if (nibble & 1) diff += step >> 2;
+
+	if (nibble & 8)
+		predictor = c->predictor - diff;
+	else
+		predictor = c->predictor + diff;
+
+	c->predictor = std::clamp(predictor, -32768, 32767);
+	c->step_index = step_index;
+
+	return c->predictor;
+}
+
+// In QuickTime, IMA is encoded by chunks of 34 bytes (=64 samples). Channel data is interleaved per-chunk.
+std::vector<SInt16> Pomme::DecodeIMA4(const std::vector<Byte>& input, const int nChannels)
+{
+	std::istrstream f0((char*)input.data(), input.size());
+	BigEndianIStream f(f0);
+
+	if (input.size() % 34 != 0)
+		throw std::invalid_argument("odd input buffer size");
+
+	int nChunks = input.size() / (34 * nChannels);
+	int nSamples = 64 * nChunks;
+
+	std::vector<SInt16> output;
+	output.reserve(nSamples * nChannels);
+
+	ADPCMDecodeContext ctx = {};
+
+	for (int chunk = 0; chunk < nChunks; chunk++)
+	for (int chan = 0; chan < nChannels; chan++) {
+		int predictor;
+		int step_index;
+
+		ADPCMChannelStatus& cs = ctx.status[chan];
+
+		// Bits 15-7 are the _top_ 9 bits of the 16-bit initial predictor value
+		predictor = sign_extend(f.Read<UInt16>(), 16);
+		step_index = predictor & 0x7F;
+		predictor &= ~0x7F;
+
+		if (cs.step_index == step_index) {
+			int diff = predictor - cs.predictor;
+			if (diff < 0x00) diff = -diff;
+			if (diff > 0x7f) goto update;
+		}
+		else {
+		update:
+			cs.step_index = step_index;
+			cs.predictor = predictor;
+		}
+
+		if (cs.step_index > 88u)
+			throw std::invalid_argument("step_index[chan]>88!");
+
+		for (int m = 0; m < 64; m += 2) {
+			int byte = f.Read<UInt8>();
+			output.push_back(adpcm_ima_qt_expand_nibble(&cs, byte & 0x0F, 3));
+			output.push_back(adpcm_ima_qt_expand_nibble(&cs, byte >> 4, 3));
+		}
+	}
+
+	if (output.size() != nSamples * nChannels)
+		throw std::exception("unexpected final output size");
+
+	return output;
+}

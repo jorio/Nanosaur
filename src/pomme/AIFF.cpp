@@ -113,6 +113,12 @@ void Pomme::ReadAIFF(std::istream& theF) {
 				DumpAU("AIFCMAC3.AU", decomp, COMM.numChannels, COMM.sampleRate);
 				break;
 			}
+			case 'ima4':
+			{
+				auto decomp = Pomme::DecodeIMA4(ssnd, COMM.numChannels);
+				DumpAU("AIFCIMA4.AU", decomp, COMM.numChannels, COMM.sampleRate);
+				break;
+			}
 			default:
 				TODO2("unknown compression type " << FourCCString(COMM.compressionType));
 				break;
