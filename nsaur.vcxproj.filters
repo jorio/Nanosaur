@@ -601,6 +601,9 @@
     <ClInclude Include="src\pomme\IEEEExtended.h">
       <Filter>Pomme</Filter>
     </ClInclude>
+    <ClInclude Include="src\pomme\FixedPool.h">
+      <Filter>Pomme</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Qut">

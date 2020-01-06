@@ -1,22 +1,24 @@
 #include <iostream>
 #include <vector>
 #include <queue>
+
 #include "PommeInternal.h"
+#include "FixedPool.h"
 
 #define LOG POMME_GENLOG(POMME_DEBUG_MEMORY, "MEMO")
 
 //-----------------------------------------------------------------------------
 // Implementation-specific stuff
 
-struct BlockDescriptor {
+static struct BlockDescriptor {
 	Ptr buf;
 	Size size;
 };
 
 // these must not move around
-Pomme::Pool<BlockDescriptor, UInt16, 1000> blocks(1);
+static Pomme::FixedPool<BlockDescriptor, UInt16, 1000> blocks;
 
-BlockDescriptor* HandleToBlock(Handle h) {
+static BlockDescriptor* HandleToBlock(Handle h) {
 	return (BlockDescriptor*)h;
 }
 
@@ -33,7 +35,7 @@ Handle NewHandle(Size s) {
 	if ((Ptr)&block->buf != (Ptr)block)
 		throw std::exception("buffer address mismatches block address");
 
-	LOG << "[mem] " << __func__ << (void*)block->buf << ", size " << s << "\n";
+	LOG << (void*)block->buf << ", size " << s << "\n";
 
 	return &block->buf;
 }
@@ -59,7 +61,7 @@ void SetHandleSize(Handle handle, Size byteCount) {
 }
 
 void DisposeHandle(Handle h) {
-	std::cout << "[mem] DisposeHandle " << (void*)*h << "\n";
+	LOG << (void*)*h << "\n";
 	BlockDescriptor* b = HandleToBlock(h);
 	delete[] b->buf;
 	b->buf = 0;
