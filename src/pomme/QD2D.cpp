@@ -38,6 +38,8 @@ int Rect::height() const {
 
 PicHandle GetPicture(short PICTresourceID) {
 	Handle rawResource = GetResource('PICT', PICTresourceID);
+	if (rawResource == nil)
+		return nil;
 	std::istrstream substream(*rawResource, GetHandleSize(rawResource));
 	Pixmap pm = Pomme::ReadPICT(substream, false);
 	ReleaseResource(rawResource);
