@@ -604,6 +604,9 @@
     <ClInclude Include="src\pomme\FixedPool.h">
       <Filter>Pomme</Filter>
     </ClInclude>
+    <ClInclude Include="src\pomme\GrowablePool.h">
+      <Filter>Pomme</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Qut">
