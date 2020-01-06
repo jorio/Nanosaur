@@ -41,17 +41,15 @@ namespace Pomme {
 		}
 	};
 
-	struct Rez {
-		ResType				fourCC;
-		SInt16				id;
-		Byte				flags;
-		std::string			name;
-		std::vector<Byte>	data;
+	struct ResourceOnDisk {
+		Byte	flags;
+		UInt32	dataOffset;
+		UInt32	nameOffset;
 	};
 
-	struct RezFork {
+	struct ResourceFork {
 		SInt16 fileRefNum;
-		std::map<ResType, std::map<short, Rez> > rezMap;
+		std::map<ResType, std::map<SInt16, ResourceOnDisk> > rezMap;
 	};
 
 	struct Color {

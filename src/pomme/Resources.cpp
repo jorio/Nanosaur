@@ -11,14 +11,14 @@ using namespace Pomme;
 
 static OSErr lastResError = noErr;
 
-static std::vector<RezFork> rezSearchStack;
+static std::vector<ResourceFork> rezSearchStack;
 
 static int rezSearchStackIndex = 0;
 
 //-----------------------------------------------------------------------------
 // Internal
 
-static RezFork& GetCurRF() {
+static ResourceFork& GetCurRF() {
 	return rezSearchStack[rezSearchStackIndex];
 }
 
@@ -128,30 +128,10 @@ short FSpOpenResFile(const FSSpec* spec, char permission) {
 			if (resFlags & 1) // compressed
 				TODOFATAL2("we don't support compressed resources yet");
 
-			// Read name
-			std::string name;
-			if (resNameRelativeOff != 0xFFFF) {
-				f.Goto(resNameListOff + resNameRelativeOff);
-				// read pascal string
-				UInt8 pascalStrLen = f.Read<UInt8>();
-				char str[256];
-				f.Read(str, pascalStrLen);
-				str[pascalStrLen] = '\0';
-				name = std::string(str);
-			}
-
-			// Read data
-			f.Goto(resDataOff);
-			UInt32 resLen = f.Read<UInt32>();
-
-			std::vector<Byte> buf = f.ReadBytes(resLen);
-
-			Pomme::Rez r;
-			r.fourCC = resType;
-			r.id = resID;
-			r.flags = resFlags;
-			r.name = name;
-			r.data = buf;
+			Pomme::ResourceOnDisk r;
+			r.flags			= resFlags;
+			r.dataOffset	= resDataOff;
+			r.nameOffset	= resNameRelativeOff == 0xFFFF ? -1 : (resNameListOff + resNameRelativeOff);
 			GetCurRF().rezMap[resType][resID] = r;
 		}
 	}
@@ -234,17 +214,23 @@ Handle GetResource(ResType theType, short theID) {
 		PrintStack("GetResource");
 
 		try {
-			const auto& data = rezSearchStack[i].rezMap.at(theType).at(theID).data;
-			LOG << FourCCString(theType) << " " << theID << ": " << data.size() << "\n";
-			Handle h = NewHandle(data.size());
-			memcpy(*h, data.data(), data.size());
+			const auto& rez = rezSearchStack[i].rezMap.at(theType).at(theID);
+
+			auto f = BigEndianIStream(GetStream(rezSearchStack[i].fileRefNum));
+
+			f.Goto(rez.dataOffset);
+			auto len = f.Read<UInt32>();
+
+			Handle h = NewHandle(len);
+			f.Read(*h, len);
+
+			LOG << FourCCString(theType) << " " << theID << ": " << len << "\n";
 
 			/*
 			std::stringstream fn;
 			fn << "b:\\rez_" << theID << "." << Pomme::FourCCString(theType, '_');
 			std::ofstream dump(fn.str(), std::ofstream::binary);
-			for (int j = 0; j < data.size(); j++)
-				dump.put(data[j]);
+			dump.write(*h, len);
 			dump.close();
 			std::cout << "wrote " << fn.str() << "\n";
 			*/
