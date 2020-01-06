@@ -2,11 +2,7 @@
 #include "PommeInternal.h"
 #include <strstream>
 
-#ifdef POMME_DEBUG_RESOURCES
-static std::ostream& LOG = std::cout;
-#else
-static std::ostringstream LOG;
-#endif
+#define LOG POMME_GENLOG(POMME_DEBUG_RESOURCES, "RSRC")
 
 using namespace Pomme;
 

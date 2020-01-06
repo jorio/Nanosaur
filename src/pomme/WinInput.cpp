@@ -114,8 +114,11 @@ void GetKeys(KeyMap km) {
 		int bitNo = vk & 31;
 		km[byteNo] |= 1 << bitNo;
 	}
+
+#if POMME_DEBUG_INPUT
 	if (km[0] || km[1] || km[2] || km[3])
 		printf("GK %08x%08x%08x%08x\n", km[0], km[1], km[2], km[3]);
+#endif
 }
 
 Boolean Button(void) {

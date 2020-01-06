@@ -3,11 +3,7 @@
 #include <queue>
 #include "PommeInternal.h"
 
-#ifdef POMME_DEBUG_MEMORY
-static std::ostream& LOG = std::cout;
-#else
-static std::ostringstream LOG;
-#endif
+#define LOG POMME_GENLOG(POMME_DEBUG_MEMORY, "MEMO")
 
 //-----------------------------------------------------------------------------
 // Implementation-specific stuff

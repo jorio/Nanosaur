@@ -6,11 +6,13 @@
 #include "PommeTypes.h"
 #include "PommeEnums.h"
 
-//#define POMME_DEBUG_MEMORY
-#define POMME_DEBUG_SOUND
-//#define POMME_DEBUG_PICT
-#define POMME_DEBUG_FILES
-//#define POMME_DEBUG_RESOURCES
+#define POMME_DEBUG_MEMORY		false
+#define POMME_DEBUG_SOUND		false
+#define POMME_DEBUG_PICT		false
+#define POMME_DEBUG_FILES		false
+#define POMME_DEBUG_RESOURCES	false
+#define POMME_DEBUG_INPUT		false
+#define POMME_GENLOG(define, prefix) if (!define) {} else std::cout << "[" << prefix << "] " << __func__ << ":\t"
 
 //-----------------------------------------------------------------------------
 // Big-endian transparent conversion

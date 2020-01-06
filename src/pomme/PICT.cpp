@@ -11,11 +11,7 @@ using namespace Pomme;
 
 #define PRINT_PROGRESS_EVERY 16
 
-#ifdef POMME_DEBUG_PICT
-static std::ostream& LOG = std::cout;
-#else
-static std::ostringstream LOG;
-#endif
+#define LOG POMME_GENLOG(POMME_DEBUG_PICT, "PICT")
 
 //-----------------------------------------------------------------------------
 // Color

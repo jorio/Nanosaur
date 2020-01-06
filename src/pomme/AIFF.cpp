@@ -2,11 +2,7 @@
 #include "PommeInternal.h"
 using namespace Pomme;
 
-#ifdef POMME_DEBUG_SOUND
-static std::ostream& LOG = std::cout;
-#else
-static std::ostringstream LOG;
-#endif
+#define LOG POMME_GENLOG(POMME_DEBUG_SOUND, "AIFF")
 
 class AIFFException: std::exception{
 public:

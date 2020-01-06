@@ -12,12 +12,8 @@
 using namespace Pomme;
 
 constexpr auto MAX_OPEN_FILES = 32767;
+#define LOG POMME_GENLOG(POMME_DEBUG_FILES, "FILE")
 
-#ifdef POMME_DEBUG_FILES
-static std::ostream& LOG = std::cout;
-#else
-static std::ostringstream LOG;
-#endif
 
 //-----------------------------------------------------------------------------
 // State
