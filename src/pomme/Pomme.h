@@ -73,9 +73,9 @@ public:
 void ImplementMe(const char* fn, std::string msg, int severity);
 
 #define TODOCUSTOM(message, severity) { \
-    std::stringstream ss; \
-    ss << message; \
-    ImplementMe(__func__, ss.str(), severity); \
+	std::stringstream ss; \
+	ss << message; \
+	ImplementMe(__func__, ss.str(), severity); \
 }
 
 #define TODOMINOR()      TODOCUSTOM("", 0)
