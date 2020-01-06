@@ -1,9 +1,11 @@
-#include "PommeInternal.h"
 #include <filesystem>
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <strstream>
+
+#include "PommeInternal.h"
+#include "GrowablePool.h"
 
 #ifdef WIN32
 #include <shlobj.h>
@@ -11,37 +13,81 @@
 
 using namespace Pomme;
 
-constexpr auto MAX_OPEN_FILES = 32767;
 #define LOG POMME_GENLOG(POMME_DEBUG_FILES, "FILE")
 
+//-----------------------------------------------------------------------------
+// Internal structs
+
+static struct InternalFileHandle
+{
+	std::fstream stream;
+	std::filesystem::path debugPath;
+};
 
 //-----------------------------------------------------------------------------
 // State
 
-std::vector<std::filesystem::path> directories;
-std::fstream openFiles[MAX_OPEN_FILES];
-std::string openFilesDebugPaths[MAX_OPEN_FILES];
-short nextFileSlot = -1;
+static std::vector<std::filesystem::path> directories;
+
+static GrowablePool<InternalFileHandle, SInt16, 0x7FFF> openFiles;
 
 //-----------------------------------------------------------------------------
 // Utilities
 
-std::filesystem::path Pomme::ToPath(short vRefNum, long parID, ConstStr255Param name) {
+std::filesystem::path Pomme::ToPath(short vRefNum, long parID, ConstStr255Param name)
+{
 	std::filesystem::path path(directories[parID]);
 	path += std::filesystem::path::preferred_separator;
 	path += Pascal2C(name);
 	return path.lexically_normal();
 }
 
-std::filesystem::path Pomme::ToPath(const FSSpec& spec) {
+std::filesystem::path Pomme::ToPath(const FSSpec& spec)
+{
 	return Pomme::ToPath(spec.vRefNum, spec.parID, spec.name);
 }
 
-short GetVolumeID(const std::filesystem::path& path) {
+bool Pomme::IsDirIDLegal(long dirID)
+{
+	return dirID >= 0 && dirID < directories.size();
+}
+
+bool Pomme::IsRefNumLegal(short refNum)
+{
+	return openFiles.IsAllocated(refNum);
+}
+
+std::fstream& Pomme::GetStream(short refNum)
+{
+	return openFiles[refNum].stream;
+}
+
+void Pomme::CloseStream(short refNum)
+{
+	openFiles[refNum].stream.close();
+	openFiles.Dispose(refNum);
+}
+
+bool Pomme::IsStreamOpen(short refNum)
+{
+	return openFiles[refNum].stream.is_open();
+}
+
+std::string Pomme::GetFilenameFromRefNum__debug(short refNum)
+{
+	return openFiles[refNum].debugPath.string();
+}
+
+//-----------------------------------------------------------------------------
+// Internal Utilities
+
+static short GetVolumeID(const std::filesystem::path& path)
+{
 	return 0;
 }
 
-long GetDirectoryID(const std::filesystem::path& dirPath) {
+static long GetDirectoryID(const std::filesystem::path& dirPath)
+{
 	if (std::filesystem::exists(dirPath) && !std::filesystem::is_directory(dirPath)) {
 		std::cerr << "Warning: GetDirID should only be used on directories! " << dirPath << "\n";
 	}
@@ -49,28 +95,43 @@ long GetDirectoryID(const std::filesystem::path& dirPath) {
 	return directories.size() - 1;
 }
 
-bool Pomme::IsDirIDLegal(long dirID) {
-	return dirID >= 0 && dirID < directories.size();
+static FSSpec ToFSSpec(const std::filesystem::path& fullPath)
+{
+	auto parentPath = fullPath;
+	parentPath.remove_filename();
+
+	FSSpec spec;
+	spec.vRefNum = GetVolumeID(parentPath);
+	spec.parID = GetDirectoryID(parentPath);
+	spec.name = Str255(fullPath.filename().string().c_str());
+	return spec;
 }
 
-bool Pomme::IsRefNumLegal(short refNum) {
-	return refNum > 0 && refNum < MAX_OPEN_FILES && refNum < nextFileSlot;
-}
+static OSErr FSpOpenXF(const std::filesystem::path& path, char permission, short* refNum) {
+	if (openFiles.IsFull())
+		return tmfoErr;
 
-std::fstream& Pomme::GetStream(short refNum) {
-	return openFiles[refNum];
-}
+	if (permission != fsRdPerm) {
+		TODO2("only fsRdPerm is implemented");
+		return unimpErr;
+	}
 
-void Pomme::CloseStream(short refNum) {
-	openFiles[refNum].close();
-}
+	if (!std::filesystem::is_regular_file(path)) {
+		*refNum = -1;
+		return fnfErr;
+	}
 
-bool Pomme::IsStreamOpen(short refNum) {
-	return openFiles[refNum].is_open();
-}
+	short newRefNum = openFiles.Alloc();
+	auto& of = openFiles[newRefNum];
+	of.stream = std::fstream(path, std::ios::binary | std::ios::in);
+	of.debugPath = path;
 
-std::string Pomme::GetFilenameFromRefNum__debug(short refNum) {
-	return openFilesDebugPaths[refNum];
+	if (refNum)
+		*refNum = newRefNum;
+
+	LOG << "Opened " << path << " at slot " << newRefNum << "\n";
+
+	return noErr;
 }
 
 //-----------------------------------------------------------------------------
@@ -80,7 +141,8 @@ void Pomme::InitFiles(const char* applName) {
 	// default directory (ID 0)
 	directories.push_back(std::filesystem::current_path());
 
-	nextFileSlot = 1; // file 0 is System
+	short systemRefNum = openFiles.Alloc();
+	if (systemRefNum != 0) throw "expecting 0 for system refnum";
 
 	FSSpec applSpec;
 	OSErr applSpecErr = FSMakeFSSpec(0, 0, applName, &applSpec);
@@ -92,17 +154,6 @@ void Pomme::InitFiles(const char* applName) {
 
 //-----------------------------------------------------------------------------
 // Implementation
-
-FSSpec ToFSSpec(const std::filesystem::path& fullPath) {
-	auto parentPath = fullPath;
-	parentPath.remove_filename();
-
-	FSSpec spec;
-	spec.vRefNum = GetVolumeID(parentPath);
-	spec.parID = GetDirectoryID(parentPath);
-	spec.name = Str255(fullPath.filename().string().c_str());
-	return spec;
-}
 
 OSErr FSMakeFSSpec(short vRefNum, long dirID, ConstStr255Param pascalFileName, FSSpec* spec)
 {
@@ -129,40 +180,14 @@ OSErr FSMakeFSSpec(short vRefNum, long dirID, ConstStr255Param pascalFileName, F
 		return fnfErr;
 }
 
-OSErr FSpOpenDF(const FSSpec* spec, char permission, short* refNum) {
-	short slot = nextFileSlot;
-
+OSErr FSpOpenDF(const FSSpec* spec, char permission, short* refNum)
+{
 	const auto path = ToPath(*spec);
-
-	if (nextFileSlot == MAX_OPEN_FILES)
-		TODOFATAL2("too many files have been opened");
-
-	if (permission != fsRdPerm)
-		TODOFATAL2("only fsRdPerm is implemented");
-
-	if (!std::filesystem::is_regular_file(path)) {
-		*refNum = -1;
-		return fnfErr;
-	}
-
-	nextFileSlot++;
-	openFiles[slot] = std::fstream(path, std::ios::binary | std::ios::in);
-	openFilesDebugPaths[slot] = Pascal2C(spec->name);
-	*refNum = slot;
-	LOG << "Opened DF " << path << " at slot " << *refNum << "\n";
-
-	return noErr;
+	return FSpOpenXF(path, permission, refNum);
 }
 
-OSErr FSpOpenRF(const FSSpec* spec, char permission, short* refNum) {
-	short slot = nextFileSlot;
-
-	if (nextFileSlot == MAX_OPEN_FILES)
-		TODOFATAL2("too many files have been opened");
-
-	if (permission != fsRdPerm)
-		TODOFATAL2("only fsRdPerm is implemented");
-
+OSErr FSpOpenRF(const FSSpec* spec, char permission, short* refNum)
+{
 	auto path = ToPath(*spec);
 
 	// ADF filename
@@ -171,18 +196,7 @@ OSErr FSpOpenRF(const FSSpec* spec, char permission, short* refNum) {
 	// TODO: on osx, we could try {name}/..namedfork/rsrc
 	path.replace_filename(adfFilename.str());
 
-	if (!std::filesystem::is_regular_file(path)) {
-		*refNum = -1;
-		return fnfErr;
-	}
-
-	nextFileSlot++;
-	openFiles[slot] = std::fstream(path, std::ios::binary | std::ios::in);
-	openFilesDebugPaths[slot] = Pascal2C(spec->name);
-	*refNum = slot;
-	LOG << "Opened RF " << path << " at slot " << *refNum << "\n";
-
-	return noErr;
+	return FSpOpenXF(path, permission, refNum);
 }
 
 OSErr FindFolder(short vRefNum, OSType folderType, Boolean createFolder, short* foundVRefNum, long* foundDirID)
