@@ -36,7 +36,6 @@ extern	NewObjectDefinitionType	gNewObjectDefinition;
 extern	float	gFramesPerSecondFrac,gMostRecentCharacterFloorY;
 extern	WindowPtr		gCoverWindow;
 extern	short		gNumCollisions;
-extern	UInt16	**gTerrainPathLayer;
 extern	KeyControlType	gMyControlBits;
 extern	CollisionRec	gCollisionList[];
 extern	unsigned long gInfobarUpdateBits;

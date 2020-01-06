@@ -39,7 +39,6 @@ extern	float	gFramesPerSecondFrac,gMostRecentCharacterFloorY,gFuel;
 extern	WindowPtr		gCoverWindow;
 extern	short		gNumCollisions;
 extern	CollisionRec	gCollisionList[];
-extern	UInt16	**gTerrainPathLayer;
 extern	unsigned long 	gInfobarUpdateBits,gScore;
 extern	float	gMySpeedPuffCounter,gMyHeightOffGround;
 extern	Boolean	gPlayerGotKilledFlag,gGameOverFlag,gWonGameFlag;
