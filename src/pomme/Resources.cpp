@@ -9,15 +9,16 @@ using namespace Pomme;
 //-----------------------------------------------------------------------------
 // State
 
-OSErr lastResError;
+static OSErr lastResError = noErr;
 
-std::vector<RezFork> rezSearchStack;
-int rezSearchStackIndex = 0;
+static std::vector<RezFork> rezSearchStack;
+
+static int rezSearchStackIndex = 0;
 
 //-----------------------------------------------------------------------------
 // Internal
 
-RezFork& GetCurRF() {
+static RezFork& GetCurRF() {
 	return rezSearchStack[rezSearchStackIndex];
 }
 
@@ -234,7 +235,7 @@ Handle GetResource(ResType theType, short theID) {
 
 		try {
 			const auto& data = rezSearchStack[i].rezMap.at(theType).at(theID).data;
-			std::cout << "GetResource " << FourCCString(theType) << " " << theID << ": " << data.size() << "\n";
+			LOG << FourCCString(theType) << " " << theID << ": " << data.size() << "\n";
 			Handle h = NewHandle(data.size());
 			memcpy(*h, data.data(), data.size());
 
@@ -279,7 +280,7 @@ void WriteResource(Handle theResource) {
 }
 
 void DetachResource(Handle theResource) {
-	TODO();
+	TODOMINOR();
 }
 
 long GetResourceSizeOnDisk(Handle theResource) {
