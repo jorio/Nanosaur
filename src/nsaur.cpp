@@ -10,6 +10,7 @@ UInt16*                 gCoverWindowPixPtr;
 UInt32                  gCoverWindowRowBytes2;
 
 void GameMain(void);
+void RegisterUnpackableTypes(void);
 
 enum {
     Turn_MAIN = 0,
@@ -33,6 +34,7 @@ void GameYield() {
 
 void AppMain() {
     Pomme::Init("Nanosaur\u2122");
+    RegisterUnpackableTypes();
     GameMain();
 }
 

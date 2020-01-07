@@ -175,6 +175,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\pomme\structpack.cpp" />
+    <ClCompile Include="src\StructUnpackers.cpp" />
     <ClCompile Include="src\game\3DMath.c" />
     <ClCompile Include="src\game\3DMF.c" />
     <ClCompile Include="src\game\Bones.c" />
@@ -284,6 +286,7 @@
     <ClInclude Include="src\pomme\PommeEnums.h" />
     <ClInclude Include="src\pomme\PommeInternal.h" />
     <ClInclude Include="src\pomme\PommeTypes.h" />
+    <ClInclude Include="src\pomme\structpack.h" />
     <ClInclude Include="src\Qut.h" />
     <ClInclude Include="src\QutInternal.h" />
   </ItemGroup>

@@ -15,6 +15,11 @@
 #define POMME_GENLOG(define, prefix) if (!define) {} else std::cout << "[" << prefix << "] " << __func__ << ":\t"
 
 //-----------------------------------------------------------------------------
+// Structure unpacking
+
+#include "structpack.h"
+
+//-----------------------------------------------------------------------------
 // Big-endian transparent conversion
 
 template<typename T> T BEByteSwap(T x) {

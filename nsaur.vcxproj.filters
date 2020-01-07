@@ -326,6 +326,10 @@
     <ClCompile Include="src\Pomme\IMA4.cpp">
       <Filter>Pomme</Filter>
     </ClCompile>
+    <ClCompile Include="src\pomme\structpack.cpp">
+      <Filter>Pomme</Filter>
+    </ClCompile>
+    <ClCompile Include="src\StructUnpackers.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\pomme\PommeEnums.h">
@@ -605,6 +609,9 @@
       <Filter>Pomme</Filter>
     </ClInclude>
     <ClInclude Include="src\pomme\GrowablePool.h">
+      <Filter>Pomme</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pomme\structpack.h">
       <Filter>Pomme</Filter>
     </ClInclude>
   </ItemGroup>
