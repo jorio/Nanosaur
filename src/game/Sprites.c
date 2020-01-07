@@ -120,7 +120,7 @@ Boolean					hasMask;
 		return;
 	}
 	
-	headerPtr = (FramesFile_Header_Type *)*hand;
+	headerPtr = structpack::UnpackObj<FramesFile_Header_Type>(*hand);
 	
 	numAnims = headerPtr->numAnims;									// get # anims
 	numFrames = headerPtr->numFrames;								// get # frames
@@ -150,7 +150,7 @@ Boolean					hasMask;
 			/* READ HEADER */
 			
 		hand = GetResource('FrHd',1000+i);
-		frameHeaderPtr = (FrameHeaderType *)*hand;
+		frameHeaderPtr = structpack::UnpackObj<FrameHeaderType>(*hand);
 		
 		sfh = (*gShapeTables[groupNum].frameHeaders)+i;		// get ptr to Shape Frame Header[i]
 		sfh->width = frameHeaderPtr->width;						// get width
@@ -175,7 +175,7 @@ Boolean					hasMask;
 		else
 			destPixelHand = sfh->pixelData = (UInt16 **)AllocHandle(w*h*2);	// alloc mem for just pix
 		
-		pixelPtr = (UInt16 *)*hand;										// get ptr to file's data
+		pixelPtr = structpack::UnpackObj<UInt16>(*hand, w * h);				// get ptr to file's data
 		destPixelPtr = *destPixelHand;										// get ptr to dest 				
 
 
@@ -185,6 +185,15 @@ Boolean					hasMask;
 			if (hasMask)
 				*destPixelPtr++ = *pixelPtr++;								// get mask
 		}
+
+		/*
+		std::stringstream dumpFN;
+		dumpFN << "frame_" << i << "_" << w << "x" << h << "_a" << sfh->hasMask << ".sprite";
+		std::ofstream dump(dumpFN.str().c_str());
+		dump.write((const char*)*destPixelHand, w * h * 2 * (sfh->hasMask ? 2 : 1));
+		dump.close();
+		*/
+
 		ReleaseResource(hand);				
 	}
 
@@ -199,6 +208,7 @@ Boolean					hasMask;
 			/* READ ANIM HEADER */
 
 		hand = GetResource('AnHd',1000+i);		
+		structpack::UnpackObj<AnimHeaderType>(*hand);
 		numLines = gShapeTables[groupNum].anims[i].numLines =
 					(**(AnimHeaderType **)hand).numLines;							// get # lines in anim
 		ReleaseResource(hand);
@@ -211,6 +221,7 @@ Boolean					hasMask;
 			/* READ ANIM DATA */
 	
 		hand = GetResource('Anim',1000+i);
+		structpack::UnpackObj<AnimEntryType>(*hand, numLines);
 		**(gShapeTables[groupNum].anims[i].animData) = **(AnimEntryType **)hand;		
 		BlockMove(*hand,*gShapeTables[groupNum].anims[i].animData,numLines*sizeof(AnimEntryType));
 		ReleaseResource(hand);
