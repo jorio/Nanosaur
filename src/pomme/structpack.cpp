@@ -5,6 +5,13 @@
 
 std::map<std::type_index, std::string> structpack::formatDB;
 
+int structpack::Pack(const std::string& format, Ptr buffer)
+{
+	// it's the same thing as unpack -- just swapping bytes.
+	// if we ever have different sizes for input & output (e.g. 32 vs 64 bit pointer placeholders), it'll be different.
+	return Unpack(format, buffer);
+}
+
 int structpack::Unpack(const std::string& format, Ptr buffer)
 {
 	int totalBytes = 0;

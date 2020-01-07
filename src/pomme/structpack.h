@@ -8,6 +8,8 @@ namespace structpack {
 
 	int Unpack(const std::string& format, Ptr buffer);
 
+	int Pack(const std::string& format, Ptr buffer);
+
 	template<typename T> T* UnpackObj(Ptr p, int repeat = 1)
 	{
 		T* obj0 = reinterpret_cast<T*>(p);

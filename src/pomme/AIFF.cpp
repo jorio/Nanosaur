@@ -20,7 +20,7 @@ struct AIFFCOMM {
 template<typename T>
 void DumpAU(const char* fn, const std::vector<T>& samples, int nChannels, int sampleRate)
 {
-	BE<UInt32> header[6] = {
+	int header[6] = {
 		'.snd',							// magic
 		24,								// offset to data
 		samples.size() * sizeof(T),		// data size
@@ -28,6 +28,7 @@ void DumpAU(const char* fn, const std::vector<T>& samples, int nChannels, int sa
 		sampleRate,
 		nChannels
 	};
+	structpack::Pack(">6l", (Ptr)header);
 
 	std::ofstream f(fn, std::ofstream::binary);
 	f.write((const char*)header, sizeof(header));

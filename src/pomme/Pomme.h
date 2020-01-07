@@ -35,18 +35,6 @@ template<typename T> T BEByteSwap(T x) {
 template<typename T> T ToBE(T x) { return BEByteSwap(x); }
 template<typename T> T FromBE(T x) { return BEByteSwap(x); }
 
-template<typename T> class BE {
-	T bigEndian;
-public:
-	BE() : bigEndian(0) {}
-	BE(const T& x) : bigEndian(ToBE(x)) {}
-	operator T() const { return FromBE(bigEndian); }
-	T operator +=(const T& rhs) { bigEndian += ToBE(rhs); return FromBE(bigEndian); }
-	T operator -=(const T& rhs) { bigEndian -= ToBE(rhs); return FromBE(bigEndian); }
-	T operator |=(const T& rhs) { bigEndian |= ToBE(rhs); return FromBE(bigEndian); }
-	T operator &=(const T& rhs) { bigEndian &= ToBE(rhs); return FromBE(bigEndian); }
-};
-
 //-----------------------------------------------------------------------------
 // PowerPC intrinsics
 
