@@ -272,6 +272,9 @@ ShapeFrameHeader	*sfh;
 
 void DrawSpriteFrameToScreen(UInt32 group, UInt32 frame, long x, long y)
 {
+#if 1
+	TODOMINOR();
+#else
 ShapeFrameHeader	*sfh;
 UInt32	width,height,h,v;
 long	xoff,yoff;
@@ -344,6 +347,7 @@ UInt16	i;
 			}
 		}
 	}
+#endif
 }
 
 
