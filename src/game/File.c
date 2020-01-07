@@ -185,7 +185,7 @@ AliasHandle				alias;
 OSErr					iErr;
 FSSpec					target;
 Boolean					wasChanged;
-BE<TQ3Point3D>			*pointPtr;
+TQ3Point3D				*pointPtr;
 SkeletonFile_AnimHeader_Type	*animHeaderPtr;
 
 
@@ -200,7 +200,7 @@ SkeletonFile_AnimHeader_Type	*animHeaderPtr;
 		return;
 	}
 	
-	headerPtr = (SkeletonFile_Header_Type *)*hand;
+	headerPtr = structpack::UnpackObj<SkeletonFile_Header_Type>(*hand);
 	version = headerPtr->version;
 	if (version != SKELETON_FILE_VERS_NUM)
 		DoFatalAlert("Skeleton file has wrong version #");
@@ -252,7 +252,7 @@ SkeletonFile_AnimHeader_Type	*animHeaderPtr;
 		if (hand == nil)
 			DoFatalAlert("Error reading Bone resource!");
 		HLock(hand);
-		bonePtr = (File_BoneDefinitionType *)*hand;
+		bonePtr = structpack::UnpackObj<File_BoneDefinitionType>(*hand);
 
 
 			/* COPY BONE DATA INTO ARRAY */
@@ -279,13 +279,13 @@ SkeletonFile_AnimHeader_Type	*animHeaderPtr;
 		if (hand == nil)
 			DoFatalAlert("Error reading BonP resource!");
 		HLock(hand);
-		indexPtr = (UInt16 *)(*hand);
+		indexPtr = structpack::UnpackObj<UInt16>(*hand, skeleton->Bones[i].numPointsAttachedToBone);
 			
 
 			/* COPY POINT INDEX ARRAY INTO BONE STRUCT */
 
 		for (j=0; j < skeleton->Bones[i].numPointsAttachedToBone; j++)
-			skeleton->Bones[i].pointList[j] = FromBE(indexPtr[j]);
+			skeleton->Bones[i].pointList[j] = indexPtr[j];
 		ReleaseResource(hand);
 
 
@@ -295,12 +295,12 @@ SkeletonFile_AnimHeader_Type	*animHeaderPtr;
 		if (hand == nil)
 			DoFatalAlert("Error reading BonN resource!");
 		HLock(hand);
-		indexPtr = (UInt16 *)(*hand);
+		indexPtr = structpack::UnpackObj<UInt16>(*hand, skeleton->Bones[i].numNormalsAttachedToBone);
 			
 			/* COPY NORMAL INDEX ARRAY INTO BONE STRUCT */
 
 		for (j=0; j < skeleton->Bones[i].numNormalsAttachedToBone; j++)
-			skeleton->Bones[i].normalList[j] = FromBE(indexPtr[j]);
+			skeleton->Bones[i].normalList[j] = indexPtr[j];
 		ReleaseResource(hand);
 						
 	}
@@ -318,13 +318,16 @@ SkeletonFile_AnimHeader_Type	*animHeaderPtr;
 	if (hand == nil)
 		DoFatalAlert("Error reading RelP resource!");
 	HLock(hand);
-	pointPtr = (BE<TQ3Point3D> *)*hand;
 	
 	if ((GetHandleSize(hand) / sizeof(TQ3Point3D)) != skeleton->numDecomposedPoints)
 		DoFatalAlert("# of points in Reference Model has changed!");
 	else
+	{
+		pointPtr = structpack::UnpackObj<TQ3Point3D>(*hand, skeleton->numDecomposedPoints);
+
 		for (i = 0; i < skeleton->numDecomposedPoints; i++)
 			skeleton->decomposedPointList[i].boneRelPoint = pointPtr[i];
+	}
 
 	ReleaseResource(hand);
 	
@@ -341,7 +344,7 @@ SkeletonFile_AnimHeader_Type	*animHeaderPtr;
 		if (hand == nil)
 			DoFatalAlert("Error getting anim header resource");
 		HLock(hand);
-		animHeaderPtr = (SkeletonFile_AnimHeader_Type *)*hand;
+		animHeaderPtr = structpack::UnpackObj<SkeletonFile_AnimHeader_Type>(*hand);
 
 		skeleton->NumAnimEvents[i] = animHeaderPtr->numAnimEvents;			// copy # anim events in anim	
 		ReleaseResource(hand);
@@ -352,7 +355,7 @@ SkeletonFile_AnimHeader_Type	*animHeaderPtr;
 		hand = GetResource('Evnt',1000+i);
 		if (hand == nil)
 			DoFatalAlert("Error reading anim-event data resource!");
-		animEventPtr = (AnimEventType *)*hand;
+		animEventPtr = structpack::UnpackObj<AnimEventType>(*hand, skeleton->NumAnimEvents[i]);
 		for (j=0;  j < skeleton->NumAnimEvents[i]; j++)
 			skeleton->AnimEventsList[i][j] = *animEventPtr++;
 		ReleaseResource(hand);		
@@ -392,7 +395,7 @@ SkeletonFile_AnimHeader_Type	*animHeaderPtr;
 			hand = GetResource('KeyF',1000+(i*100)+j);
 			if (hand == nil)
 				DoFatalAlert("Error reading joint keyframes resource!");
-			keyFramePtr = (JointKeyframeType *)*hand;
+			keyFramePtr = structpack::UnpackObj<JointKeyframeType>(*hand, numKeyframes);
 			for (k = 0; k < numKeyframes; k++)												// copy this joint's keyframes for this anim
 				skeleton->JointKeyframes[j].keyFrames[i][k] = *keyFramePtr++;
 			ReleaseResource(hand);		
