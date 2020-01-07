@@ -118,11 +118,12 @@ TerrainItemEntryType *lastPtr;
 
 	offset = *((long *)(gTerrainPtr+12));							// get offset to OBJECT_LIST
 	longPtr = (long  *)(gTerrainPtr+offset);	  					// get pointer to OBJECT_LIST
-	gNumTerrainItems = *longPtr++;									// get # items in file
+	gNumTerrainItems = FromBE(*longPtr++);									// get # items in file
 	if (gNumTerrainItems == 0)
 		return;
 
-	gMasterItemList = (TerrainItemEntryType *)longPtr; 				// point to items in file
+	// SOURCE PORT WARNING: 64-BIT BUILDS: see structs.h about TerrainItemEntryType
+	gMasterItemList = structpack::UnpackObj<TerrainItemEntryType>((Ptr)longPtr, gNumTerrainItems); // point to items in file
 
 
 				/* BUILD HORIZ LOOKUP TABLE */

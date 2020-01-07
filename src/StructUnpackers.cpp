@@ -24,6 +24,7 @@ void RegisterUnpackableTypes()
 	// structs.h
 	structpack::Register<AnimEventType>					("> h b b");
 	structpack::Register<JointKeyframeType>				("> l l 3f 3f 3f");
+	structpack::Register<TerrainItemEntryType>			("> hh h 4b H 4x4x");
 
 	// file.h
 	structpack::Register<SkeletonFile_Header_Type>		("> h h h h");
@@ -37,5 +38,6 @@ void RegisterUnpackableTypes()
 	structpack::Register<FrameHeaderType>				("> l l l l ?3x");
 	structpack::Register<AnimHeaderType>                ("> H");
 
+	// terrain.h
 	structpack::Register<TileAttribType>				("> H h 2b h");
 }

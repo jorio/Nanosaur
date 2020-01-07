@@ -746,10 +746,12 @@ long		*longPtr;
 	
 				/* GET # TEXTURES */
 				
-	gNumTerrainTextureTiles = *longPtr++;   													// get # texture tiles
+	gNumTerrainTextureTiles = FromBE(*longPtr++);   											// get # texture tiles
 	if (gNumTerrainTextureTiles > MAX_TERRAIN_TILES)
 		DoFatalAlert("LoadTerrainTileset: gNumTerrainTextureTiles > MAX_TERRAIN_TILES");
 
+	// SOURCE PORT NOTE: don't swap bytes of gTileDataPtr, this garbles the textures
+	// (I guess the game tells quesa that the textures are big endian somewhere else)
 	gTileDataPtr = (UInt16 *)longPtr;															// point to tile data
 
 
@@ -781,6 +783,23 @@ long		dummy1,dummy2;
 		DoAlert("Error loading Terrain file!");
 
 
+	// ---- unpack header ----
+	// 0    long    offset to texture layer
+	// 4    long    offset to heightmap layer
+	// 8    long    offset to path layer
+	// 12	long	offset to object list (Terrain2.c)
+	// 16	long	???
+	// 20   long    offset to heightmap tiles
+	// 24	long	???
+	// 28   short   width
+	// 30   short   depth
+	// 32   long    offset to texture attributes
+	// 36   long    [unused] offset to tile anim data
+	//                                        0  4  8 12 16 20 24 28 32 36 40
+	int headerLength = structpack::Unpack(">  l  l  l  l  l  l  l hh  l  l", gTerrainPtr);
+	if (headerLength != 40) DoAlert("Unexpected unpacked header length");
+
+
 			/*********************/
 			/* INIT LAYER ARRAYS */
 			/*********************/
@@ -801,7 +820,8 @@ long		dummy1,dummy2;
 							gTerrainTileDepth);
 
 	offset = *((long *)(gTerrainPtr+0));										// get offset to TEXTURE_LAYER
-	shortPtr = (UInt16 *)(gTerrainPtr+offset);									// calc ptr to TEXTURE_LAYER
+	shortPtr = structpack::UnpackObj<UInt16>(gTerrainPtr + offset,				// calc ptr to TEXTURE_LAYER
+		gTerrainTileDepth * gTerrainTileWidth);
 
 	for (row = 0; row < gTerrainTileDepth; row++)
 	{
@@ -818,7 +838,8 @@ long		dummy1,dummy2;
 	offset = *((long *)(gTerrainPtr+4));										// get offset to HEIGHTMAP_LAYER
 	if (offset > 0)
 	{
-		shortPtr = (UInt16 *)(gTerrainPtr+offset);								// calc ptr to HEIGHTMAP_LAYER
+		shortPtr = structpack::UnpackObj<UInt16>(gTerrainPtr+offset,			// calc ptr to HEIGHTMAP_LAYER
+			gTerrainTileDepth * gTerrainTileWidth);
 
 		for (row = 0; row < gTerrainTileDepth; row++)
 		{
@@ -836,7 +857,8 @@ long		dummy1,dummy2;
 	offset = *((long *)(gTerrainPtr+8));										// get offset to PATH_LAYER
 	if (offset > 0)
 	{
-		shortPtr = (UInt16 *)(gTerrainPtr+offset);								// calc ptr to PATH_LAYER
+		shortPtr = structpack::UnpackObj<UInt16>(gTerrainPtr + offset,			// calc ptr to PATH_LAYER
+			gTerrainTileDepth * gTerrainTileWidth);
 
 		for (row = 0; row < gTerrainTileDepth; row++)
 		{
@@ -849,7 +871,11 @@ long		dummy1,dummy2;
 			/* GET TEXTURE_ATTRIBUTES */
 
 	offset = *((long *)(gTerrainPtr+32));									// get offset to TEXTURE_ATTRIBUTES
-	gTileAttributes = (TileAttribType *)(gTerrainPtr+offset);				// calc ptr to TEXTURE_ATTRIBUTES
+	// SOURCE PORT CHEAT... don't know how to get the number of tile attributes otherwise..
+	long offsetOfNextChunk = *((long*)(gTerrainPtr + 36)); 
+	int nTileAttributes = (offsetOfNextChunk - offset) / sizeof(TileAttribType);
+	gTileAttributes = structpack::UnpackObj<TileAttribType>(				// calc ptr to TEXTURE_ATTRIBUTES
+		gTerrainPtr + offset, nTileAttributes);
 
 
 			/* GET HEIGHTMAP_TILES */
