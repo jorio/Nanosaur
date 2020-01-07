@@ -18,7 +18,7 @@ using namespace Pomme;
 //-----------------------------------------------------------------------------
 // Internal structs
 
-static struct InternalFileHandle
+struct InternalFileHandle
 {
 	std::fstream stream;
 	std::filesystem::path debugPath;
