@@ -38,29 +38,32 @@ void AppMain() {
     GameMain();
 }
 
-#ifndef QUT_HDR
-
-int main(int argc, char** argv) {
+void WrapAppMain() {
     try {
         AppMain();
     }
     catch (const std::exception & ex) {
-        TODOFATAL2("unhandled exception: " << ex.what());
+        TODOFATAL2("Uncaught exception!\n" << ex.what());
         throw;
     }
     catch (const std::string & ex) {
-        TODOFATAL2("unhandled exception: " << ex);
+        TODOFATAL2("Uncaught throw!\n" << ex);
         throw;
     }
     catch (const char* ex) {
-        TODOFATAL2("unhandled exception: " << ex);
+        TODOFATAL2("Uncaught throw!\n" << ex);
         throw;
     }
     catch (...) {
-        TODOFATAL2("unhandled exception");
+        TODOFATAL2("Uncaught throw!");
         throw;
     }
+}
 
+#ifndef QUT_HDR
+
+int main(int argc, char** argv) {
+    WrapAppMain();
     return 0;
 }
 
@@ -94,7 +97,7 @@ void App_Initialise(void) {
 	Qut_CreateWindow("Nanosaur\u2122", 640, 480, kQ3False);
 
     turn = Turn_GAME;
-    gameThread = std::thread(AppMain);
+    gameThread = std::thread(WrapAppMain);
 }
 
 void App_Terminate(void) {
