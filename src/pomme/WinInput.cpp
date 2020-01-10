@@ -45,6 +45,16 @@ int WinKeyToMacKey(WORD w) {
 	case 'Y': return kVK_ANSI_Y;
 	case 'Z': return kVK_ANSI_Z;
 
+	case VK_OEM_1: return kVK_ANSI_Semicolon;
+	case VK_OEM_2: return kVK_ANSI_Slash;
+	case VK_OEM_3: return kVK_ANSI_Grave;
+	case VK_OEM_4: return kVK_ANSI_LeftBracket;
+	case VK_OEM_5: return kVK_ANSI_Backslash;
+	case VK_OEM_6: return kVK_ANSI_RightBracket;
+	case VK_OEM_7: return kVK_ANSI_Quote;
+	case VK_OEM_PERIOD: return kVK_ANSI_Period;
+	case VK_OEM_COMMA: return kVK_ANSI_Comma;
+
 	case VK_BACK: return kVK_Delete;
 	case VK_TAB: return kVK_Tab;
 	case VK_SPACE: return kVK_Space;
