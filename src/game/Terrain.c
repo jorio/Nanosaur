@@ -434,9 +434,10 @@ TQ3SurfaceShaderObject	blankTexObject;
 
 				/* CREATE THE 2 TRIANGLES */
 				
+		// SOURCE PORT NOTE: changed first tri's winding to 0-2-1. Second tri doesn't need to change.
 		newTriangle[0].pointIndices[0] = 0;
-		newTriangle[0].pointIndices[1] = 1;
-		newTriangle[0].pointIndices[2] = 2;
+		newTriangle[0].pointIndices[1] = 2;
+		newTriangle[0].pointIndices[2] = 1;
 		newTriangle[1].pointIndices[0] = 1;
 		newTriangle[1].pointIndices[1] = 2;
 		newTriangle[1].pointIndices[2] = 3;
@@ -790,23 +791,28 @@ SuperTileMemoryType	*superTilePtr;
 			if (gSuperTileMemoryList[superTileNum].splitAngle[row2][col2] == SPLIT_BACKWARD)	// set coords & uv's based on splitting
 			{
 					/* \ */
+				// SOURCE PORT NOTE: changed winding to 0-2-1 for both tris.
 				triMeshData.triangles[i].pointIndices[0] = gTileTriangles1_B[row2][col2][0];
-				triMeshData.triangles[i].pointIndices[1] = gTileTriangles1_B[row2][col2][1];
-				triMeshData.triangles[i++].pointIndices[2] = gTileTriangles1_B[row2][col2][2];
+				triMeshData.triangles[i].pointIndices[1] = gTileTriangles1_B[row2][col2][2];
+				triMeshData.triangles[i].pointIndices[2] = gTileTriangles1_B[row2][col2][1];
+				i++;
 				triMeshData.triangles[i].pointIndices[0] = gTileTriangles2_B[row2][col2][0];
-				triMeshData.triangles[i].pointIndices[1] = gTileTriangles2_B[row2][col2][1];
-				triMeshData.triangles[i++].pointIndices[2] = gTileTriangles2_B[row2][col2][2];
+				triMeshData.triangles[i].pointIndices[1] = gTileTriangles2_B[row2][col2][2];
+				triMeshData.triangles[i].pointIndices[2] = gTileTriangles2_B[row2][col2][1];
+				i++;
 			}
 			else
 			{
 					/* / */
-					
+				// SOURCE PORT NOTE: changed winding to 0-2-1 for both tris.
 				triMeshData.triangles[i].pointIndices[0] = gTileTriangles1_A[row2][col2][0];
-				triMeshData.triangles[i].pointIndices[1] = gTileTriangles1_A[row2][col2][1];
-				triMeshData.triangles[i++].pointIndices[2] = gTileTriangles1_A[row2][col2][2];
+				triMeshData.triangles[i].pointIndices[1] = gTileTriangles1_A[row2][col2][2];
+				triMeshData.triangles[i].pointIndices[2] = gTileTriangles1_A[row2][col2][1];
+				i++;
 				triMeshData.triangles[i].pointIndices[0] = gTileTriangles2_A[row2][col2][0];
-				triMeshData.triangles[i].pointIndices[1] = gTileTriangles2_A[row2][col2][1];
-				triMeshData.triangles[i++].pointIndices[2] = gTileTriangles2_A[row2][col2][2];
+				triMeshData.triangles[i].pointIndices[1] = gTileTriangles2_A[row2][col2][2];
+				triMeshData.triangles[i].pointIndices[2] = gTileTriangles2_A[row2][col2][1];
+				i++;
 			}			
 		}
 	}
