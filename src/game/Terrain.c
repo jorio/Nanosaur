@@ -18,6 +18,8 @@
 #include "camera.h"
 #include "mobjtypes.h"
 
+#include "GamePatches.h"
+
 #include <QD3DGeometry.h>
 #include <QD3DMath.h>
 #include <QD3DStorage.h>
@@ -3241,6 +3243,10 @@ UInt16	tile;
 
 static Boolean SeeIfSuperTileInConeOfVision(short superTileNum)
 {
+#if !(USE_BUGGY_CULLING)
+	SuperTileMemoryType* superTile = &gSuperTileMemoryList[superTileNum];
+	return IsSphereInConeOfVision(&superTile->coord, superTile->radius, HITHER_DISTANCE, YON_DISTANCE);
+#else
 float				w1,w2,radius;
 float				rx,ry,rz,px,py;
 TQ3Point3D			points[2];					// [0] = point, [1] = radius
@@ -3321,6 +3327,7 @@ draw_on:
 
 draw_off:
 	return(false);
+#endif
 }
 
 

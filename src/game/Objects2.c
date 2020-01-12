@@ -33,6 +33,8 @@
 #include "bones.h"
 #include "collision.h"
 
+#include "GamePatches.h"
+
 extern	TQ3Object	gObjectGroupList[MAX_3DMF_GROUPS][MAX_OBJECTS_IN_GROUP];
 extern	float		gObjectGroupRadiusList[MAX_3DMF_GROUPS][MAX_OBJECTS_IN_GROUP];
 extern	TQ3Matrix4x4	gCameraWorldToViewMatrix,gCameraViewToFrustumMatrix;
@@ -343,9 +345,10 @@ update:
 
 void CheckAllObjectsInConeOfVision(void)
 {
+ObjNode* theNode;
+#if USE_BUGGY_CULLING
 float				radius,w,w2;
 float				rx,ry,px,py,pz;
-ObjNode				*theNode;
 register float		n00,n01,n02;
 register float		n10,n11,n12;
 register float		n20,n21,n22;
@@ -356,11 +359,13 @@ float		m20,m21,m22,m23;
 float		m30,m31,m32,m33;
 float				worldX,worldY,worldZ;
 float				hither,yon;
+#endif
 
 	theNode = gFirstNodePtr;														// get & verify 1st node
 	if (theNode == nil)
 		return;
 
+#if USE_BUGGY_CULLING
 					/* PRELOAD WORLD -> VIEW MATRIX */
 
 	n00 = gCameraWorldToViewMatrix.value[0][0];		n01 = gCameraWorldToViewMatrix.value[0][1];	  n02 = gCameraWorldToViewMatrix.value[0][2];
@@ -379,6 +384,7 @@ float				hither,yon;
 
 	hither = -HITHER_DISTANCE;														// preload these constants into registers
 	yon = -YON_DISTANCE;
+#endif
 
 					/* PROCESS EACH OBJECT */
 					
@@ -395,6 +401,10 @@ float				hither,yon;
 			goto draw_on;
 
 try_cull:
+#if !(USE_BUGGY_CULLING)
+		if (!IsSphereInConeOfVision(&theNode->Coord, theNode->Radius, HITHER_DISTANCE, YON_DISTANCE))
+			goto draw_off;
+#else
 		radius = theNode->Radius;													// get radius of object
 
 
@@ -457,6 +467,7 @@ try_cull:
 			goto draw_off;
 		if ((py - ry) > 1.0f)
 			goto draw_off;
+#endif
 				
 draw_on:
 		theNode->StatusBits &= ~STATUS_BIT_ISCULLED;							// clear cull bit
