@@ -21,6 +21,8 @@
 #include "qd3d_support.h"
 #include "qd3d_geometry.h"
 
+#include "PommeInternal.h" // FourCCString, for debugging only
+
 extern	QD3DSetupOutputType		*gGameViewInfoPtr;
 
 
@@ -175,15 +177,23 @@ TQ3Object		myObject;
 	{	
 			/* READ A METAFILE OBJECT FROM THE FILE OBJECT */
 
+		TQ3ObjectType objtype = Q3File_GetNextObjectType(file);
+
 		myObject = Q3File_ReadObject(file);
 		if (myObject == nil)
 		{
+#if 1
+			printf("%s: Failed to ReadObject %s\n", __func__, Pomme::FourCCString(objtype).c_str());
+			QD3D_ShowRecentError();
+			continue;
+#else
 			if (myGroup)
 				Q3Object_Dispose(myGroup);
 
 			DoAlert("MyRead3DMFModel: Q3File_ReadObject Failed!");
 			QD3D_ShowRecentError();
 			break;
+#endif
 		}
 
 		/* ADD ANY DRAWABLE OBJECTS TO A GROUP */
