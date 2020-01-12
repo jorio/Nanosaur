@@ -379,6 +379,10 @@ Boolean PointsAreCloseEnough(TQ3Point3D *v1, TQ3Point3D *v2)
 
 void FastNormalizeVector(float vx, float vy, float vz, TQ3Vector3D *outV)
 {
+#if 1
+	TQ3Vector3D input = { vx, vy, vz };
+	Q3Vector3D_Normalize(&input, outV);
+#else
 float	temp;
 float	isqrt, temp1, temp2;		
 	
@@ -396,6 +400,7 @@ float	isqrt, temp1, temp2;
 	outV->x = vx * temp;						// return results
 	outV->y = vy * temp;
 	outV->z = vz * temp;
+#endif
 }
 
 
