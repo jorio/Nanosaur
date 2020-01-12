@@ -270,16 +270,27 @@ register 	float	x,y,z;
 
 got_uv:
 
+#if 0
+	// SOURCE PORT NOTE: This caused the background to disappear at specific angles in the menu.
+	// Fixed below (after transforming vertex coords).
+
 			/* TRANSFORM BOUNDING BOX */
 			
 	Q3Point3D_To3DTransformArray(&triMeshDataPtr->bBox.min, &gWorkMatrix, &triMeshDataPtr->bBox.min, 2,
 							 sizeof(TQ3Point3D), sizeof(TQ3Point3D));				
 	
+#endif
 
 				/* TRANSFORM VERTEX COORDS */
 				
 	Q3Point3D_To3DTransformArray(vertexList, &gWorkMatrix, vertexList, numVertecies,
 								 sizeof(TQ3Point3D), sizeof(TQ3Point3D));				
+
+
+				/* TRANSFORM BOUNDING BOX */
+
+	// Source port fix
+	Q3BoundingBox_SetFromPoints3D(&triMeshDataPtr->bBox, vertexList, numVertecies, sizeof(TQ3Point3D));
 
 	
 				/* TRANSFORM VERTEX NORMALS */
