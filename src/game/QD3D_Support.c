@@ -1745,7 +1745,7 @@ UInt32		*buffer,*pixelPtr,pixmapRowbytes,size,sizeRead;
 	for (y = 0; y < height; y++)
 	{
 		for (x = 0; x < width; x++)
-			pixelPtr[x] = ((pixelPtr[x]&0xff) << 24);			// put Blue into Alpha & leave map black
+			pixelPtr[x] = ToBE(((FromBE(pixelPtr[x]) & 0xff) << 24));			// put Blue into Alpha & leave map black
 			
 		pixelPtr += pixmapRowbytes;
 	}
