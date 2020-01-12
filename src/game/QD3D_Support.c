@@ -229,7 +229,9 @@ QD3DSetupOutputType	*outputPtr;
 	
 	QD3D_MoveCameraFromTo(outputPtr,&v,&v);				// call this to set outputPtr->currentCameraCoords & camera matrix
 	
+	Q3DrawContext_SetClearImageColor(gQD3D_DrawContext, &setupDefPtr->view.clearColor); // (source port fix)
 	
+
 			/* FOG */
 			
 	if (setupDefPtr->lights.useFog)
