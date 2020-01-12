@@ -220,10 +220,6 @@ TQ3Vector3D			*normals = nil, reflectedVector, *normals2 = nil;
 TQ3Param2D			*uvList = nil;
 Boolean				hasUVs = true;
 TQ3Matrix4x4		tempm,invTranspose;
-register	float	M00, M01, M02;	
-register	float	M10, M11, M12;	
-register	float	M20, M21, M22;	
-register 	float	x,y,z;
 
 			/* GET POINTER TO TRIMESH DATA STRUCTURE */
 			
@@ -294,23 +290,10 @@ got_uv:
 
 	
 				/* TRANSFORM VERTEX NORMALS */
-				//
-				// This could be done easily with Q3Vector3D_Transform, but it's slow,
-				// so this ugly code does the same thing, but faster
-				//
 
 	Q3Matrix4x4_Invert(&gWorkMatrix, &tempm);							// calc inverse-transpose matrix
 	Q3Matrix4x4_Transpose(&tempm,&invTranspose);			
 
-	M00 = invTranspose.value[0][0];										// Load matrix values into registers
-	M01 = invTranspose.value[0][1];
-	M02 = invTranspose.value[0][2];
-	M10 = invTranspose.value[1][0];
-	M11 = invTranspose.value[1][1];
-	M12 = invTranspose.value[1][2];
-	M20 = invTranspose.value[2][0];
-	M21 = invTranspose.value[2][1];
-	M22 = invTranspose.value[2][2];
 
 	for (a = 0; a < numVertAttribTypes; a++)									// scan for normals
 	{
@@ -320,14 +303,8 @@ got_uv:
 
 			for (vertNum = 0; vertNum < numVertecies; vertNum++)				// transform all normals
 			{				
-				x = normals[vertNum].x;											// load normal values into regs
-				y = normals[vertNum].y;
-				z = normals[vertNum].z;
-							
-				FastNormalizeVector(x * M00 + y * M10 + z * M20,			// do the vector-matrix mult
-								x * M01 + y * M11 + z * M21,
-								x * M02 + y * M12 + z * M22,
-								&normals[vertNum]);							// normalize the result
+				Q3Vector3D_Transform(&normals[vertNum], &invTranspose, &normals[vertNum]);
+				Q3Vector3D_Normalize(&normals[vertNum], &normals[vertNum]);
 			}
 			break;
 		}
@@ -343,15 +320,9 @@ got_uv:
 			normals2 = (TQ3Vector3D*)faceAttribList[a].data;								// point to list of normals
 
 			for (faceNum = 0; faceNum < numFaces; faceNum++)				// transform all normals
-			{				
-				x = normals2[faceNum].x;									// load normal values into regs
-				y = normals2[faceNum].y;
-				z = normals2[faceNum].z;
-							
-				FastNormalizeVector(x * M00 + y * M10 + z * M20,			// do the vector-matrix mult
-								x * M01 + y * M11 + z * M21,
-								x * M02 + y * M12 + z * M22,
-								&normals2[faceNum]);						// normalize the result
+			{			
+				Q3Vector3D_Transform(&normals2[faceNum], &invTranspose, &normals2[faceNum]);
+				Q3Vector3D_Normalize(&normals2[faceNum], &normals2[faceNum]);
 			}
 			break;
 		}
