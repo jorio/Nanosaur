@@ -79,6 +79,7 @@ namespace Pomme {
 	bool IsRefNumLegal(short refNum);
 	std::fstream& GetStream(short refNum);
 	bool IsStreamOpen(short refNum);
+	bool IsStreamPermissionAllowed(short refNum, char perm);
 	void CloseStream(short refNum);
 
 	std::filesystem::path ToPath(short vRefNum, long parID, ConstStr255Param name);

@@ -8,7 +8,6 @@ enum EFSPermissions {
     fsRdPerm = 1,
     fsWrPerm = 2,
     fsRdWrPerm = 3,
-    fsRdWrShPerm = 4,
 };
 
 //-----------------------------------------------------------------------------

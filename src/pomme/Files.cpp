@@ -15,6 +15,11 @@ using namespace Pomme;
 
 #define LOG POMME_GENLOG(POMME_DEBUG_FILES, "FILE")
 
+enum ForkType {
+	DataFork,
+	ResourceFork
+};
+
 //-----------------------------------------------------------------------------
 // Internal structs
 
@@ -22,6 +27,8 @@ struct InternalFileHandle
 {
 	std::fstream stream;
 	std::filesystem::path debugPath;
+	int forkType;
+	char permission;
 };
 
 //-----------------------------------------------------------------------------
@@ -73,6 +80,11 @@ bool Pomme::IsStreamOpen(short refNum)
 	return openFiles[refNum].stream.is_open();
 }
 
+bool Pomme::IsStreamPermissionAllowed(short refNum, char perm)
+{
+	return (perm & openFiles[refNum].permission) == perm;
+}
+
 std::string Pomme::GetFilenameFromRefNum__debug(short refNum)
 {
 	return openFiles[refNum].debugPath.string();
@@ -107,12 +119,18 @@ static FSSpec ToFSSpec(const std::filesystem::path& fullPath)
 	return spec;
 }
 
-static OSErr FSpOpenXF(const std::filesystem::path& path, char permission, short* refNum) {
+static OSErr FSpOpenXF(const std::filesystem::path& path, ForkType forkType, char permission, short* refNum)
+{
 	if (openFiles.IsFull())
 		return tmfoErr;
 
-	if (permission != fsRdPerm) {
-		TODO2("only fsRdPerm is implemented");
+	if (permission == fsCurPerm) {
+		TODO2("fsCurPerm not implemented yet");
+		return unimpErr;
+	}
+
+	if ((permission & fsWrPerm) && forkType != ForkType::DataFork) {
+		TODO2("opening resource fork for writing isn't implemented yet");
 		return unimpErr;
 	}
 
@@ -121,10 +139,16 @@ static OSErr FSpOpenXF(const std::filesystem::path& path, char permission, short
 		return fnfErr;
 	}
 
+	std::ios::openmode openmode = std::ios::binary;
+	if (permission & fsWrPerm) openmode |= std::ios::out;
+	if (permission & fsRdPerm) openmode |= std::ios::in;
+
 	short newRefNum = openFiles.Alloc();
 	auto& of = openFiles[newRefNum];
-	of.stream = std::fstream(path, std::ios::binary | std::ios::in);
+	of.stream = std::fstream(path, openmode);
 	of.debugPath = path;
+	of.forkType = forkType;
+	of.permission = permission;
 
 	if (refNum)
 		*refNum = newRefNum;
@@ -183,7 +207,7 @@ OSErr FSMakeFSSpec(short vRefNum, long dirID, ConstStr255Param pascalFileName, F
 OSErr FSpOpenDF(const FSSpec* spec, char permission, short* refNum)
 {
 	const auto path = ToPath(*spec);
-	return FSpOpenXF(path, permission, refNum);
+	return FSpOpenXF(path, ForkType::DataFork, permission, refNum);
 }
 
 OSErr FSpOpenRF(const FSSpec* spec, char permission, short* refNum)
@@ -196,7 +220,7 @@ OSErr FSpOpenRF(const FSSpec* spec, char permission, short* refNum)
 	// TODO: on osx, we could try {name}/..namedfork/rsrc
 	path.replace_filename(adfFilename.str());
 
-	return FSpOpenXF(path, permission, refNum);
+	return FSpOpenXF(path, ForkType::ResourceFork, permission, refNum);
 }
 
 OSErr FindFolder(short vRefNum, OSType folderType, Boolean createFolder, short* foundVRefNum, long* foundDirID)
@@ -249,14 +273,28 @@ OSErr DirCreate(short vRefNum, long parentDirID, ConstStr255Param directoryName,
 	return noErr;
 }
 
-OSErr FSpCreate(const FSSpec* spec, OSType creator, OSType fileType, ScriptCode scriptTag) {
-	TODO();
-	return unimpErr;
+OSErr FSpCreate(const FSSpec* spec, OSType creator, OSType fileType, ScriptCode scriptTag)
+{
+	std::ofstream df(ToPath(*spec));
+	df.close();
+	// TODO: we could write an AppleDouble file to save the creator/filetype.
+	return noErr;
 }
 
-OSErr FSpDelete(const FSSpec* spec) {
-	TODO();
-	return unimpErr;
+OSErr FSpDelete(const FSSpec* spec)
+{
+	auto path = ToPath(*spec);
+
+	std::stringstream ss;
+	ss << "The Mac application wants to delete \"" << path << "\".\nAllow?";
+	if (IDYES != MessageBoxA(nullptr, ss.str().c_str(), "FSpDelete", MB_ICONQUESTION | MB_YESNO)) {
+		return fLckdErr;
+	}
+
+	if (std::filesystem::remove(path))
+		return noErr;
+	else
+		return fnfErr;
 }
 
 OSErr ResolveAlias(const FSSpec* spec, AliasHandle alias, FSSpec* target, Boolean* wasChanged) {
@@ -326,6 +364,7 @@ OSErr FSRead(short refNum, long* count, Ptr buffPtr) {
 	if (*count < 0) return paramErr;
 	if (!IsRefNumLegal(refNum)) return rfNumErr;
 	if (!IsStreamOpen(refNum)) return fnOpnErr;
+	if (!IsStreamPermissionAllowed(refNum, fsRdPerm)) return ioErr;
 
 	auto& f = GetStream(refNum);
 	f.read(buffPtr, *count);
@@ -335,9 +374,17 @@ OSErr FSRead(short refNum, long* count, Ptr buffPtr) {
 	return noErr;
 }
 
-OSErr FSWrite(short refNum, long* count, Ptr buffPtr) {
-	TODO();
-	return unimpErr;
+OSErr FSWrite(short refNum, long* count, Ptr buffPtr)
+{
+	if (*count < 0) return paramErr;
+	if (!IsRefNumLegal(refNum)) return rfNumErr;
+	if (!IsStreamOpen(refNum)) return fnOpnErr;
+	if (!IsStreamPermissionAllowed(refNum, fsWrPerm)) return wrPermErr;
+
+	auto& f = GetStream(refNum);
+	f.write(buffPtr, *count);
+
+	return noErr;
 }
 
 OSErr FSClose(short refNum) {
