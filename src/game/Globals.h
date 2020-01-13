@@ -202,7 +202,7 @@ enum
 };
 
 
-#include "structs.h"
+#include "Structs.h"
 
 #endif
 

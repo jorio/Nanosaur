@@ -6,8 +6,8 @@
 #define STRUCTS_H
 
 
-#include "globals.h"
-#include "qd3dgeometry.h"
+#include "Globals.h"
+#include "QD3DGeometry.h"
 
 #define	MAX_ANIMS			20
 #define	MAX_KEYFRAMES		15

@@ -5,7 +5,7 @@
 #ifndef TERRAIN_H
 #define TERRAIN_H
 
-#include "qd3d_support.h"
+#include "QD3D_Support.h"
 
 #define	MAP_ITEM_MYSTARTCOORD		0				// map item # for my start coords
 #define	MAP_ITEM_TIMEPORTAL			9				// map item # for TIME PORTAL

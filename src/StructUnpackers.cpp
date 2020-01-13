@@ -1,6 +1,6 @@
 #include "structpack.h"
 
-#include "globals.h"
+#include "Globals.h"
 #include "sprites.h"
 #include "file.h"
 #include "Terrain.h"
