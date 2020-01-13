@@ -176,6 +176,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\pomme\structpack.cpp" />
+    <ClCompile Include="src\GamePatches.cpp" />
     <ClCompile Include="src\StructUnpackers.cpp" />
     <ClCompile Include="src\game\3DMath.c" />
     <ClCompile Include="src\game\3DMF.c" />
@@ -289,6 +290,7 @@
     <ClInclude Include="src\pomme\structpack.h" />
     <ClInclude Include="src\Qut.h" />
     <ClInclude Include="src\QutInternal.h" />
+    <ClInclude Include="src\GamePatches.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

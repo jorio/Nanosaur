@@ -330,6 +330,7 @@
       <Filter>Pomme</Filter>
     </ClCompile>
     <ClCompile Include="src\StructUnpackers.cpp" />
+    <ClCompile Include="src\GamePatches.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\pomme\PommeEnums.h">
@@ -614,6 +615,7 @@
     <ClInclude Include="src\pomme\structpack.h">
       <Filter>Pomme</Filter>
     </ClInclude>
+    <ClInclude Include="src\GamePatches.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Qut">
