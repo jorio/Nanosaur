@@ -26,6 +26,9 @@ qut_get_window_size(HWND theWnd, TQ3Area *theArea)
 static LRESULT CALLBACK
 qut_wnd_proc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
+	// don't bring up accelerator menu when pressing alt
+	if (wParam == SC_KEYMENU && (lParam >> 16) <= 0) return 0;
+
 	switch (message) {
 	case WM_CLOSE:
 		PostQuitMessage(0);
