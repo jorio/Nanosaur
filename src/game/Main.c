@@ -444,12 +444,6 @@ unsigned long	someLong;
 #endif
  	InitInput();
 
-			/* SEE IF REGISTERED */
-			
-#if CHECK_PAID			
-	CheckGameRegistration();
-#endif	
-
 	GetDateTime ((unsigned long *)(&someLong));		// init random seed
 	SetMyRandomSeed(someLong);
 	HideCursor();
