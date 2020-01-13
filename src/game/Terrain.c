@@ -1918,6 +1918,11 @@ short	y,v;
 		}
 	}
 }
+#elif TERRAIN_160X160_TEXTURES
+static inline void	ShrinkSuperTileTextureMap(UInt16* srcPtr, UInt16* destPtr)
+{
+	memcpy(destPtr, srcPtr, 160 * 160 * sizeof(UInt16));
+}
 #else
 /************ SHRINK SUPERTILE TEXTURE MAP ********************/
 //
