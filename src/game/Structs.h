@@ -237,6 +237,7 @@ struct ObjNode
 	signed char		Flag[6];
 	long			Special[6];
 	float			SpecialF[6];
+	struct ObjNode	*SpecialRef[6];		// source port addition for 64-bit compat
 	float			Health;				// health 0..1
 	float			Damage;				// damage
 	

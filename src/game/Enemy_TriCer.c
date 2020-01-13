@@ -87,7 +87,7 @@ static ObjNode	*gLastTricer;
 #define	TargetChangeTimer	SpecialF[0]			// timer for target offset recalc
 
 #define InBush				Flag[3]
-#define TheBush				Special[3]
+#define TheBush				SpecialRef[3]
 
 /******************** MAKE TRICER ENEMY ************************/
 //
@@ -99,7 +99,7 @@ ObjNode *MakeTriceratops(ObjNode *theBush, long x, long z)
 	if (AddEnemy_Tricer(nil, x, z))
 	{
 		gLastTricer->InBush = true;
-		gLastTricer->TheBush = (long)theBush;
+		gLastTricer->TheBush = theBush;
 		return(gLastTricer);
 	}
 	return(nil);

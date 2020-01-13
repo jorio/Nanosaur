@@ -138,24 +138,10 @@ long	slot;
 	newNodePtr->Genre = newObjDef->genre;
 	newNodePtr->Coord = newNodePtr->OldCoord = newObjDef->coord;	// save coords
 	newNodePtr->StatusBits = newObjDef->flags;
-	newNodePtr->Flag[0] = 
-	newNodePtr->Flag[1] = 
-	newNodePtr->Flag[2] = 
-	newNodePtr->Flag[3] = 
-	newNodePtr->Flag[4] = 
-	newNodePtr->Flag[5] = 
-	newNodePtr->Special[0] = 
-	newNodePtr->Special[1] = 
-	newNodePtr->Special[2] = 
-	newNodePtr->Special[3] = 
-	newNodePtr->Special[4] = 
-	newNodePtr->Special[5] = 
-	newNodePtr->SpecialF[0] = 
-	newNodePtr->SpecialF[1] = 
-	newNodePtr->SpecialF[2] = 
-	newNodePtr->SpecialF[3] = 
-	newNodePtr->SpecialF[4] = 
-	newNodePtr->SpecialF[5] = 
+	memset(newNodePtr->Flag, 0, sizeof(newNodePtr->Flag));
+	memset(newNodePtr->Special, 0, sizeof(newNodePtr->Special));
+	memset(newNodePtr->SpecialF, 0, sizeof(newNodePtr->SpecialF));
+	memset(newNodePtr->SpecialRef, 0, sizeof(newNodePtr->SpecialRef));
 	newNodePtr->CType =							// must init ctype to something ( INVALID_NODE_FLAG might be set from last delete)
 	newNodePtr->CBits =
 	newNodePtr->Delta.x =

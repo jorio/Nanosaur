@@ -15,7 +15,7 @@
 
 #define	ExitTimer		SpecialF[0]
 
-#define	JetFlameObj		Special[4]				// ptr to JetFlame's objnode (which also links to 2nd jet flame)
+#define	JetFlameObj		SpecialRef[4]			// ptr to JetFlame's objnode (which also links to 2nd jet flame)
 
 		/* ANIMATION NUMBERS */
 		

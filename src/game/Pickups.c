@@ -56,7 +56,7 @@ static void MoveNest(ObjNode *theNode);
 /*    VARIABLES      */
 /*********************/
 
-#define WhoHasPickUp	Special[0]		// objnode of object who has this pickup (nil == none)
+#define WhoHasPickUp	SpecialRef[0]	// objnode of object who has this pickup (nil == none)
 #define HoldingLimb		Special[1]		// which limb obj above object is doing holding
 #define	OldCType		Special[2]		// keeps old collision info when an obj is being held
 #define	OldCBits		Special[3]	
@@ -406,7 +406,7 @@ ObjNode				*pickedObj;
 	{
 		theNode->StatusBits |= STATUS_BIT_ISCARRYING;
 		theNode->CarriedObj = pickedObj;
-		pickedObj->WhoHasPickUp = (long)theNode;
+		pickedObj->WhoHasPickUp = theNode;
 		pickedObj->HoldingLimb = limbNum;
 		pickedObj->OldCBits = pickedObj->CBits;				// keep collision settings
 		pickedObj->OldCType = pickedObj->CType;	
