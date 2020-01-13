@@ -122,7 +122,6 @@ TerrainItemEntryType *lastPtr;
 	if (gNumTerrainItems == 0)
 		return;
 
-	// SOURCE PORT WARNING: 64-BIT BUILDS: see structs.h about TerrainItemEntryType
 	gMasterItemList = structpack::UnpackObj<TerrainItemEntryType>((Ptr)longPtr, gNumTerrainItems); // point to items in file
 
 
@@ -175,19 +174,19 @@ trail:
 			
 		/* MANUALLY BUILD 1ST & LAST NODES */
 			
-	gMasterItemList[0].prevItem = nil;														// 1st has no prev
-	gMasterItemList[0].nextItem = &gMasterItemList[1];										// link to next
-	
-	gMasterItemList[gNumTerrainItems-1].prevItem = &gMasterItemList[gNumTerrainItems-2];	// 1st has no prev
-	gMasterItemList[gNumTerrainItems].nextItem = nil;										// last has no next
+	gMasterItemList[0].prevItemIdx = -1;													// 1st has no prev
+	gMasterItemList[0].nextItemIdx = 1;														// link to next
+
+	gMasterItemList[gNumTerrainItems-1].prevItemIdx = gNumTerrainItems-2;					// 1st has no prev
+	gMasterItemList[gNumTerrainItems-1].nextItemIdx = -1;									// last has no next
 	
 	
 			/* LINK ALL THE OTHERS */
 				
 	for (itemNum = 1; itemNum < (gNumTerrainItems-1); itemNum++)
 	{
-		gMasterItemList[itemNum].prevItem = &gMasterItemList[itemNum-1];
-		gMasterItemList[itemNum].nextItem = &gMasterItemList[itemNum+1];
+		gMasterItemList[itemNum].prevItemIdx = itemNum - 1;
+		gMasterItemList[itemNum].nextItemIdx = itemNum + 1;
 	}		
 	
 }
@@ -274,9 +273,10 @@ long			realX,realZ;
 				}
 			}
 		}
-		itemPtr = itemPtr->nextItem;							// point to next item in linked list
-		if (itemPtr == nil)										// see if that was the end of the linked list
+		if (itemPtr->nextItemIdx < 0)							// see if that was the end of the linked list
 			break;
+		else
+			itemPtr = &gMasterItemList[itemPtr->nextItemIdx];	// point to next item in linked list
 	}
 }
 

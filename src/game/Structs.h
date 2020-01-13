@@ -192,11 +192,11 @@ struct TerrainItemEntryType
 	
 	UInt16	flags;							
 
-// !!!!!!!!!!!!SOURCE PORT WARNING FOR 64-BIT BUILDS!!!!!!!!!!				
-// these pointers are "stored" in Level1.ter (they're actually just stored as zeores and the pointers are properly set in BuildTerrainItemList)
-// the fact that these are 32-bit pointers in the .ter file will wreak havoc on 64 bit builds of the game when iterating on gMasterItemList!!!
-	struct	TerrainItemEntryType	*prevItem;		// ptr to previous item in linked list (nil == none)
-	struct	TerrainItemEntryType	*nextItem;		// ptr to next item in linked list
+	// Source port fix: changed from pointers to 32-bit longs for 64-bit compatibility.
+	// These "pointers" were loaded from Level1.ter -- they're actually just stored as zeores
+	// in the file and the pointers are properly set in BuildTerrainItemList.
+	long	prevItemIdx;	// index of previous item in linked list (-1 == none)
+	long	nextItemIdx;	// index of next item in linked list (-1 == none)
 };
 typedef struct TerrainItemEntryType TerrainItemEntryType;
 
