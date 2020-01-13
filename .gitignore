@@ -3,6 +3,10 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+/Nanosaur™
+/._Nanosaur™
+/Data/
+
 /Quesa
 
 # User-specific files
