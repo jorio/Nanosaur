@@ -27,6 +27,8 @@
 #include "input.h"
 #include "windows_nano.h"
 
+#include "GamePatches.h"
+
 extern	NewObjectDefinitionType	gNewObjectDefinition;
 extern	QD3DSetupOutputType		*gGameViewInfoPtr;
 extern	float			gFramesPerSecond,gFramesPerSecondFrac;
@@ -401,18 +403,19 @@ short		i;
 		
 				/* CHECK FOR KEY */
 				
-		ReadKeyboard();
 #if 1
-		TODO2("key down event");
-		break;
+		if (char newKey = GetTypedKey())
+		{
+			TypeNewKey(newKey);
 #else
+		ReadKeyboard();
 		EventRecord	theEvent;
 		if (GetNextEvent(keyDownMask, &theEvent))		// see if keydown
 		{
 			TypeNewKey(theEvent.message & charCodeMask);
+#endif
 			UpdateNameAndCursor(true,LEFT_EDGE,0,0);
 		}
-#endif
 		
 				/* MOVE CAMERA */
 				

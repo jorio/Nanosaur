@@ -1,5 +1,7 @@
 #include <QD3DMath.h>
 
+#include "input.h"
+
 extern TQ3Matrix4x4 gCameraWorldToViewMatrix;
 extern TQ3Matrix4x4 gCameraViewToFrustumMatrix;
 
@@ -53,4 +55,29 @@ Boolean IsSphereInConeOfVision(TQ3Point3D* coord, float radius, float hither, fl
 }
 
 
+char GetTypedKey(void)
+{
+	static const char KCHR_US_LOWER[] = "asdfhgzxcv\0bqweryt123465=97-80]ou[ip\rlj'k;\\,/nm.\t `\x08\0\x1B\0\0\0\0\0\0\0\0\0\0\0.\0*\0+\0\0\0\0\0/\n\0-\0\0=01234567\089\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x7F\0\0\0\0\0\x1C\x1D\x1F\x1E";
+	static const char KCHR_US_UPPER[] = "ASDFHGZXCV\0BQWERYT!@#$^%+(&_*)}OU{IP\rLJ\"K:|<?NM>\t ~\x08\0\x1B\0\0\0\0\0\0\0\0\0\0\0.\0*\0+\0\0\0\0\0/\n\0-\0\0=01234567\089\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x7F\0\0\0\0\0\x1C\x1D\x1F\x1E";
 
+	ReadKeyboard_Real();
+
+	for (int i = 0; i < sizeof(KCHR_US_LOWER); i++) {
+		if (!GetNewKeyState_Real(i))
+			continue;
+
+		char c = '\0';
+
+		if (GetKeyState_Real(kVK_Shift) || GetKeyState_Real(kVK_RightShift))
+			c = KCHR_US_UPPER[i];
+		else
+			c = KCHR_US_LOWER[i];
+
+		if (c == '\0')
+			continue;
+
+		return c;
+	}
+
+	return 0;
+}
