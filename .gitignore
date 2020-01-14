@@ -8,6 +8,7 @@
 /Data/
 
 /Quesa
+/SDL2-*
 
 # User-specific files
 *.rsuser
