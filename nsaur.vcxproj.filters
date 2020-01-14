@@ -331,6 +331,9 @@
     </ClCompile>
     <ClCompile Include="src\StructUnpackers.cpp" />
     <ClCompile Include="src\GamePatches.cpp" />
+    <ClCompile Include="src\pomme\cmixer.cpp">
+      <Filter>Pomme</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\pomme\PommeEnums.h">
@@ -616,6 +619,9 @@
       <Filter>Pomme</Filter>
     </ClInclude>
     <ClInclude Include="src\GamePatches.h" />
+    <ClInclude Include="src\pomme\cmixer.h">
+      <Filter>Pomme</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Qut">
