@@ -1,5 +1,6 @@
 #include "PommeInternal.h"
 #include "Qut.h"
+#include <SDL.h>
 #include <iostream>
 #include <thread>
 #include <atomic>
@@ -39,24 +40,26 @@ void AppMain() {
 }
 
 void WrapAppMain() {
+    std::string uncaught;
+
     try {
         AppMain();
     }
     catch (const std::exception & ex) {
-        TODOFATAL2("Uncaught exception!\n" << ex.what());
-        throw;
+        uncaught = ex.what();
     }
     catch (const std::string & ex) {
-        TODOFATAL2("Uncaught throw!\n" << ex);
-        throw;
+        uncaught = ex;
     }
     catch (const char* ex) {
-        TODOFATAL2("Uncaught throw!\n" << ex);
-        throw;
+        uncaught = ex;
     }
     catch (...) {
-        TODOFATAL2("Uncaught throw!");
-        throw;
+        uncaught = "unknown";
+    }
+
+    if (!uncaught.empty()) {
+        SDL_ShowSimpleMessageBox(0, "Uncaught Exception", uncaught.c_str(), nullptr);
     }
 }
 

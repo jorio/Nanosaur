@@ -26,6 +26,8 @@
 #include "skeletonobj.h"
 #include "title.h"
 
+#include <SDL.h> // source port addition for message boxes
+
 extern	long		gOriginalSystemVolume;
 extern	short		gMainAppRezFile;
 extern	Boolean		gGameOverFlag,gAbortedFlag;
@@ -78,7 +80,7 @@ Str255		numStr;
 
 void DoAlert(Str255 s)
 {
-	MessageBoxA(NULL, Pascal2C(s), "Nanosaur Alert", MB_OK | MB_ICONEXCLAMATION);
+	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, __func__, Pascal2C(s), nullptr);
 }
 
 		
@@ -86,7 +88,7 @@ void DoAlert(Str255 s)
 
 void DoFatalAlert(Str255 s)
 {
-	MessageBoxA(NULL, Pascal2C(s), "Nanosaur Fatal Error", MB_OK | MB_ICONERROR);
+	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, __func__, Pascal2C(s), nullptr);
 	CleanQuit();
 }
 
@@ -96,7 +98,7 @@ void DoFatalAlert2(Str255 s1, Str255 s2)
 {
 	std::stringstream ss;
 	ss << Pascal2C(s1) << "\n" << Pascal2C(s2);
-	MessageBoxA(NULL, ss.str().c_str(), "Fatal Error", MB_OK | MB_ICONERROR);
+	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, __func__, ss.str().c_str(), nullptr);
 	ExitToShell();
 }
 

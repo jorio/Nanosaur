@@ -285,11 +285,14 @@ OSErr FSpDelete(const FSSpec* spec)
 {
 	auto path = ToPath(*spec);
 
+	std::cout << "FSpDelete " << path << "\n";
+	/*
 	std::stringstream ss;
 	ss << "The Mac application wants to delete \"" << path << "\".\nAllow?";
 	if (IDYES != MessageBoxA(nullptr, ss.str().c_str(), "FSpDelete", MB_ICONQUESTION | MB_YESNO)) {
 		return fLckdErr;
 	}
+	*/
 
 	if (std::filesystem::remove(path))
 		return noErr;

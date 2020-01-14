@@ -1,6 +1,8 @@
 #include <iostream>
 #include <unordered_set>
 
+#include <SDL.h>
+
 #include "Pomme.h"
 #include "PommeInternal.h"
 
@@ -23,21 +25,20 @@ void ImplementMe(const char* fn, std::string msg, int severity) {
 	
 	if (severity >= 2) {
 		std::stringstream ss;
-		ss << fn << "()\n";
-		if (!msg.empty())
-			ss << msg << "\n";
-		UINT mbflags = 0;
-		if (severity >= 2)
-			mbflags = MB_ICONERROR | MB_OK;
-		else
-			mbflags = MB_ICONWARNING | MB_OKCANCEL;
-		if (IDOK != MessageBoxA(NULL, ss.str().c_str(), "TODO", mbflags)) {
-			exit(1);
-		}
+		ss << fn << "()";
+		if (!msg.empty()) ss << "\n" << msg;
+		
+		auto str = ss.str();
+
+		int mbflags = SDL_MESSAGEBOX_ERROR;
+		if (severity == 0) mbflags = SDL_MESSAGEBOX_INFORMATION;
+		if (severity == 1) mbflags = SDL_MESSAGEBOX_WARNING;
+
+		SDL_ShowSimpleMessageBox(mbflags, "Source port TODO", str.c_str(), nullptr);
 	}
 
 	if (severity >= 2) {
-		exit(1);
+		abort();
 	}
 }
 
