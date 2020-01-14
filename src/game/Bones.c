@@ -27,8 +27,6 @@
 #include "3dmath.h"
 #include "skeletonJoints.h"
 
-extern	WindowPtr			gCoverWindow;
-
 /****************************/
 /*    PROTOTYPES            */
 /****************************/

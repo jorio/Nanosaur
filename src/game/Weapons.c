@@ -34,7 +34,6 @@ extern	TQ3Point3D		gCoord;
 extern	TQ3Vector3D		gDelta;
 extern	NewObjectDefinitionType	gNewObjectDefinition;
 extern	float	gFramesPerSecondFrac,gMostRecentCharacterFloorY;
-extern	WindowPtr		gCoverWindow;
 extern	short		gNumCollisions;
 extern	KeyControlType	gMyControlBits;
 extern	CollisionRec	gCollisionList[];

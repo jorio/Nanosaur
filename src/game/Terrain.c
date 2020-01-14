@@ -34,7 +34,6 @@ extern	TerrainItemEntryType	**gTerrainItemLookupTableX;
 extern	Ptr			gTileFilePtr;
 extern	TQ3Matrix4x4	gCameraWorldToViewMatrix,gCameraViewToFrustumMatrix,gCameraAdjustMatrix;
 extern	NewObjectDefinitionType	gNewObjectDefinition;
-extern	WindowPtr		gCoverWindow;
 extern	TQ3Point3D		gMyCoord;
 
 

@@ -25,7 +25,6 @@
 #include "3dmath.h"
 
 extern	TQ3Matrix4x4 		gWorkMatrix;
-extern	WindowPtr		gCoverWindow;
 extern	ObjNode			*gFirstNodePtr;
 extern	QD3DSetupOutputType		*gGameViewInfoPtr;
 

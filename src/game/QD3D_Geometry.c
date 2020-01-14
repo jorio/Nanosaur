@@ -27,7 +27,6 @@
 #include "objects.h"
 #include "terrain.h"
 
-extern	WindowPtr			gCoverWindow;
 extern	NewObjectDefinitionType	gNewObjectDefinition;
 extern	ObjNode				*gCurrentNode;
 extern	float				gFramesPerSecondFrac;

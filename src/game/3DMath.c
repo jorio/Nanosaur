@@ -20,7 +20,6 @@
 #include "3dmath.h"
 
 extern	float				gFramesPerSecondFrac,gFramesPerSecond;
-extern	WindowPtr			gCoverWindow;
 
 /****************************/
 /*    PROTOTYPES            */
