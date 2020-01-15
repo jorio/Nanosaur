@@ -10,8 +10,6 @@
 static SndChannelPtr headChan = nullptr;
 static int nManagedChans = 0;
 
-static cmixer::WavStream* wip_ugly_stream = nullptr;
-
 // Internal channel info
 struct ChannelEx {
 	SndChannelPtr prevChan;
@@ -100,10 +98,12 @@ OSErr SndNewChannel(SndChannelPtr* chan, short synth, long init, SndCallBackProc
 
 	bool allocatedByPomme = false;
 
-	auto impl = new ChannelEx;
+	ChannelEx* impl = new ChannelEx;
+	*impl = {};
 
 	if (!*chan) {
 		*chan = new SndChannel;
+		(**chan) = {};
 		impl->macChannelStructAllocatedByPomme = true;
 	}
 	else {
@@ -190,22 +190,27 @@ OSErr SndStartFilePlay(
 
 	Pomme::Sound::AudioClip clip = Pomme::Sound::ReadAIFF(Pomme::Files::GetStream(fRefNum));
 
-	if (wip_ugly_stream) {
-		delete wip_ugly_stream;
-		wip_ugly_stream = nullptr;
+	auto& impl = GetEx(chan);
+
+	if (impl.stream) {
+		delete impl.stream;
+		impl.stream = nullptr;
 	}
 
-	// TODO: 1 stream per channel
 	// TODO: don't use new/delete
 	// TODO: get rid of the gratuitous buffer copy
-	wip_ugly_stream = new cmixer::WavStream(clip.sampleRate, 16, clip.nChannels, std::vector<char>(clip.pcmData));
+	impl.stream = new cmixer::WavStream(clip.sampleRate, 16, clip.nChannels, std::vector<char>(clip.pcmData));
 
-	wip_ugly_stream->Play();
+	impl.stream->Play();
 
 	if (!async) {
-		while (wip_ugly_stream->GetState() != cmixer::CM_STATE_STOPPED) {
+		while (impl.stream->GetState() != cmixer::CM_STATE_STOPPED) {
 			std::this_thread::sleep_for(std::chrono::milliseconds(100));
 		}
+		theCompletion(chan);
+		delete impl.stream;
+		impl.stream = nullptr;
+		return noErr;
 	}
 
 	TODOMINOR2("plug completion callback");
