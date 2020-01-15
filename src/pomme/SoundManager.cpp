@@ -64,5 +64,7 @@ NumVersion SndSoundManagerVersion() {
 //-----------------------------------------------------------------------------
 // Init Sound Manager
 
-void Pomme::InitSoundManager() {
+void Pomme::Sound::Init()
+{
+	cmixer::InitWithSDL();
 }

@@ -83,7 +83,7 @@ static inline int adpcm_ima_qt_expand_nibble(ADPCMChannelStatus* c, int nibble, 
 }
 
 // In QuickTime, IMA is encoded by chunks of 34 bytes (=64 samples). Channel data is interleaved per-chunk.
-std::vector<SInt16> Pomme::DecodeIMA4(const std::vector<Byte>& input, const int nChannels)
+std::vector<SInt16> Pomme::Sound::DecodeIMA4(const std::vector<Byte>& input, const int nChannels)
 {
 	std::istrstream f0((char*)input.data(), input.size());
 	BigEndianIStream f(f0);

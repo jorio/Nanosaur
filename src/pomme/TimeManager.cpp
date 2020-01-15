@@ -14,7 +14,8 @@ constexpr int JANUARY_1_1904 = -2'082'844'800;
 //-----------------------------------------------------------------------------
 // Time Manager
 
-void Pomme::InitTimeManager() {
+void Pomme::Time::Init()
+{
 	bootTP = std::chrono::high_resolution_clock::now();
 }
 

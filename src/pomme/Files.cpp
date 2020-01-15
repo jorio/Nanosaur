@@ -12,6 +12,7 @@
 #endif
 
 using namespace Pomme;
+using namespace Pomme::Files;
 
 #define LOG POMME_GENLOG(POMME_DEBUG_FILES, "FILE")
 
@@ -36,12 +37,12 @@ struct InternalFileHandle
 
 static std::vector<std::filesystem::path> directories;
 
-static GrowablePool<InternalFileHandle, SInt16, 0x7FFF> openFiles;
+static Pomme::GrowablePool<InternalFileHandle, SInt16, 0x7FFF> openFiles;
 
 //-----------------------------------------------------------------------------
 // Utilities
 
-std::filesystem::path Pomme::ToPath(short vRefNum, long parID, ConstStr255Param name)
+std::filesystem::path Pomme::Files::ToPath(short vRefNum, long parID, ConstStr255Param name)
 {
 	std::filesystem::path path(directories[parID]);
 	path += std::filesystem::path::preferred_separator;
@@ -49,43 +50,43 @@ std::filesystem::path Pomme::ToPath(short vRefNum, long parID, ConstStr255Param 
 	return path.lexically_normal();
 }
 
-std::filesystem::path Pomme::ToPath(const FSSpec& spec)
+std::filesystem::path Pomme::Files::ToPath(const FSSpec& spec)
 {
-	return Pomme::ToPath(spec.vRefNum, spec.parID, spec.name);
+	return Pomme::Files::ToPath(spec.vRefNum, spec.parID, spec.name);
 }
 
-bool Pomme::IsDirIDLegal(long dirID)
+bool Pomme::Files::IsDirIDLegal(long dirID)
 {
 	return dirID >= 0 && dirID < directories.size();
 }
 
-bool Pomme::IsRefNumLegal(short refNum)
+bool Pomme::Files::IsRefNumLegal(short refNum)
 {
 	return openFiles.IsAllocated(refNum);
 }
 
-std::fstream& Pomme::GetStream(short refNum)
+std::fstream& Pomme::Files::GetStream(short refNum)
 {
 	return openFiles[refNum].stream;
 }
 
-void Pomme::CloseStream(short refNum)
+void Pomme::Files::CloseStream(short refNum)
 {
 	openFiles[refNum].stream.close();
 	openFiles.Dispose(refNum);
 }
 
-bool Pomme::IsStreamOpen(short refNum)
+bool Pomme::Files::IsStreamOpen(short refNum)
 {
 	return openFiles[refNum].stream.is_open();
 }
 
-bool Pomme::IsStreamPermissionAllowed(short refNum, char perm)
+bool Pomme::Files::IsStreamPermissionAllowed(short refNum, char perm)
 {
 	return (perm & openFiles[refNum].permission) == perm;
 }
 
-std::string Pomme::GetFilenameFromRefNum__debug(short refNum)
+std::string Pomme::Files::GetHostFilename(short refNum)
 {
 	return openFiles[refNum].debugPath.string();
 }
@@ -161,7 +162,8 @@ static OSErr FSpOpenXF(const std::filesystem::path& path, ForkType forkType, cha
 //-----------------------------------------------------------------------------
 // Init
 
-void Pomme::InitFiles(const char* applName) {
+void Pomme::Files::Init(const char* applName)
+{
 	// default directory (ID 0)
 	directories.push_back(std::filesystem::current_path());
 
@@ -349,7 +351,7 @@ OSErr ResolveAlias(const FSSpec* spec, AliasHandle alias, FSSpec* target, Boolea
 		return dirNFErr;
 	}
 
-	auto path = Pomme::ToPath(*target);
+	auto path = ToPath(*target);
 	if (kind == 0 && !std::filesystem::is_regular_file(path)) {
 		std::cerr << "alias target file doesn't exist: " << path << "\n";
 		return fnfErr;

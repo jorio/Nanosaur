@@ -28,7 +28,7 @@ static void PrintStack(const char* msg) {
 		LOG	<< (rezSearchStackIndex == i? " =====> " : "        ")
 			<< " StackPos=" << i << " "
 			<< " RefNum=" << rezSearchStack[i].fileRefNum << " "
-			<< GetFilenameFromRefNum__debug(rezSearchStack[i].fileRefNum)
+			<< Pomme::Files::GetHostFilename(rezSearchStack[i].fileRefNum)
 			<< "\n";
 	}
 	LOG << "------------------------------------\n";
@@ -50,7 +50,7 @@ short FSpOpenResFile(const FSSpec* spec, char permission) {
 		return -1;
 	}
 
-	auto f = Pomme::BigEndianIStream(GetStream(slot));
+	auto f = Pomme::BigEndianIStream(Pomme::Files::GetStream(slot));
 
 	// ----------------
 	// Detect AppleDouble
@@ -151,7 +151,7 @@ void UseResFile(short refNum) {
 	if (refNum <= 0)
 		TODOFATAL2("illegal refNum " << refNum);
 
-	if (!IsStreamOpen(refNum)) {
+	if (!Pomme::Files::IsStreamOpen(refNum)) {
 		std::cerr << "can't UseResFile on this refNum " << refNum << "\n";
 		return;
 	}
@@ -178,10 +178,10 @@ void CloseResFile(short refNum) {
 		TODOFATAL2("closing the System file's resource fork is not implemented");
 	if (refNum <= 0)
 		TODOFATAL2("illegal refNum " << refNum);
-	if (!IsStreamOpen(refNum))
+	if (!Pomme::Files::IsStreamOpen(refNum))
 		TODOFATAL2("already closed res file " << refNum);
 	//UpdateResFile(refNum); // MMT:1-110
-	CloseStream(refNum);
+	Pomme::Files::CloseStream(refNum);
 
 	auto it = rezSearchStack.begin();
 	while (it != rezSearchStack.end()) {
@@ -216,7 +216,7 @@ Handle GetResource(ResType theType, short theID) {
 		try {
 			const auto& rez = rezSearchStack[i].rezMap.at(theType).at(theID);
 
-			auto f = BigEndianIStream(GetStream(rezSearchStack[i].fileRefNum));
+			auto f = BigEndianIStream(Pomme::Files::GetStream(rezSearchStack[i].fileRefNum));
 
 			f.Goto(rez.dataOffset);
 			auto len = f.Read<UInt32>();

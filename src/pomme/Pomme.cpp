@@ -178,9 +178,10 @@ char* Pascal2C(const char* pstr) {
 	return cstr;
 }
 
-void Pomme::Init(const char* applName) {
-	Pomme::InitTimeManager();
-	Pomme::InitFiles(applName);
-	Pomme::InitSoundManager();
+void Pomme::Init(const char* applName)
+{
+	Pomme::Time::Init();
+	Pomme::Files::Init(applName);
+	Pomme::Sound::Init();
 	std::cout << "Pomme initialized\n";
 }

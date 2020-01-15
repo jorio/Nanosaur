@@ -41,7 +41,8 @@ void DumpAU(const char* fn, const std::vector<T>& samples, int nChannels, int sa
 	std::cout << "Dumped AU: " << fn << "\n";
 }
 
-void Pomme::ReadAIFF(std::istream& theF) {
+void Pomme::Sound::ReadAIFF(std::istream& theF)
+{
 	BigEndianIStream f(theF);
 
 	if ('FORM' != f.Read<OSType>()) throw AIFFException("invalid FORM");
@@ -106,13 +107,13 @@ void Pomme::ReadAIFF(std::istream& theF) {
 			switch (COMM.compressionType) {
 			case 'MAC3':
 			{
-				auto decomp = Pomme::DecodeMACE3(ssnd, COMM.numChannels);
+				auto decomp = Pomme::Sound::DecodeMACE3(ssnd, COMM.numChannels);
 				DumpAU("AIFCMAC3.AU", decomp, COMM.numChannels, COMM.sampleRate);
 				break;
 			}
 			case 'ima4':
 			{
-				auto decomp = Pomme::DecodeIMA4(ssnd, COMM.numChannels);
+				auto decomp = Pomme::Sound::DecodeIMA4(ssnd, COMM.numChannels);
 				DumpAU("AIFCIMA4.AU", decomp, COMM.numChannels, COMM.sampleRate);
 				break;
 			}

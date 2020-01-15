@@ -71,26 +71,37 @@ namespace Pomme {
 
 
 	void Init(const char* applName);
-	void InitTimeManager();
-	void InitFiles(const char* applName);
-	void InitSoundManager();
 
-	bool IsDirIDLegal(long dirID);
-	bool IsRefNumLegal(short refNum);
-	std::fstream& GetStream(short refNum);
-	bool IsStreamOpen(short refNum);
-	bool IsStreamPermissionAllowed(short refNum, char perm);
-	void CloseStream(short refNum);
-
-	std::filesystem::path ToPath(short vRefNum, long parID, ConstStr255Param name);
-	std::filesystem::path ToPath(const FSSpec& spec);
-	std::string GetFilenameFromRefNum__debug(short refNum);
+	namespace Time
+	{
+		void Init();
+	}
 	
+	namespace Files
+	{
+		void Init(const char* applName);
+
+		bool IsDirIDLegal(long dirID);
+		bool IsRefNumLegal(short refNum);
+		std::fstream& GetStream(short refNum);
+
+		bool IsStreamOpen(short refNum);
+		bool IsStreamPermissionAllowed(short refNum, char perm);
+		void CloseStream(short refNum);
+
+		std::filesystem::path ToPath(short vRefNum, long parID, ConstStr255Param name);
+		std::filesystem::path ToPath(const FSSpec& spec);
+		std::string GetHostFilename(short refNum);
+	}
+
+	namespace Sound
+	{
+		void Init();
+		void ReadAIFF(std::istream& f);
+		std::vector<SInt16> DecodeMACE3(const std::vector<Byte>& input, const int nChannels);
+		std::vector<SInt16> DecodeIMA4(const std::vector<Byte>& input, const int nChannels);
+	}
+
 	Pixmap ReadPICT(std::istream& f, bool skip512 = true);
-
-	void ReadAIFF(std::istream& f);
-	std::vector<SInt16> DecodeMACE3(const std::vector<Byte>& input, const int nChannels);
-	std::vector<SInt16> DecodeIMA4(const std::vector<Byte>& input, const int nChannels);
-
 	std::string FourCCString(FourCharCode t, char filler = '?');
 }

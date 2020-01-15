@@ -185,7 +185,7 @@ static int16_t read_table(ChannelData *chd, uint8_t val, int tab_idx)
 	return current;
 }
 
-std::vector<SInt16> Pomme::DecodeMACE3(const std::vector<Byte>& input, const int nChannels)
+std::vector<SInt16> Pomme::Sound::DecodeMACE3(const std::vector<Byte>& input, const int nChannels)
 {
 	if (input.size() % (nChannels * 2) != 0)
 		throw std::invalid_argument("odd input buffer size");
