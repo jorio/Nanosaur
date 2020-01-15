@@ -62,9 +62,6 @@ Pomme::Sound::AudioClip Pomme::Sound::ReadAIFF(std::istream& theF)
 		auto ckSize = f.Read<SInt32>();
 		std::streampos endOfChunk = f.Tell() + std::streampos(ckSize);
 
-		LOG << f.Tell() << "\n";
-		LOG << "Chunk " << FourCCString(ckID) << ", " << ckSize << ", " << endOfChunk << "\n";
-
 		switch (ckID) {
 		case 'FVER':
 		{
@@ -92,13 +89,12 @@ Pomme::Sound::AudioClip Pomme::Sound::ReadAIFF(std::istream& theF)
 				COMM.compressionType = f.Read<OSType>();
 				compressionName = f.ReadPascalString();
 			}
-			LOG
-				<< "---- " << FourCCString(formType) << " ----"
-				<< "\n\tnumChannels      " << COMM.numChannels
-				<< "\n\tnumSampleFrames  " << COMM.numSampleFrames
-				<< "\n\tsampleSize       " << COMM.sampleSize
-				<< "\n\tsampleRate       " << COMM.sampleRate
-				<< "\n\tcompressionType  " << FourCCString(COMM.compressionType) << " \"" << compressionName << "\""
+			LOG << FourCCString(formType) << ": "
+				<< COMM.sampleSize << "-bit, "
+				<< COMM.sampleRate << " Hz, "
+				<< COMM.numChannels << " chans, "
+				<< COMM.numSampleFrames << " frames, "
+				<< FourCCString(COMM.compressionType) << " \"" << compressionName << "\""
 				<< "\n";
 			break;
 		}
@@ -139,16 +135,13 @@ Pomme::Sound::AudioClip Pomme::Sound::ReadAIFF(std::istream& theF)
 		}
 
 		default:
-			LOG << __func__ << ": skipping unknown chunk " << FourCCString(ckID) << "\n";
-			LOG << "EOC " << endOfChunk << "\n";
+			LOG << "Skipping chunk " << FourCCString(ckID) << "\n";
 			f.Goto(endOfChunk);
 			break;
 		}
 
 		if (f.Tell() != endOfChunk) throw AIFFException("end of chunk pos???");
 	}
-
-	LOG << "End Of Aiff\n";
 
 	return clip;
 }
