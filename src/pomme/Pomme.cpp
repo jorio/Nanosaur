@@ -14,8 +14,8 @@ std::unordered_set<std::string> implementMeAlreadySaid;
 void ImplementMe(const char* fn, std::string msg, int severity) {
 	if (severity >= 0) {
 		std::stringstream ss;
-		ss << "TODO[" << severity << "] " << fn << "()"; 
-		if (!msg.empty()) ss << ": " << msg;
+		ss << "[TODO] " << fn; 
+		if (!msg.empty()) ss << ":\t" << msg;
 		auto str = ss.str();
 		if (implementMeAlreadySaid.find(str) == implementMeAlreadySaid.end()) {
 			std::cerr << (severity > 0? "\x1b[31m": "\x1b[33m") << str << "\x1b[0m\n";
