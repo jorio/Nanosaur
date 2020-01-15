@@ -187,15 +187,15 @@ struct SndCommand {
 };
 
 struct SCStatus {
-    UnsignedFixed                   scStartTime;
-    UnsignedFixed                   scEndTime;
-    UnsignedFixed                   scCurrentTime;
-    Boolean                         scChannelBusy;
-    Boolean                         scChannelDisposed;
-    Boolean                         scChannelPaused;
-    Boolean                         scUnused;
-    unsigned long                   scChannelAttributes;
-    long                            scCPULoad;
+    UnsignedFixed                   scStartTime;                // starting time for play from disk (based on audio selection record)
+    UnsignedFixed                   scEndTime;                  // ending time for play from disk (based on audio selection record)
+    UnsignedFixed                   scCurrentTime;              // current time for play from disk
+    Boolean                         scChannelBusy;              // true if channel is processing commands
+    Boolean                         scChannelDisposed;          // reserved
+    Boolean                         scChannelPaused;            // true if channel is paused
+    Boolean                         scUnused;                   // reserved
+    unsigned long                   scChannelAttributes;        // attributes of this channel
+    long                            scCPULoad;                  // cpu load for this channel ("obsolete")
 };
 
 typedef struct SndChannel* SndChannelPtr;

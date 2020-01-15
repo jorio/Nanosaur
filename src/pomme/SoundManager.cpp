@@ -146,13 +146,15 @@ OSErr SndDisposeChannel(SndChannelPtr chan, Boolean quietNow)
 	return noErr;
 }
 
-OSErr SndChannelStatus(SndChannelPtr chan, short theLength, SCStatusPtr theStatus) {
+OSErr SndChannelStatus(SndChannelPtr chan, short theLength, SCStatusPtr theStatus)
+{
 	TODOMINOR();
 	return unimpErr;
 }
 
-OSErr SndDoImmediate(SndChannelPtr chan, const SndCommand* cmd) {
-	TODOMINOR();
+OSErr SndDoImmediate(SndChannelPtr chan, const SndCommand* cmd)
+{
+	TODOMINOR2(cmd->cmd);
 	return noErr;
 }
 
