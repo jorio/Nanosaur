@@ -1,12 +1,69 @@
 #include <thread>
 #include <chrono>
 #include <iostream>
+#include <cassert>
 #include "PommeInternal.h"
 #include "cmixer.h"
 
 #define LOG POMME_GENLOG(POMME_DEBUG_SOUND, "SOUN")
 
+static SndChannelPtr headChan = nullptr;
+static int nManagedChans = 0;
+
 static cmixer::WavStream* wip_ugly_stream = nullptr;
+
+// Internal channel info
+struct ChannelEx {
+	SndChannelPtr prevChan;
+	bool macChannelStructAllocatedByPomme;
+	cmixer::WavStream* stream;
+};
+
+static inline ChannelEx& GetEx(SndChannelPtr chan)
+{
+	return *(ChannelEx*)chan->firstMod;
+}
+
+static inline SndChannelPtr* NextOf(SndChannelPtr chan)
+{
+	return &chan->nextChan;
+}
+
+static inline SndChannelPtr* PrevOf(SndChannelPtr chan)
+{
+	return &GetEx(chan).prevChan;
+}
+
+static void Link(SndChannelPtr chan)
+{
+	if (!headChan) {
+		*NextOf(chan) = nullptr;
+	}
+	else {
+		assert(nullptr == *PrevOf(headChan));
+		*PrevOf(headChan) = chan;
+		*NextOf(chan) = headChan;
+	}
+
+	headChan = chan;
+	*PrevOf(chan) = nullptr;
+
+	nManagedChans++;
+}
+
+static void Unlink(SndChannelPtr chan)
+{
+	if (headChan == chan)
+		headChan = *NextOf(chan);
+
+	if (*PrevOf(chan))
+		*NextOf(*PrevOf(chan)) = *NextOf(chan);
+
+	*PrevOf(chan) = nullptr;
+	*NextOf(chan) = nullptr;
+
+	nManagedChans--;
+}
 
 //-----------------------------------------------------------------------------
 // Sound Manager
@@ -20,9 +77,63 @@ void SetDefaultOutputVolume(long) {
 	TODOMINOR();
 }
 
-OSErr SndNewChannel(SndChannelPtr* chan, short synth, long init, /*ProcPtr*/void* userRoutine) {
-	TODOMINOR();
-	return unimpErr;
+// IM:S:2-127
+OSErr SndNewChannel(SndChannelPtr* chan, short synth, long init, SndCallBackProcPtr userRoutine)
+{
+	if (synth != sampledSynth) {
+		TODO2("unimplemented synth type " << sampledSynth);
+		return unimpErr;
+	}
+
+	//---------------------------
+	// Do allocs
+
+	bool allocatedByPomme = false;
+
+	auto impl = new ChannelEx;
+
+	if (!*chan) {
+		*chan = new SndChannel;
+		impl->macChannelStructAllocatedByPomme = true;
+	}
+	else {
+		impl->macChannelStructAllocatedByPomme = false;
+	}
+
+	(**chan).firstMod = (Ptr)impl;
+
+	//---------------------------
+	// Set up
+
+	Link(*chan);	// Link chan into our list of managed chans
+	(**chan).callBack = userRoutine;
+
+	//---------------------------
+	// Done
+
+	LOG << "New channel created, total managed channels = " << nManagedChans << "\n";
+
+	return noErr;
+}
+
+// IM:S:2-129
+OSErr SndDisposeChannel(SndChannelPtr chan, Boolean quietNow)
+{
+	Unlink(chan);
+
+	auto* ex = &GetEx(chan);
+
+	bool alsoDeleteMacStruct = ex->macChannelStructAllocatedByPomme;
+	delete ex;
+	chan->firstMod = nullptr;
+
+	if (alsoDeleteMacStruct) {
+		delete chan;
+	}
+
+	TODOMINOR2("issue flushCmd, quietCmd, etc. (IM: S ");
+
+	return noErr;
 }
 
 OSErr SndChannelStatus(SndChannelPtr chan, short theLength, SCStatusPtr theStatus) {
@@ -52,6 +163,18 @@ OSErr SndStartFilePlay(
 {
 	if (resNum != 0) {
 		TODO2("playing snd resource not implemented yet, resource " << resNum);
+		return unimpErr;
+	}
+
+	if (!chan) {
+		if (async) // async requires passing in a channel
+			return badChannel;
+		TODO2("nullptr chan for sync play, check IM:S:1-37");
+		return unimpErr;
+	}
+
+	if (theSelection) {
+		TODO2("audio selection record not implemented");
 		return unimpErr;
 	}
 

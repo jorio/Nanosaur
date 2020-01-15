@@ -132,7 +132,18 @@ enum EErrors {
     resAttrErr      = -198, // attribute inconsistent with operation
     mapReadErr      = -199, // map inconsistent with operation
 
+    // Sound Manager error codes
 
+    notEnoughHardwareErr    = -201,
+    queueFull               = -203,
+    resProblem              = -204,
+    badChannel              = -205, // channel is corrupt or unusable
+    badFormat               = -206, // resource is corrupt or unusable
+    notEnoughBufferSpace    = -207, // insufficient memory available
+    badFileFormat           = -208, // file is corrupt or unusable, or not AIFF or AIFF-C
+    channelBusy             = -209,
+    buffersTooSmall         = -210,
+    siInvalidCompression    = -223,
 };
 
 

@@ -61,6 +61,7 @@ typedef ResType*                        ResTypePtr;
 typedef char*                           Ptr;            // Pointer to a non-relocatable block
 typedef Ptr*                            Handle;         // Pointer to a master pointer to a relocatable block 
 typedef long                            Size;           // Number of bytes in a block (signed for historical reasons)
+typedef void                            (*ProcPtr);
 
 //-----------------------------------------------------------------------------
 // (Pascal) String types
@@ -199,11 +200,16 @@ struct SCStatus {
 
 typedef struct SndChannel* SndChannelPtr;
 
+typedef void (*SndCallBackProcPtr)(SndChannelPtr chan, SndCommand* cmd);
+// for pomme implementation purposes we don't care about the 68000/ppc specifics of universal procedure pointers
+typedef SndCallBackProcPtr          SndCallbackUPP;
+
 struct SndChannel {
     SndChannelPtr                   nextChan;
     Ptr                             firstMod;                   // reserved for the Sound Manager
-    /*SndCallBackUPP*/void* callBack;
-    long                            userInfo;
+    SndCallBackProcPtr              callBack;
+    long long                       userInfo;                   // free for application's use (Pomme: made it 64 bit so app can store ptrs)
+#if 0
     long                            wait;                       // The following is for internal Sound Manager use only.
     SndCommand                      cmdInProgress;
     short                           flags;
@@ -211,6 +217,7 @@ struct SndChannel {
     short                           qHead;
     short                           qTail;
     SndCommand                      queue[128];
+#endif
 };
 
 struct ModRef {

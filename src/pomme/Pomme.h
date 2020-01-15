@@ -258,7 +258,7 @@ OSErr GetDefaultOutputVolume(long*);
 
 void SetDefaultOutputVolume(long);
 
-OSErr SndNewChannel(SndChannelPtr* chan, short synth, long init, /*ProcPtr*/void* userRoutine);
+OSErr SndNewChannel(SndChannelPtr* chan, short synth, long init, SndCallBackProcPtr userRoutine);
 
 OSErr SndChannelStatus(SndChannelPtr chan, short theLength, SCStatusPtr theStatus);
 
