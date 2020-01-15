@@ -256,7 +256,7 @@ void InitCursor();
 
 OSErr GetDefaultOutputVolume(long*);
 
-void SetDefaultOutputVolume(long);
+OSErr SetDefaultOutputVolume(long);
 
 OSErr SndNewChannel(SndChannelPtr* chan, short synth, long init, SndCallBackProcPtr userRoutine);
 

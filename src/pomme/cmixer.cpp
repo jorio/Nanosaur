@@ -38,6 +38,7 @@ using namespace cmixer;
 #define FX_UNIT (1 << FX_BITS)
 #define FX_MASK (FX_UNIT - 1)
 #define FX_FROM_FLOAT(f)  ((f) * FX_UNIT)
+#define DOUBLE_FROM_FX(f)  ((double)f / FX_UNIT)
 #define FX_LERP(a, b, p)  ((a) + ((((b) - (a)) * (p)) >> FX_BITS))
 
 #define BUFFER_MASK (BUFFER_SIZE - 1)
@@ -111,6 +112,16 @@ void cmixer::ShutdownWithSDL()
 	}
 }
 
+double cmixer::GetMasterGain()
+{
+	return DOUBLE_FROM_FX(gMixer.gain);
+}
+
+void cmixer::SetMasterGain(double newGain)
+{
+	gMixer.SetMasterGain(newGain);
+}
+
 //-----------------------------------------------------------------------------
 // Global mixer impl
 
@@ -137,6 +148,8 @@ void Mixer::Init(int newSamplerate)
 
 void Mixer::SetMasterGain(double newGain)
 {
+	if (newGain < 0)
+		newGain = 0;
 	gain = FX_FROM_FLOAT(newGain);
 }
 

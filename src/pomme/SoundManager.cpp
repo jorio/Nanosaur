@@ -68,13 +68,23 @@ static void Unlink(SndChannelPtr chan)
 //-----------------------------------------------------------------------------
 // Sound Manager
 
-short GetDefaultOutputVolume(long*) {
-	TODOMINOR();
-	return 0;
+OSErr GetDefaultOutputVolume(long* stereoLevel)
+{
+	unsigned short g = (unsigned short)(cmixer::GetMasterGain() / 256.0);
+	*stereoLevel = (g << 16) | g;
+	return noErr;
 }
 
-void SetDefaultOutputVolume(long) {
-	TODOMINOR();
+// See IM:S:2-139, "Controlling Volume Levels".
+OSErr SetDefaultOutputVolume(long stereoLevel)
+{
+	unsigned short left  = 0xFFFF & stereoLevel;
+	unsigned short right = 0xFFFF & (stereoLevel >> 16);
+	if (right != left)
+		TODOMINOR2("setting different volumes for left & right is not implemented");
+	LOG << left / 256.0 << "\n";
+	cmixer::SetMasterGain(left / 256.0);
+	return noErr;
 }
 
 // IM:S:2-127

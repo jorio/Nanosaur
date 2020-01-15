@@ -111,6 +111,8 @@ public:
 
 void InitWithSDL();
 void ShutdownWithSDL();
+double GetMasterGain();
+void SetMasterGain(double);
 WavStream LoadWAVFromFile(const char* path);
 
 }
