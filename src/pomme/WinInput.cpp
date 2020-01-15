@@ -54,6 +54,8 @@ int WinKeyToMacKey(WORD w) {
 	case VK_OEM_7: return kVK_ANSI_Quote;
 	case VK_OEM_PERIOD: return kVK_ANSI_Period;
 	case VK_OEM_COMMA: return kVK_ANSI_Comma;
+	case VK_OEM_PLUS: return kVK_ANSI_Equal;
+	case VK_OEM_MINUS: return kVK_ANSI_Minus;
 
 	case VK_BACK: return kVK_Delete;
 	case VK_TAB: return kVK_Tab;
