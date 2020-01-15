@@ -83,10 +83,12 @@ void FlushEvents(short, short) {
 	TODOMINOR();
 }
 
-void NumToString(long theNum, Str255 theString) {
+void NumToString(long theNum, Str255& theString)
+{
 	std::stringstream ss;
 	ss << theNum;
-	theString = Str255(ss.str().c_str());
+	auto str = ss.str();
+	theString = Str255(str.c_str());
 }
 
 //-----------------------------------------------------------------------------

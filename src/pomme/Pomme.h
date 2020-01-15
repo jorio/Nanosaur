@@ -158,7 +158,7 @@ void SysBeep(short duration);
 
 void FlushEvents(short, short);
 
-void NumToString(long theNum, Str255 theString);
+void NumToString(long theNum, Str255& theString);
 
 //-----------------------------------------------------------------------------
 // Input
