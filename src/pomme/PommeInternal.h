@@ -96,8 +96,16 @@ namespace Pomme {
 
 	namespace Sound
 	{
+		struct AudioClip
+		{
+			int nChannels;
+			int bitDepth;
+			int sampleRate;
+			std::vector<char> pcmData;
+		};
+
 		void Init();
-		void ReadAIFF(std::istream& f);
+		AudioClip ReadAIFF(std::istream& f);
 		std::vector<SInt16> DecodeMACE3(const std::vector<Byte>& input, const int nChannels);
 		std::vector<SInt16> DecodeIMA4(const std::vector<Byte>& input, const int nChannels);
 	}

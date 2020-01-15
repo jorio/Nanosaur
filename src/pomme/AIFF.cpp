@@ -41,7 +41,7 @@ void DumpAU(const char* fn, const std::vector<T>& samples, int nChannels, int sa
 	std::cout << "Dumped AU: " << fn << "\n";
 }
 
-void Pomme::Sound::ReadAIFF(std::istream& theF)
+Pomme::Sound::AudioClip Pomme::Sound::ReadAIFF(std::istream& theF)
 {
 	BigEndianIStream f(theF);
 
@@ -53,8 +53,9 @@ void Pomme::Sound::ReadAIFF(std::istream& theF)
 
 	if (formType != 'AIFF' && formType != 'AIFC') throw AIFFException("invalid file type");
 
-	AIFFCOMM COMM;
-	memset(&COMM, 0, sizeof(COMM));
+	AIFFCOMM COMM = {};
+
+	AudioClip clip = {};
 
 	while (f.Tell() != endOfForm) {
 		auto ckID = f.Read<OSType>();
@@ -80,6 +81,12 @@ void Pomme::Sound::ReadAIFF(std::istream& theF)
 			COMM.sampleSize			= f.Read<SInt16>();
 			COMM.sampleRate			= f.Read80BitFloat();
 			COMM.compressionType = 'NONE';
+
+			clip.nChannels			= COMM.numChannels;
+			clip.bitDepth			= COMM.sampleSize;
+			clip.sampleRate			= COMM.sampleRate;
+			//clip.pcmData			= std::vector<char>(COMM.numChannels * COMM.numSampleFrames * COMM.sampleSize / 8);
+
 			std::string compressionName = "Not compressed";
 			if (isAiffC) {
 				COMM.compressionType = f.Read<OSType>();
@@ -107,14 +114,20 @@ void Pomme::Sound::ReadAIFF(std::istream& theF)
 			switch (COMM.compressionType) {
 			case 'MAC3':
 			{
-				auto decomp = Pomme::Sound::DecodeMACE3(ssnd, COMM.numChannels);
-				DumpAU("AIFCMAC3.AU", decomp, COMM.numChannels, COMM.sampleRate);
+				auto pcm = Pomme::Sound::DecodeMACE3(ssnd, COMM.numChannels);
+				//DumpAU("Decoded from AIFF-C MACE-3.au", pcm, COMM.numChannels, COMM.sampleRate);
+				clip.bitDepth = 16; // force bitdepth to 16 (decoder output)
+				// TODO: get rid of the gratuitous buffer copy
+				clip.pcmData = std::vector<char>((char*)pcm.data(), (char*)(pcm.data() + pcm.size()));
 				break;
 			}
 			case 'ima4':
 			{
-				auto decomp = Pomme::Sound::DecodeIMA4(ssnd, COMM.numChannels);
-				DumpAU("AIFCIMA4.AU", decomp, COMM.numChannels, COMM.sampleRate);
+				auto pcm = Pomme::Sound::DecodeIMA4(ssnd, COMM.numChannels);
+				//DumpAU("Decoded from AIFF-C IMA-4.au", pcm, COMM.numChannels, COMM.sampleRate);
+				clip.bitDepth = 16; // force bitdepth to 16 (decoder output)
+				// TODO: get rid of the gratuitous buffer copy
+				clip.pcmData = std::vector<char>((char*)pcm.data(), (char*)(pcm.data() + pcm.size()));
 				break;
 			}
 			default:
@@ -136,4 +149,6 @@ void Pomme::Sound::ReadAIFF(std::istream& theF)
 	}
 
 	LOG << "End Of Aiff\n";
+
+	return clip;
 }
