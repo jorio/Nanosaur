@@ -2,6 +2,7 @@
 #include <chrono>
 #include <iostream>
 #include <cassert>
+#include <strstream>
 #include "PommeInternal.h"
 #include "cmixer.h"
 
@@ -148,8 +149,16 @@ OSErr SndDisposeChannel(SndChannelPtr chan, Boolean quietNow)
 
 OSErr SndChannelStatus(SndChannelPtr chan, short theLength, SCStatusPtr theStatus)
 {
-	TODOMINOR();
-	return unimpErr;
+	memset(theStatus, 0, sizeof(SCStatus));
+
+	auto& ex = GetEx(chan);
+
+	if (ex.stream) {
+		theStatus->scChannelPaused = ex.stream->GetState() == cmixer::CM_STATE_PAUSED;
+		theStatus->scChannelBusy   = ex.stream->GetState() == cmixer::CM_STATE_PLAYING;
+	}
+
+	return noErr;
 }
 
 OSErr SndDoImmediate(SndChannelPtr chan, const SndCommand* cmd)
@@ -158,9 +167,47 @@ OSErr SndDoImmediate(SndChannelPtr chan, const SndCommand* cmd)
 	return noErr;
 }
 
-OSErr GetSoundHeaderOffset(SndListHandle sndHandle, long* offset) {
-	TODOMINOR();
-	return unimpErr;
+// IM:S:2-58 "MyGetSoundHeaderOffset"
+OSErr GetSoundHeaderOffset(SndListHandle sndHandle, long* offset)
+{
+	std::istrstream f0((Ptr)*sndHandle, GetHandleSize((Handle)sndHandle));
+	Pomme::BigEndianIStream f(f0);
+
+	// Skip everything before sound commands
+	SInt16 format = f.Read<SInt16>();
+	if (format != 1) {
+		LOG << "only 'snd ' format 1 is supported\n";
+		return badFormat;
+	}
+
+	// Skip modifiers
+	SInt16 nSynths = f.Read<SInt16>();
+	LOG << nSynths << " modifiers\n";
+	f.Skip(nSynths * (2 + 4));
+
+	SInt16 nCmds = f.Read<SInt16>();
+	LOG << nCmds << " commands\n";
+	for (; nCmds >= 1; nCmds--) {
+		// todo: ReadStruct<SndCommand>, packfmt = Hhl (noalign)
+		UInt16 cmd = f.Read<UInt16>();
+		SInt16 param1 = f.Read<SInt16>();
+		SInt32 param2 = f.Read<SInt32>();
+		cmd &= 0x7FFF; // See IM:S:2-75
+		// When a sound command contained in an 'snd ' resource has associated sound data,
+		// the high bit of the command is set. This changes the meaning of the param2 field of the
+		// command from a pointer to a location in RAM to an offset value that specifies the offset
+		// in bytes from the resource's beginning to the location of the associated sound data (such
+		// as a sampled sound header). 
+		LOG << "command " << cmd << "\n";
+		if (cmd == bufferCmd || cmd == soundCmd) {
+			LOG << "offset found! " << param2 << "\n";
+			*offset = param2;
+			return noErr;
+		}
+	}
+	
+	LOG << "didn't find offset in snd resource\n";
+	return badFormat;
 }
 
 OSErr SndStartFilePlay(
