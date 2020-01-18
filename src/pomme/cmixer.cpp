@@ -415,6 +415,7 @@ WavStream::WavStream(
 	,bitdepth(theBitDepth)
 	,channels(nChannels)
 {
+	bigEndian = false;
 }
 
 void WavStream::Rewind2()
@@ -431,7 +432,19 @@ void WavStream::FillBuffer(cm_Int16* dst, int len)
 	while (len > 0) {
 		n = MIN(len, length - idx);
 		len -= n;
-		if (bitdepth == 16 && channels == 1) {
+		if (bigEndian && bitdepth == 16 && channels == 1) {
+			WAV_PROCESS_LOOP({
+				dst[0] = dst[1] = FromBE(data16()[idx]);
+				});
+		}
+		else if (bigEndian && bitdepth == 16 && channels == 2) {
+			WAV_PROCESS_LOOP({
+				x = idx * 2;
+				dst[0] = FromBE(data16()[x]);
+				dst[1] = FromBE(data16()[x + 1]);
+				});
+		}
+		else if (bitdepth == 16 && channels == 1) {
 			WAV_PROCESS_LOOP({
 				dst[0] = dst[1] = data16()[idx];
 				});
@@ -441,6 +454,18 @@ void WavStream::FillBuffer(cm_Int16* dst, int len)
 				x = idx * 2;
 				dst[0] = data16()[x];
 				dst[1] = data16()[x + 1];
+				});
+		}
+		else if (bitdepth == 16 && channels == 1) {
+			WAV_PROCESS_LOOP({
+				dst[0] = dst[1] = FromBE(data16()[idx]);
+				});
+		}
+		else if (bitdepth == 16 && channels == 2) {
+			WAV_PROCESS_LOOP({
+				x = idx * 2;
+				dst[0] = FromBE(data16()[x]);
+				dst[1] = FromBE(data16()[x + 1]);
 				});
 		}
 		else if (bitdepth == 8 && channels == 1) {

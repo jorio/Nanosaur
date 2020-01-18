@@ -100,6 +100,8 @@ class WavStream : public Source {
 	inline cm_Int16* data16() { return (cm_Int16*)udata.data(); }
 
 public:
+	bool bigEndian;
+
 	WavStream(
 		int theSampleRate,
 		int theBitDepth,
