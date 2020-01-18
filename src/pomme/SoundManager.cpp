@@ -16,6 +16,16 @@ struct ChannelEx {
 	SndChannelPtr prevChan;
 	bool macChannelStructAllocatedByPomme;
 	cmixer::WavStream* stream;
+	Byte baseNote = kMiddleC;
+
+	void Recycle() {
+		if (stream) {
+			// TODO: don't use new/delete
+			delete stream;
+			stream = nullptr;
+		}
+		baseNote = kMiddleC;
+	}
 };
 
 static inline ChannelEx& GetEx(SndChannelPtr chan)
@@ -70,6 +80,46 @@ static void Unlink(SndChannelPtr chan)
 }
 
 //-----------------------------------------------------------------------------
+// MIDI note utilities
+
+static double midiNoteFrequencies[128];
+
+// Note: these names are according to IM:S:2-43.
+// These names won't match real-world names.
+// E.g. for note 67 (A 440Hz), this will return "A6", whereas the real-world
+// convention for that note is "A4".
+static std::string GetMidiNoteName(int i)
+{
+	static const char* gamme[12] = { "A","A#","B","C","C#","D","D#","E","F","F#","G","G#" };
+
+	int octave = 1 + (i + 3) / 12;
+	int semitonesFromA = (i + 3) % 12;
+
+	std::stringstream ss;
+	ss << gamme[semitonesFromA] << octave;
+	return ss.str();
+}
+
+static void InitMidiFrequencyTable()
+{
+	// powers of twelfth root of two
+	double gamme[12];
+	gamme[0] = 1.0;
+	for (int i = 1; i < 12; i++)
+		gamme[i] = gamme[i - 1] * 1.059630943592952646;
+
+	for (int i = 0; i < 128; i++) {
+		int octave = 1 + (i + 3) / 12; // A440 and middle C are in octave 7
+		int semitone = (i + 3) % 12; // halfsteps up from A in current octave
+		if (octave < 7)
+			midiNoteFrequencies[i] = gamme[semitone] * 440.0 / (1 << (7 - octave)); // 440/(2**octaveDiff)
+		else
+			midiNoteFrequencies[i] = gamme[semitone] * 440.0 * (1 << (octave - 7)); // 440*(2**octaveDiff)
+		//LOG << i << "\t" << GetMidiNoteName(i) << "\t" << midiNoteFrequencies[i] << "\n";
+	}
+}
+
+//-----------------------------------------------------------------------------
 // Sound Manager
 
 OSErr GetDefaultOutputVolume(long* stereoLevel)
@@ -106,6 +156,7 @@ OSErr SndNewChannel(SndChannelPtr* chan, short synth, long init, SndCallBackProc
 
 	ChannelEx* impl = new ChannelEx;
 	*impl = {};
+	impl->baseNote = kMiddleC;
 
 	if (!*chan) {
 		*chan = new SndChannel;
@@ -176,11 +227,7 @@ static void ProcessSoundCmd(SndChannelPtr chan, const Ptr sndhdr)
 
 	cmixer::WavStream** stream = &GetEx(chan).stream;
 
-	if (*stream) {
-		(**stream).Stop();
-		delete *stream;
-		*stream = nullptr;
-	}
+	GetEx(chan).Recycle();
 
 	// PACKED RECORD
 	std::istrstream f0(sndhdr, 22+42);
@@ -196,6 +243,9 @@ static void ProcessSoundCmd(SndChannelPtr chan, const Ptr sndhdr)
 	UInt32	loopEnd			= f.Read<UInt32>();
 	Byte	encoding		= f.Read<Byte>();
 	Byte	baseFrequency	= f.Read<Byte>(); // 0-127, see Table 2-2, IM:S:2-43
+
+	LOG << "baseFrequency " << GetMidiNoteName(baseFrequency) << "\n";
+	GetEx(chan).baseNote = baseFrequency;
 
 	int		sampleRate		= (((unsigned)fixedSampleRate) >> 16) & 0xFFFF;
 
@@ -268,13 +318,16 @@ static void ProcessSoundCmd(SndChannelPtr chan, const Ptr sndhdr)
 		TODOFATAL2("unsupported snd header encoding " << (int)encoding);
 	}
 
-	if (*stream)
+	if (*stream) {
+		(**stream).SetPitch(midiNoteFrequencies[baseFrequency] / midiNoteFrequencies[kMiddleC]);
 		(**stream).Play();
+	}
 }
 
 OSErr SndDoImmediate(SndChannelPtr chan, const SndCommand* cmd)
 {
-	//4,3,80,42
+	auto& impl = GetEx(chan);
+
 	switch (cmd->cmd & 0x7FFF) {
 	case nullCmd:
 		break;
@@ -285,9 +338,35 @@ OSErr SndDoImmediate(SndChannelPtr chan, const SndCommand* cmd)
 		break;
 
 	case soundCmd:
-		LOG << "ProcessSoundCmd " << cmd->cmd << "(" << cmd->param1 << "," << cmd->param2 << ")\n";
 		ProcessSoundCmd(chan, cmd->ptr);
 		break;
+
+	case ampCmd:
+	{
+		double desiredAmplitude = cmd->param1 / 255.0;
+		LOG << "ampCmd " << desiredAmplitude << "\n";
+		if (GetEx(chan).stream)
+			GetEx(chan).stream->SetGain(desiredAmplitude);
+		break;
+	}
+
+	case freqCmd:
+	{
+		LOG << "freqCmd " << cmd->param2 << " " << GetMidiNoteName(cmd->param2) << " " << midiNoteFrequencies[cmd->param2] << "\n";
+		if (impl.stream) {
+			impl.stream->SetPitch(midiNoteFrequencies[cmd->param2] / midiNoteFrequencies[impl.baseNote]);
+		}
+		break;
+	}
+
+	case rateCmd:
+	{
+		/*
+		double desiredRate = 22050.0 * cmd->param2 / 65536.0;
+		LOG << "rateCmd " << desiredRate << "\n";
+		break;
+		*/
+	}
 
 	default:
 		TODOMINOR2(cmd->cmd << "(" << cmd->param1 << "," << cmd->param2 << ")");
@@ -316,7 +395,7 @@ OSErr GetSoundHeaderOffset(SndListHandle sndHandle, long* offset)
 	UInt32 initBits = f.Read<UInt32>();
 
 	SInt16 nCmds = f.Read<SInt16>();
-	LOG << nCmds << " commands\n";
+	//LOG << nCmds << " commands\n";
 	for (; nCmds >= 1; nCmds--) {
 		// todo: ReadStruct<SndCommand>, packfmt = Hhl (noalign)
 		UInt16 cmd = f.Read<UInt16>();
@@ -328,9 +407,9 @@ OSErr GetSoundHeaderOffset(SndListHandle sndHandle, long* offset)
 		// command from a pointer to a location in RAM to an offset value that specifies the offset
 		// in bytes from the resource's beginning to the location of the associated sound data (such
 		// as a sampled sound header). 
-		LOG << "command " << cmd << "\n";
+		//LOG << "command " << cmd << "\n";
 		if (cmd == bufferCmd || cmd == soundCmd) {
-			LOG << "offset found! " << param2 << "\n";
+			//LOG << "offset found! " << param2 << "\n";
 			*offset = param2;
 			return noErr;
 		}
@@ -371,10 +450,7 @@ OSErr SndStartFilePlay(
 
 	auto& impl = GetEx(chan);
 
-	if (impl.stream) {
-		delete impl.stream;
-		impl.stream = nullptr;
-	}
+	impl.Recycle();
 
 	// TODO: don't use new/delete
 	// TODO: get rid of the gratuitous buffer copy
@@ -387,8 +463,7 @@ OSErr SndStartFilePlay(
 			std::this_thread::sleep_for(std::chrono::milliseconds(100));
 		}
 		theCompletion(chan);
-		delete impl.stream;
-		impl.stream = nullptr;
+		impl.Recycle();
 		return noErr;
 	}
 
@@ -421,5 +496,6 @@ NumVersion SndSoundManagerVersion() {
 
 void Pomme::Sound::Init()
 {
+	InitMidiFrequencyTable();
 	cmixer::InitWithSDL();
 }
