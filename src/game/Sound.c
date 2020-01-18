@@ -555,7 +555,7 @@ OSErr	myErr;
 
 	mySndCmd.cmd = soundCmd;											// install sample in the channel
 	mySndCmd.param1 = 0;
-	mySndCmd.param2 = ((long)*gSndHandles[bankNum][soundNum])+gSndOffsets[bankNum][soundNum];	// pointer to SoundHeader
+	mySndCmd.ptr = ((Ptr)*gSndHandles[bankNum][soundNum])+gSndOffsets[bankNum][soundNum];	// pointer to SoundHeader
 	myErr = SndDoImmediate(chanPtr, &mySndCmd);
 	if (myErr)
 		return(-1);

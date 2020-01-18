@@ -183,7 +183,10 @@ typedef PixMapPtr* PixMapHandle;
 struct SndCommand {
     unsigned short    cmd;
     short             param1;
-    long              param2;
+    union {
+        long          param2;
+        Ptr           ptr; // pomme addition to pass 64-bit clean pointers
+    };
 };
 
 struct SCStatus {
