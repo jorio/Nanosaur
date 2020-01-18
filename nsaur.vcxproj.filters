@@ -622,6 +622,9 @@
     <ClInclude Include="src\pomme\cmixer.h">
       <Filter>Pomme</Filter>
     </ClInclude>
+    <ClInclude Include="src\pomme\DumpAU.h">
+      <Filter>Pomme</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Qut">

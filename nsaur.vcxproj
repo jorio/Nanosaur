@@ -286,6 +286,7 @@
     <ClInclude Include="src\game\weapons.h" />
     <ClInclude Include="src\game\windows_nano.h" />
     <ClInclude Include="src\pomme\cmixer.h" />
+    <ClInclude Include="src\pomme\DumpAU.h" />
     <ClInclude Include="src\pomme\GrowablePool.h" />
     <ClInclude Include="src\pomme\FixedPool.h" />
     <ClInclude Include="src\pomme\IEEEExtended.h" />

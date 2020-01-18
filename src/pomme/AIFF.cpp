@@ -17,30 +17,6 @@ struct AIFFCOMM {
 	OSType compressionType = 'NONE';
 };
 
-template<typename T>
-void DumpAU(const char* fn, const std::vector<T>& samples, int nChannels, int sampleRate)
-{
-	int header[6] = {
-		'.snd',							// magic
-		24,								// offset to data
-		samples.size() * sizeof(T),		// data size
-		1 + sizeof(T),					// format (2,3,4,5 => 8,16,24,32-bit PCM)
-		sampleRate,
-		nChannels
-	};
-	structpack::Pack(">6l", (Ptr)header);
-
-	std::ofstream f(fn, std::ofstream::binary);
-	f.write((const char*)header, sizeof(header));
-	for (int i = 0; i < samples.size(); i++) {
-		T beSample = ToBE(samples[i]);
-		f.write((char*)&beSample, sizeof(T));
-	}
-	f.close();
-
-	std::cout << "Dumped AU: " << fn << "\n";
-}
-
 Pomme::Sound::AudioClip Pomme::Sound::ReadAIFF(std::istream& theF)
 {
 	BigEndianIStream f(theF);
