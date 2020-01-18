@@ -17,6 +17,7 @@ struct ChannelEx {
 	bool macChannelStructAllocatedByPomme;
 	cmixer::WavStream* stream;
 	Byte baseNote = kMiddleC;
+	FilePlayCompletionProcPtr onComplete;
 
 	void Recycle() {
 		if (stream) {
@@ -446,7 +447,10 @@ OSErr SndStartFilePlay(
 		return unimpErr;
 	}
 
-	Pomme::Sound::AudioClip clip = Pomme::Sound::ReadAIFF(Pomme::Files::GetStream(fRefNum));
+	auto& stream = Pomme::Files::GetStream(fRefNum);
+	// Rewind -- the file might've been fully played already and we might just be trying to loop it
+	stream.seekg(0, std::ios::beg);
+	Pomme::Sound::AudioClip clip = Pomme::Sound::ReadAIFF(stream);
 
 	auto& impl = GetEx(chan);
 
@@ -455,6 +459,11 @@ OSErr SndStartFilePlay(
 	// TODO: don't use new/delete
 	// TODO: get rid of the gratuitous buffer copy
 	impl.stream = new cmixer::WavStream(clip.sampleRate, 16, clip.nChannels, std::vector<char>(clip.pcmData));
+
+	if (theCompletion)
+		impl.stream->onComplete = [=]() { theCompletion(chan); };
+	else
+		impl.stream->onComplete = nullptr;
 
 	impl.stream->Play();
 
@@ -466,8 +475,6 @@ OSErr SndStartFilePlay(
 		impl.Recycle();
 		return noErr;
 	}
-
-	TODOMINOR2("plug completion callback");
 
 	return noErr;
 }

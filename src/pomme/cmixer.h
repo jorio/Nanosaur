@@ -25,6 +25,7 @@
 #pragma once
 
 #include <vector>
+#include <functional>
 
 #define BUFFER_SIZE (512)
 
@@ -59,6 +60,7 @@ struct Source {
 	bool active;					// Whether the source is part of `sources` list
 	double gain;					// Gain set by `cm_set_gain()`
 	double pan;						// Pan set by `cm_set_pan()`
+	std::function<void()> onComplete;		// Callback
 
 protected:
 	Source(int theSampleRate, int theLength);

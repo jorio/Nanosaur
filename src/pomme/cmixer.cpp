@@ -273,8 +273,9 @@ void Source::Process(int len)
 			end = frame + this->length;
 			// Set state and stop processing if we're not set to loop
 			if (!loop) {
-				
 				state = CM_STATE_STOPPED;
+				if (onComplete != nullptr)
+					onComplete();
 				break;
 			}
 		}
