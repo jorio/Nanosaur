@@ -23,6 +23,11 @@ static inline ChannelEx& GetEx(SndChannelPtr chan)
 	return *(ChannelEx*)chan->firstMod;
 }
 
+static inline cmixer::WavStream* GetMixSource(SndChannelPtr chan)
+{
+	return GetEx(chan).stream;
+}
+
 static inline SndChannelPtr* NextOf(SndChannelPtr chan)
 {
 	return &chan->nextChan;
@@ -161,10 +166,141 @@ OSErr SndChannelStatus(SndChannelPtr chan, short theLength, SCStatusPtr theStatu
 	return noErr;
 }
 
+static void ProcessSoundCmd(SndChannelPtr chan, const Ptr sndhdr)
+{
+	// Install a sampled sound as a voice in a channel. If the high bit of the
+	// command is set, param2 is interpreted as an offset from the beginning of
+	// the 'snd ' resource containing the command to the sound header. If the
+	// high bit is not set, param2 is interpreted as a pointer to the sound
+	// header.
+
+	cmixer::WavStream** stream = &GetEx(chan).stream;
+
+	if (*stream) {
+		(**stream).Stop();
+		delete *stream;
+		*stream = nullptr;
+	}
+
+	// PACKED RECORD
+	std::istrstream f0(sndhdr, 22+42);
+	Pomme::BigEndianIStream f(f0);
+
+	if (f.Read<SInt32>() != 0) {
+		TODOFATAL2("expected 0 at the beginning of an snd");
+	}
+
+	SInt32	mysteryNumber	= f.Read<SInt32>(); // the meaning of this is decided by the encoding just a bit later
+	Fixed	fixedSampleRate	= f.Read<Fixed>();
+	UInt32	loopStart		= f.Read<UInt32>();
+	UInt32	loopEnd			= f.Read<UInt32>();
+	Byte	encoding		= f.Read<Byte>();
+	Byte	baseFrequency	= f.Read<Byte>(); // 0-127, see Table 2-2, IM:S:2-43
+
+	int		sampleRate		= (((unsigned)fixedSampleRate) >> 16) & 0xFFFF;
+
+	switch (encoding) {
+	case 0x00: // stdSH - standard sound header - IM:S:2-104
+	{
+		SInt32 nBytes = mysteryNumber; // first field meant nBytes
+
+		// noncompressed sample data (8-bit mono) from this point on
+		auto here = sndhdr + f.Tell();
+
+		*stream = new cmixer::WavStream(sampleRate, 8, 1, std::vector<char>(here, here + nBytes));
+		break;
+	}
+
+	case 0xFF: // extSH - extended sound header - IM:S:2-106
+	{
+		SInt32 nChannels = mysteryNumber; // first field meant nChannels
+
+		// fields that follow baseFrequency
+		SInt32 nFrames = f.Read<SInt32>();
+		f.Skip(22);
+		SInt16 bitDepth = f.Read<SInt16>();
+		f.Skip(14);
+
+		int nBytes = nChannels * nFrames * bitDepth / 8;
+
+		// noncompressed sample data (big endian) from this point on
+		auto here = sndhdr + f.Tell();
+
+		// TODO: Get rid of gratuitous buffer copy
+		// TODO: Get rid of gratuitous new
+		*stream = new cmixer::WavStream(sampleRate, bitDepth, nChannels, std::vector<char>(here, here + nBytes));
+		(**stream).bigEndian = true;
+		break;
+	}
+
+	case 0xFE: // cmpSH - compressed sound header - IM:S:2-108
+	{
+		SInt32 nChannels = mysteryNumber; // first field meant nChannels
+
+		// fields that follow baseFrequency
+		SInt32 nCompressedChunks = f.Read<SInt32>();
+		f.Skip(14);
+		OSType format = f.Read<OSType>();
+		f.Skip(20);
+		
+		// compressed sample data from this point on
+		auto here = sndhdr + f.Tell();
+
+		switch (format) {
+		case 'ima4':
+		{
+			auto nBytes = 34 * nChannels * nCompressedChunks;
+			// TODO: Get rid of gratuitous buffer copy
+			auto decoded = Pomme::Sound::DecodeIMA4(std::vector<Byte>(here, here + nBytes), nChannels);
+			// TODO: Get rid of gratuitous buffer copy
+			*stream = new cmixer::WavStream(sampleRate, 16, nChannels,
+				std::vector<char>((char*)decoded.data(), (char*)(decoded.data() + decoded.size())));
+			break;
+		}
+
+		default:
+			TODOFATAL2("unsupported snd compression format " << format);
+		}
+		break;
+	}
+
+	default:
+		TODOFATAL2("unsupported snd header encoding " << (int)encoding);
+	}
+
+	if (*stream)
+		(**stream).Play();
+}
+
 OSErr SndDoImmediate(SndChannelPtr chan, const SndCommand* cmd)
 {
-	TODOMINOR2(cmd->cmd);
+	//4,3,80,42
+	switch (cmd->cmd & 0x7FFF) {
+	case nullCmd:
+		break;
+
+	case quietCmd:
+		if (GetMixSource(chan))
+			GetMixSource(chan)->Stop();
+		break;
+
+	case soundCmd:
+		LOG << "ProcessSoundCmd " << cmd->cmd << "(" << cmd->param1 << "," << cmd->param2 << ")\n";
+		ProcessSoundCmd(chan, cmd->ptr);
+		break;
+
+	default:
+		TODOMINOR2(cmd->cmd << "(" << cmd->param1 << "," << cmd->param2 << ")");
+	}
+
 	return noErr;
+}
+
+template<typename T>
+static void Expect(const T a, const T b, const char* msg)
+{
+	if (a != b)
+		throw std::exception(msg);
 }
 
 // IM:S:2-58 "MyGetSoundHeaderOffset"
@@ -174,16 +310,10 @@ OSErr GetSoundHeaderOffset(SndListHandle sndHandle, long* offset)
 	Pomme::BigEndianIStream f(f0);
 
 	// Skip everything before sound commands
-	SInt16 format = f.Read<SInt16>();
-	if (format != 1) {
-		LOG << "only 'snd ' format 1 is supported\n";
-		return badFormat;
-	}
-
-	// Skip modifiers
-	SInt16 nSynths = f.Read<SInt16>();
-	LOG << nSynths << " modifiers\n";
-	f.Skip(nSynths * (2 + 4));
+	Expect<SInt16>(1, f.Read<SInt16>(), "'snd ' format");
+	Expect<SInt16>(1, f.Read<SInt16>(), "'snd ' modifier count");
+	Expect<SInt16>(5, f.Read<SInt16>(), "'snd ' sampledSynth");
+	UInt32 initBits = f.Read<UInt32>();
 
 	SInt16 nCmds = f.Read<SInt16>();
 	LOG << nCmds << " commands\n";
