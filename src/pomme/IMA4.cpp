@@ -19,7 +19,7 @@
  */
 
 #include <vector>
-#include <strstream>
+#include <cassert>
 #include "PommeInternal.h"
 
 const int8_t ff_adpcm_index_table[16] = {
@@ -85,17 +85,15 @@ static inline int adpcm_ima_qt_expand_nibble(ADPCMChannelStatus* c, int nibble, 
 // In QuickTime, IMA is encoded by chunks of 34 bytes (=64 samples). Channel data is interleaved per-chunk.
 std::vector<SInt16> Pomme::Sound::DecodeIMA4(const std::vector<Byte>& input, const int nChannels)
 {
-	std::istrstream f0((char*)input.data(), input.size());
-	BigEndianIStream f(f0);
-
 	if (input.size() % 34 != 0)
 		throw std::invalid_argument("odd input buffer size");
 
 	int nChunks = input.size() / (34 * nChannels);
 	int nSamples = 64 * nChunks;
 
-	std::vector<SInt16> output;
-	output.reserve(nSamples * nChannels);
+	std::vector<SInt16> output(nSamples * nChannels);
+
+	const unsigned char* in = input.data();
 
 	ADPCMDecodeContext ctx = {};
 
@@ -107,7 +105,8 @@ std::vector<SInt16> Pomme::Sound::DecodeIMA4(const std::vector<Byte>& input, con
 		ADPCMChannelStatus& cs = ctx.status[chan];
 
 		// Bits 15-7 are the _top_ 9 bits of the 16-bit initial predictor value
-		predictor = sign_extend(f.Read<UInt16>(), 16);
+		predictor = sign_extend((in[0] << 8) | in[1], 16);
+		in += 2;
 		step_index = predictor & 0x7F;
 		predictor &= ~0x7F;
 
@@ -125,15 +124,18 @@ std::vector<SInt16> Pomme::Sound::DecodeIMA4(const std::vector<Byte>& input, con
 		if (cs.step_index > 88u)
 			throw std::invalid_argument("step_index[chan]>88!");
 
-		for (int m = 0; m < 64; m += 2) {
-			int byte = f.Read<UInt8>();
-			output.push_back(adpcm_ima_qt_expand_nibble(&cs, byte & 0x0F, 3));
-			output.push_back(adpcm_ima_qt_expand_nibble(&cs, byte >> 4, 3));
+		int pos = chunk * 64 * nChannels + chan;
+		for (int m = 0; m < 32; m++) {
+			int byte = (unsigned char)(*in++);
+			output[pos] = adpcm_ima_qt_expand_nibble(&cs, byte & 0x0F, 3);
+			pos += nChannels;
+			output[pos] = adpcm_ima_qt_expand_nibble(&cs, byte >> 4, 3);
+			pos += nChannels;
 		}
 	}
 
-	if (output.size() != nSamples * nChannels)
-		throw std::exception("unexpected final output size");
+	assert(output.size() == nSamples * nChannels);
+	assert(in == (input.data() + input.size()));
 
 	return output;
 }
