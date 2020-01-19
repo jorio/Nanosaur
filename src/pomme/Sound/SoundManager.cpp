@@ -4,7 +4,7 @@
 #include <cassert>
 #include <strstream>
 #include "PommeInternal.h"
-#include "cmixer.h"
+#include "Sound/cmixer.h"
 
 #define LOG POMME_GENLOG(POMME_DEBUG_SOUND, "SOUN")
 #define LOG_NOPREFIX POMME_GENLOG_NOPREFIX(POMME_DEBUG_SOUND)

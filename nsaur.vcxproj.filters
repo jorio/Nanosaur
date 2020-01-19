@@ -145,8 +145,8 @@
     <ClCompile Include="src\pomme\Resources.cpp">
       <Filter>Pomme</Filter>
     </ClCompile>
-    <ClCompile Include="src\pomme\SoundManager.cpp">
-      <Filter>Pomme</Filter>
+    <ClCompile Include="src\pomme\Sound\SoundManager.cpp">
+      <Filter>Pomme\Sound</Filter>
     </ClCompile>
     <ClCompile Include="src\pomme\TimeManager.cpp">
       <Filter>Pomme</Filter>
@@ -171,15 +171,6 @@
       <Filter>Pomme</Filter>
     </ClCompile>
     <ClCompile Include="src\pomme\QD3D.cpp">
-      <Filter>Pomme</Filter>
-    </ClCompile>
-    <ClCompile Include="src\pomme\Resources.cpp">
-      <Filter>Pomme</Filter>
-    </ClCompile>
-    <ClCompile Include="src\pomme\SoundManager.cpp">
-      <Filter>Pomme</Filter>
-    </ClCompile>
-    <ClCompile Include="src\pomme\TimeManager.cpp">
       <Filter>Pomme</Filter>
     </ClCompile>
     <ClCompile Include="src\game\3DMath.c">
@@ -317,22 +308,22 @@
     <ClCompile Include="src\pomme\IEEEExtended.c">
       <Filter>Pomme</Filter>
     </ClCompile>
-    <ClCompile Include="src\pomme\AIFF.cpp">
-      <Filter>Pomme</Filter>
-    </ClCompile>
-    <ClCompile Include="src\pomme\MACE.cpp">
-      <Filter>Pomme</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Pomme\IMA4.cpp">
-      <Filter>Pomme</Filter>
-    </ClCompile>
     <ClCompile Include="src\pomme\structpack.cpp">
       <Filter>Pomme</Filter>
     </ClCompile>
     <ClCompile Include="src\StructUnpackers.cpp" />
     <ClCompile Include="src\GamePatches.cpp" />
-    <ClCompile Include="src\pomme\cmixer.cpp">
-      <Filter>Pomme</Filter>
+    <ClCompile Include="src\pomme\Sound\MACE.cpp">
+      <Filter>Pomme\Sound</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Pomme\Sound\IMA4.cpp">
+      <Filter>Pomme\Sound</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pomme\Sound\AIFF.cpp">
+      <Filter>Pomme\Sound</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pomme\Sound\cmixer.cpp">
+      <Filter>Pomme\Sound</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -619,11 +610,11 @@
       <Filter>Pomme</Filter>
     </ClInclude>
     <ClInclude Include="src\GamePatches.h" />
-    <ClInclude Include="src\pomme\cmixer.h">
-      <Filter>Pomme</Filter>
+    <ClInclude Include="src\pomme\Sound\cmixer.h">
+      <Filter>Pomme\Sound</Filter>
     </ClInclude>
-    <ClInclude Include="src\pomme\DumpAU.h">
-      <Filter>Pomme</Filter>
+    <ClInclude Include="src\pomme\Sound\DumpAU.h">
+      <Filter>Pomme\Sound</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -635,6 +626,9 @@
     </Filter>
     <Filter Include="Pomme">
       <UniqueIdentifier>{c97c0370-55d1-410e-953a-12e57f54ca31}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Pomme\Sound">
+      <UniqueIdentifier>{1118f599-240c-4c8b-a10f-3eca2261fd95}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
