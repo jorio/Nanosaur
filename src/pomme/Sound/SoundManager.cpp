@@ -11,14 +11,18 @@
 
 static SndChannelPtr headChan = nullptr;
 static int nManagedChans = 0;
+static double midiNoteFrequencies[128];
 
 // Internal channel info
 struct ChannelEx {
 	SndChannelPtr prevChan;
 	bool macChannelStructAllocatedByPomme;
 	cmixer::WavStream* stream;
-	Byte baseNote = kMiddleC;
 	FilePlayCompletionProcPtr onComplete;
+
+	Byte baseNote = kMiddleC;
+	Byte playbackNote = kMiddleC;
+	double pitchMult = 1;
 
 	void Recycle() {
 		if (stream) {
@@ -27,6 +31,15 @@ struct ChannelEx {
 			stream = nullptr;
 		}
 		baseNote = kMiddleC;
+		playbackNote = kMiddleC;
+		pitchMult = 1;
+	}
+
+	void ApplyPitch() {
+		if (!stream) return;
+		double baseFreq = midiNoteFrequencies[baseNote];
+		double playbackFreq = midiNoteFrequencies[playbackNote];
+		stream->SetPitch(pitchMult * playbackFreq / baseFreq);
 	}
 };
 
@@ -83,8 +96,6 @@ static void Unlink(SndChannelPtr chan)
 
 //-----------------------------------------------------------------------------
 // MIDI note utilities
-
-static double midiNoteFrequencies[128];
 
 // Note: these names are according to IM:S:2-43.
 // These names won't match real-world names.
@@ -359,7 +370,7 @@ static void ProcessSoundCmd(SndChannelPtr chan, const Ptr sndhdr)
 			(**stream).SetLoop(true);
 		}
 
-		(**stream).SetPitch(midiNoteFrequencies[baseFrequency] / midiNoteFrequencies[kMiddleC]);
+		GetEx(chan).ApplyPitch();
 		(**stream).Play();
 	}
 }
@@ -393,19 +404,18 @@ OSErr SndDoImmediate(SndChannelPtr chan, const SndCommand* cmd)
 	case freqCmd:
 	{
 		LOG << "freqCmd " << cmd->param2 << " " << GetMidiNoteName(cmd->param2) << " " << midiNoteFrequencies[cmd->param2] << "\n";
-		if (impl.stream) {
-			impl.stream->SetPitch(midiNoteFrequencies[cmd->param2] / midiNoteFrequencies[impl.baseNote]);
-		}
+		impl.playbackNote = cmd->param2;
+		impl.ApplyPitch();
 		break;
 	}
 
 	case rateCmd:
 	{
-		/*
-		double desiredRate = 22050.0 * cmd->param2 / 65536.0;
-		LOG << "rateCmd " << desiredRate << "\n";
+		// IM:S says it's a fixed-point multiplier of 22KHz, but Nanosaur uses rate "1" everywhere,
+		// even for sounds sampled at 44Khz, so I'm treating it as just a pitch multiplier.
+		impl.pitchMult = cmd->param2 / 65536.0;
+		impl.ApplyPitch();
 		break;
-		*/
 	}
 
 	default:
