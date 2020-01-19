@@ -180,7 +180,7 @@ OSErr SndNewChannel(SndChannelPtr* chan, short synth, long init, SndCallBackProc
 	//---------------------------
 	// Done
 
-	LOG << "New channel created, total managed channels = " << nManagedChans << "\n";
+	LOG << "New channel created, init = $" << std::hex << init << std::dec << ", total managed channels = " << nManagedChans << "\n";
 
 	return noErr;
 }
@@ -298,6 +298,14 @@ static void ProcessSoundCmd(SndChannelPtr chan, const Ptr sndhdr)
 		f.Skip(14);
 		OSType format = f.Read<OSType>();
 		f.Skip(20);
+
+		if (format == 0) {
+			// Assume MACE-3. It should've been set in the init options in the snd pre-header,
+			// but Nanosaur doesn't actually init the sound channels for MACE-3. So I guess the Mac
+			// assumes by default that any unspecified compression is MACE-3.
+			// If it wasn't MACE-3, it would've been caught by GetSoundHeaderOffset.
+			format = 'MAC3';
+		}
 		
 		// compressed sample data from this point on
 		auto here = sndhdr + f.Tell();
@@ -317,8 +325,20 @@ static void ProcessSoundCmd(SndChannelPtr chan, const Ptr sndhdr)
 			break;
 		}
 
+		case 'MAC3':
+		{
+			int nBytes = 2 * nChannels * nCompressedChunks;
+			// TODO: Get rid of gratuitous buffer copy
+			auto decoded = Pomme::Sound::DecodeMACE3(std::vector<Byte>(here, here + nBytes), nChannels);
+			LOG_NOPREFIX << nBytes << " B (" << nBytes / nChannels << "), " << decoded.size() / nChannels << " frames\n";
+			// TODO: Get rid of gratuitous buffer copy
+			*stream = new cmixer::WavStream(sampleRate, 16, nChannels,
+				std::vector<char>((char*)decoded.data(), (char*)(decoded.data() + decoded.size())));
+			break;
+		}
+
 		default:
-			TODOFATAL2("unsupported snd compression format " << format);
+			TODOFATAL2("unsupported snd compression format " << Pomme::FourCCString(format));
 		}
 		break;
 	}
@@ -413,6 +433,9 @@ OSErr GetSoundHeaderOffset(SndListHandle sndHandle, long* offset)
 	Expect<SInt16>(1, f.Read<SInt16>(), "'snd ' modifier count");
 	Expect<SInt16>(5, f.Read<SInt16>(), "'snd ' sampledSynth");
 	UInt32 initBits = f.Read<UInt32>();
+
+	if (initBits & initMACE6)
+		TODOFATAL2("MACE-6 not supported yet");
 
 	SInt16 nCmds = f.Read<SInt16>();
 	//LOG << nCmds << " commands\n";
