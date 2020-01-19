@@ -1,15 +1,23 @@
 #include "Qut.h"
 #include "QutInternal.h"
 
-constexpr auto kQutWindowClass = L"Qut";
+#include <SDL.h>
+#include <iostream>
 
-HINSTANCE				gInstance    = NULL;
-HDC						gDC          = NULL;
+//HINSTANCE				gInstance    = NULL;
+//HDC						gDC          = NULL;
 
 TQ3ViewObject                   gView = NULL;
-void*							gWindow = NULL;
+//void*							gWindow = NULL;
 TQ3Boolean                      gWindowCanResize = kQ3True;
+SDL_Window* gSDLWindow = nullptr;
+SDL_GLContext					gGLCtx = nullptr;
 
+TQ3DrawContextData gDCD;
+TQ3DrawContextObject gDCO;
+
+
+#if 0
 static void
 qut_get_window_size(HWND theWnd, TQ3Area *theArea)
 {	RECT		theRect;
@@ -38,6 +46,7 @@ qut_wnd_proc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	}
 	return 0;
 }
+#endif
 
 void
 Qut_CreateWindow(const char		*windowTitle,
@@ -45,6 +54,9 @@ Qut_CreateWindow(const char		*windowTitle,
 					TQ3Uns32	theHeight,
 					TQ3Boolean	canResize)
 {
+#if 1
+	TODO2("actually create sdl window here");
+#else
 	wchar_t wString[4096];
 	MultiByteToWideChar(CP_ACP, 0, windowTitle, -1, wString, 4096);
 	// Create the window
@@ -57,17 +69,19 @@ Qut_CreateWindow(const char		*windowTitle,
 
 	// Save the window details
 	gWindowCanResize = canResize;
+#endif
 }
+
 
 TQ3DrawContextObject
 Qut_CreateDrawContext(void)
-{	TQ3Win32DCDrawContextData	winDrawContextData;
-	TQ3Boolean					resetDrawContext;
+{//	TQ3Win32DCDrawContextData	winDrawContextData;
+TQ3Boolean					resetDrawContext = kQ3True;
 	TQ3DrawContextObject		theDrawContext;
 	TQ3Status					qd3dStatus;
 
 	// Get the DC
-	gDC = GetDC((HWND) gWindow);
+//	gDC = GetDC((HWND) gWindow);
 
 	// See if we've got an existing draw context we can reuse. If we
 	// do, we grab as much of its state data as we can - this means we
@@ -79,56 +93,72 @@ Qut_CreateDrawContext(void)
 		if (qd3dStatus == kQ3Success)
 			{
 			resetDrawContext = kQ3False;
-			Q3DrawContext_GetData(theDrawContext, &winDrawContextData.drawContextData);
+//			Q3DrawContext_GetData(theDrawContext, &winDrawContextData.drawContextData);
 			Q3Object_Dispose(theDrawContext);
 			}
 		}
+
+	TQ3DrawContextData& drawContextData = gDCD;
 
 	// Reset the draw context data if required
 	if (resetDrawContext)
 		{
 		// Fill in the draw context data
-		winDrawContextData.drawContextData.clearImageMethod  = kQ3ClearMethodWithColor;
-		winDrawContextData.drawContextData.clearImageColor.a = 1.0f;
-		winDrawContextData.drawContextData.clearImageColor.r = 1.0f;
-		winDrawContextData.drawContextData.clearImageColor.g = 1.0f;
-		winDrawContextData.drawContextData.clearImageColor.b = 1.0f;
-		winDrawContextData.drawContextData.paneState         = kQ3False;
-		winDrawContextData.drawContextData.maskState		 = kQ3False;	
-		winDrawContextData.drawContextData.doubleBufferState = kQ3True;
+		drawContextData.clearImageMethod  = kQ3ClearMethodWithColor;
+		drawContextData.clearImageColor.a = 1.0f;
+		drawContextData.clearImageColor.r = 1.0f;
+		drawContextData.clearImageColor.g = 1.0f;
+		drawContextData.clearImageColor.b = 1.0f;
+		drawContextData.paneState         = kQ3False;
+		drawContextData.maskState		 = kQ3False;	
+		drawContextData.doubleBufferState = kQ3True;
 		}
 
 	// Reset the fields which are always updated
-	qut_get_window_size((HWND) gWindow, &winDrawContextData.drawContextData.pane);
-	winDrawContextData.hdc = gDC;
+	drawContextData.pane.min.x = 0;
+	drawContextData.pane.min.y = 0;
+	drawContextData.pane.max.x = 640;
+	drawContextData.pane.max.x = 480;
+//	qut_get_window_size((HWND) gWindow, &winDrawContextData.drawContextData.pane);
+//	winDrawContextData.hdc = gDC;
 
 	// Create the draw context object
-	theDrawContext = Q3Win32DCDrawContext_New(&winDrawContextData);
+//	theDrawContext = new E3SdlGlDrawContext;
+//	theDrawContext = Q3Win32DCDrawContext_New(&winDrawContextData);
+	theDrawContext = Q3SDLDrawContext_New();
 	return(theDrawContext);
+	//return (TQ3DrawContextObject)gGLCtx;
+}
+
+
+#define SDL_ENSURE(X) { \
+	if (!(X)) { \
+		std::cerr << #X << " --- " << SDL_GetError() << "\n"; \
+		exit(1); \
+	} \
 }
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {	MSG		theMsg;
 	TQ3Status		qd3dStatus;
-	WNDCLASSEX wcex;
+	
 
-	// Initialise ourselves
-	gInstance = hInstance;
 
-	// Register the window
-	wcex.cbSize			= sizeof(WNDCLASSEX);
-	wcex.style			= CS_OWNDC;
-	wcex.lpfnWndProc	= (WNDPROC)qut_wnd_proc;
-	wcex.cbClsExtra		= 0;
-	wcex.cbWndExtra		= 0;
-	wcex.hInstance		= gInstance;
-	wcex.hIcon			= LoadIcon(NULL, IDI_WINLOGO);
-	wcex.hCursor		= LoadCursor(NULL, IDC_ARROW);
-	wcex.hbrBackground	= NULL;
-	wcex.lpszMenuName	= 0;
-	wcex.lpszClassName	= kQutWindowClass;
-	wcex.hIconSm		= NULL;
-	RegisterClassEx(&wcex);
+	SDL_ENSURE(0 == SDL_Init(SDL_INIT_VIDEO));
+
+	gSDLWindow = SDL_CreateWindow("SDLNano",
+		SDL_WINDOWPOS_UNDEFINED,
+		SDL_WINDOWPOS_UNDEFINED,
+		640,
+		480,
+		SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_SHOWN);
+
+	SDL_ENSURE(gSDLWindow);
+
+	SDL_ENSURE(gGLCtx = SDL_GL_CreateContext(gSDLWindow));
+
+
+
 
 	// Initialise ourselves
 	qd3dStatus = Q3Initialize();
@@ -137,6 +167,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 
 	App_Initialise();
 
+#if 0
 	if (gWindow == NULL)
 		return 1;
 
@@ -148,6 +179,11 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 		TranslateMessage(&theMsg);
 		DispatchMessage(&theMsg);
 	}
+#endif
+
+	while (true) {
+		// ...
+	}
 
 	// Clean up
 	App_Terminate();
@@ -155,13 +191,13 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	if (gView != NULL)
 		Q3Object_Dispose(gView);
 
-	if (gDC != NULL)
-		ReleaseDC((HWND)gWindow, gDC);
+//	if (gDC != NULL)
+//		ReleaseDC((HWND)gWindow, gDC);
 
-	DestroyWindow((HWND)gWindow);
+//	DestroyWindow((HWND)gWindow);
 
 	// Terminate Quesa
 	qd3dStatus = Q3Exit();
 
-	return(theMsg.wParam);
+	return 0;//return(theMsg.wParam);
 }

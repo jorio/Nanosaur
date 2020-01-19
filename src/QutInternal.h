@@ -113,7 +113,7 @@ extern "C" {
 //      Globals
 //-----------------------------------------------------------------------------
 extern TQ3ViewObject			gView;
-extern void						*gWindow;
+//extern void						*gWindow;
 extern float					gFPS;
 extern TQ3Boolean				gWindowCanResize;
 extern TQ3ObjectType			gRenderers[kRendererMaxNum];
