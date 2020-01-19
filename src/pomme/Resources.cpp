@@ -227,12 +227,17 @@ Handle GetResource(ResType theType, short theID) {
 			LOG << FourCCString(theType) << " " << theID << ": " << len << "\n";
 
 			/*
-			std::stringstream fn;
-			fn << "b:\\rez_" << theID << "." << Pomme::FourCCString(theType, '_');
-			std::ofstream dump(fn.str(), std::ofstream::binary);
-			dump.write(*h, len);
-			dump.close();
-			std::cout << "wrote " << fn.str() << "\n";
+			if (theType == 'snd ') {
+				f.Goto(rez.nameOffset);
+				auto name = f.ReadPascalString();
+
+				std::stringstream fn;
+				fn << "b:\\rez_" << theID << "_" << name << "." << Pomme::FourCCString(theType, '_');
+				std::ofstream dump(fn.str(), std::ofstream::binary);
+				dump.write(*h, len);
+				dump.close();
+				std::cout << "wrote " << fn.str() << "\n";
+			}
 			*/
 
 			return h;
