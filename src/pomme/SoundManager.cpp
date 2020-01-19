@@ -7,6 +7,7 @@
 #include "cmixer.h"
 
 #define LOG POMME_GENLOG(POMME_DEBUG_SOUND, "SOUN")
+#define LOG_NOPREFIX POMME_GENLOG_NOPREFIX(POMME_DEBUG_SOUND)
 
 static SndChannelPtr headChan = nullptr;
 static int nManagedChans = 0;
@@ -245,10 +246,10 @@ static void ProcessSoundCmd(SndChannelPtr chan, const Ptr sndhdr)
 	Byte	encoding		= f.Read<Byte>();
 	Byte	baseFrequency	= f.Read<Byte>(); // 0-127, see Table 2-2, IM:S:2-43
 
-	LOG << "baseFrequency " << GetMidiNoteName(baseFrequency) << "\n";
+	int		sampleRate		= (((unsigned)fixedSampleRate) >> 16) & 0xFFFF;
 	GetEx(chan).baseNote = baseFrequency;
 
-	int		sampleRate		= (((unsigned)fixedSampleRate) >> 16) & 0xFFFF;
+	LOG << sampleRate << "Hz, " << GetMidiNoteName(baseFrequency) << ", loop " << loopStart << "->" << loopEnd << ", ";
 
 	switch (encoding) {
 	case 0x00: // stdSH - standard sound header - IM:S:2-104
@@ -257,6 +258,8 @@ static void ProcessSoundCmd(SndChannelPtr chan, const Ptr sndhdr)
 
 		// noncompressed sample data (8-bit mono) from this point on
 		auto here = sndhdr + f.Tell();
+
+		LOG_NOPREFIX << "stdSH: 8-bit mono, " << nBytes << " frames\n";
 
 		*stream = new cmixer::WavStream(sampleRate, 8, 1, std::vector<char>(here, here + nBytes));
 		break;
@@ -276,6 +279,8 @@ static void ProcessSoundCmd(SndChannelPtr chan, const Ptr sndhdr)
 
 		// noncompressed sample data (big endian) from this point on
 		auto here = sndhdr + f.Tell();
+
+		LOG_NOPREFIX << "extSH: " << bitDepth << "-bit " << (nChannels == 1? "mono": "stereo") << ", " << nFrames << " frames\n";
 
 		// TODO: Get rid of gratuitous buffer copy
 		// TODO: Get rid of gratuitous new
@@ -297,12 +302,15 @@ static void ProcessSoundCmd(SndChannelPtr chan, const Ptr sndhdr)
 		// compressed sample data from this point on
 		auto here = sndhdr + f.Tell();
 
+		LOG_NOPREFIX << "cmpSH: " << Pomme::FourCCString(format) << " " << (nChannels == 1 ? "mono" : "stereo") << ", " << nCompressedChunks << " ck, ";
+
 		switch (format) {
 		case 'ima4':
 		{
-			auto nBytes = 34 * nChannels * nCompressedChunks;
+			int nBytes = 34 * nChannels * nCompressedChunks;
 			// TODO: Get rid of gratuitous buffer copy
 			auto decoded = Pomme::Sound::DecodeIMA4(std::vector<Byte>(here, here + nBytes), nChannels);
+			LOG_NOPREFIX << nBytes << " B (" << nBytes/nChannels << "), " << decoded.size() / nChannels << " frames\n";
 			// TODO: Get rid of gratuitous buffer copy
 			*stream = new cmixer::WavStream(sampleRate, 16, nChannels,
 				std::vector<char>((char*)decoded.data(), (char*)(decoded.data() + decoded.size())));
@@ -320,6 +328,17 @@ static void ProcessSoundCmd(SndChannelPtr chan, const Ptr sndhdr)
 	}
 
 	if (*stream) {
+		if (loopEnd - loopStart <= 1) {
+			// don't loop
+		}
+		else if (loopStart == 0) {
+			(**stream).SetLoop(true);
+		}
+		else {
+			TODO2("looping on a portion of the snd isn't supported yet");
+			(**stream).SetLoop(true);
+		}
+
 		(**stream).SetPitch(midiNoteFrequencies[baseFrequency] / midiNoteFrequencies[kMiddleC]);
 		(**stream).Play();
 	}

@@ -14,6 +14,7 @@
 #define POMME_DEBUG_RESOURCES	false
 #define POMME_DEBUG_INPUT		false
 #define POMME_GENLOG(define, prefix) if (!define) {} else std::cout << "[" << prefix << "] " << __func__ << ":\t"
+#define POMME_GENLOG_NOPREFIX(define) if (!define) {} else std::cout
 
 //-----------------------------------------------------------------------------
 // Structure unpacking
