@@ -426,6 +426,10 @@ long				i;
 		gParticles[i].points[2].y -= centerPt.y;
 		gParticles[i].points[2].z -= centerPt.z;
 		
+#if 1
+		// Source port addition: Quesa won't render the mesh if its bounding box is empty
+		Q3BoundingBox_SetFromPoints3D(&gParticles[i].triMesh.bBox, gParticles[i].points, 3, sizeof(TQ3Point3D));
+#endif
 		
 				/* DO VERTEX NORMALS */
 				
@@ -601,7 +605,8 @@ TQ3ViewObject	view = setupInfo->viewObject;
 		}
 	}
 	
-	Q3Push_Submit(view);												// restore state
+	// Source port fix: this used to be Q3Push_Submit, which I think is a mistake, even though it seems to work either way (???)
+	Q3Pop_Submit(view);													// restore state
 	
 }
 
