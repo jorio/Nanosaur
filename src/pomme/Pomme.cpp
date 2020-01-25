@@ -185,5 +185,6 @@ void Pomme::Init(const char* applName)
 	Pomme::Time::Init();
 	Pomme::Files::Init(applName);
 	Pomme::Sound::Init();
+	Pomme::Input::Init();
 	std::cout << "Pomme initialized\n";
 }

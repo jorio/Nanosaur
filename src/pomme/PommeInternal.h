@@ -110,6 +110,11 @@ namespace Pomme {
 		std::vector<SInt16> DecodeIMA4(const std::vector<Byte>& input, const int nChannels);
 	}
 
+	namespace Input
+	{
+		void Init();
+	}
+
 	Pixmap ReadPICT(std::istream& f, bool skip512 = true);
 	std::string FourCCString(FourCharCode t, char filler = '?');
 }
