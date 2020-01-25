@@ -138,10 +138,29 @@ TQ3Boolean					resetDrawContext = kQ3True;
 	} \
 }
 
+void WindowsConsoleInit()
+{
+	AllocConsole();
+	FILE* junk;
+	freopen_s(&junk, "conin$", "r", stdin);
+	freopen_s(&junk, "conout$", "w", stdout);
+	freopen_s(&junk, "conout$", "w", stderr);
+
+	DWORD outMode = 0;
+	HANDLE stdoutHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+	if (!GetConsoleMode(stdoutHandle, &outMode)) exit(GetLastError());
+	// Enable ANSI escape codes
+	outMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+	if (!SetConsoleMode(stdoutHandle, outMode)) exit(GetLastError());
+
+}
+
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {	MSG		theMsg;
 	TQ3Status		qd3dStatus;
 	
+
+	WindowsConsoleInit();
 
 
 	SDL_ENSURE(0 == SDL_Init(SDL_INIT_VIDEO));
