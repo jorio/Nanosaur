@@ -4,17 +4,9 @@
 #include <SDL.h>
 #include <iostream>
 
-//HINSTANCE				gInstance    = NULL;
-//HDC						gDC          = NULL;
-
 TQ3ViewObject                   gView = NULL;
-//void*							gWindow = NULL;
 TQ3Boolean                      gWindowCanResize = kQ3True;
 SDL_Window* gSDLWindow = nullptr;
-SDL_GLContext					gGLCtx = nullptr;
-
-TQ3DrawContextData gDCD;
-TQ3DrawContextObject gDCO;
 
 
 #if 0
@@ -75,13 +67,15 @@ Qut_CreateWindow(const char		*windowTitle,
 
 TQ3DrawContextObject
 Qut_CreateDrawContext(void)
-{//	TQ3Win32DCDrawContextData	winDrawContextData;
-TQ3Boolean					resetDrawContext = kQ3True;
+{
+	TQ3SDLDrawContextData		sdlDrawContextData;
+	TQ3Boolean					resetDrawContext = kQ3True;
 	TQ3DrawContextObject		theDrawContext;
 	TQ3Status					qd3dStatus;
 
 	// Get the DC
 //	gDC = GetDC((HWND) gWindow);
+	sdlDrawContextData.sdlWindow = gSDLWindow;
 
 	// See if we've got an existing draw context we can reuse. If we
 	// do, we grab as much of its state data as we can - this means we
@@ -93,41 +87,36 @@ TQ3Boolean					resetDrawContext = kQ3True;
 		if (qd3dStatus == kQ3Success)
 			{
 			resetDrawContext = kQ3False;
-//			Q3DrawContext_GetData(theDrawContext, &winDrawContextData.drawContextData);
+			Q3DrawContext_GetData(theDrawContext, &sdlDrawContextData.drawContextData);
 			Q3Object_Dispose(theDrawContext);
 			}
 		}
-
-	TQ3DrawContextData& drawContextData = gDCD;
 
 	// Reset the draw context data if required
 	if (resetDrawContext)
 		{
 		// Fill in the draw context data
-		drawContextData.clearImageMethod  = kQ3ClearMethodWithColor;
-		drawContextData.clearImageColor.a = 1.0f;
-		drawContextData.clearImageColor.r = 1.0f;
-		drawContextData.clearImageColor.g = 1.0f;
-		drawContextData.clearImageColor.b = 1.0f;
-		drawContextData.paneState         = kQ3False;
-		drawContextData.maskState		 = kQ3False;	
-		drawContextData.doubleBufferState = kQ3True;
+		sdlDrawContextData.drawContextData.clearImageMethod  = kQ3ClearMethodWithColor;
+		sdlDrawContextData.drawContextData.clearImageColor.a = 1.0f;
+		sdlDrawContextData.drawContextData.clearImageColor.r = 1.0f;
+		sdlDrawContextData.drawContextData.clearImageColor.g = 1.0f;
+		sdlDrawContextData.drawContextData.clearImageColor.b = 1.0f;
+		sdlDrawContextData.drawContextData.paneState         = kQ3False;
+		sdlDrawContextData.drawContextData.maskState		 = kQ3False;	
+		sdlDrawContextData.drawContextData.doubleBufferState = kQ3True;
 		}
 
 	// Reset the fields which are always updated
-	drawContextData.pane.min.x = 0;
-	drawContextData.pane.min.y = 0;
-	drawContextData.pane.max.x = 640;
-	drawContextData.pane.max.x = 480;
+	sdlDrawContextData.drawContextData.pane.min.x = 0;
+	sdlDrawContextData.drawContextData.pane.min.y = 0;
+	sdlDrawContextData.drawContextData.pane.max.x = 640;
+	sdlDrawContextData.drawContextData.pane.max.x = 480;
 //	qut_get_window_size((HWND) gWindow, &winDrawContextData.drawContextData.pane);
 //	winDrawContextData.hdc = gDC;
 
 	// Create the draw context object
-//	theDrawContext = new E3SdlGlDrawContext;
-//	theDrawContext = Q3Win32DCDrawContext_New(&winDrawContextData);
-	theDrawContext = Q3SDLDrawContext_New();
+ 	theDrawContext = Q3SDLDrawContext_New(&sdlDrawContextData);
 	return(theDrawContext);
-	//return (TQ3DrawContextObject)gGLCtx;
 }
 
 
@@ -174,9 +163,9 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 
 	SDL_ENSURE(gSDLWindow);
 
-	SDL_ENSURE(gGLCtx = SDL_GL_CreateContext(gSDLWindow));
 
-
+	// sdl gl context obtained by quesa
+	//SDL_ENSURE(gGLCtx = SDL_GL_CreateContext(gSDLWindow));
 
 
 	// Initialise ourselves
