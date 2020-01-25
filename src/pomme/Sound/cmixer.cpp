@@ -175,7 +175,6 @@ void Mixer::Process(cm_Int16* dst, int len)
 		(*s)->Process(len);
 		// Remove source from list if it is no longer playing
 		if ((*s)->state != CM_STATE_PLAYING) {
-			printf("Removed source.\n");
 			(*s)->active = false;
 			*s = (*s)->next;
 		}
@@ -386,6 +385,17 @@ void Source::Play()
 void Source::Pause()
 {
 	state = CM_STATE_PAUSED;
+}
+
+void Source::TogglePause()
+{
+	if (state == CM_STATE_PAUSED)
+		Play();
+	else if (state == CM_STATE_PLAYING)
+		Pause();
+	else {
+		;
+	}
 }
 
 void Source::Stop()

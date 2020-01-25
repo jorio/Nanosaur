@@ -531,14 +531,22 @@ OSErr SndStartFilePlay(
 	return noErr;
 }
 
-OSErr SndPauseFilePlay(SndChannelPtr chan) {
-	TODOMINOR();
-	return unimpErr;
+OSErr SndPauseFilePlay(SndChannelPtr chan)
+{
+	// TODO: check that chan is being used for play from disk
+	auto* stream = GetEx(chan).stream;
+	if (stream) stream->TogglePause();
+	return noErr;
 }
 
-OSErr SndStopFilePlay(SndChannelPtr chan, Boolean quietNow) {
-	TODOMINOR();
-	return unimpErr;
+OSErr SndStopFilePlay(SndChannelPtr chan, Boolean quietNow)
+{
+	// TODO: check that chan is being used for play from disk
+	if (!quietNow)
+		TODO2("quietNow==false not supported yet, sound will be cut off immediately instead");
+	auto* stream = GetEx(chan).stream;
+	if (stream) stream->Stop();
+	return noErr;
 }
 
 NumVersion SndSoundManagerVersion() {

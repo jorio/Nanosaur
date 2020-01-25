@@ -85,6 +85,7 @@ public:
 	void SetLoop(bool loop);
 	void Play();
 	void Pause();
+	void TogglePause();
 	void Stop();
 };
 
