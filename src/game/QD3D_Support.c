@@ -1890,6 +1890,7 @@ void QD3D_SetTextureFilter(unsigned long textureMode)
 
 
 
+#if 0 // Source port removal - unsupported
 /************************ SET TRIANGLE CACHE MODE *****************************/
 //
 // For ATI driver, sets triangle caching flag for xparent triangles
@@ -1897,15 +1898,12 @@ void QD3D_SetTextureFilter(unsigned long textureMode)
 
 void QD3D_SetTriangleCacheMode(Boolean isOn)
 {
-#if 1
-	TODOMINOR2(isOn);
-#else
 	if (!gRaveDrawContext)
 		return;
 
 	QASetInt(gRaveDrawContext, (TQATagInt)kATITriCache, isOn);
-#endif
 }	
+#endif
 				
 
 #if 0 // Source port removal - use Q3Shader_SetUBoundary instead

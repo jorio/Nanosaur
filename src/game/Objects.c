@@ -445,7 +445,9 @@ TQ3Status	myStatus;
 short		i,numTriMeshes;
 unsigned long	statusBits;
 TQ3ViewObject	view = setupInfo->viewObject;
+#if 0 // Source port removal: completely removed triangle caching
 Boolean			cacheMode;
+#endif
 
 	if (gFirstNodePtr == nil)							// see if there are any objects
 		return;
@@ -456,10 +458,12 @@ Boolean			cacheMode;
 	
 	theNode = gFirstNodePtr;
 
+#if 0
 			/* TURN ON TRIANGLE CACHING */
 			
 	QD3D_SetTriangleCacheMode(true);
 	cacheMode = true;
+#endif
 	
 			/***********************/
 			/* MAIN NODE TASK LOOP */
@@ -477,6 +481,7 @@ Boolean			cacheMode;
 		if (theNode->CType == INVALID_NODE_FLAG)				// see if already deleted
 			goto next;		
 
+#if 0
 				/* CHECK TRIANGLE CACHING */
 				
 		if (statusBits & STATUS_BIT_NOTRICACHE)					// see if disable caching
@@ -490,6 +495,7 @@ Boolean			cacheMode;
 		else
 		if (!cacheMode)											// if caching disabled, reenable it
 			QD3D_SetTriangleCacheMode(true);
+#endif
 
 
 		if (!(statusBits & STATUS_BIT_REFLECTIONMAP))
