@@ -12,6 +12,7 @@ using namespace Pomme;
 #define PRINT_PROGRESS_EVERY 16
 
 #define LOG POMME_GENLOG(POMME_DEBUG_PICT, "PICT")
+#define LOG_NOPREFIX POMME_GENLOG_NOPREFIX(POMME_DEBUG_PICT)
 
 //-----------------------------------------------------------------------------
 // Color
@@ -143,7 +144,7 @@ template<typename T> std::vector<T> UnpackAllRows(BigEndianIStream& f, int w, in
 	std::vector<T> data;
 	data.reserve(expectedItemCount);
 	for (int y = 0; y < h; y++) {
-		if (y % PRINT_PROGRESS_EVERY == 0) LOG << ".";
+		if (y % PRINT_PROGRESS_EVERY == 0) LOG_NOPREFIX << ".";
 		int packedRowBytes = rowbytes > 250 ? f.Read<UInt16>() : f.Read<UInt8>();
 		auto rowPixels = UnpackBits<T>(f, rowbytes, packedRowBytes);
 		for (int i = 0; i < rowPixels.size(); i++)
@@ -153,7 +154,7 @@ template<typename T> std::vector<T> UnpackAllRows(BigEndianIStream& f, int w, in
 	if (expectedItemCount != data.size())
 		throw "unexpected item count";
 
-	LOG << "\n";
+	LOG_NOPREFIX << "\n";
 	return data;
 }
 
@@ -165,7 +166,7 @@ Pixmap Unpack0(BigEndianIStream& f, int w, int h, const std::vector<Color>& pale
 	dst.data.clear();
 	LOG << "indexed to RGBA";
 	for (int i = 0; i < unpacked.size(); i++) {
-		if (i % (w * PRINT_PROGRESS_EVERY) == 0) LOG << ".";
+		if (i % (w * PRINT_PROGRESS_EVERY) == 0) LOG_NOPREFIX << ".";
 		UInt8 px = unpacked[i];
 		if (px >= palette.size()) throw "illegal color index in pixmap";
 		Color c = palette[px];
@@ -174,7 +175,7 @@ Pixmap Unpack0(BigEndianIStream& f, int w, int h, const std::vector<Color>& pale
 		dst.data.push_back(c.g);
 		dst.data.push_back(c.b);
 	}
-	LOG << "\n";
+	LOG_NOPREFIX << "\n";
 	return dst;
 }
 
@@ -186,14 +187,14 @@ Pixmap Unpack3(BigEndianIStream& f, int w, int h, UInt16 rowbytes)
 	dst.data.clear();
 	LOG << "Chunky16 to RGBA";
 	for (int i = 0; i < unpacked.size(); i++) {
-		if (i % (w*PRINT_PROGRESS_EVERY) == 0) LOG << ".";
+		if (i % (w*PRINT_PROGRESS_EVERY) == 0) LOG_NOPREFIX << ".";
 		UInt16 px = unpacked[i];
 		dst.data.push_back(0xFF); // a
 		dst.data.push_back(((px >> 10) & 0x1F) << 3); // r
 		dst.data.push_back(((px >>  5) & 0x1F) << 3); // g
 		dst.data.push_back(((px >>  0) & 0x1F) << 3); // b
 	}
-	LOG << "\n";
+	LOG_NOPREFIX << "\n";
 	return dst;
 }
 
@@ -205,7 +206,7 @@ Pixmap Unpack4(BigEndianIStream& f, int w, int h, UInt16 rowbytes, int numPlanes
 	dst.data.clear();
 	LOG << "Planar" << numPlanes*8 << " to RGBA";
 	for (int y = 0; y < h; y++) {
-		if (y % PRINT_PROGRESS_EVERY == 0) LOG << ".";
+		if (y % PRINT_PROGRESS_EVERY == 0) LOG_NOPREFIX << ".";
 		if (numPlanes == 3) {
 			for (int x = 0; x < w; x++) {
 				dst.data.push_back(0xFF);
@@ -223,7 +224,7 @@ Pixmap Unpack4(BigEndianIStream& f, int w, int h, UInt16 rowbytes, int numPlanes
 			}
 		}
 	}
-	LOG << "\n";
+	LOG_NOPREFIX << "\n";
 	return dst;
 }
 
@@ -350,7 +351,7 @@ Pixmap Pomme::ReadPICT(std::istream& theF, bool skip512) {
 	if (skip512)
 		f.Skip(512); // junk
 
-	f.Skip(2); // picture size? in two bytes only? huh...
+	f.Skip(2); // Version 1 picture size. Meaningless for "modern" picts that can easily exceed 65,535 bytes.
 
 	Rect canvasRect = ReadRect(f);
 	if (canvasRect.width() < 0 || canvasRect.height() < 0) {
@@ -395,6 +396,11 @@ Pixmap Pomme::ReadPICT(std::istream& theF, bool skip512) {
 			LOG << __func__ << ": skipping opcode " << opcode << "\n";
 			break;
 
+		case 0x001F: // OpColor
+			LOG << __func__ << ": skipping opcode " << opcode << "\n";
+			f.Skip(6);
+			break;
+
 		case 0x0001: // clip
 		{
 			auto length = f.Read<UInt16>();
@@ -427,7 +433,7 @@ Pixmap Pomme::ReadPICT(std::istream& theF, bool skip512) {
 			return pm;
 
 		default:
-			std::cerr << "unsupported opcode " << opcode << "\n";
+			std::cerr << "unsupported opcode " << opcode << " at offset " << f.Tell() << "\n";
 			throw "unsupported PICT opcode";
 		}
 	}
