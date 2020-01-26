@@ -66,7 +66,7 @@ namespace Pomme {
 
 		Pixmap();
 		Pixmap(int w, int h);
-		void WriteTGA(const char* path);
+		void WriteTGA(const char* path) const;
 	};
 
 
@@ -117,4 +117,6 @@ namespace Pomme {
 
 	Pixmap ReadPICT(std::istream& f, bool skip512 = true);
 	std::string FourCCString(FourCharCode t, char filler = '?');
+
+	void DumpTGA(const char* path, short width, short height, const char* argbData);
 }

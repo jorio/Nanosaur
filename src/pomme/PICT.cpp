@@ -62,6 +62,24 @@ std::ostream& operator<<(std::ostream& s, const Rect& r) {
 }
 
 //-----------------------------------------------------------------------------
+// Dump Targa
+
+void Pomme::DumpTGA(const char* path, short width, short height, const char* argbData)
+{
+	std::ofstream tga(path);
+	short tgaHdr[] = { 0,2,0,0,0,0,(short)width,(short)height,0x2020 };
+	tga.write((const char*)tgaHdr, sizeof(tgaHdr));
+	for (int i = 0; i < 4 * width * height; i += 4) {
+		tga.put(argbData[i + 3]); //b
+		tga.put(argbData[i + 2]); //g
+		tga.put(argbData[i + 1]); //r
+		tga.put(argbData[i + 0]); //a
+	}
+	tga.close();
+	std::cout << "wrote " << path << "\n";
+}
+
+//-----------------------------------------------------------------------------
 // Pixmap
 
 Pixmap::Pixmap() :
@@ -78,18 +96,9 @@ Pixmap::Pixmap(int w, int h) :
 {
 }
 
-void Pixmap::WriteTGA(const char* path) {
-	std::ofstream tga(path);
-	short tgaHdr[] = { 0,2,0,0,0,0,(short)width,(short)height,0x2020 };
-	tga.write((const char*)tgaHdr, sizeof(tgaHdr));
-	for (int i = 0; i < 4 * width * height; i += 4) {
-		tga.put(data[i + 3]); //b
-		tga.put(data[i + 2]); //g
-		tga.put(data[i + 1]); //r
-		tga.put(data[i + 0]); //a
-	}
-	tga.close();
-	std::cout << "wrote " << path << "\n";
+void Pixmap::WriteTGA(const char* path) const
+{
+	DumpTGA(path, width, height, (const char*)data.data());
 }
 
 //-----------------------------------------------------------------------------

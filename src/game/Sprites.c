@@ -106,7 +106,9 @@ Handle					hand;
 FramesFile_Header_Type	*headerPtr;
 FrameHeaderType			*frameHeaderPtr;
 long					i,w,h,j;
-UInt16					*pixelPtr,**destPixelHand,*destPixelPtr;
+UInt16					*pixelPtr = nil;
+UInt16					*maskPtr = nil;
+Ptr						destPixelPtr = nil;
 short					numAnims,numFrames,numLines;
 ShapeFrameHeader		*sfh;
 Boolean					hasMask;
@@ -170,29 +172,34 @@ Boolean					hasMask;
 		w = sfh->width;			
 		h = sfh->height;		
 								
+		// --------- Begin source port mod ------------
+		// Rewrote this part to unpack 16-bit (with optional 16-bit mask) to 32-bit ARGB
+		pixelPtr = structpack::UnpackObj<UInt16>(*hand, w*h);				// get ptr to file's data
 		if (sfh->hasMask)
-			destPixelHand = sfh->pixelData = (UInt16 **)AllocHandle(w*h*2*2);	// alloc mem for pix & mask
+			maskPtr = structpack::UnpackObj<UInt16>(*hand + w*h * 2, w*h);	// mask data is stored after color data
 		else
-			destPixelHand = sfh->pixelData = (UInt16 **)AllocHandle(w*h*2);	// alloc mem for just pix
-		
-		pixelPtr = structpack::UnpackObj<UInt16>(*hand, w * h);				// get ptr to file's data
-		destPixelPtr = *destPixelHand;										// get ptr to dest 				
+			maskPtr = nil;
 
+		sfh->pixelData = AllocHandle(w*h*4);								// alloc mem for pix & mask
+		destPixelPtr = *sfh->pixelData;										// get ptr to dest
 
 		for (j = 0; j < (w*h); j++)
 		{
-			*destPixelPtr++ = *pixelPtr++;									// get pixel
-			if (hasMask)
-				*destPixelPtr++ = *pixelPtr++;								// get mask
+			UInt16 px = *pixelPtr++;
+			UInt16 mask = hasMask ? ~(*maskPtr++) : 0xFFFF;	// opaque is stored as 0; we use the opposite convention for alpha
+			destPixelPtr[0] = mask >> 8;					// alpha
+			destPixelPtr[1] = ((px >> 10) & 0x1F) << 3;		// red
+			destPixelPtr[2] = ((px >>  5) & 0x1F) << 3;		// green
+			destPixelPtr[3] = ((px >>  0) & 0x1F) << 3;		// blue
+			destPixelPtr += 4;
 		}
 
 		/*
 		std::stringstream dumpFN;
-		dumpFN << "frame_" << i << "_" << w << "x" << h << "_a" << sfh->hasMask << ".sprite";
-		std::ofstream dump(dumpFN.str().c_str());
-		dump.write((const char*)*destPixelHand, w * h * 2 * (sfh->hasMask ? 2 : 1));
-		dump.close();
+		dumpFN << "spriteframe" << "_" << i << "_" << w << "x" << h << "_a" << (int)sfh->hasMask << ".tga";
+		Pomme::DumpTGA(dumpFN.str().c_str(), sfh->width, sfh->height, (const char*)*sfh->pixelData);
 		*/
+		// --------- End source port mod ------------
 
 		ReleaseResource(hand);				
 	}

@@ -21,7 +21,7 @@ typedef struct
 	short			xoffset;
 	short			yoffset;
 	Boolean			hasMask;
-	UInt16			**pixelData;			// pointer to pixel & mask data
+	Handle			pixelData;				// handle to ARGB pixel data (source port mod - original source had 16-bit pixels with optional 16-bit mask)
 }ShapeFrameHeader;
 
 
