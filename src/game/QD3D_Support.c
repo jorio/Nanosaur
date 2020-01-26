@@ -80,7 +80,6 @@ float	gFramesPerSecondFrac = 1/DEFAULT_FPS;
 
 float	gAdditionalClipping = 0;
 
-TQADrawContext	*gRaveDrawContext = nil;
 short			gFogMode;
 
 Boolean			gQD3DInitialized = false;
@@ -251,8 +250,6 @@ void QD3D_DisposeWindowSetup(QD3DSetupOutputType **dataHandle)
 {
 QD3DSetupOutputType	*data;
 
-	gRaveDrawContext = nil;											// this is no longer valid
-
 	data = *dataHandle;
 	if (data == nil)												// see if this setup exists
 		DoFatalAlert("QD3D_DisposeWindowSetup: data == nil");
@@ -321,9 +318,7 @@ TQ3Uns32	hints;
 		
 		/* SET RENDERER FEATURES */
 		
-#if 1
-	TODOMINOR2("RAVE Context Hints");
-#else
+#if 0 // Source port note: not needed with modern Quesa. Except for 16-bit dithering if we want perfect accuracy.
 	Q3InteractiveRenderer_GetRAVEContextHints(gQD3D_RendererObject, &hints);
 	hints &= ~kQAContext_NoZBuffer; 				// Z buffer is on 
 	hints &= ~kQAContext_DeepZ; 					// shallow z
