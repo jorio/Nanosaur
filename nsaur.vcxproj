@@ -241,7 +241,6 @@
     <ClCompile Include="src\pomme\Sound\SoundManager.cpp" />
     <ClCompile Include="src\pomme\TimeManager.cpp" />
     <ClCompile Include="src\pomme\WinInput.cpp" />
-    <ClCompile Include="src\QutWindows.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\game\3DMath.h" />
@@ -295,8 +294,6 @@
     <ClInclude Include="src\pomme\PommeInternal.h" />
     <ClInclude Include="src\pomme\PommeTypes.h" />
     <ClInclude Include="src\pomme\structpack.h" />
-    <ClInclude Include="src\Qut.h" />
-    <ClInclude Include="src\QutInternal.h" />
     <ClInclude Include="src\GamePatches.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

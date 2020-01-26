@@ -1,45 +1,37 @@
 #include "PommeInternal.h"
-#include "Qut.h"
 #include <SDL.h>
 #include <iostream>
 #include <thread>
-#include <atomic>
+#include <Quesa.h>
+
+SDL_Window*					gSDLWindow = nullptr;
+TQ3ViewObject				gView = nullptr;
+std::thread					gameThread;
 
 // bare minimum from Windows.c to satisfy externs in game code
 WindowPtr				gCoverWindow;
 UInt16*                 gCoverWindowPixPtr;
 UInt32                  gCoverWindowRowBytes2;
 
+#define SDL_ENSURE(X) { \
+	if (!(X)) { \
+		std::cerr << #X << " --- " << SDL_GetError() << "\n"; \
+		exit(1); \
+	} \
+}
+
 void GameMain(void);
 void RegisterUnpackableTypes(void);
 
-enum {
-    Turn_MAIN = 0,
-    Turn_GAME = 1,
-};
-
-std::atomic<int> turn(Turn_MAIN);
-std::thread gameThread;
-
-void RenderYield(TQ3ViewObject theView) {
-    turn = Turn_GAME;
-    while (turn != Turn_MAIN)
-        std::this_thread::yield();
-}
-
-void GameYield() {
-    while (turn != Turn_GAME)
-        std::this_thread::yield();
-    turn = Turn_MAIN;
-}
-
-void AppMain() {
+void AppMain()
+{
     Pomme::Init("Nanosaur\u2122");
     RegisterUnpackableTypes();
     GameMain();
 }
 
-void WrapAppMain() {
+void WrapAppMain()
+{
     std::string uncaught;
 
     try {
@@ -63,16 +55,28 @@ void WrapAppMain() {
     }
 }
 
-#ifndef QUT_HDR
+int CommonMain(int argc, const char** argv)
+{
+	TQ3Status		qd3dStatus;
 
-int main(int argc, char** argv) {
-    WrapAppMain();
-    return 0;
-}
+	SDL_ENSURE(0 == SDL_Init(SDL_INIT_VIDEO));
 
-#else
+	gSDLWindow = SDL_CreateWindow("SDLNano",
+		SDL_WINDOWPOS_UNDEFINED,
+		SDL_WINDOWPOS_UNDEFINED,
+		640,
+		480,
+		SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_SHOWN);
 
-void App_Initialise(void) {
+	SDL_ENSURE(gSDLWindow);
+
+	// the sdl gl context is now obtained by quesa
+	//SDL_ENSURE(gGLCtx = SDL_GL_CreateContext(gSDLWindow));
+
+	// Initialise ourselves
+	qd3dStatus = Q3Initialize();
+	if (qd3dStatus != kQ3Success)
+		return 1;
 
 	// Install error handlers.
 	//Q3Error_Register(errorCallback, 0);
@@ -80,16 +84,60 @@ void App_Initialise(void) {
 	//Q3Notice_Register(noticeCallback, 0);
 
 	// Watch for leaks
-	Q3Memory_StartRecording();
+//	Q3Memory_StartRecording();
 
-	// Initialise Qut
-	Qut_CreateWindow("Nanosaur\u2122", 640, 480, kQ3False);
+	// Start the game
+	gameThread = std::thread(WrapAppMain);
 
-    turn = Turn_GAME;
-    gameThread = std::thread(WrapAppMain);
+	// SDL event loop
+	SDL_Event e;
+	while (0 != SDL_WaitEvent(&e)) {
+	}
+
+	// Clean up
+
+	if (gView != NULL)
+		Q3Object_Dispose(gView);
+
+	// TODO: dispose SDL gl context
+
+//	if (gDC != NULL)
+//		ReleaseDC((HWND)gWindow, gDC);
+
+//	DestroyWindow((HWND)gWindow);
+
+	// Terminate Quesa
+	qd3dStatus = Q3Exit();
+
+	return 0;
 }
 
-void App_Terminate(void) {
+#ifdef WIN32
+void WindowsConsoleInit()
+{
+	AllocConsole();
+	FILE* junk;
+	freopen_s(&junk, "conin$", "r", stdin);
+	freopen_s(&junk, "conout$", "w", stdout);
+	freopen_s(&junk, "conout$", "w", stderr);
+
+	DWORD outMode = 0;
+	HANDLE stdoutHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+	if (!GetConsoleMode(stdoutHandle, &outMode)) exit(GetLastError());
+	// Enable ANSI escape codes
+	outMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+	if (!SetConsoleMode(stdoutHandle, outMode)) exit(GetLastError());
 }
 
+int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+{
+	WindowsConsoleInit();
+	return CommonMain(0, nullptr);
+}
+#else
+int main(int argc, const char** argv)
+{
+	return CommonMain(argc, argv);
+}
 #endif
+

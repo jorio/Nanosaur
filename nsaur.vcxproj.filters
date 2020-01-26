@@ -302,9 +302,6 @@
     <ClCompile Include="src\pomme\WinInput.cpp">
       <Filter>Pomme</Filter>
     </ClCompile>
-    <ClCompile Include="src\QutWindows.cpp">
-      <Filter>Qut</Filter>
-    </ClCompile>
     <ClCompile Include="src\pomme\IEEEExtended.c">
       <Filter>Pomme</Filter>
     </ClCompile>
@@ -591,12 +588,6 @@
     <ClInclude Include="src\game\windows_nano.h">
       <Filter>Game</Filter>
     </ClInclude>
-    <ClInclude Include="src\Qut.h">
-      <Filter>Qut</Filter>
-    </ClInclude>
-    <ClInclude Include="src\QutInternal.h">
-      <Filter>Qut</Filter>
-    </ClInclude>
     <ClInclude Include="src\pomme\IEEEExtended.h">
       <Filter>Pomme</Filter>
     </ClInclude>
@@ -618,9 +609,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Filter Include="Qut">
-      <UniqueIdentifier>{c6dd8c37-d8b2-4b52-a4c9-40575a2480c4}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Game">
       <UniqueIdentifier>{952543a9-a972-4aef-b1f2-4b9860ec4160}</UniqueIdentifier>
     </Filter>

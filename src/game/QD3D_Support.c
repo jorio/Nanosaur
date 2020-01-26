@@ -26,8 +26,7 @@
 #include "3dmath.h"
 #include "selfrundemo.h"
 
-#include "Qut.h"
-#include "QutInternal.h" // for gView
+extern TQ3ViewObject                   gView;
 
 extern	WindowPtr			gCoverWindow;
 extern	long		gScreenXOffset,gScreenYOffset;
@@ -335,13 +334,17 @@ TQ3Uns32	hints;
 
 static void CreateDrawContext(QD3DViewDefType *viewDefPtr)
 {
-#if 1
-	gQD3D_DrawContext = Qut_CreateDrawContext();
-#else
 TQ3DrawContextData		drawContexData;
-TQ3MacDrawContextData	myMacDrawContextData;
+TQ3SDLDrawContextData	myMacDrawContextData;
 Rect					r;
 
+#if 1
+extern SDL_Window*		gSDLWindow;
+	int ww, wh;
+	SDL_GL_GetDrawableSize(gSDLWindow, &ww, &wh);
+	r = { 0 /*.top*/, 0 /*.left*/, (SInt16)wh /*.bottom*/, (SInt16)ww /*.right*/ };
+
+#else
 			/* SEE IF DOING PIXMAP CONTEXT */
 			
 	if (!viewDefPtr->useWindow)
@@ -351,6 +354,7 @@ Rect					r;
 	}
 
 	r = viewDefPtr->displayWindow->portRect;
+#endif
 
 
 			/* FILL IN DRAW CONTEXT DATA */
@@ -374,16 +378,19 @@ Rect					r;
 	drawContexData.doubleBufferState = kQ3True;								// double buffering
 
 	myMacDrawContextData.drawContextData = drawContexData;					// set MAC specifics
+#if 1
+	myMacDrawContextData.sdlWindow = gSDLWindow;							// assign window to draw to
+#else
 	myMacDrawContextData.window = (CWindowPtr)viewDefPtr->displayWindow;	// assign window to draw to
 	myMacDrawContextData.library = kQ3Mac2DLibraryNone;						// use standard QD libraries (no GX crap!)
 	myMacDrawContextData.viewPort = nil;									// (for GX only)
 	myMacDrawContextData.grafPort = (CWindowPtr)viewDefPtr->displayWindow;	// assign grafport
+#endif
 
 
 			/* CREATE DRAW CONTEXT */
 
-	gQD3D_DrawContext = Q3MacDrawContext_New(&myMacDrawContextData);
-#endif
+	gQD3D_DrawContext = Q3SDLDrawContext_New(&myMacDrawContextData);
 	if (gQD3D_DrawContext == nil)
 		DoFatalAlert("Q3MacDrawContext_New Failed!");
 }
