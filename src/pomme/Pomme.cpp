@@ -156,21 +156,6 @@ void HideCursor() {
 }
 
 //-----------------------------------------------------------------------------
-// Fade
-
-void MakeFadeEvent(Boolean fadeIn) {
-	TODOMINOR2("fadeIn=" << fadeIn);
-}
-
-void GammaFadeOut() {
-	TODOMINOR();
-}
-
-void GammaFadeIn() {
-	TODOMINOR();
-}
-
-//-----------------------------------------------------------------------------
 // Our own init
 
 char* Pascal2C(const char* pstr) {

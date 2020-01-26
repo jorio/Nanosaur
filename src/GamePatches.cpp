@@ -81,3 +81,21 @@ char GetTypedKey(void)
 
 	return 0;
 }
+
+//-----------------------------------------------------------------------------
+// Fade
+
+void MakeFadeEvent(Boolean fadeIn)
+{
+	TODOMINOR2("fadeIn=" << (int)fadeIn);
+}
+
+void GammaFadeOut()
+{
+	TODOMINOR();
+}
+
+void GammaFadeIn()
+{
+	TODOMINOR();
+}
