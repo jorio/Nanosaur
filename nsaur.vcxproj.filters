@@ -336,9 +336,6 @@
     <ClInclude Include="src\game\3dmf.h">
       <Filter>Game</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\affectors.h">
-      <Filter>Game</Filter>
-    </ClInclude>
     <ClInclude Include="src\game\bones.h">
       <Filter>Game</Filter>
     </ClInclude>
@@ -469,9 +466,6 @@
       <Filter>Game</Filter>
     </ClInclude>
     <ClInclude Include="src\game\3dmf.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\affectors.h">
       <Filter>Game</Filter>
     </ClInclude>
     <ClInclude Include="src\game\bones.h">

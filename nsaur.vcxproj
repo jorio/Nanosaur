@@ -245,7 +245,6 @@
   <ItemGroup>
     <ClInclude Include="src\game\3DMath.h" />
     <ClInclude Include="src\game\3dmf.h" />
-    <ClInclude Include="src\game\affectors.h" />
     <ClInclude Include="src\game\bones.h" />
     <ClInclude Include="src\game\camera.h" />
     <ClInclude Include="src\game\collision.h" />
