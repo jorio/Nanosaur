@@ -383,6 +383,11 @@ OSErr SndDoImmediate(SndChannelPtr chan, const SndCommand* cmd)
 	case nullCmd:
 		break;
 
+	case flushCmd:
+		// flushCmd is a no-op for now because we don't support queuing commands--
+		// all commands are executed immediately in the current implementation.
+		break;
+
 	case quietCmd:
 		if (GetMixSource(chan))
 			GetMixSource(chan)->Stop();
