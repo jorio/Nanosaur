@@ -1908,6 +1908,7 @@ void QD3D_SetTriangleCacheMode(Boolean isOn)
 }	
 				
 
+#if 0 // Source port removal - use Q3Shader_SetUBoundary instead
 /************************ SET TEXTURE WRAP MODE ************************/
 //
 // INPUT: mode = kQAGL_Clamp or kQAGL_Repeat
@@ -1915,16 +1916,13 @@ void QD3D_SetTriangleCacheMode(Boolean isOn)
 
 void QD3D_SetTextureWrapMode(int mode)
 {
-#if 1
-	TODOMINOR2("wrapMode"<<mode);
-#else
 	if (!gRaveDrawContext)
 		return;
 
 	QASetInt(gRaveDrawContext, kQATagGL_TextureWrapU, mode);
 	QASetInt(gRaveDrawContext, kQATagGL_TextureWrapV, mode);
-#endif
 }
+#endif
 
 
 /************************ SET BLENDING MODE ************************/

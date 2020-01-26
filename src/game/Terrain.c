@@ -372,6 +372,8 @@ TQ3SurfaceShaderObject	blankTexObject;
 			
 		DisposePtr(blankTexPtr);																	// free memory
 	
+		Q3Shader_SetUBoundary(blankTexObject, kQ3ShaderUVBoundaryClamp);		// source port addition
+		Q3Shader_SetVBoundary(blankTexObject, kQ3ShaderUVBoundaryClamp);		// source port addition
 	
 					/* CREATE GEOMETRY'S ATTRIBUTE SET */
 						
@@ -2151,7 +2153,9 @@ TQ3Status	myStatus;
 				/* DRAW STUFF */
 				
 	QD3D_SetTextureFilter(kQATextureFilter_Mid);						// set nice textures
-	TODOMINOR2("QD3D_SetTextureWrapMode(kQAGL_Clamp);");								// clap textures for nicer seams
+#if 0 // Source port fix: clamping is now set per-shader in CreateSuperTileMemoryList
+	QD3D_SetTextureWrapMode(kQAGL_Clamp);								// clap textures for nicer seams
+#endif
 	
 	for (i = 0; i < MAX_SUPERTILES; i++)
 	{
@@ -2184,7 +2188,9 @@ TQ3Status	myStatus;
 		
 	}
 	QD3D_SetTextureFilter(kQATextureFilter_Fast);						// make it fast again
-	TODOMINOR2("QD3D_SetTextureWrapMode(kQAGL_Repeat);");								// let textures wrap/repeat
+#if 0 // Source port fix: clamping is now set per-shader in CreateSuperTileMemoryList
+	QD3D_SetTextureWrapMode(kQAGL_Repeat);								// let textures wrap/repeat
+#endif
 
 
 		/* DRAW OBJECTS */
