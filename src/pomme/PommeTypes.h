@@ -231,8 +231,10 @@ struct ModRef {
 struct SndListResource {
     short                           format;
     short                           numModifiers;
+    // flexible array hack
     ModRef                          modifierPart[1];
     short                           numCommands;
+    // flexible array hack
     SndCommand                      commandPart[1];
     UInt8                           dataPart[1];
 };

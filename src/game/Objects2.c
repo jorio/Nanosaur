@@ -346,7 +346,7 @@ update:
 void CheckAllObjectsInConeOfVision(void)
 {
 ObjNode* theNode;
-#if USE_BUGGY_CULLING
+#if USE_BUGGY_CULLING // Source port fix
 float				radius,w,w2;
 float				rx,ry,px,py,pz;
 register float		n00,n01,n02;
@@ -365,7 +365,7 @@ float				hither,yon;
 	if (theNode == nil)
 		return;
 
-#if USE_BUGGY_CULLING
+#if USE_BUGGY_CULLING // Source port fix
 					/* PRELOAD WORLD -> VIEW MATRIX */
 
 	n00 = gCameraWorldToViewMatrix.value[0][0];		n01 = gCameraWorldToViewMatrix.value[0][1];	  n02 = gCameraWorldToViewMatrix.value[0][2];
@@ -401,7 +401,7 @@ float				hither,yon;
 			goto draw_on;
 
 try_cull:
-#if !(USE_BUGGY_CULLING)
+#if !(USE_BUGGY_CULLING) // Source port fix
 		if (!IsSphereInConeOfVision(&theNode->Coord, theNode->Radius, HITHER_DISTANCE, YON_DISTANCE))
 			goto draw_off;
 #else
