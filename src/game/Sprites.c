@@ -15,8 +15,7 @@
 #include "windows_nano.h"
 
 extern	short		gMainAppRezFile;
-extern	UInt16		*gCoverWindowPixPtr;
-extern	UInt32		gCoverWindowRowBytes2;
+extern	UInt32		*gCoverWindowPixPtr;
 
 
 
@@ -276,6 +275,7 @@ ShapeFrameHeader	*sfh;
 //
 //
 //
+// Source port note: modified this to use ARGB32 as unpacked in DisassembleFrameFile.
 
 void DrawSpriteFrameToScreen(UInt32 group, UInt32 frame, long x, long y)
 {
@@ -283,8 +283,7 @@ ShapeFrameHeader	*sfh;
 UInt32	width,height,h,v;
 long	xoff,yoff;
 Boolean	hasMask;
-UInt32	*srcPtr,*destPtr,*maskPtr,rowBytes;
-UInt16	i;
+UInt32	*srcPtr,*destPtr;
 
 	if (frame >= gShapeTables[group].numFrames)
 		DoFatalAlert("DrawSpriteFrameToScreen: illegal frame #");
@@ -303,9 +302,6 @@ UInt16	i;
 	x += xoff;											// adjust draw coords
 	y += yoff;
 
-	rowBytes = gCoverWindowRowBytes2/2;
-	width /= 2;
-
 			/*******************************/
 			/* SEE IF USE CLIPPING VERSION */
 			/*******************************/
@@ -318,28 +314,24 @@ UInt16	i;
 			/**************/
 			/* DON'T CLIP */
 			/**************/
-#if 1
-	TODOMINOR2(group << "\t" << frame << "\t@" << x << "," << y);
-#else
 	else
 	{
-		destPtr = (UInt32 *)(gCoverWindowPixPtr + (y * gCoverWindowRowBytes2) + x);		// calc start addr
+		destPtr = (UInt32 *)(gCoverWindowPixPtr + (y * GAME_VIEW_WIDTH) + x);		// calc start addr
 	
 	
 				/* DRAW WITH MASK */
 				
 		if (hasMask)
 		{
-			maskPtr = srcPtr + (width*height);
-			i = 0;
 			for (v = 0; v < height; v++)
 			{
 				for (h = 0; h < width; h++)
 				{
-					destPtr[h] = (destPtr[h] & maskPtr[i]) | srcPtr[i];				// draw masked pixel
-					i++;
+					if (*(char*)&srcPtr[h])											// alpha is not 0 (first component in ARGB32)
+						destPtr[h] = srcPtr[h];										// draw masked pixel
 				}
-				destPtr += rowBytes;
+				destPtr += GAME_VIEW_WIDTH;
+				srcPtr += width;
 			}
 		}
 				/* DRAW NO MASK */
@@ -349,12 +341,12 @@ UInt16	i;
 			{
 				for (h = 0; h < width; h++)
 					destPtr[h] = srcPtr[h];		
-				destPtr += rowBytes;
+				destPtr += GAME_VIEW_WIDTH;
 				srcPtr += width;
 			}
 		}
 	}
-#endif
+	//Pomme::DumpTGA("cover.tga", 640, 480, (const char*)gCoverWindowPixPtr);
 }
 
 

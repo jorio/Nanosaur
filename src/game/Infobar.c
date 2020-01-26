@@ -36,7 +36,6 @@ extern	WindowPtr				gCoverWindow;
 extern	Boolean			gPossibleAttackModes[],gGameOverFlag,gAbortedFlag;
 extern	short			gWeaponInventory[];
 extern	ObjNode			*gPlayerObj;
-extern	UInt16		*gCoverWindowPixPtr;
 extern	QD3DSetupOutputType		*gGameViewInfoPtr;
 extern	TQ3Matrix4x4	gCameraAdjustMatrix;
 extern	TQ3Point3D	gMyCoord;
