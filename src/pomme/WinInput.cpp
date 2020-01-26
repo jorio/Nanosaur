@@ -177,7 +177,7 @@ void GetKeys(KeyMap km)
 
 Boolean Button(void)
 {
-	TODOMINOR();
+	ONCE(TODOMINOR());
 	return false;
 }
 

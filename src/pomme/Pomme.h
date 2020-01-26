@@ -67,6 +67,15 @@ void ImplementMe(const char* fn, std::string msg, int severity);
 #define TODOFATAL()      TODOCUSTOM("", 2)
 #define TODOFATAL2(x)    TODOCUSTOM(x, 2)
 
+#define ONCE(x)			{ \
+	static bool once = false; \
+	if (!once) { \
+		once = true; \
+		{x} \
+		printf("  \x1b[90m\\__ this todo won't be shown again\x1b[0m\n"); \
+	} \
+}
+
 std::ostream& operator<<(std::ostream& s, const Rect& r);
 
 //-----------------------------------------------------------------------------

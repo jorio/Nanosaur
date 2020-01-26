@@ -1,5 +1,4 @@
 #include <iostream>
-#include <unordered_set>
 
 #include <SDL.h>
 
@@ -9,18 +8,17 @@
 //-----------------------------------------------------------------------------
 // Our own utils
 
-std::unordered_set<std::string> implementMeAlreadySaid;
-
 void ImplementMe(const char* fn, std::string msg, int severity) {
 	if (severity >= 0) {
 		std::stringstream ss;
-		ss << "[TODO] " << fn; 
-		if (!msg.empty()) ss << ":\t" << msg;
-		auto str = ss.str();
-		if (implementMeAlreadySaid.find(str) == implementMeAlreadySaid.end()) {
-			std::cerr << (severity > 0? "\x1b[31m": "\x1b[33m") << str << "\x1b[0m\n";
-			implementMeAlreadySaid.insert(str);
+		ss << "[TODO] \x1b[1m" << fn << "\x1b[22m"; 
+		if (!msg.empty()) {
+			ss << ": ";
+			//for (int i = strlen(fn); i < 32; i++) ss << '.';
+			ss << msg;
 		}
+		auto str = ss.str();
+		std::cerr << (severity > 0? "\x1b[31m": "\x1b[33m") << str << "\x1b[0m\n";
 	}
 	
 	if (severity >= 2) {

@@ -1923,7 +1923,7 @@ void QD3D_SetTextureWrapMode(int mode)
 void QD3D_SetBlendingMode(int mode)
 {
 #if 1
-	TODOMINOR2("blendingMode"<<mode);
+	ONCE(TODOMINOR());
 #else
 	if (gATIis431)							// only do this for ATI driver version 4.30 or newer
 	{

@@ -272,9 +272,6 @@ ShapeFrameHeader	*sfh;
 
 void DrawSpriteFrameToScreen(UInt32 group, UInt32 frame, long x, long y)
 {
-#if 1
-	TODOMINOR();
-#else
 ShapeFrameHeader	*sfh;
 UInt32	width,height,h,v;
 long	xoff,yoff;
@@ -314,6 +311,9 @@ UInt16	i;
 			/**************/
 			/* DON'T CLIP */
 			/**************/
+#if 1
+	TODOMINOR2(group << "\t" << frame << "\t@" << x << "," << y);
+#else
 	else
 	{
 		destPtr = (UInt32 *)(gCoverWindowPixPtr + (y * gCoverWindowRowBytes2) + x);		// calc start addr

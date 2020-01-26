@@ -738,7 +738,7 @@ TQ3Status			status;
 	if ((x != gOldGPSCoordX) || (y != gOldGPSCoordY) || forceUpdate)
 	{
 #if 1
-		TODOMINOR();
+		TODOMINOR2(x << "," << y);
 #else
 		long	w,h;
 

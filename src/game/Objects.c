@@ -513,7 +513,7 @@ Boolean			cacheMode;
 				/* CHECK BLENDING */
 				
 			if (statusBits & STATUS_BIT_BLEND_INTERPOLATE)
-				TODOMINOR2("QD3D_SetBlendingMode(kQABlend_Interpolate);");
+				ONCE(TODOMINOR2("QD3D_SetBlendingMode(kQABlend_Interpolate);"));
 		
 				/* CHECK NULL SHADER */
 				
@@ -550,7 +550,7 @@ Boolean			cacheMode;
 				Q3Shader_Submit(setupInfo->shaderObject, view);
 				
 			if (statusBits & STATUS_BIT_BLEND_INTERPOLATE)
-				TODOMINOR2("QD3D_SetBlendingMode(kQABlend_PreMultiply);");						// premul is normal
+				ONCE(TODOMINOR2("QD3D_SetBlendingMode(kQABlend_PreMultiply);"));						// premul is normal
 				
 		}
 		
