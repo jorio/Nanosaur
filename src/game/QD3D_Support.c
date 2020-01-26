@@ -1879,7 +1879,7 @@ void QD3D_SetTextureFilter(unsigned long textureMode)
 		return;
 
 #if 1
-	TODOMINOR2("textureMode"<<textureMode);
+	Q3InteractiveRenderer_SetRAVETextureFilter(gQD3D_RendererObject, (TQ3TextureFilter)textureMode);
 #else
 	if (!gRaveDrawContext)
 		return;
