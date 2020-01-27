@@ -179,6 +179,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\pomme\PommeDebug.cpp" />
     <ClCompile Include="src\pomme\Sound\cmixer.cpp" />
     <ClCompile Include="src\pomme\structpack.cpp" />
     <ClCompile Include="src\GamePatches.cpp" />

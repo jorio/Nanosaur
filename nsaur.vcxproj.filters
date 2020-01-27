@@ -322,6 +322,9 @@
     <ClCompile Include="src\pomme\Sound\cmixer.cpp">
       <Filter>Pomme\Sound</Filter>
     </ClCompile>
+    <ClCompile Include="src\pomme\PommeDebug.cpp">
+      <Filter>Pomme</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\pomme\PommeEnums.h">
