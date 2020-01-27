@@ -409,7 +409,7 @@ OSErr SndDoImmediate(SndChannelPtr chan, const SndCommand* cmd)
 	case freqCmd:
 	{
 		LOG << "freqCmd " << cmd->param2 << " " << GetMidiNoteName(cmd->param2) << " " << midiNoteFrequencies[cmd->param2] << "\n";
-		impl.playbackNote = cmd->param2;
+		impl.playbackNote = Byte(cmd->param2);
 		impl.ApplyPitch();
 		break;
 	}

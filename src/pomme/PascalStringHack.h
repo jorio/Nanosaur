@@ -18,7 +18,7 @@ public:
 		if (len > N) len = N;
 		if (len < 0) len = 0;
 		memcpy(&buf[1], src, len);
-		buf[0] = len;
+		buf[0] = (char)len;
 	}
 
 	operator char* ()

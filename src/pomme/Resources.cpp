@@ -24,7 +24,7 @@ static ResourceFork& GetCurRF() {
 
 static void PrintStack(const char* msg) {
 	LOG << "------ RESOURCE SEARCH STACK " << msg << " -------\n";
-	for (int i = rezSearchStack.size() - 1; i >= 0; i--) {
+	for (int i = int(rezSearchStack.size() - 1); i >= 0; i--) {
 		LOG	<< (rezSearchStackIndex == i? " =====> " : "        ")
 			<< " StackPos=" << i << " "
 			<< " RefNum=" << rezSearchStack[i].fileRefNum << " "
@@ -77,7 +77,7 @@ short FSpOpenResFile(const FSSpec* spec, char permission) {
 	// Load resource fork
 
 	rezSearchStack.emplace_back();
-	rezSearchStackIndex = rezSearchStack.size() - 1;
+	rezSearchStackIndex = int(rezSearchStack.size() - 1);
 	GetCurRF().fileRefNum = slot;
 	GetCurRF().rezMap.clear();
 
@@ -200,9 +200,9 @@ short Count1Resources(ResType theType) {
 	lastResError = noErr;
 
 	try {
-		return GetCurRF().rezMap.at(theType).size();
+		return (short)GetCurRF().rezMap.at(theType).size();
 	}
-	catch (std::out_of_range) {
+	catch (std::out_of_range&) {
 		return 0;
 	}
 }

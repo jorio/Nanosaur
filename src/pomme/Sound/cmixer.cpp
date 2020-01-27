@@ -37,7 +37,7 @@ using namespace cmixer;
 #define FX_BITS (12)
 #define FX_UNIT (1 << FX_BITS)
 #define FX_MASK (FX_UNIT - 1)
-#define FX_FROM_FLOAT(f)  ((f) * FX_UNIT)
+#define FX_FROM_FLOAT(f)  ((long)((f) * FX_UNIT))
 #define DOUBLE_FROM_FX(f)  ((double)f / FX_UNIT)
 #define FX_LERP(a, b, p)  ((a) + ((((b) - (a)) * (p)) >> FX_BITS))
 
@@ -256,7 +256,7 @@ void Source::Process(int len)
 	// Process audio
 	while (len > 0) {
 		// Get current position frame
-		int frame = position >> FX_BITS;
+		int frame = int(position >> FX_BITS);
 
 		// Fill buffer if required
 		if (frame + 3 >= nextfill) {
@@ -301,7 +301,7 @@ void Source::Process(int len)
 		else {
 			// Add audio to buffer -- interpolated
 			for (int i = 0; i < count; i++) {
-				n = (position >> FX_BITS) * 2;
+				n = int(position >> FX_BITS) * 2;
 				int p = position & FX_MASK;
 				int a = pcmbuf[(n    ) & BUFFER_MASK];
 				int b = pcmbuf[(n + 2) & BUFFER_MASK];
@@ -420,7 +420,7 @@ WavStream::WavStream(
 	int nChannels,
 	std::vector<char>&& data
 )
-	:Source(theSampleRate, (data.size() / (theBitDepth / 8)) / nChannels)
+	:Source(theSampleRate, int((data.size() / (theBitDepth / 8)) / nChannels))
 	,udata(data)
 	,idx(0)
 	,bitdepth(theBitDepth)
@@ -498,6 +498,7 @@ void WavStream::FillBuffer(cm_Int16* dst, int len)
 	}
 }
 
+#if 0
 //-----------------------------------------------------------------------------
 // LoadWAVFromFile for testing
 
@@ -564,3 +565,4 @@ WavStream cmixer::LoadWAVFromFile(const char* path)
 		channels,
 		std::vector<char>(p, p + sz));
 }
+#endif

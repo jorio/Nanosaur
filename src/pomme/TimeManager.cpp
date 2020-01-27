@@ -20,7 +20,7 @@ void Pomme::Time::Init()
 }
 
 void GetDateTime(unsigned long* secs) {
-	*secs = std::time(nullptr) + JANUARY_1_1904;
+	*secs = unsigned long(std::time(nullptr) + JANUARY_1_1904);
 }
 
 void Microseconds(UnsignedWide* usecs) {

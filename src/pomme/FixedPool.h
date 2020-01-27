@@ -31,11 +31,11 @@ public:
 	}
 
 	void Dispose(TObj* obj) {
-		long id = obj - &pool[0];
+		intptr_t id = obj - &pool[0];
 		if (id < 0 || id >= MAX)
 			throw std::invalid_argument("obj isn't stored in pool");
 		inUse--;
-		freeIDs.push_back(id);
+		freeIDs.push_back((TId)id);
 	}
 };
 

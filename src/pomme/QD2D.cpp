@@ -18,12 +18,12 @@ PicHandle GetPicture(short PICTresourceID) {
 
 	// Tack the data onto the end of the Picture struct,
 	// so that DisposeHandle frees both the Picture and the data.
-	PicHandle ph = (PicHandle)NewHandle(sizeof(Picture) + pm.data.size());
+	PicHandle ph = (PicHandle)NewHandle(int(sizeof(Picture) + pm.data.size()));
 
 	Picture& pic = **ph;
-	Ptr pixels = ((Ptr)*ph) + sizeof(Picture);
+	Ptr pixels = (Ptr)*ph + sizeof(Picture);
 
-	pic.picFrame = Rect(0, 0, pm.width, pm.height);
+	pic.picFrame = Rect{ 0, 0, (SInt16)pm.width, (SInt16)pm.height };
 	pic.picSize = -1;
 	pic.__pomme_pixelsARGB32 = pixels;
 

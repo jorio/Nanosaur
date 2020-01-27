@@ -88,7 +88,7 @@ std::vector<SInt16> Pomme::Sound::DecodeIMA4(const std::vector<Byte>& input, con
 	if (input.size() % 34 != 0)
 		throw std::invalid_argument("odd input buffer size");
 
-	int nChunks = input.size() / (34 * nChannels);
+	int nChunks = int(input.size()) / (34 * nChannels);
 	int nSamples = 64 * nChunks;
 
 	std::vector<SInt16> output(nSamples * nChannels);

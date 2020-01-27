@@ -57,7 +57,7 @@ Pomme::Sound::AudioClip Pomme::Sound::ReadAIFF(std::istream& theF)
 
 			clip.nChannels			= COMM.numChannels;
 			clip.bitDepth			= COMM.sampleSize;
-			clip.sampleRate			= COMM.sampleRate;
+			clip.sampleRate			= (int)COMM.sampleRate;
 			//clip.pcmData			= std::vector<char>(COMM.numChannels * COMM.numSampleFrames * COMM.sampleSize / 8);
 
 			std::string compressionName = "Not compressed";
@@ -112,7 +112,7 @@ Pomme::Sound::AudioClip Pomme::Sound::ReadAIFF(std::istream& theF)
 
 		default:
 			LOG << "Skipping chunk " << FourCCString(ckID) << "\n";
-			f.Goto(endOfChunk);
+			f.Goto(int(endOfChunk));
 			break;
 		}
 

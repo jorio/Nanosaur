@@ -77,16 +77,16 @@ void ConvertToIeeeExtended(double num, char* bytes)
         }
     }
     
-    bytes[0] = expon >> 8;
-    bytes[1] = expon;
-    bytes[2] = hiMant >> 24;
-    bytes[3] = hiMant >> 16;
-    bytes[4] = hiMant >> 8;
-    bytes[5] = hiMant;
-    bytes[6] = loMant >> 24;
-    bytes[7] = loMant >> 16;
-    bytes[8] = loMant >> 8;
-    bytes[9] = loMant;
+    bytes[0] = char(expon >> 8);
+    bytes[1] = char(expon);
+    bytes[2] = char(hiMant >> 24);
+    bytes[3] = char(hiMant >> 16);
+    bytes[4] = char(hiMant >> 8);
+    bytes[5] = char(hiMant);
+    bytes[6] = char(loMant >> 24);
+    bytes[7] = char(loMant >> 16);
+    bytes[8] = char(loMant >> 8);
+    bytes[9] = char(loMant);
 }
 
 double ConvertFromIeeeExtended(unsigned char* bytes /* LCN */)

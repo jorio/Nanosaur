@@ -13,7 +13,7 @@ static char scancodeLookupTable[256];
 
 static void InitScancodeLookupTable()
 {
-	const char NO_MAC_VK = 0xFF;
+	const unsigned char NO_MAC_VK = 0xFF;
 
 	memset(scancodeLookupTable, NO_MAC_VK, sizeof(scancodeLookupTable));
 	char* T = scancodeLookupTable;

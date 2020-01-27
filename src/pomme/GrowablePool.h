@@ -34,7 +34,7 @@ public:
 		else {
 			pool.emplace_back();
 			isInUse.push_back(true);
-			return pool.size() - 1;
+			return TId(pool.size() - 1);
 		}
 	}
 

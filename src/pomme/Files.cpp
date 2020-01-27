@@ -105,7 +105,7 @@ static long GetDirectoryID(const std::filesystem::path& dirPath)
 		std::cerr << "Warning: GetDirID should only be used on directories! " << dirPath << "\n";
 	}
 	directories.emplace_back(dirPath);
-	return directories.size() - 1;
+	return (long)directories.size() - 1;
 }
 
 static FSSpec ToFSSpec(const std::filesystem::path& fullPath)
@@ -373,7 +373,7 @@ OSErr FSRead(short refNum, long* count, Ptr buffPtr) {
 
 	auto& f = GetStream(refNum);
 	f.read(buffPtr, *count);
-	*count = f.gcount();
+	*count = (long)f.gcount();
 	if (f.eof()) return eofErr;
 
 	return noErr;
@@ -408,7 +408,7 @@ OSErr GetEOF(short refNum, long* logEOF) {
 	auto& f = GetStream(refNum);
 	StreamPosGuard guard(f);
 	f.seekg(0, std::ios::end);
-	*logEOF = f.tellg();
+	*logEOF = (long)f.tellg();
 
 	return noErr;
 }

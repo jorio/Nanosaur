@@ -190,7 +190,7 @@ std::vector<SInt16> Pomme::Sound::DecodeMACE3(const std::vector<Byte>& input, co
 	if (input.size() % (nChannels * 2) != 0)
 		throw std::invalid_argument("odd input buffer size");
 
-	int nSamples = 3 * input.size() / nChannels;
+	int nSamples = 3 * int(input.size()) / nChannels;
 
 	std::vector<SInt16> output;
 	output.reserve(nSamples * nChannels);
@@ -202,10 +202,10 @@ std::vector<SInt16> Pomme::Sound::DecodeMACE3(const std::vector<Byte>& input, co
 	for (int k = 0; k < 2; k++) {
 		uint8_t pkt = (uint8_t)input[(chan * 2) + (j * nChannels * 2) + k];
 
-		uint8_t val[2][3] = { {pkt >> 5, (pkt >> 3) & 3, pkt & 7 }, {pkt & 7 , (pkt >> 3) & 3, pkt >> 5} };
+		int val2[3] = { pkt & 7, (pkt >> 3) & 3, pkt >> 5 };
 
 		for (int l = 0; l < 3; l++) {
-			int16_t current = read_table(&ctx.chd[chan], val[1][l], l);
+			int16_t current = read_table(&ctx.chd[chan], (uint8_t)val2[l], l);
 			current = mace_broken_clip_int16(current + ctx.chd[chan].level);
 			ctx.chd[chan].level = current - (current >> 3);
 			current = QT_8S_2_16S(current);
