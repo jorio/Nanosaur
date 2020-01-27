@@ -283,6 +283,8 @@
     <ClInclude Include="src\game\triggers.h" />
     <ClInclude Include="src\game\weapons.h" />
     <ClInclude Include="src\game\windows_nano.h" />
+    <ClInclude Include="src\pomme\PascalStringHack.h" />
+    <ClInclude Include="src\pomme\PommeDebug.h" />
     <ClInclude Include="src\pomme\Sound\cmixer.h" />
     <ClInclude Include="src\pomme\Sound\DumpAU.h" />
     <ClInclude Include="src\pomme\GrowablePool.h" />

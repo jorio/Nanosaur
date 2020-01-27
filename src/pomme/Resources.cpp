@@ -1,6 +1,6 @@
 #include <iostream>
+#include <algorithm>
 #include "PommeInternal.h"
-#include <strstream>
 
 #define LOG POMME_GENLOG(POMME_DEBUG_RESOURCES, "RSRC")
 
@@ -191,7 +191,7 @@ void CloseResFile(short refNum) {
 			it++;
 	}
 
-	rezSearchStackIndex = min(rezSearchStackIndex, rezSearchStack.size()-1);
+	rezSearchStackIndex = std::min(rezSearchStackIndex, (int)rezSearchStack.size()-1);
 
 	PrintStack("CLOSERESFILE");
 }

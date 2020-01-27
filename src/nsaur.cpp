@@ -4,6 +4,10 @@
 #include <thread>
 #include <Quesa.h>
 
+#if _WIN32
+#include <windows.h>
+#endif
+
 SDL_Window*					gSDLWindow = nullptr;
 TQ3ViewObject				gView = nullptr;
 std::thread					gameThread;
@@ -112,7 +116,7 @@ int CommonMain(int argc, const char** argv)
 	return 0;
 }
 
-#ifdef WIN32
+#ifdef _WIN32
 void WindowsConsoleInit()
 {
 	AllocConsole();

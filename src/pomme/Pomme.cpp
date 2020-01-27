@@ -2,6 +2,10 @@
 
 #include <SDL.h>
 
+#ifdef _WIN32
+#include <windows.h> // for SysBeep :)
+#endif
+
 #include "Pomme.h"
 #include "PommeInternal.h"
 
@@ -69,8 +73,9 @@ void ExitToShell() {
 	exit(0);
 }
 
-void SysBeep(short duration) {
-#ifdef WIN32
+void SysBeep(short duration)
+{
+#ifdef _WIN32
 	MessageBeep(0);
 #else
 	TODOMINOR();

@@ -1,7 +1,10 @@
+#include <algorithm>
+
 #include "Pomme.h"
 #include "PommeInternal.h"
 
-#include <SDL.h>
+#include <SDL_events.h>
+#include <SDL_keyboard.h>
 
 //-----------------------------------------------------------------------------
 // Input
@@ -15,10 +18,10 @@ static void InitScancodeLookupTable()
 	memset(scancodeLookupTable, NO_MAC_VK, sizeof(scancodeLookupTable));
 	char* T = scancodeLookupTable;
 
-	T[0]						= 0xFF;						// 0
-	T[1]						= 0xFF;
-	T[2]						= 0xFF;
-	T[3]						= 0xFF;
+	T[0]						= NO_MAC_VK;				// 0
+	T[1]						= NO_MAC_VK;
+	T[2]						= NO_MAC_VK;
+	T[3]						= NO_MAC_VK;
 	T[SDL_SCANCODE_A]			= kVK_ANSI_A;
 	T[SDL_SCANCODE_B]			= kVK_ANSI_B;
 	T[SDL_SCANCODE_C]			= kVK_ANSI_C;
@@ -156,7 +159,7 @@ void GetKeys(KeyMap km)
 	int numkeys = 0;
 	const UInt8* keystate =  SDL_GetKeyboardState(&numkeys);
 
-	numkeys = min(sizeof(scancodeLookupTable), numkeys);
+	numkeys = std::min((int)sizeof(scancodeLookupTable), numkeys);
 
 	for (int sdlScancode = 0; sdlScancode < numkeys; sdlScancode++) {
 		if (!keystate[sdlScancode])

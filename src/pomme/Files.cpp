@@ -7,7 +7,7 @@
 #include "PommeInternal.h"
 #include "GrowablePool.h"
 
-#ifdef WIN32
+#ifdef _WIN32
 #include <shlobj.h>
 #endif
 
@@ -101,7 +101,7 @@ static short GetVolumeID(const std::filesystem::path& path)
 
 static long GetDirectoryID(const std::filesystem::path& dirPath)
 {
-	if (std::filesystem::exists(dirPath) && !std::filesystem::is_directory(dirPath)) {
+	if (exists(dirPath) && !is_directory(dirPath)) {
 		std::cerr << "Warning: GetDirID should only be used on directories! " << dirPath << "\n";
 	}
 	directories.emplace_back(dirPath);
@@ -200,7 +200,7 @@ OSErr FSMakeFSSpec(short vRefNum, long dirID, ConstStr255Param pascalFileName, F
 
 	*spec = ToFSSpec(fullPath);
 
-	if (std::filesystem::exists(fullPath))
+	if (exists(fullPath))
 		return noErr;
 	else
 		return fnfErr;
@@ -230,7 +230,7 @@ OSErr FindFolder(short vRefNum, OSType folderType, Boolean createFolder, short* 
 	switch (folderType) {
 	case kPreferencesFolderType:
 	{
-#ifdef WIN32
+#ifdef _WIN32
 		PWSTR wpath;
 		// If we ever want to port to something older than Vista, this won't work.
 		SHGetKnownFolderPath(FOLDERID_RoamingAppData, 0, 0, &wpath);
@@ -239,7 +239,7 @@ OSErr FindFolder(short vRefNum, OSType folderType, Boolean createFolder, short* 
 		*foundDirID = GetDirectoryID(path);
 		return noErr;
 #else
-		TODO2("your OS is not supported yet for folder type " << Pomme::fourCCstr(folderTYpe));
+		TODO2("your OS is not supported yet for folder type " << Pomme::FourCCString(folderType));
 		break;
 #endif
 	}
@@ -254,8 +254,8 @@ OSErr DirCreate(short vRefNum, long parentDirID, ConstStr255Param directoryName,
 {
 	const auto path = ToPath(vRefNum, parentDirID, directoryName);
 
-	if (std::filesystem::exists(path)) {
-		if (std::filesystem::is_directory(path)) {
+	if (exists(path)) {
+		if (is_directory(path)) {
 			LOG << __func__ << ": directory already exists: " << path << "\n";
 			return noErr;
 		} else {
@@ -265,7 +265,7 @@ OSErr DirCreate(short vRefNum, long parentDirID, ConstStr255Param directoryName,
 	}
 
 	try {
-		std::filesystem::create_directory(path);
+		create_directory(path);
 	} catch (const std::filesystem::filesystem_error& e) {
 		std::cerr << __func__ << " threw " << e.what() << "\n";
 		return ioErr;

@@ -1,6 +1,5 @@
 #include <iostream>
 #include <vector>
-#include <queue>
 
 #include "PommeInternal.h"
 #include "FixedPool.h"

@@ -1,15 +1,11 @@
-#include <iostream>
-
 #include "PommeInternal.h"
 #include "QuesaStorage.h"
 
 //-----------------------------------------------------------------------------
-// QuickDraw 3D
+// Pomme extensions for Quesa
 
-TQ3StorageObject Q3FSSpecStorage_New(const FSSpec* spec) {
-	std::filesystem::path path = Pomme::Files::ToPath(*spec);
-	std::cout << __func__ << ": " << path << "\n";
+TQ3StorageObject Q3FSSpecStorage_New(const FSSpec* spec)
+{
+	auto path = Pomme::Files::ToPath(*spec);
 	return Q3PathStorage_New(path.string().c_str());
 }
-
-

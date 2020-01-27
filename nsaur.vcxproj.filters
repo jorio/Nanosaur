@@ -601,6 +601,12 @@
     <ClInclude Include="src\pomme\Sound\DumpAU.h">
       <Filter>Pomme\Sound</Filter>
     </ClInclude>
+    <ClInclude Include="src\pomme\PascalStringHack.h">
+      <Filter>Pomme</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pomme\PommeDebug.h">
+      <Filter>Pomme</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Game">
