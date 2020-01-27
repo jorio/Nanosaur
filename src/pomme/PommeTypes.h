@@ -86,15 +86,7 @@ typedef char*                          StringPtr;
 
 struct Point { SInt16 v, h; };
 
-struct Rect {
-    SInt16 top, left, bottom, right;
-
-    // ---- Pomme extensions ----
-    Rect();
-    Rect(SInt16 t, SInt16 l, SInt16 b, SInt16 r);
-    int width() const;
-    int height() const;
-};
+struct Rect { SInt16 top, left, bottom, right; };
 
 typedef Point* PointPtr;
 typedef Rect* RectPtr;

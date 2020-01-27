@@ -5,34 +5,6 @@
 
 using namespace Pomme;
 
-//-----------------------------------------------------------------------------
-// Point & Rect extensions
-
-Rect::Rect() :
-	top(0),
-	left(0),
-	bottom(0),
-	right(0)
-{
-}
-
-Rect::Rect(SInt16 t, SInt16 l, SInt16 b, SInt16 r) :
-	top(t),
-	left(l),
-	bottom(b),
-	right(r)
-{
-
-}
-
-int Rect::width() const {
-	return right - left;
-}
-
-int Rect::height() const {
-	return bottom - top;
-}
-
 // ---------------------------------------------------------------------------- -
 // PICT resources
 

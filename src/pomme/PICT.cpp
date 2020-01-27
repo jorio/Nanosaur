@@ -333,15 +333,18 @@ Pixmap ReadPICTBits(BigEndianIStream& f, int opcode, const Rect& canvasRect) {
 	if (!directBitsOpcode && (rowbytes & 0x8000) == 0) {
 		throw "negative rowbytes";
 	} else {
+		int cw = Width(canvasRect);
+		int ch = Height(canvasRect);
+		
 		switch (packType) {
 		case 0: // 8-bit indexed color, packed bytewise
-			return Unpack0(f, canvasRect.width(), canvasRect.height(), palette);
+			return Unpack0(f, cw, ch, palette);
 
 		case 3: // 16-bit color, stored chunky, packed pixelwise
-			return Unpack3(f, canvasRect.width(), canvasRect.height(), rowbytes);
+			return Unpack3(f, cw, ch, rowbytes);
 
 		case 4: // 24- or 32-bit color, stored planar, packed bytewise
-			return Unpack4(f, canvasRect.width(), canvasRect.height(), rowbytes, componentCount);
+			return Unpack4(f, cw, ch, rowbytes, componentCount);
 
 		default:
 			throw "dunno how to unpack this pixel size";
@@ -363,7 +366,7 @@ Pixmap Pomme::ReadPICT(std::istream& theF, bool skip512) {
 	f.Skip(2); // Version 1 picture size. Meaningless for "modern" picts that can easily exceed 65,535 bytes.
 
 	Rect canvasRect = ReadRect(f);
-	if (canvasRect.width() < 0 || canvasRect.height() < 0) {
+	if (Width(canvasRect) < 0 || Height(canvasRect) < 0) {
 		LOG << "canvas rect: " << canvasRect << "\n";
 		throw "invalid width/height";
 	}

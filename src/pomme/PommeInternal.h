@@ -115,6 +115,9 @@ namespace Pomme {
 		void Init();
 	}
 
+	inline int Width(const Rect& r) { return r.right - r.left; }
+	inline int Height(const Rect& r) { return r.bottom - r.top; }
+	
 	Pixmap ReadPICT(std::istream& f, bool skip512 = true);
 	std::string FourCCString(FourCharCode t, char filler = '?');
 
