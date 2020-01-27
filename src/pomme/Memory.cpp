@@ -107,3 +107,67 @@ void BlockMove(const void* srcPtr, void* destPtr, Size byteCount) {
 void BlockMoveData(const void* srcPtr, void* destPtr, Size byteCount) {
 	TODOFATAL();
 }
+
+//-----------------------------------------------------------------------------
+// No-op memory junk
+
+void MaxApplZone(void)
+{
+	// No-op
+}
+
+void MoreMasters(void)
+{
+	// No-op
+}
+
+Size CompactMem(Size)
+{
+	// No-op
+	// TODO: what should we actually return?
+	return 0;
+}
+
+Size CompactMemSys(Size)
+{
+	// No-op
+	// TODO: what should we actually return?
+	return 0;
+}
+
+void PurgeMem(Size)
+{
+	// No-op
+}
+
+void PurgeMemSys(Size)
+{
+	// No-op
+}
+
+Size MaxMem(Size*)
+{
+	// No-op
+	// TODO: what should we actually return?
+	return 0;
+}
+
+void HNoPurge(Handle)
+{
+	// No-op
+}
+
+void HLock(Handle)
+{
+	// No-op
+}
+
+void HLockHi(Handle)
+{
+	// No-op
+}
+
+void NoPurgePixels(PixMapHandle)
+{
+	// No-op
+}
