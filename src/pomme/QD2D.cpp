@@ -31,3 +31,10 @@ PicHandle GetPicture(short PICTresourceID) {
 
 	return ph;
 }
+
+// ---------------------------------------------------------------------------- -
+
+void DisposeGWorld(GWorldPtr offscreenGWorld)
+{
+	TODO();
+}

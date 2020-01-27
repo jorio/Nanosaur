@@ -59,11 +59,6 @@ std::string Pomme::FourCCString(FourCharCode t, char filler) {
 	return b;
 }
 
-//-----------------------------------------------------------------------------
-// QuickDraw 2D
-
-void DisposeGWorld(GWorldPtr offscreenGWorld) {
-	TODO();
 }
 
 //-----------------------------------------------------------------------------
