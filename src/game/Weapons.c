@@ -332,14 +332,14 @@ long	volume;
 	else
 	if (theNode->Kind == ATTACK_MODE_SONICSCREAM)
 	{
-		Nano_DeleteObject(theNode);
+		DeleteObject(theNode);
 		return;
 	}
 
 
 			/* GENERIC */
 			
-	Nano_DeleteObject(theNode);
+	DeleteObject(theNode);
 	MakeExplosion(&theNode->Coord);
 
 	d = CalcQuickDistance(theNode->Coord.x, theNode->Coord.z, gMyCoord.x, gMyCoord.z);	// calc volume of explosion based on distance
@@ -382,7 +382,7 @@ float	fps = gFramesPerSecondFrac;
 	theNode->Health -= 3.0 * fps;								// decay it
 	if (theNode->Health <= 0)
 	{
-		Nano_DeleteObject(theNode);
+		DeleteObject(theNode);
 		return;
 	}
 	
@@ -470,7 +470,7 @@ float	x,y,z;
 	theNode->Health -= .9 * fps;			// decay it
 	if (theNode->Health < 0)
 	{
-		Nano_DeleteObject(theNode);
+		DeleteObject(theNode);
 		return;
 	}
 	
@@ -582,7 +582,7 @@ float	x,y,z,fps;
 	theNode->Health -= .9 * fps;
 	if (theNode->Health < 0)
 	{
-		Nano_DeleteObject(theNode);
+		DeleteObject(theNode);
 		return;
 	}
 	
@@ -695,7 +695,7 @@ short	num,i;
 	theNode->Health -= .5 * fps;
 	if (theNode->Health < 0)
 	{
-		Nano_DeleteObject(theNode);
+		DeleteObject(theNode);
 		return;
 	}
 	
@@ -798,7 +798,7 @@ static void MoveHeatSeekEcho(ObjNode *theNode)
 	theNode->Health -= 3.0 * gFramesPerSecondFrac;			// decay it
 	if (theNode->Health <= 0)
 	{
-		Nano_DeleteObject(theNode);
+		DeleteObject(theNode);
 		return;
 	}
 	
@@ -927,7 +927,7 @@ float	x,y,z,fps;
 	theNode->Health -= 1.1f * fps;
 	if (theNode->Health < 0)
 	{
-		Nano_DeleteObject(theNode);
+		DeleteObject(theNode);
 		return;
 	}
 	
@@ -1074,7 +1074,7 @@ ObjNode *newObj;
 
 			/* DELETE NUKE */
 			
-	Nano_DeleteObject(theNode);
+	DeleteObject(theNode);
 
 	PlayEffect_Parms(EFFECT_EXPLODE,FULL_CHANNEL_VOLUME,kMiddleC-6);	// play sound
 
@@ -1114,7 +1114,7 @@ float	s;
 	theNode->Health -= fps * .6;						// decay it
 	if (theNode->Health <= 0)
 	{
-		Nano_DeleteObject(theNode);
+		DeleteObject(theNode);
 		return;
 	}
 	MakeObjectTransparent(theNode, theNode->Health);

@@ -176,7 +176,7 @@ float	d;
 
 	if (TrackTerrainItem(theNode))						// just check to see if it's gone
 	{
-		Nano_DeleteObject(theNode);
+		DeleteObject(theNode);
 		gNumLavaPatches--;
 		if (gNumLavaPatches == 0)
 		{
@@ -296,7 +296,7 @@ ObjNode	*puff;
 	y = GetTerrainHeightAtCoord_Planar(gCoord.x, gCoord.z);		// get y here
 	if (gCoord.y <= y)
 	{
-		Nano_DeleteObject(theNode);
+		DeleteObject(theNode);
 		return;
 	}
 	UpdateObject(theNode);
@@ -381,7 +381,7 @@ static void MoveWaterPatch(ObjNode *theNode)
 
 	if (TrackTerrainItem(theNode))						// just check to see if it's gone
 	{
-		Nano_DeleteObject(theNode);
+		DeleteObject(theNode);
 		gNumWaterPatches--;
 		return;
 	}
@@ -485,7 +485,7 @@ float	y;
 
 	if (TrackTerrainItem(theNode))							// just check to see if it's gone
 	{
-		Nano_DeleteObject(theNode);
+		DeleteObject(theNode);
 		return;
 	}
 
@@ -645,7 +645,7 @@ void ExplodeBush(ObjNode *theBush)
 
 	QD3D_ExplodeGeometry(theBush, 500, PARTICLE_MODE_BOUNCE|PARTICLE_MODE_HEAVYGRAVITY, 2, 1.0);
 	
-	Nano_DeleteObject(theBush);
+	DeleteObject(theBush);
 }
 
 
@@ -706,7 +706,7 @@ float	d;
 
 	if (TrackTerrainItem(theNode))							// just check to see if it's gone
 	{
-		Nano_DeleteObject(theNode);
+		DeleteObject(theNode);
 		gNumSteamVents--;
 		if (gNumSteamVents == 0)
 		{
@@ -748,7 +748,7 @@ float	d;
 								if (theNode->VentTimer > 2.0f)
 								{
 									theNode->TerrainItemPtr = nil;			// never coming back
-									Nano_DeleteObject(theNode);
+									DeleteObject(theNode);
 									return;
 								}
 							}

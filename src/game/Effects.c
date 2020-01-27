@@ -89,7 +89,7 @@ static void MoveDustPuff(ObjNode *theNode)
 	theNode->Health -= theNode->SpecialF[0] * gFramesPerSecondFrac;
 	if (theNode->Health < 0)
 	{
-		Nano_DeleteObject(theNode);
+		DeleteObject(theNode);
 		return;
 	}
 	
@@ -155,7 +155,7 @@ float	t,fps = gFramesPerSecondFrac;
 	theNode->Health -= theNode->SpecialF[0] * fps;
 	if (theNode->Health < 0)
 	{
-		Nano_DeleteObject(theNode);
+		DeleteObject(theNode);
 		return;
 	}
 	

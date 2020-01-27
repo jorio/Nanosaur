@@ -107,7 +107,7 @@ float	oldX,oldZ,delta;
 			
 	if (TrackTerrainItem(theNode))								// check to see if it's gone
 	{
-		Nano_DeleteObject(theNode);
+		DeleteObject(theNode);
 		return;
 	}
 
@@ -293,7 +293,7 @@ float	d,y;
 		
 	if (TrackTerrainItem(theNode))								// check to see if it's gone
 	{
-		Nano_DeleteObject(theNode);
+		DeleteObject(theNode);
 		return;
 	}
 
@@ -306,7 +306,7 @@ float	d,y;
 		PodShootSpores(theNode);
 		QD3D_ExplodeGeometry(theNode, 120, PARTICLE_MODE_UPTHRUST, 3, 1.0);
 		theNode->TerrainItemPtr = nil;						// never coming back
-		Nano_DeleteObject(theNode);		
+		DeleteObject(theNode);		
 		PlayEffect_Parms(EFFECT_EXPLODE,FULL_CHANNEL_VOLUME,kMiddleC-5);	// play sound		
 		return;
 	}
@@ -369,7 +369,7 @@ ObjNode	*puff;
 		theNode->SporeTimer += fps;
 		if (theNode->SporeTimer > 1)
 		{
-			Nano_DeleteObject(theNode);
+			DeleteObject(theNode);
 			return;		
 		}	
 	}

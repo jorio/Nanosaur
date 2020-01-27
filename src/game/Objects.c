@@ -567,7 +567,7 @@ next:
 void MoveStaticObject(ObjNode *theNode)
 {
 	if (TrackTerrainItem(theNode))							// just check to see if it's gone
-		Nano_DeleteObject(theNode);
+		DeleteObject(theNode);
 
 }
 
@@ -585,7 +585,7 @@ void MoveStaticObject(ObjNode *theNode)
 void DeleteAllObjects(void)
 {
 	while (gFirstNodePtr != nil)
-		Nano_DeleteObject(gFirstNodePtr);
+		DeleteObject(gFirstNodePtr);
 		
 	FlushObjectDeleteQueue();
 	InitReflectionMapQueue();						// also purge data from here
@@ -594,7 +594,7 @@ void DeleteAllObjects(void)
 
 /************************ DELETE OBJECT ****************/
 
-void Nano_DeleteObject(ObjNode	*theNode)
+void DeleteObject(ObjNode	*theNode)
 {
 ObjNode *tempNode;
 
@@ -617,10 +617,10 @@ ObjNode *tempNode;
 			//
 			
 	if (theNode->ChainNode)
-		Nano_DeleteObject(theNode->ChainNode);
+		DeleteObject(theNode->ChainNode);
 
 	if (theNode->ShadowNode)
-		Nano_DeleteObject(theNode->ShadowNode);
+		DeleteObject(theNode->ShadowNode);
 
 
 			/* SEE IF NEED TO FREE UP SPECIAL MEMORY */

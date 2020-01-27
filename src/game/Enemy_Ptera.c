@@ -222,7 +222,7 @@ TQ3Point3D inPoint = {10,-10,80};
 		if (gCoord.y <= GetTerrainHeightAtCoord_Planar(gCoord.x,gCoord.y))
 		{		
 			QD3D_ExplodeGeometry(theRock, 400, nil, 2, .4);
-			Nano_DeleteObject(theRock);
+			DeleteObject(theRock);
 			return;
 		}
 		

@@ -81,7 +81,7 @@ void DeleteEnemy(ObjNode *theEnemy)
 
 	gNumEnemies--;										// dec global count
 
-	Nano_DeleteObject(theEnemy);								// nuke the obj
+	DeleteObject(theEnemy);								// nuke the obj
 }
 
 

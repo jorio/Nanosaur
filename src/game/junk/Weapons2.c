@@ -383,7 +383,7 @@ long	volume;
 	else
 	if (theNode->Kind == ATTACK_MODE_SONICSCREAM)
 	{
-		Nano_DeleteObject(theNode);
+		DeleteObject(theNode);
 		return;
 	}
 
@@ -391,7 +391,7 @@ long	volume;
 			/* GENERIC */
 			
 	MakeExplosion(&theNode->Coord);
-	Nano_DeleteObject(theNode);
+	DeleteObject(theNode);
 
 	d = CalcQuickDistance(theNode->Coord.x, theNode->Coord.z, gMyCoord.x, gMyCoord.z);	// calc volume of explosion based on distance
 	volume = FULL_CHANNEL_VOLUME - (long)(d * .15);
@@ -433,7 +433,7 @@ float	fps = gFramesPerSecondFrac;
 	theNode->Health -= 3.0 * fps;								// decay it
 	if (theNode->Health <= 0)
 	{
-		Nano_DeleteObject(theNode);
+		DeleteObject(theNode);
 		return;
 	}
 	
@@ -521,7 +521,7 @@ float	x,y,z;
 	theNode->Health -= .9 * fps;			// decay it
 	if (theNode->Health < 0)
 	{
-		Nano_DeleteObject(theNode);
+		DeleteObject(theNode);
 		return;
 	}
 	
@@ -656,7 +656,7 @@ float	x,y,z,fps;
 		// delete point light from light group
 		DeletePointLightPosition( (TQ3GroupPosition)(theNode->Special[0]));
 #endif
-		Nano_DeleteObject(theNode);
+		DeleteObject(theNode);
 		return;
 	}
 	
@@ -806,7 +806,7 @@ short	num,i;
 		DeletePointLightPosition( (TQ3GroupPosition)(theNode->Special[0]));
 #endif
 		
-		Nano_DeleteObject(theNode);
+		DeleteObject(theNode);
 		return;
 	}
 	
@@ -922,7 +922,7 @@ static void MoveHeatSeekEcho(ObjNode *theNode)
 	theNode->Health -= 3.0 * gFramesPerSecondFrac;			// decay it
 	if (theNode->Health <= 0)
 	{
-		Nano_DeleteObject(theNode);
+		DeleteObject(theNode);
 		return;
 	}
 	
@@ -1088,7 +1088,7 @@ float	x,y,z,fps;
 		DeletePointLightPosition( (TQ3GroupPosition)(theNode->Special[theNode->Special[0]]));
 #endif
 		
-		Nano_DeleteObject(theNode);
+		DeleteObject(theNode);
 		return;
 	}
 	
@@ -1289,7 +1289,7 @@ ObjNode *newObj;
 
 			/* DELETE NUKE */
 			
-	Nano_DeleteObject(theNode);
+	DeleteObject(theNode);
 
 	PlayEffect_Parms(EFFECT_EXPLODE,FULL_CHANNEL_VOLUME,kMiddleC-6);	// play sound
 
@@ -1329,7 +1329,7 @@ float	s;
 	theNode->Health -= fps * .6;						// decay it
 	if (theNode->Health <= 0)
 	{
-		Nano_DeleteObject(theNode);
+		DeleteObject(theNode);
 		return;
 	}
 	MakeObjectTransparent(theNode, theNode->Health);

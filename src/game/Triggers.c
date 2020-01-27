@@ -219,7 +219,7 @@ static void MoveBonusBox(ObjNode *theNode)
 {
 	if (TrackTerrainItem(theNode))		// just check to see if it's gone
 	{
-		Nano_DeleteObject(theNode);
+		DeleteObject(theNode);
 		return;
 	}
 
@@ -311,7 +311,7 @@ float	y;
 	if (TrackTerrainItem(theNode))				// just check to see if it's gone
 	{
 del:	
-		Nano_DeleteObject(theNode);
+		DeleteObject(theNode);
 		return;
 	}
 
@@ -441,7 +441,7 @@ static void MoveCrystal(ObjNode *theNode)
 	if (TrackTerrainItem(theNode))				// just check to see if it's gone
 	{
 del:	
-		Nano_DeleteObject(theNode);
+		DeleteObject(theNode);
 		return;
 	}
 }
@@ -470,7 +470,7 @@ void ExplodeCrystal(ObjNode *theNode)
 	QD3D_ExplodeGeometry(theNode, 570.0f, nil, 1, .3);
 	PlayEffect(EFFECT_CRYSTAL);
 	theNode->TerrainItemPtr = nil;							// it aint never comin' back
-	Nano_DeleteObject(theNode);
+	DeleteObject(theNode);
 }
 
 
@@ -530,7 +530,7 @@ static void MoveStepStone(ObjNode *theNode)
 
 	if (TrackTerrainItem(theNode))				// just check to see if it's gone
 	{
-		Nano_DeleteObject(theNode);
+		DeleteObject(theNode);
 		return;
 	}
 
@@ -552,7 +552,7 @@ static void MoveStepStone(ObjNode *theNode)
 					}
 					else
 					{
-						Nano_DeleteObject(theNode);
+						DeleteObject(theNode);
 						return;
 					}
 				}
