@@ -70,16 +70,10 @@ char* Pascal2C(const char* pstr);
 
 #include "PascalStringHack.h"
 
-struct Str32 : PascalString<32> {
-};
-
-struct Str255 : PascalString<255> {
-    Str255() : PascalString() {}
-    Str255(const char* src) : PascalString(src) {}
-};
-
-typedef const Str255&                  ConstStr255Param;
-typedef char*                          StringPtr;
+typedef PascalString<32>				Str32;
+typedef PascalString<255>				Str255;
+typedef const Str255&					ConstStr255Param;
+typedef char*							StringPtr;
 
 //-----------------------------------------------------------------------------
 // Point & Rect types
