@@ -31,7 +31,8 @@ static GrafPortImpl gGrafPortImpl;
 static GrafPort gGrafPort;
 static Pomme::Graphics::Pixmap gCoverWindowPixmap(640, 480);
 
-static GrafPortImpl* curPort = nil;
+static GrafPtr curPortMacStruct = &gGrafPort;
+static GrafPortImpl* curPort = &gGrafPortImpl;
 static UInt32 penFG = 0xFF'FF'00'FF;
 static UInt32 penBG = 0xFF'00'00'FF;
 static short penX = 0;
@@ -171,7 +172,23 @@ void DisposeGWorld(GWorldPtr offscreenGWorld)
 
 void SetPort(GrafPtr port)
 {
+	curPortMacStruct = port;
 	curPort = (GrafPortImpl*)port->_impl;
+}
+
+void GetPort(GrafPtr* outPort)
+{
+	*outPort = curPortMacStruct;
+}
+
+Boolean Pomme_IsPortDirty(void)
+{
+	return curPort->dirty;
+}
+
+void Pomme_SetPortDirty(Boolean dirty)
+{
+	curPort->dirty = dirty;
 }
 
 // ---------------------------------------------------------------------------- -

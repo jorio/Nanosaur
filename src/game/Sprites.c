@@ -346,6 +346,7 @@ UInt32	*srcPtr,*destPtr;
 			}
 		}
 	}
+	Pomme_SetPortDirty(true);
 	//Pomme::DumpTGA("cover.tga", 640, 480, (const char*)gCoverWindowPixPtr);
 }
 

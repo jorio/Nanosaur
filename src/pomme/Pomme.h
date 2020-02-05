@@ -139,6 +139,13 @@ void DrawChar(char c);
 void DrawString(ConstStr255Param s);
 
 //-----------------------------------------------------------------------------
+// QuickDraw 2D extensions
+
+Boolean Pomme_IsPortDirty(void);
+
+void Pomme_SetPortDirty(Boolean dirty);
+
+//-----------------------------------------------------------------------------
 // Misc
 
 void ExitToShell();
