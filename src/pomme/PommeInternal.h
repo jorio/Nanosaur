@@ -118,6 +118,7 @@ namespace Pomme {
 			inline UInt32* GetPtr(int x, int y) { return (UInt32*)&data.data()[4 * (y * width + x)]; }
 		};
 
+		void Init(const char* windowTitle);
 		Pixmap ReadPICT(std::istream& f, bool skip512 = true);
 		void DumpTGA(const char* path, short width, short height, const char* argbData);
 	}

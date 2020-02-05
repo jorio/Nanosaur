@@ -136,9 +136,6 @@
     <ClCompile Include="src\pomme\Pomme.cpp">
       <Filter>Pomme</Filter>
     </ClCompile>
-    <ClCompile Include="src\pomme\QD2D.cpp">
-      <Filter>Pomme</Filter>
-    </ClCompile>
     <ClCompile Include="src\pomme\QD3D.cpp">
       <Filter>Pomme</Filter>
     </ClCompile>
@@ -323,6 +320,9 @@
       <Filter>Pomme\Sound</Filter>
     </ClCompile>
     <ClCompile Include="src\pomme\PommeDebug.cpp">
+      <Filter>Pomme</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pomme\Graphics.cpp">
       <Filter>Pomme</Filter>
     </ClCompile>
   </ItemGroup>
@@ -608,6 +608,9 @@
       <Filter>Pomme</Filter>
     </ClInclude>
     <ClInclude Include="src\pomme\PommeDebug.h">
+      <Filter>Pomme</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Pomme\SysFont.h">
       <Filter>Pomme</Filter>
     </ClInclude>
   </ItemGroup>

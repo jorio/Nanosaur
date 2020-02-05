@@ -28,6 +28,10 @@
 #include 	"selfrundemo.h"
 #include "highscores.h"
 
+#if _WIN32 // some windows header defines SetPort, but we have our own implementation
+	#undef SetPort
+#endif
+
 extern	float				gFramesPerSecondFrac,gFramesPerSecond;
 extern	TQ3Point3D			gCoord;
 extern	WindowPtr			gCoverWindow;
@@ -148,15 +152,11 @@ do_again:
 		int w;
 		Str255	s = "Use the Arrow Keys to change the Selection.  Press the Spacebar to make a Selection.";
 		
-#if 1
-		TODOMINOR2("arrow keys text")
-#else
 		SetPort(gCoverWindow);
 		w = TextWidth(s, 0, s[0]);
 		MoveTo(320-(w/2), 478);
 		ForeColor(whiteColor);
 		DrawString(s);
-#endif
 	}
 
 

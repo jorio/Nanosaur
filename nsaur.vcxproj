@@ -236,7 +236,7 @@
     <ClCompile Include="src\pomme\Memory.cpp" />
     <ClCompile Include="src\pomme\PICT.cpp" />
     <ClCompile Include="src\pomme\Pomme.cpp" />
-    <ClCompile Include="src\pomme\QD2D.cpp" />
+    <ClCompile Include="src\pomme\Graphics.cpp" />
     <ClCompile Include="src\pomme\QD3D.cpp" />
     <ClCompile Include="src\pomme\Resources.cpp" />
     <ClCompile Include="src\pomme\Sound\SoundManager.cpp" />
@@ -297,6 +297,7 @@
     <ClInclude Include="src\pomme\PommeTypes.h" />
     <ClInclude Include="src\pomme\structpack.h" />
     <ClInclude Include="src\GamePatches.h" />
+    <ClInclude Include="src\Pomme\SysFont.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -29,6 +29,10 @@
 #include "enemy.h"
 #include "timeportal.h"
 
+#if _WIN32 // some windows header defines SetPort, but we have our own implementation
+	#undef SetPort
+#endif
+
 extern	NewObjectDefinitionType	gNewObjectDefinition;
 extern	Byte			gCurrentAttackMode;
 extern	float			gFramesPerSecond,gFramesPerSecondFrac,gCameraRotY,gCameraRotX,gMyHealth;
@@ -345,9 +349,6 @@ static const RGBColor	color = {0x9000,0,0x0800};
 	r.top = HEALTH_METER_Y;
 	r.bottom = r.top + HEALTH_METER_HEIGHT;
 
-#if 1
-	TODO();
-#else
 	SetPort(gCoverWindow);
 
 	RGBForeColor(&color);
@@ -360,7 +361,6 @@ static const RGBColor	color = {0x9000,0,0x0800};
 	r.right = HEALTH_METER_X+HEALTH_METER_WIDTH;
 	PaintRect(&r);
 	
-#endif
 }
 
 

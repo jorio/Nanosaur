@@ -365,3 +365,17 @@ enum {
     kVK_DownArrow                 = 0x7D,
     kVK_UpArrow                   = 0x7E
 };
+
+//-----------------------------------------------------------------------------
+// QD2D
+
+enum {
+    whiteColor      = 30,
+    blackColor      = 33,
+    yellowColor     = 69,
+    magentaColor    = 137,
+    redColor        = 205,
+    cyanColor       = 273,
+    greenColor      = 341,
+    blueColor       = 409,
+};

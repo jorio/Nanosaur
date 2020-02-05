@@ -7,6 +7,10 @@
 #include "PommeEnums.h"
 #include "PommeDebug.h"
 
+#if _WIN32 // some windows header defines SetPort as a macro
+	#undef SetPort
+#endif
+
 //-----------------------------------------------------------------------------
 // Structure unpacking
 
@@ -116,7 +120,23 @@ PicHandle GetPicture(short PICTresourceID);
 
 void DisposeGWorld(GWorldPtr offscreenGWorld);
 
+void SetPort(GrafPtr port);
 
+void MoveTo(short h, short v);
+
+void GetForeColor(RGBColor* rgb);
+
+void ForeColor(long color);
+
+void RGBForeColor(const RGBColor* color);
+
+void PaintRect(const Rect* r);
+
+short TextWidth(Ptr textBuf, short firstByte, short byteCount);
+
+void DrawChar(char c);
+
+void DrawString(ConstStr255Param s);
 
 //-----------------------------------------------------------------------------
 // Misc

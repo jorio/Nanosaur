@@ -129,15 +129,19 @@ struct Picture {
 
 typedef Picture* PicPtr;
 typedef PicPtr* PicHandle;
-
-struct GWorld { int _____dummy_____; };
-struct Window { int _____dummy_____; };
-struct GDHandle { int _____dummy_____; };
+struct GDHandle { int _____dummy_____; }; // GDevice Handle
 struct PixMap { int _____dummy_____; }; // if needed, look at quickdraw.h
-typedef GWorld* GWorldPtr;
-typedef Window* WindowPtr;
-typedef PixMap* PixMapPtr;
-typedef PixMapPtr* PixMapHandle;
+typedef PixMap*							PixMapPtr;
+typedef PixMapPtr*						PixMapHandle;
+struct GrafPort {
+	//Rect portRect;
+	void* _impl;
+};
+typedef GrafPort*						GrafPtr;
+typedef GrafPtr                         WindowPtr;
+typedef GrafPort                        CGrafPort;
+typedef GrafPtr							CGrafPtr;
+typedef CGrafPtr						GWorldPtr;
 
 //-----------------------------------------------------------------------------
 // Sound Manager types
