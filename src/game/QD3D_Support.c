@@ -26,6 +26,8 @@
 #include "3dmath.h"
 #include "selfrundemo.h"
 
+#include "GamePatches.h" // Source port addition - for backdrop quad
+
 extern TQ3ViewObject                   gView;
 
 extern	WindowPtr			gCoverWindow;
@@ -253,6 +255,8 @@ QD3DSetupOutputType	*data;
 	if (data == nil)												// see if this setup exists
 		DoFatalAlert("QD3D_DisposeWindowSetup: data == nil");
 
+	DisposeBackdropTexture(); // Source port addition - release backdrop GL texture
+	
 	Q3Object_Dispose(data->viewObject);
 	Q3Object_Dispose(data->interpolationStyle);
 	Q3Object_Dispose(data->backfacingStyle);
@@ -540,12 +544,8 @@ QD3DCameraDefType 				*cameraDefPtr;
 	}
 	else
 	{
-		pane.min.x = pane.min.y = 0;
-#if 1
-		pane.max.x = 640;
-		pane.max.y = 480;
-		TODOMINOR2("actually set pane max x/y");
-#else
+		TODOFATAL2("offscreen unsupported");
+#if 0
 		pane.max.x = setupDefPtr->view.gworld->portRect.right;
 		pane.max.y = setupDefPtr->view.gworld->portRect.bottom;
 #endif
@@ -714,12 +714,17 @@ TQ3ViewStatus			myViewStatus;
 			/* START RENDERING */
 
 			
+	RenderBackdropQuad(); // Source port addition - render GL backdrop quad
+	
 	myStatus = Q3View_StartRendering(setupInfo->viewObject);			
 	if ( myStatus == kQ3Failure )
 	{
 		DoAlert("ERROR: Q3View_StartRendering Failed!");
 		QD3D_ShowRecentError();
 	}
+
+	AllocBackdropTexture(); // Source port addition - alloc GL backdrop texture
+	// (must be after StartRendering so we have a valid GL context)
 
 			/***************/
 			/* RENDER LOOP */

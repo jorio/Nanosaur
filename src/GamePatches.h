@@ -16,3 +16,12 @@ void MakeFadeEvent(Boolean fadeIn);
 void GammaFadeOut();
 
 void GammaFadeIn();
+
+//-----------------------------------------------------------------------------
+// Backdrop
+
+void AllocBackdropTexture(void);
+
+void RenderBackdropQuad(void);
+
+void DisposeBackdropTexture(void);
