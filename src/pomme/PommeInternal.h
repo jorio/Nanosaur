@@ -52,24 +52,6 @@ namespace Pomme {
 		std::map<ResType, std::map<SInt16, ResourceOnDisk> > rezMap;
 	};
 
-	struct Color {
-		UInt8 a, r, g, b;
-		Color(UInt8 red, UInt8 green, UInt8 blue);
-		Color(UInt8 red, UInt8 green, UInt8 blue, UInt8 alpha);
-		Color();
-	};
-
-	struct Pixmap {
-		int width;
-		int height;
-		std::vector<Byte> data;
-
-		Pixmap();
-		Pixmap(int w, int h);
-		void WriteTGA(const char* path) const;
-	};
-
-
 	void Init(const char* applName);
 
 	namespace Time
@@ -115,11 +97,35 @@ namespace Pomme {
 		void Init();
 	}
 
+	namespace Graphics
+	{
+		struct Color {
+			UInt8 a, r, g, b;
+			Color(UInt8 red, UInt8 green, UInt8 blue);
+			Color(UInt8 red, UInt8 green, UInt8 blue, UInt8 alpha);
+			Color();
+		};
+
+		struct Pixmap {
+			int width;
+			int height;
+			std::vector<Byte> data;
+
+			Pixmap();
+			Pixmap(int w, int h);
+			void Fill(UInt8 red, UInt8 green, UInt8 blue, UInt8 alpha = 0xFF);
+			void WriteTGA(const char* path) const;
+			inline UInt32* GetPtr(int x, int y) { return (UInt32*)&data.data()[4 * (y * width + x)]; }
+		};
+
+		Pixmap ReadPICT(std::istream& f, bool skip512 = true);
+		void DumpTGA(const char* path, short width, short height, const char* argbData);
+	}
+
 	inline int Width(const Rect& r) { return r.right - r.left; }
 	inline int Height(const Rect& r) { return r.bottom - r.top; }
 	
-	Pixmap ReadPICT(std::istream& f, bool skip512 = true);
 	std::string FourCCString(FourCharCode t, char filler = '?');
 
-	void DumpTGA(const char* path, short width, short height, const char* argbData);
 }
+

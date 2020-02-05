@@ -4,6 +4,7 @@
 #include <iostream>
 
 using namespace Pomme;
+using namespace Pomme::Graphics;
 
 // ---------------------------------------------------------------------------- -
 // PICT resources
@@ -13,7 +14,7 @@ PicHandle GetPicture(short PICTresourceID) {
 	if (rawResource == nil)
 		return nil;
 	std::istrstream substream(*rawResource, GetHandleSize(rawResource));
-	Pixmap pm = Pomme::ReadPICT(substream, false);
+	Pixmap pm = ReadPICT(substream, false);
 	ReleaseResource(rawResource);
 
 	// Tack the data onto the end of the Picture struct,

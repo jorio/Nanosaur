@@ -8,6 +8,7 @@
 #include "PommeInternal.h"
 
 using namespace Pomme;
+using namespace Pomme::Graphics;
 
 #define PRINT_PROGRESS_EVERY 16
 
@@ -17,15 +18,15 @@ using namespace Pomme;
 //-----------------------------------------------------------------------------
 // Color
 
-Pomme::Color::Color(UInt8 r_, UInt8 g_, UInt8 b_) :
+Color::Color(UInt8 r_, UInt8 g_, UInt8 b_) :
 	r(r_), g(g_), b(b_), a(0xFF)
 {}
 
-Pomme::Color::Color(UInt8 r_, UInt8 g_, UInt8 b_, UInt8 a_) :
+Color::Color(UInt8 r_, UInt8 g_, UInt8 b_, UInt8 a_) :
 	r(r_), g(g_), b(b_), a(a_)
 {}
 
-Pomme::Color::Color() :
+Color::Color() :
 	r(0xFF), g(0x00), b(0xFF), a(0xFF)
 {}
 
@@ -64,7 +65,7 @@ std::ostream& operator<<(std::ostream& s, const Rect& r) {
 //-----------------------------------------------------------------------------
 // Dump Targa
 
-void Pomme::DumpTGA(const char* path, short width, short height, const char* argbData)
+void Pomme::Graphics::DumpTGA(const char* path, short width, short height, const char* argbData)
 {
 	std::ofstream tga(path);
 	short tgaHdr[] = { 0,2,0,0,0,0,(short)width,(short)height,0x2020 };
@@ -94,6 +95,17 @@ Pixmap::Pixmap(int w, int h) :
 	height(h),
 	data(w* h * 4, 0xAA)
 {
+	Fill(255, 0, 255);
+}
+
+void Pixmap::Fill(UInt8 red, UInt8 green, UInt8 blue, UInt8 alpha)
+{
+	for (int i = 0; i < width * height * 4; i += 4) {
+		data[i + 0] = alpha;
+		data[i + 1] = red;
+		data[i + 2] = green;
+		data[i + 3] = blue;
+	}
 }
 
 void Pixmap::WriteTGA(const char* path) const
@@ -104,7 +116,7 @@ void Pixmap::WriteTGA(const char* path) const
 //-----------------------------------------------------------------------------
 // PackBits
 
-template<typename T> std::vector<T> UnpackBits(BigEndianIStream& f, UInt16 rowbytes, int packedLength)
+template<typename T> static std::vector<T> UnpackBits(BigEndianIStream& f, UInt16 rowbytes, int packedLength)
 {
 	//LOG << "UnpackBits rowbytes=" << rowbytes << " packedlength=" << packedLength << "\n";
 
@@ -146,7 +158,7 @@ template<typename T> std::vector<T> UnpackBits(BigEndianIStream& f, UInt16 rowby
 //-----------------------------------------------------------------------------
 // Unpack PICT pixmap formats
 
-template<typename T> std::vector<T> UnpackAllRows(BigEndianIStream& f, int w, int h, UInt16 rowbytes, int expectedItemCount)
+template<typename T> static std::vector<T> UnpackAllRows(BigEndianIStream& f, int w, int h, UInt16 rowbytes, int expectedItemCount)
 {
 	LOG << "UnpackBits<" << typeid(T).name() << ">";
 	
@@ -168,10 +180,10 @@ template<typename T> std::vector<T> UnpackAllRows(BigEndianIStream& f, int w, in
 }
 
 // Unpack pixel type 0 (8-bit indexed)
-Pixmap Unpack0(BigEndianIStream& f, int w, int h, const std::vector<Color>& palette)
+static Pixmap Unpack0(BigEndianIStream& f, int w, int h, const std::vector<Color>& palette)
 {
 	auto unpacked = UnpackAllRows<UInt8>(f, w, h, w, w * h);
-	Pomme::Pixmap dst(w, h);
+	Pixmap dst(w, h);
 	dst.data.clear();
 	LOG << "indexed to RGBA";
 	for (int i = 0; i < unpacked.size(); i++) {
@@ -189,10 +201,10 @@ Pixmap Unpack0(BigEndianIStream& f, int w, int h, const std::vector<Color>& pale
 }
 
 // Unpack pixel type 4 (16 bits, chunky)
-Pixmap Unpack3(BigEndianIStream& f, int w, int h, UInt16 rowbytes)
+static Pixmap Unpack3(BigEndianIStream& f, int w, int h, UInt16 rowbytes)
 {
 	auto unpacked = UnpackAllRows<UInt16>(f, w, h, rowbytes, w*h);
-	Pomme::Pixmap dst(w, h);
+	Pixmap dst(w, h);
 	dst.data.clear();
 	LOG << "Chunky16 to RGBA";
 	for (int i = 0; i < unpacked.size(); i++) {
@@ -208,10 +220,10 @@ Pixmap Unpack3(BigEndianIStream& f, int w, int h, UInt16 rowbytes)
 }
 
 // Unpack pixel type 4 (24 or 32 bits, planar)
-Pixmap Unpack4(BigEndianIStream& f, int w, int h, UInt16 rowbytes, int numPlanes)
+static Pixmap Unpack4(BigEndianIStream& f, int w, int h, UInt16 rowbytes, int numPlanes)
 {
 	auto unpacked = UnpackAllRows<Byte>(f, w, h, rowbytes, numPlanes*w*h);
-	Pomme::Pixmap dst(w, h);
+	Pixmap dst(w, h);
 	dst.data.clear();
 	LOG << "Planar" << numPlanes*8 << " to RGBA";
 	for (int y = 0; y < h; y++) {
@@ -240,7 +252,8 @@ Pixmap Unpack4(BigEndianIStream& f, int w, int h, UInt16 rowbytes, int numPlanes
 //-----------------------------------------------------------------------------
 // PICT header
 
-Pixmap ReadPICTBits(BigEndianIStream& f, int opcode, const Rect& canvasRect) {
+static Pixmap ReadPICTBits(BigEndianIStream& f, int opcode, const Rect& canvasRect)
+{
 	bool directBitsOpcode = opcode == 0x009A || opcode == 0x009B;
 
 	//printf("@@@ ReadPictBits %04x ", opcode); LOG << "canvasRect: " << canvasRect << "\n";
@@ -354,7 +367,8 @@ Pixmap ReadPICTBits(BigEndianIStream& f, int opcode, const Rect& canvasRect) {
 	return Pixmap(0,0);
 }
 
-Pixmap Pomme::ReadPICT(std::istream& theF, bool skip512) {
+Pixmap Pomme::Graphics::ReadPICT(std::istream& theF, bool skip512)
+{
 	BigEndianIStream f(theF);
 
 	LOG << "-----------------------------\n";

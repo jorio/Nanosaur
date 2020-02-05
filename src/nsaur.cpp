@@ -11,8 +11,8 @@
 SDL_Window*					gSDLWindow = nullptr;
 TQ3ViewObject				gView = nullptr;
 std::thread					gameThread;
-static Pomme::Pixmap		gCoverWindowPixmap(640, 480);
 
+static Pomme::Graphics::Pixmap	gCoverWindowPixmap(640, 480);
 // bare minimum from Windows.c to satisfy externs in game code
 WindowPtr				gCoverWindow;
 UInt32*	                gCoverWindowPixPtr		= (UInt32*)gCoverWindowPixmap.data.data();
