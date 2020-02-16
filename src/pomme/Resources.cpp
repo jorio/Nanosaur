@@ -271,7 +271,7 @@ void WriteResource(Handle theResource) {
 }
 
 void DetachResource(Handle theResource) {
-	TODOMINOR();
+	ONCE(TODOMINOR());
 }
 
 long GetResourceSizeOnDisk(Handle theResource) {
