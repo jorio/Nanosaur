@@ -150,7 +150,7 @@ PicHandle GetPicture(short PICTresourceID)
 	Picture& pic = **ph;
 	Ptr pixels = (Ptr)*ph + sizeof(Picture);
 
-	pic.picFrame = Rect{ 0, 0, (SInt16)pm.width, (SInt16)pm.height };
+	pic.picFrame = Rect{ 0, 0, (SInt16)pm.height, (SInt16)pm.width };
 	pic.picSize = -1;
 	pic.__pomme_pixelsARGB32 = pixels;
 
