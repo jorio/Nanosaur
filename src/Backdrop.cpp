@@ -1,7 +1,9 @@
 #include <SDL_opengl.h>
+#include <SDL_video.h>
 #include "windows_nano.h"
 
 extern UInt32* gCoverWindowPixPtr;
+extern SDL_Window* gSDLWindow;
 
 static GLuint backdropTexture = -1;
 static bool backdropTextureAllocated = false;
@@ -34,7 +36,7 @@ void DisposeBackdropTexture()
 	}
 }
 
-void RenderBackdropQuad()
+void RenderBackdropQuad(bool forceSwapBuffers)
 {
 	if (!backdropTextureAllocated || !glIsTexture(backdropTexture))
 		return;
@@ -74,6 +76,10 @@ void RenderBackdropQuad()
 	glTexCoord2f(0.0, 1.0); glVertex2i(0, 480);
 	glTexCoord2f(1.0, 1.0); glVertex2i(640, 480);
 	glEnd();
+
+	if (forceSwapBuffers) {
+		SDL_GL_SwapWindow(gSDLWindow);
+	}
 
 	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();

@@ -22,7 +22,7 @@ void GammaFadeIn();
 
 void AllocBackdropTexture(void);
 
-void RenderBackdropQuad(void);
+void RenderBackdropQuad(bool forceSwapBuffers = false);
 
 void DisposeBackdropTexture(void);
 
