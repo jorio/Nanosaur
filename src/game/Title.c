@@ -4,8 +4,6 @@
 /* By Brian Greenstone      */
 /****************************/
 
-// Added for source port
-void GameYield(void);
 
 /****************************/
 /*    EXTERNALS             */
