@@ -81,39 +81,6 @@ void Pomme::Graphics::DumpTGA(const char* path, short width, short height, const
 }
 
 //-----------------------------------------------------------------------------
-// Pixmap
-
-Pixmap::Pixmap() :
-	width(0),
-	height(0),
-	data(0)
-{
-}
-
-Pixmap::Pixmap(int w, int h) :
-	width(w),
-	height(h),
-	data(w* h * 4, 0xAA)
-{
-	Fill(255, 0, 255);
-}
-
-void Pixmap::Fill(UInt8 red, UInt8 green, UInt8 blue, UInt8 alpha)
-{
-	for (int i = 0; i < width * height * 4; i += 4) {
-		data[i + 0] = alpha;
-		data[i + 1] = red;
-		data[i + 2] = green;
-		data[i + 3] = blue;
-	}
-}
-
-void Pixmap::WriteTGA(const char* path) const
-{
-	DumpTGA(path, width, height, (const char*)data.data());
-}
-
-//-----------------------------------------------------------------------------
 // PackBits
 
 template<typename T> static std::vector<T> UnpackBits(BigEndianIStream& f, UInt16 rowbytes, int packedLength)
@@ -180,10 +147,10 @@ template<typename T> static std::vector<T> UnpackAllRows(BigEndianIStream& f, in
 }
 
 // Unpack pixel type 0 (8-bit indexed)
-static Pixmap Unpack0(BigEndianIStream& f, int w, int h, const std::vector<Color>& palette)
+static ARGBPixmap Unpack0(BigEndianIStream& f, int w, int h, const std::vector<Color>& palette)
 {
 	auto unpacked = UnpackAllRows<UInt8>(f, w, h, w, w * h);
-	Pixmap dst(w, h);
+	ARGBPixmap dst(w, h);
 	dst.data.clear();
 	LOG << "indexed to RGBA";
 	for (int i = 0; i < unpacked.size(); i++) {
@@ -201,10 +168,10 @@ static Pixmap Unpack0(BigEndianIStream& f, int w, int h, const std::vector<Color
 }
 
 // Unpack pixel type 4 (16 bits, chunky)
-static Pixmap Unpack3(BigEndianIStream& f, int w, int h, UInt16 rowbytes)
+static ARGBPixmap Unpack3(BigEndianIStream& f, int w, int h, UInt16 rowbytes)
 {
 	auto unpacked = UnpackAllRows<UInt16>(f, w, h, rowbytes, w*h);
-	Pixmap dst(w, h);
+	ARGBPixmap dst(w, h);
 	dst.data.clear();
 	LOG << "Chunky16 to RGBA";
 	for (int i = 0; i < unpacked.size(); i++) {
@@ -220,10 +187,10 @@ static Pixmap Unpack3(BigEndianIStream& f, int w, int h, UInt16 rowbytes)
 }
 
 // Unpack pixel type 4 (24 or 32 bits, planar)
-static Pixmap Unpack4(BigEndianIStream& f, int w, int h, UInt16 rowbytes, int numPlanes)
+static ARGBPixmap Unpack4(BigEndianIStream& f, int w, int h, UInt16 rowbytes, int numPlanes)
 {
 	auto unpacked = UnpackAllRows<Byte>(f, w, h, rowbytes, numPlanes*w*h);
-	Pixmap dst(w, h);
+	ARGBPixmap dst(w, h);
 	dst.data.clear();
 	LOG << "Planar" << numPlanes*8 << " to RGBA";
 	for (int y = 0; y < h; y++) {
@@ -252,7 +219,7 @@ static Pixmap Unpack4(BigEndianIStream& f, int w, int h, UInt16 rowbytes, int nu
 //-----------------------------------------------------------------------------
 // PICT header
 
-static Pixmap ReadPICTBits(BigEndianIStream& f, int opcode, const Rect& canvasRect)
+static ARGBPixmap ReadPICTBits(BigEndianIStream& f, int opcode, const Rect& canvasRect)
 {
 	bool directBitsOpcode = opcode == 0x009A || opcode == 0x009B;
 
@@ -364,10 +331,10 @@ static Pixmap ReadPICTBits(BigEndianIStream& f, int opcode, const Rect& canvasRe
 		}
 	}
 
-	return Pixmap(0,0);
+	return ARGBPixmap(0,0);
 }
 
-Pixmap Pomme::Graphics::ReadPICT(std::istream& theF, bool skip512)
+ARGBPixmap Pomme::Graphics::ReadPICT(std::istream& theF, bool skip512)
 {
 	BigEndianIStream f(theF);
 
@@ -392,7 +359,7 @@ Pixmap Pomme::Graphics::ReadPICT(std::istream& theF, bool skip512)
 	if (0x02 != f.Read<Byte>()) throw "unrecognized PICT version";
 	if (0xFF != f.Read<Byte>()) throw "bad PICT header";
 
-	Pixmap pm(0, 0);
+	ARGBPixmap pm(0, 0);
 	bool readPixmap = false;
 
 	while (true) {

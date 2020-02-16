@@ -116,9 +116,25 @@ long SizeResource(Handle);
 //-----------------------------------------------------------------------------
 // QuickDraw 2D
 
+void SetRect(Rect* r, short left, short top, short right, short bottom);
+
 PicHandle GetPicture(short PICTresourceID);
 
 void DisposeGWorld(GWorldPtr offscreenGWorld);
+
+// IM:QD:6-16
+QDErr NewGWorld(
+	GWorldPtr* offscreenGWorld,
+	short pixelDepth,
+	const Rect* boundsRect,
+	void* junk1,	// CTabHandle cTable
+	void* junk2,	// GDHandle aGDevice
+	long junk3		// long flags
+);
+
+void GetGWorld(CGrafPtr* port, GDHandle* gdh);
+
+void SetGWorld(CGrafPtr port, GDHandle gdh);
 
 void SetPort(GrafPtr port);
 
@@ -128,9 +144,17 @@ void GetForeColor(RGBColor* rgb);
 
 void ForeColor(long color);
 
+void BackColor(long color);
+
 void RGBForeColor(const RGBColor* color);
 
 void PaintRect(const Rect* r);
+
+void EraseRect(const Rect* r);
+
+void LineTo(short h, short v);
+
+void FrameRect(const Rect*);
 
 short TextWidth(Ptr textBuf, short firstByte, short byteCount);
 
@@ -138,12 +162,32 @@ void DrawChar(char c);
 
 void DrawString(ConstStr255Param s);
 
+// IM:QD:7-44
+void DrawPicture(PicHandle myPicture, const Rect* dstRect);
+
+// IM:QD:6-31
+PixMapHandle GetGWorldPixMap(GWorldPtr offscreenGWorld);
+
+// IM:QD:6-38
+Ptr GetPixBaseAddr(PixMapHandle pm);
+
+void CopyBits(
+	const PixMap* srcBits,
+	PixMap* dstBits,
+	const Rect* srcRect,
+	const Rect* dstRect,
+	short mode,
+	void* maskRgn
+);
+
 //-----------------------------------------------------------------------------
 // QuickDraw 2D extensions
 
 Boolean Pomme_IsPortDirty(void);
 
 void Pomme_SetPortDirty(Boolean dirty);
+
+void Pomme_DumpPortTGA(const char* path);
 
 //-----------------------------------------------------------------------------
 // Misc

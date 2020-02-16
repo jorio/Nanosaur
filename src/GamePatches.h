@@ -25,3 +25,9 @@ void AllocBackdropTexture(void);
 void RenderBackdropQuad(void);
 
 void DisposeBackdropTexture(void);
+
+
+
+
+void DumpGWorldToGWorld(GWorldPtr thisWorld, GWorldPtr destWorld, Rect* srcRect, Rect* destRect);
+

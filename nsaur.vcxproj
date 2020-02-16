@@ -180,6 +180,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\Backdrop.cpp" />
+    <ClCompile Include="src\pomme\ARGBPixmap.cpp" />
     <ClCompile Include="src\pomme\PommeDebug.cpp" />
     <ClCompile Include="src\pomme\Sound\cmixer.cpp" />
     <ClCompile Include="src\pomme\structpack.cpp" />

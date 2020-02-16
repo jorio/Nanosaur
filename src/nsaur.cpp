@@ -11,12 +11,20 @@
 TQ3ViewObject				gView = nullptr;
 std::thread					gameThread;
 
+// bare minimum from Windows.c to satisfy externs in game code
+WindowPtr gCoverWindow = nullptr;
+UInt32* gCoverWindowPixPtr = nullptr;
+
 void GameMain(void);
 void RegisterUnpackableTypes(void);
 
 void AppMain()
 {
     Pomme::Init("Nanosaur\u2122");
+
+	gCoverWindow = Pomme::Graphics::GetScreenPort();
+	gCoverWindowPixPtr = (UInt32*)GetPixBaseAddr(GetGWorldPixMap(gCoverWindow));
+	
     RegisterUnpackableTypes();
     GameMain();
 }

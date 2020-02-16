@@ -26,6 +26,9 @@
 #include "3dmath.h"
 #include "selfrundemo.h"
 
+#if _WIN32 // some windows header defines SetPort, but we have our own implementation
+	#undef SetPort
+#endif
 #include "GamePatches.h" // Source port addition - for backdrop quad
 
 extern TQ3ViewObject                   gView;
@@ -1346,10 +1349,7 @@ short					depth;
 
 void QD3D_GWorldToMipMap(GWorldPtr pGWorld, TQ3Mipmap *mipmap, Boolean pointToGWorld)
 {
-#if 1
-	TODO();
-#else
-unsigned long 			pictMapAddr;
+Ptr			 			pictMapAddr;
 PixMapHandle 			hPixMap;
 unsigned long 			pictRowBytes;
 long					width, height;
@@ -1361,10 +1361,14 @@ short					depth;
 	
 	depth = (**hPixMap).pixelSize;									// get gworld depth
 	
-	pictMapAddr = (unsigned long )GetPixBaseAddr(hPixMap);
-	pictRowBytes = (unsigned long)(**hPixMap).rowBytes & 0x3fff;
+	pictMapAddr = GetPixBaseAddr(hPixMap);
 	width = ((**hPixMap).bounds.right - (**hPixMap).bounds.left);
 	height = ((**hPixMap).bounds.bottom - (**hPixMap).bounds.top);
+#if 0
+	pictRowBytes = (unsigned long)(**hPixMap).rowBytes & 0x3fff;
+#else
+	pictRowBytes = width * (depth / 8);
+#endif
 
 			/* MAKE MIPMAP */
 
@@ -1392,7 +1396,6 @@ short					depth;
 	mipmap->mipmaps[0].height = height;
 	mipmap->mipmaps[0].rowBytes = pictRowBytes;
 	mipmap->mipmaps[0].offset = 0;
-#endif
 }
 
 

@@ -593,11 +593,6 @@ static TQ3Point3D				points[4] = {-GPS_DISPLAY_SIZE,GPS_DISPLAY_SIZE,0,
 	if (pict == nil)
 		DoFatalAlert("InitGPSMap: Cannot Get map image!");
 	
-#if 1
-	gGPSShaderObject = QD3D_PICTToTexture(pict);
-	if (gGPSShaderObject == nil)
-		DoFatalAlert("InitGPSMap: QD3D_PICTToTexture failed!");
-#else
 	r = (*pict)->picFrame;													// get size of PICT
 	myErr = NewGWorld(&gGPSFullImage, 16, &r, 0, 0, 0L);					// make gworld
 	if (myErr)
@@ -630,7 +625,6 @@ static TQ3Point3D				points[4] = {-GPS_DISPLAY_SIZE,GPS_DISPLAY_SIZE,0,
 	if (gGPSShaderObject == nil)
 		DoFatalAlert("InitGPSMap: QD3D_GWorldToTexture failed!");
 
-#endif
 
 			/* CREATE AN ATTRIBUTE FOR SHADER */
 			
@@ -736,9 +730,6 @@ TQ3Status			status;
 	
 	if ((x != gOldGPSCoordX) || (y != gOldGPSCoordY) || forceUpdate)
 	{
-#if 1
-		TODOMINOR2(x << "," << y);
-#else
 		long	w,h;
 
 				/* COPY VISIBLE SECTION OF GWORLD */
@@ -858,7 +849,6 @@ TQ3Status			status;
 		
 		Q3Object_Dispose(texture);										// nuke extra ref
 	
-#endif
 		gOldGPSCoordX = x;
 		gOldGPSCoordY = y;
 	}

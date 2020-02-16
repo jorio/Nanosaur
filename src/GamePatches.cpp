@@ -82,6 +82,47 @@ char GetTypedKey(void)
 	return 0;
 }
 
+
+/*********************** DUMP GWORLD TO GWORLD **********************/
+//
+//    copies RECT to RECT
+//
+
+void DumpGWorldToGWorld(GWorldPtr thisWorld, GWorldPtr destWorld, Rect* srcRect, Rect* destRect)
+{
+	PixMapHandle pm, pm2;
+	GDHandle	oldGD;
+	GWorldPtr	oldGW;
+
+	GetGWorld(&oldGW, &oldGD);
+	SetGWorld(destWorld, nil);
+	ForeColor(blackColor);
+	BackColor(whiteColor);
+
+	SetGWorld(thisWorld, nil);
+	ForeColor(blackColor);
+	BackColor(whiteColor);
+
+//	DoLockPixels(destWorld);
+//	DoLockPixels(thisWorld);
+
+	pm = GetGWorldPixMap(thisWorld);
+//	if ((pm == nil) | (*pm == nil))
+//		DoAlert("PixMap Handle or Ptr = Null?!");
+
+	pm2 = GetGWorldPixMap(destWorld);
+//	if ((pm2 == nil) | (*pm2 == nil))
+//		DoAlert("PixMap Handle or Ptr = Null?!");
+
+
+	CopyBits(/*(BitMap*)*/*pm, /*(BitMap*)*/*pm2,
+		srcRect, destRect, /*srcCopy*/0, 0);
+
+	SetGWorld(oldGW, oldGD);								// restore gworld
+
+}
+
+
 //-----------------------------------------------------------------------------
 // Fade
 

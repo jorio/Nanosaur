@@ -99,28 +99,33 @@ namespace Pomme {
 
 	namespace Graphics
 	{
-		struct Color {
+		struct Color
+		{
 			UInt8 a, r, g, b;
 			Color(UInt8 red, UInt8 green, UInt8 blue);
 			Color(UInt8 red, UInt8 green, UInt8 blue, UInt8 alpha);
 			Color();
 		};
 
-		struct Pixmap {
+		struct ARGBPixmap
+		{
 			int width;
 			int height;
 			std::vector<Byte> data;
 
-			Pixmap();
-			Pixmap(int w, int h);
+			ARGBPixmap();
+			ARGBPixmap(int w, int h);
 			void Fill(UInt8 red, UInt8 green, UInt8 blue, UInt8 alpha = 0xFF);
+			void Plot(int x, int y, UInt32 color);
 			void WriteTGA(const char* path) const;
 			inline UInt32* GetPtr(int x, int y) { return (UInt32*)&data.data()[4 * (y * width + x)]; }
 		};
 
 		void Init(const char* windowTitle);
-		Pixmap ReadPICT(std::istream& f, bool skip512 = true);
+		ARGBPixmap ReadPICT(std::istream& f, bool skip512 = true);
 		void DumpTGA(const char* path, short width, short height, const char* argbData);
+	
+		CGrafPtr GetScreenPort(void);
 	}
 
 	inline int Width(const Rect& r) { return r.right - r.left; }

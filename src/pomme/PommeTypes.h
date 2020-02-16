@@ -80,7 +80,14 @@ typedef char*							StringPtr;
 
 struct Point { SInt16 v, h; };
 
-struct Rect { SInt16 top, left, bottom, right; };
+struct Rect
+{
+	union
+	{
+		struct { SInt16 top, left, bottom, right; };
+		struct { Point topLeft, bottomRight; };
+	};
+};
 
 typedef Point* PointPtr;
 typedef Rect* RectPtr;
@@ -107,6 +114,8 @@ typedef Handle AliasHandle;
 //-----------------------------------------------------------------------------
 // QuickDraw types
 
+typedef SInt16							QDErr;
+
 struct RGBColor {
 	UInt16 red;
 	UInt16 green;
@@ -129,12 +138,18 @@ struct Picture {
 
 typedef Picture* PicPtr;
 typedef PicPtr* PicHandle;
-struct GDHandle { int _____dummy_____; }; // GDevice Handle
-struct PixMap { int _____dummy_____; }; // if needed, look at quickdraw.h
+typedef Handle GDHandle; // GDevice handle. Game code doesn't care about GDevice internals, so we just alias a generic Handle
+// http://mirror.informatimago.com/next/developer.apple.com/documentation/Carbon/Reference/QuickDraw_Ref/qdref_main/data_type_41.html
+struct PixMap
+{
+	Rect bounds;
+	short pixelSize;
+	Ptr _impl;
+};
 typedef PixMap*							PixMapPtr;
 typedef PixMapPtr*						PixMapHandle;
 struct GrafPort {
-	//Rect portRect;
+	Rect portRect;
 	void* _impl;
 };
 typedef GrafPort*						GrafPtr;

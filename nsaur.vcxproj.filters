@@ -164,9 +164,6 @@
     <ClCompile Include="src\pomme\Pomme.cpp">
       <Filter>Pomme</Filter>
     </ClCompile>
-    <ClCompile Include="src\pomme\QD2D.cpp">
-      <Filter>Pomme</Filter>
-    </ClCompile>
     <ClCompile Include="src\pomme\QD3D.cpp">
       <Filter>Pomme</Filter>
     </ClCompile>
@@ -326,6 +323,9 @@
       <Filter>Pomme</Filter>
     </ClCompile>
     <ClCompile Include="src\Backdrop.cpp" />
+    <ClCompile Include="src\pomme\ARGBPixmap.cpp">
+      <Filter>Pomme</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\pomme\PommeEnums.h">
