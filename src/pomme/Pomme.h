@@ -138,6 +138,8 @@ void SetGWorld(CGrafPtr port, GDHandle gdh);
 
 void SetPort(GrafPtr port);
 
+void GetPort(GrafPtr* port);
+
 void MoveTo(short h, short v);
 
 void GetForeColor(RGBColor* rgb);

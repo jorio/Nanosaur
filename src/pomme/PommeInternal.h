@@ -124,7 +124,7 @@ namespace Pomme {
 		void Init(const char* windowTitle);
 		ARGBPixmap ReadPICT(std::istream& f, bool skip512 = true);
 		void DumpTGA(const char* path, short width, short height, const char* argbData);
-	
+		void DrawARGBPixmap(int left, int top, ARGBPixmap& p);
 		CGrafPtr GetScreenPort(void);
 	}
 

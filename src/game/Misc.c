@@ -506,6 +506,7 @@ void ApplyFrictionToDeltas(float f,TQ3Vector3D *d)
 	}
 }
 
+#if 0 // not needed by Nanosaur or reimplemented elsewhere by source port
 
 #pragma mark -
 
@@ -522,10 +523,6 @@ void ApplyFrictionToDeltas(float f,TQ3Vector3D *d)
 
 OSErr DrawPictureIntoGWorld(FSSpec *myFSSpec, GWorldPtr *theGWorld)
 {
-#if 1
-	TODOMINOR();
-	return unimpErr;
-#else
 OSErr						iErr;
 GraphicsImportComponent		gi;
 Rect						r;
@@ -570,7 +567,6 @@ ComponentResult				result;
 		DisposeGWorld (*theGWorld);
 		return(result);
 	}
-#endif
 	return(noErr);
 }
 
@@ -584,10 +580,6 @@ ComponentResult				result;
 
 OSErr DrawPictureToScreen(FSSpec *myFSSpec, short x, short y)
 {
-#if 1
-	TODOMINOR();
-	return unimpErr;
-#else
 OSErr						iErr;
 GraphicsImportComponent		gi;
 Rect						r;
@@ -645,9 +637,9 @@ GWorldPtr                   gworld;
 	DisposeGWorld(gworld);
 
 	return(noErr);
-#endif
 }
 
+#endif
 
 
 

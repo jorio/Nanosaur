@@ -400,7 +400,7 @@ void FrameRect(const Rect* r)
 	curPort->dirty = true;
 }
 
-void Pomme_DumpPict(int left, int top, ARGBPixmap& p)
+void Pomme::Graphics::DrawARGBPixmap(int left, int top, ARGBPixmap& p)
 {
 	if (!curPort) {
 		throw std::exception(__FUNCTION__ ": no port set");

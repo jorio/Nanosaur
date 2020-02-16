@@ -1,6 +1,13 @@
 #include <QD3DMath.h>
 
+#include "PommeInternal.h"
 #include "input.h"
+
+
+#if _WIN32
+	#undef SetPort
+	#undef GetPort
+#endif
 
 extern TQ3Matrix4x4 gCameraWorldToViewMatrix;
 extern TQ3Matrix4x4 gCameraViewToFrustumMatrix;
@@ -122,6 +129,31 @@ void DumpGWorldToGWorld(GWorldPtr thisWorld, GWorldPtr destWorld, Rect* srcRect,
 
 }
 
+
+/**************** DRAW PICTURE TO SCREEN ***********************/
+//
+// Uses Quicktime to load any kind of picture format file and draws
+//
+//
+// INPUT: myFSSpec = spec of image file
+//
+
+#include "PommeInternal.h"
+
+OSErr DrawPictureToScreen(FSSpec* myFSSpec, short x, short y)
+{
+	short refNum;
+	if (noErr != FSpOpenDF(myFSSpec, fsRdPerm, &refNum))
+		TODOFATAL2(Pascal2C(myFSSpec->name));
+	auto& stream = Pomme::Files::GetStream(refNum);
+	auto pict = Pomme::Graphics::ReadPICT(stream, true);
+	GrafPtr oldPort;
+	GetPort(&oldPort);
+	SetPort(Pomme::Graphics::GetScreenPort());
+	Pomme::Graphics::DrawARGBPixmap(x, y, pict);
+	SetPort(oldPort);
+	return noErr;
+}
 
 //-----------------------------------------------------------------------------
 // Fade
