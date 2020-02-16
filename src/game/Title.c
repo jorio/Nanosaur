@@ -29,6 +29,8 @@
 #include 	"selfrundemo.h"
 #include "skeletonanim.h"
 
+#include "GamePatches.h"
+
 extern	float				gFramesPerSecondFrac,gFramesPerSecond;
 extern	TQ3Point3D			gCoord;
 extern	WindowPtr			gCoverWindow;
@@ -410,12 +412,14 @@ FSSpec	spec;
 //	DisposeHandle((Handle)pic);
 	ReadKeyboard();
 	
+	AllocBackdropTexture();				// Source port addition
 	
 	
 	do
 	{
 		ReadKeyboard();
 		DoSoundMaintenance();
+		RenderBackdropQuad(true);		// Source port addition
 	}while(!(gNewKeys_Real[0] || gNewKeys_Real[1] ||  gNewKeys_Real[2] || gNewKeys_Real[3]));
 
 			/* DO PAGE 2 */
@@ -431,7 +435,10 @@ FSSpec	spec;
 	{
 		ReadKeyboard();
 		DoSoundMaintenance();
+		RenderBackdropQuad(true);		// Source port addition
 	}while(!(gNewKeys_Real[0] || gNewKeys_Real[1] ||  gNewKeys_Real[2] || gNewKeys_Real[3]));
+
+	DisposeBackdropTexture();			// Source port addition
 
 	GammaFadeOut();
 }
