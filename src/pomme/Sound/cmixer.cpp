@@ -216,6 +216,7 @@ Source::~Source()
 				*s = next;
 				break;
 			}
+			s = &(*s)->next;
 		}
 	}
 	gMixer.Unlock();
