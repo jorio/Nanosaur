@@ -1,5 +1,4 @@
 #include <map>
-#include <strstream>
 
 #include "structpack.h"
 
