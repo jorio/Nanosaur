@@ -45,10 +45,6 @@ struct ADPCMChannelStatus {
 	int step;
 };
 
-struct ADPCMDecodeContext {
-	ADPCMChannelStatus status[14];
-};
-
 static inline int sign_extend(int val, unsigned bits)
 {
 	unsigned shift = 8 * sizeof(int) - bits;
@@ -83,32 +79,24 @@ static inline int adpcm_ima_qt_expand_nibble(ADPCMChannelStatus* c, int nibble, 
 }
 
 // In QuickTime, IMA is encoded by chunks of 34 bytes (=64 samples). Channel data is interleaved per-chunk.
-std::vector<SInt16> Pomme::Sound::DecodeIMA4(const std::vector<Byte>& input, const int nChannels)
+void DecodeIMA4Chunk(
+	const unsigned char** input,
+	SInt16** output,
+	std::vector<ADPCMChannelStatus>& ctx)
 {
-	if (input.size() % 34 != 0)
-		throw std::invalid_argument("odd input buffer size");
-
-	int nChunks = int(input.size()) / (34 * nChannels);
-	int nSamples = 64 * nChunks;
-
-	std::vector<SInt16> output(nSamples * nChannels);
-
-	const unsigned char* in = input.data();
-
-	ADPCMDecodeContext ctx = {};
-
-	for (int chunk = 0; chunk < nChunks; chunk++)
+	const int nChannels = ctx.size();
+	const unsigned char* in = *input;
+	SInt16* out = *output;
+	
 	for (int chan = 0; chan < nChannels; chan++) {
-		int predictor;
-		int step_index;
-
-		ADPCMChannelStatus& cs = ctx.status[chan];
+		ADPCMChannelStatus& cs = ctx[chan];
 
 		// Bits 15-7 are the _top_ 9 bits of the 16-bit initial predictor value
-		predictor = sign_extend((in[0] << 8) | in[1], 16);
-		in += 2;
-		step_index = predictor & 0x7F;
+		int predictor = sign_extend((in[0] << 8) | in[1], 16);
+		int step_index = predictor & 0x7F;
 		predictor &= ~0x7F;
+		
+		in += 2;
 
 		if (cs.step_index == step_index) {
 			int diff = predictor - cs.predictor;
@@ -124,14 +112,37 @@ std::vector<SInt16> Pomme::Sound::DecodeIMA4(const std::vector<Byte>& input, con
 		if (cs.step_index > 88u)
 			throw std::invalid_argument("step_index[chan]>88!");
 
-		int pos = chunk * 64 * nChannels + chan;
+		int pos = chan;
 		for (int m = 0; m < 32; m++) {
 			int byte = (unsigned char)(*in++);
-			output[pos] = adpcm_ima_qt_expand_nibble(&cs, byte & 0x0F, 3);
+			out[pos] = adpcm_ima_qt_expand_nibble(&cs, byte & 0x0F, 3);
 			pos += nChannels;
-			output[pos] = adpcm_ima_qt_expand_nibble(&cs, byte >> 4, 3);
+			out[pos] = adpcm_ima_qt_expand_nibble(&cs, byte >> 4, 3);
 			pos += nChannels;
 		}
+	}
+
+	*input = in;
+	*output += 64 * nChannels;
+}
+
+std::vector<SInt16> Pomme::Sound::DecodeIMA4(const std::vector<Byte>& input, const int nChannels)
+{
+	if (input.size() % 34 != 0)
+		throw std::invalid_argument("odd input buffer size");
+
+	int nChunks = int(input.size()) / (34 * nChannels);
+	int nSamples = 64 * nChunks;
+
+	std::vector<SInt16> output(nSamples * nChannels);
+
+	const unsigned char* in = input.data();
+	SInt16* out = output.data();
+	std::vector<ADPCMChannelStatus> ctx(nChannels);
+
+	for (int chunk = 0; chunk < nChunks; chunk++)
+	{
+		DecodeIMA4Chunk(&in, &out, ctx);
 	}
 
 	assert(output.size() == nSamples * nChannels);
