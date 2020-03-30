@@ -49,7 +49,7 @@ using namespace cmixer;
 static struct Mixer {
 	SDL_mutex* sdlAudioMutex;
 
-	Source* sources;           // Linked list of active (playing) sources
+	std::list<Source*> sources;   // Linked list of active (playing) sources
 	cm_Int32 pcmmixbuf[BUFFER_SIZE]; // Internal master buffer
 	int samplerate;               // Master samplerate
 	int gain;                     // Master gain (fixed point)
@@ -137,12 +137,9 @@ void Mixer::Unlock()
 
 void Mixer::Init(int newSamplerate)
 {
-	memset(this, 0, sizeof(*this));
-
 	sdlAudioMutex = SDL_CreateMutex();
 
 	samplerate = newSamplerate;
-	sources = nullptr;
 	gain = FX_UNIT;
 }
 
@@ -155,9 +152,6 @@ void Mixer::SetMasterGain(double newGain)
 
 void Mixer::Process(cm_Int16* dst, int len)
 {
-	int i;
-	Source** s;
-
 	// Process in chunks of BUFFER_SIZE if `len` is larger than BUFFER_SIZE
 	while (len > BUFFER_SIZE) {
 		Process(dst, BUFFER_SIZE);
@@ -170,22 +164,22 @@ void Mixer::Process(cm_Int16* dst, int len)
 
 	// Process active sources
 	Lock();
-	s = &sources;
-	while (*s) {
-		(*s)->Process(len);
+	for (auto si = sources.begin(); si != sources.end(); ) {
+		auto& s = **si;
+		s.Process(len);
 		// Remove source from list if it is no longer playing
-		if ((*s)->state != CM_STATE_PLAYING) {
-			(*s)->active = false;
-			*s = (*s)->next;
+		if (s.state != CM_STATE_PLAYING) {
+			s.active = false;
+			si = sources.erase(si);
 		}
 		else {
-			s = &(*s)->next;
+			++si;
 		}
 	}
 	Unlock();
 
 	// Copy internal buffer to destination and clip
-	for (i = 0; i < len; i++) {
+	for (int i = 0; i < len; i++) {
 		int x = (pcmmixbuf[i] * gain) >> FX_BITS;
 		dst[i] = CLAMP(x, -32768, 32767);
 	}
@@ -210,14 +204,7 @@ Source::~Source()
 {
 	gMixer.Lock();
 	if (active) {
-		Source** s = &gMixer.sources;
-		while (*s) {
-			if (*s == this) {
-				*s = next;
-				break;
-			}
-			s = &(*s)->next;
-		}
+		gMixer.sources.remove(this);
 	}
 	gMixer.Unlock();
 	//CMEvent e;
@@ -377,8 +364,7 @@ void Source::Play()
 	state = CM_STATE_PLAYING;
 	if (!active) {
 		active = true;
-		next = gMixer.sources;
-		gMixer.sources = this;
+		gMixer.sources.push_front(this);
 	}
 	gMixer.Unlock();
 }

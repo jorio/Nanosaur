@@ -45,7 +45,6 @@ enum {
 };
 
 struct Source {
-	Source* next;					// Next source in list
 	cm_Int16 pcmbuf[BUFFER_SIZE];	// Internal buffer with raw stereo PCM
 	int samplerate;					// Stream's native samplerate
 	int length;						// Stream's length in frames
