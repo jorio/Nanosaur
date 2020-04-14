@@ -326,7 +326,7 @@ void RGBForeColor(const RGBColor* color)
 static void _FillRect(const struct Rect* r, UInt32 fillColor)
 {
 	if (!curPort) {
-		throw std::exception(__FUNCTION__ ": no port set");
+		throw std::runtime_error("_FillRect: no port set");
 	}
 
 	fillColor = ToBE(fillColor);
@@ -403,7 +403,7 @@ void FrameRect(const Rect* r)
 void Pomme::Graphics::DrawARGBPixmap(int left, int top, ARGBPixmap& p)
 {
 	if (!curPort) {
-		throw std::exception(__FUNCTION__ ": no port set");
+		throw std::runtime_error("DrawARGBPixmap: no port set");
 	}
 
 	left -= curPort->port.portRect.left;

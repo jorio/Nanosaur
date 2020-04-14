@@ -70,10 +70,10 @@ static SDL_AudioDeviceID sdlDeviceID = 0;
 void cmixer::InitWithSDL()
 {
 	if (sdlAudioSubSystemInited)
-		throw std::exception("SDL audio subsystem already inited");
+		throw std::runtime_error("SDL audio subsystem already inited");
 
 	if (0 != SDL_InitSubSystem(SDL_INIT_AUDIO))
-		throw std::exception("couldn't init SDL audio subsystem");
+		throw std::runtime_error("couldn't init SDL audio subsystem");
 
 	sdlAudioSubSystemInited = true;
 
@@ -90,7 +90,7 @@ void cmixer::InitWithSDL()
 	SDL_AudioSpec got;
 	sdlDeviceID = SDL_OpenAudioDevice(NULL, 0, &fmt, &got, SDL_AUDIO_ALLOW_FREQUENCY_CHANGE);
 	if (!sdlDeviceID)
-		throw std::exception(SDL_GetError());
+		throw std::runtime_error(SDL_GetError());
 
 	// Init library
 	gMixer.Init(got.freq);

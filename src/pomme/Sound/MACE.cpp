@@ -214,7 +214,7 @@ std::vector<SInt16> Pomme::Sound::DecodeMACE3(const std::vector<Byte>& input, co
 	}
 
 	if (output.size() != nSamples * nChannels)
-		throw std::exception("unexpected final output size");
+		throw std::runtime_error("unexpected final output size");
 
 	return output;
 }

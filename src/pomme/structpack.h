@@ -27,7 +27,7 @@ namespace structpack {
 		}
 
 		if (&obj0[repeat] != reinterpret_cast<T*>(p))
-			throw std::exception("unexpected end pointer after unpacking");
+			throw std::runtime_error("unexpected end pointer after unpacking");
 
 		return obj0;
 	}

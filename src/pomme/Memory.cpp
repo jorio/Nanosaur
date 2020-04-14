@@ -26,7 +26,7 @@ static BlockDescriptor* HandleToBlock(Handle h)
 {
 	auto bd = (BlockDescriptor*)h;
 	if (0 != memcmp(bd->magic, HANDLE_MAGIC, HANDLE_MAGIC_LENGTH))
-		throw std::exception("corrupted handle");
+		throw std::runtime_error("corrupted handle");
 	return bd;
 }
 
@@ -43,7 +43,7 @@ Handle NewHandle(Size s)
 	block->size = s;
 
 	if ((Ptr)&block->buf != (Ptr)block)
-		throw std::exception("buffer address mismatches block address");
+		throw std::runtime_error("buffer address mismatches block address");
 
 	LOG << (void*)block->buf << ", size " << s << "\n";
 
