@@ -202,12 +202,12 @@ void SetRect(Rect* r, short left, short top, short right, short bottom)
 // ---------------------------------------------------------------------------- -
 // GWorld
 
-static constexpr GrafPortImpl& GetImpl(GWorldPtr offscreenGWorld)
+static inline GrafPortImpl& GetImpl(GWorldPtr offscreenGWorld)
 {
 	return *(GrafPortImpl*)offscreenGWorld->_impl;
 }
 
-static constexpr ARGBPixmap& GetImpl(PixMapPtr pixMap)
+static inline ARGBPixmap& GetImpl(PixMapPtr pixMap)
 {
 	return *(ARGBPixmap*)pixMap->_impl;
 }
