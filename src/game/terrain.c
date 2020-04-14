@@ -11,7 +11,7 @@
 #include "globals.h"
 #include "objects.h"
 #include "main.h"
-#include "Terrain.h"
+#include "terrain.h"
 #include "misc.h"
 #include "file.h"
 #include "3dmath.h"

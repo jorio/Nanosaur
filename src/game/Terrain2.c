@@ -4,7 +4,7 @@
 
 
 #include "globals.h"
-#include "Terrain.h"
+#include "terrain.h"
 #include "misc.h"
 #include "main.h"
 #include "objects.h"

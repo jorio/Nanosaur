@@ -1,9 +1,9 @@
 #include "structpack.h"
 
-#include "Globals.h"
+#include "globals.h"
 #include "sprites.h"
 #include "file.h"
-#include "Terrain.h"
+#include "terrain.h"
 
 void RegisterUnpackableTypes()
 {

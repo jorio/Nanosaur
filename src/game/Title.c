@@ -23,7 +23,7 @@
 #include "windows_nano.h"
 #include "input.h"
 #include "file.h"
-#include "SkeletonObj.h"
+#include "skeletonobj.h"
 #include "environmentmap.h"
 #include "sound2.h"
 #include 	"selfrundemo.h"

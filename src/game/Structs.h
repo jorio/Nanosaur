@@ -6,7 +6,7 @@
 #define STRUCTS_H
 
 
-#include "Globals.h"
+#include "globals.h"
 #include "QD3DGeometry.h"
 
 #define	MAX_ANIMS			20
