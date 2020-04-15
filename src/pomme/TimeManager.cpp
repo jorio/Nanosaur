@@ -6,7 +6,7 @@
 #include <ctime>
 #include <iomanip>
 
-std::chrono::time_point<std::chrono::steady_clock> bootTP;
+std::chrono::time_point<std::chrono::high_resolution_clock> bootTP;
 
 // timestamp (from unix epoch) of the mac epoch, Jan 1, 1904, 00:00:00
 constexpr int JANUARY_1_1904 = -2'082'844'800;
@@ -20,7 +20,7 @@ void Pomme::Time::Init()
 }
 
 void GetDateTime(unsigned long* secs) {
-	*secs = unsigned long(std::time(nullptr) + JANUARY_1_1904);
+	*secs = (unsigned long)(std::time(nullptr) + JANUARY_1_1904);
 }
 
 void Microseconds(UnsignedWide* usecs) {
