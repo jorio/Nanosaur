@@ -27,6 +27,7 @@
 
 #include <vector>
 #include <fstream>
+#include <list>
 
 using namespace cmixer;
 
