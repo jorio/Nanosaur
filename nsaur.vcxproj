@@ -116,7 +116,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level1</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>QUESA_SDL;_SILENCE_CXX17_STRSTREAM_DEPRECATION_WARNING;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>QUESA_OS_SDL;_SILENCE_CXX17_STRSTREAM_DEPRECATION_WARNING;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>src;src\pomme;src\game;src\qd3d</AdditionalIncludeDirectories>
       <CompileAs>CompileAsCpp</CompileAs>
@@ -162,7 +162,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>QUESA_SDL;_SILENCE_CXX17_STRSTREAM_DEPRECATION_WARNING;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>QUESA_OS_SDL;_SILENCE_CXX17_STRSTREAM_DEPRECATION_WARNING;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>src;src\pomme;src\game;src\qd3d</AdditionalIncludeDirectories>
       <CompileAs>CompileAsCpp</CompileAs>
