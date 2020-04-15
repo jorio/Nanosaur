@@ -269,7 +269,7 @@ FSSpec			spec;
 
 			/* LOAD ART */
 			
-	FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":models:Title.3dmf", &spec);		// load other models
+	FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":Models:Title.3dmf", &spec);		// load other models
 	LoadGrouped3DMF(&spec,MODEL_GROUP_TITLE);	
 
 

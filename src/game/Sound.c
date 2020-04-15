@@ -384,15 +384,15 @@ static	SndCommand 		mySndCmd;
 	switch(songNum)
 	{
 		case	0:
-				OpenGameFile(":audio:gamesong.aiff",&gMusicFileRefNum,errStr);		
+				OpenGameFile(":Audio:GameSong.aiff",&gMusicFileRefNum,errStr);
 				break;
 
 		case	1:
-				OpenGameFile(":audio:titlesong.aiff",&gMusicFileRefNum,errStr);		
+				OpenGameFile(":Audio:TitleSong.aiff",&gMusicFileRefNum,errStr);
 				break;
 
 		case	2:
-				OpenGameFile(":audio:song_pangea",&gMusicFileRefNum,errStr);		
+				OpenGameFile(":Audio:Song_Pangea",&gMusicFileRefNum,errStr);
 				break;
 	
 

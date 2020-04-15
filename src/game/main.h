@@ -20,8 +20,6 @@ enum
   
 //=================================================
 
-
-extern	void main(void);
 extern	void ToolBoxInit(void);
 extern	void UpdateGame_Server(void);
 

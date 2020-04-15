@@ -434,7 +434,7 @@ template<typename T>
 static void Expect(const T a, const T b, const char* msg)
 {
 	if (a != b)
-		throw std::exception(msg);
+		throw std::runtime_error(msg);
 }
 
 // IM:S:2-58 "MyGetSoundHeaderOffset"

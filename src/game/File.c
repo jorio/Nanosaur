@@ -106,7 +106,7 @@ SkeletonDefType	*skeleton;
 				break;
 
 		case	SKELETON_TYPE_REX:
-				FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":Skeletons:Rex.skeleton", &fsSpec);
+				FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":Skeletons:rex.skeleton", &fsSpec);
 				break;
 
 		case	SKELETON_TYPE_STEGO:
