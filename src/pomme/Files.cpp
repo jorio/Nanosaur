@@ -227,6 +227,8 @@ OSErr FSpOpenRF(const FSSpec* spec, char permission, short* refNum)
 
 OSErr FindFolder(short vRefNum, OSType folderType, Boolean createFolder, short* foundVRefNum, long* foundDirID)
 {
+	std::filesystem::path path;
+
 	switch (folderType) {
 	case kPreferencesFolderType:
 	{
@@ -234,20 +236,45 @@ OSErr FindFolder(short vRefNum, OSType folderType, Boolean createFolder, short* 
 		PWSTR wpath;
 		// If we ever want to port to something older than Vista, this won't work.
 		SHGetKnownFolderPath(FOLDERID_RoamingAppData, 0, 0, &wpath);
-		auto path = std::filesystem::path(wpath).lexically_normal();
-		*foundVRefNum = GetVolumeID(path);
-		*foundDirID = GetDirectoryID(path);
-		return noErr;
-#else
+		path = std::filesystem::path(wpath);
+#elif defined(__APPLE__)
+		// TODO: mac pref folder
 		TODO2("your OS is not supported yet for folder type " << Pomme::FourCCString(folderType));
-		break;
+		return fnfErr;
+#else
+		const char *home = getenv("XDG_CONFIG_HOME");
+		if (home) {
+			path = std::filesystem::path(home);
+		} else {
+			home = getenv("HOME");
+			if (!home) {
+				return fnfErr;
+			}
+			path = std::filesystem::path(home) / ".config";
+		}
 #endif
+		break;
 	}
 
 	default:
 		TODO2("folder type '" << Pomme::FourCCString(folderType) << "' isn't supported yet");
 		return fnfErr;
 	}
+
+	path = path.lexically_normal();
+
+	bool exists = std::filesystem::exists(path);
+
+	if (exists && !std::filesystem::is_directory(path)) {
+		return dupFNErr;
+	}
+	if (!exists && createFolder) {
+		std::filesystem::create_directories(path);
+	}
+
+	*foundVRefNum = GetVolumeID(path);
+	*foundDirID = GetDirectoryID(path);
+	return noErr;
 }
 
 OSErr DirCreate(short vRefNum, long parentDirID, ConstStr255Param directoryName, long* createdDirID)
