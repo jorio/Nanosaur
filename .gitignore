@@ -10,6 +10,8 @@
 /Quesa
 /SDL2-*
 
+/cmake-build*/
+
 # User-specific files
 *.rsuser
 *.suo
