@@ -20,7 +20,7 @@
 #include "player_control.h"
 #include "skeletonobj.h"
 #include "skeletonanim.h"
-#include "skeletonJoints.h"
+#include "skeletonjoints.h"
 #include "pickups.h"
 #include "qd3d_geometry.h"
 #include "enemy.h"

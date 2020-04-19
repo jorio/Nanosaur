@@ -25,7 +25,7 @@
 #include "objects.h"
 #include "3dmf.h"
 #include "3dmath.h"
-#include "skeletonJoints.h"
+#include "skeletonjoints.h"
 
 /****************************/
 /*    PROTOTYPES            */

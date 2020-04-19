@@ -19,7 +19,7 @@
 #include "enemy.h"
 #include "skeletonobj.h"
 #include "skeletonanim.h"
-#include "skeletonJoints.h"
+#include "skeletonjoints.h"
 #include "3dmath.h"
 #include "myguy.h"
 #include "sound2.h"

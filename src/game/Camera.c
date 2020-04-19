@@ -22,7 +22,7 @@
 #include "input.h"
 #include "mobjtypes.h"
 #include "collision.h"
-#include "skeletonJoints.h"
+#include "skeletonjoints.h"
 #include "sound2.h"
 #include "terrain.h"
 #include "myguy.h"

@@ -20,7 +20,7 @@
 #include 	"input.h"
 #include "player_control.h"
 #include "skeletonanim.h"
-#include "skeletonJoints.h"
+#include "skeletonjoints.h"
 #include "collision.h"
 #include "enemy.h"
 #include "effects.h"

@@ -18,7 +18,7 @@
 #include "mobjtypes.h"
 #include "qd3d_geometry.h"
 #include "collision.h"
-#include "skeletonJoints.h"
+#include "skeletonjoints.h"
 #include "infobar.h"
 #include "sound2.h"
 #include "timeportal.h"

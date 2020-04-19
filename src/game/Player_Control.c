@@ -27,7 +27,7 @@
 #include "effects.h"
 #include "infobar.h"
 #include "mobjtypes.h"
-#include "skeletonJoints.h"
+#include "skeletonjoints.h"
 #include "camera.h"
 #include "pickups.h"
 

@@ -22,7 +22,7 @@
 #include "3dmath.h"
 #include "myguy.h"
 #include "mobjtypes.h"
-#include "skeletonJoints.h"
+#include "skeletonjoints.h"
 #include "qd3d_geometry.h"
 
 
