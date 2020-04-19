@@ -105,6 +105,7 @@ static long GetDirectoryID(const std::filesystem::path& dirPath)
 		std::cerr << "Warning: GetDirID should only be used on directories! " << dirPath << "\n";
 	}
 	directories.emplace_back(dirPath);
+	LOG << "directory " << directories.size()-1 << ": " << dirPath << "\n";
 	return (long)directories.size() - 1;
 }
 
@@ -159,6 +160,62 @@ static OSErr FSpOpenXF(const std::filesystem::path& path, ForkType forkType, cha
 	return noErr;
 }
 
+static std::string UppercaseCopy(const std::string& in)
+{
+	std::string out;
+	std::transform(
+			in.begin(),
+			in.end(),
+			std::back_inserter(out),
+			[](unsigned char c) -> unsigned char { return std::toupper(c); });
+	return out;
+}
+
+static bool CaseInsensitiveAppendToPath(
+		std::filesystem::path& path,
+		const std::string& element,
+		bool skipFiles = false)
+{
+	std::filesystem::path naiveConcat = path/element;
+
+	if (!std::filesystem::exists(path)) {
+		path = naiveConcat;
+		return false;
+	}
+
+	if (std::filesystem::exists(naiveConcat)) {
+		path = naiveConcat;
+		return true;
+	}
+
+	const std::string ELEMENT = UppercaseCopy(element);
+
+	for (const auto& candidate : std::filesystem::directory_iterator(path)) {
+		if (skipFiles && !candidate.is_directory()) {
+			continue;
+		}
+
+		std::string f = candidate.path().filename();
+
+		// It might be an AppleDouble resource fork ("._file" or "file.rsrc")
+		if (candidate.is_regular_file()) {
+			if (f.starts_with("._")) {
+				f = f.substr(2);
+			} else if (f.ends_with(".rsrc")) {
+				f = f.substr(0, f.length() - 5);
+			}
+		}
+
+		if (ELEMENT == UppercaseCopy(f)) {
+			path /= f;
+			return true;
+		}
+	}
+
+	path = naiveConcat;
+	return false;
+}
+
 //-----------------------------------------------------------------------------
 // Init
 
@@ -166,6 +223,7 @@ void Pomme::Files::Init(const char* applName)
 {
 	// default directory (ID 0)
 	directories.push_back(std::filesystem::current_path());
+	LOG << "directory 0: " << directories[0] << "\n";
 
 	short systemRefNum = openFiles.Alloc();
 	if (systemRefNum != 0) throw "expecting 0 for system refnum";
@@ -189,21 +247,41 @@ OSErr FSMakeFSSpec(short vRefNum, long dirID, ConstStr255Param pascalFileName, F
 	if (directories.empty())
 		TODOFATAL2("did you init the fake mac?");
 
-	auto fullPath = directories[dirID];
-	auto newFN = std::string(Pascal2C(pascalFileName));
-	std::replace(newFN.begin(), newFN.end(), '/', '_');
-	std::replace(newFN.begin(), newFN.end(), ':', '/');
-	fullPath += '/' + newFN;
-	fullPath = fullPath.lexically_normal();
+	if (directories.size() <= dirID)
+		TODOFATAL2("FSMakeFSSpec: illegal dirID");
 
-	LOG << "FSMakeFSSpec: " << fullPath << "\n";
+	auto path = directories[dirID];
+	auto suffix = std::string(Pascal2C(pascalFileName));
 
-	*spec = ToFSSpec(fullPath);
+	// Case-insensitive sanitization
+	bool exists = std::filesystem::exists(path);
+	std::string::size_type begin = (suffix.at(0) == ':') ? 1 : 0;
 
-	if (exists(fullPath))
-		return noErr;
-	else
-		return fnfErr;
+	// Iterate on path elements between colons
+	while (begin < suffix.length()) {
+		auto end = suffix.find(":", begin);
+
+		bool isLeaf = end == std::string::npos; // no ':' found => end of path
+		if (isLeaf) end = suffix.length();
+
+		if (end == begin) { // "::" => parent directory
+			path = path.parent_path();
+		} else {
+			std::string element = suffix.substr(begin, end - begin);
+			exists = CaseInsensitiveAppendToPath(path, element, !isLeaf);
+		}
+
+		// +1: jump over current colon
+		begin = end + 1;
+	}
+
+	path = path.lexically_normal();
+
+	LOG << "FSMakeFSSpec: " << path << "\n";
+
+	*spec = ToFSSpec(path);
+
+	return exists ? noErr : fnfErr;
 }
 
 OSErr FSpOpenDF(const FSSpec* spec, char permission, short* refNum)
