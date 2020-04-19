@@ -99,10 +99,10 @@
 		
 enum
 {
-#ifdef _WIN32
-	kKey_Jump	= KEY_OPTION,
-#else
+#if __APPLE__
 	kKey_Jump 	= KEY_APPLE,
+#else
+	kKey_Jump	= KEY_OPTION,
 #endif
 	kKey_Attack	= KEY_SPACE,
 	kKey_AttackMode	= KEY_SHIFT,
@@ -123,10 +123,10 @@ enum
 	kKey_ZoomOut	= KEY_1,
 	kKey_CameraMode	= KEY_TAB,
 	
-#ifdef _WIN32
-	kKey_PickUp = KEY_CTRL,
-#else
+#if __APPLE__
 	kKey_PickUp = KEY_OPTION,
+#else
+	kKey_PickUp = KEY_CTRL,
 #endif
 	
 	kKey_ToggleMusic = KEY_F9,
