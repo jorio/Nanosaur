@@ -103,7 +103,7 @@ Boolean (*gTerrainItemAddRoutines[])(TerrainItemEntryType *, long, long) =
 void BuildTerrainItemList(void)
 {
 long			offset;
-long			*longPtr;
+SInt32			*longPtr;
 long			col,itemCol,itemNum,nextCol,prevCol;
 TerrainItemEntryType *lastPtr;
 
@@ -116,8 +116,8 @@ TerrainItemEntryType *lastPtr;
 
 					/* GET BASIC INFO */
 
-	offset = *((long *)(gTerrainPtr+12));							// get offset to OBJECT_LIST
-	longPtr = (long  *)(gTerrainPtr+offset);	  					// get pointer to OBJECT_LIST
+	offset = *((SInt32 *)(gTerrainPtr+12));							// get offset to OBJECT_LIST
+	longPtr = (SInt32  *)(gTerrainPtr+offset);	  					// get pointer to OBJECT_LIST
 	gNumTerrainItems = FromBE(*longPtr++);									// get # items in file
 	if (gNumTerrainItems == 0)
 		return;

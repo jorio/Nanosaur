@@ -57,10 +57,10 @@ typedef struct
 
 struct FrameHeaderType
 {
-	long			width;
-	long			height;
-	long			xoffset;
-	long			yoffset;
+	SInt32			width;
+	SInt32			height;
+	SInt32			xoffset;
+	SInt32			yoffset;
 	Boolean			hasMask;
 };
 typedef struct FrameHeaderType FrameHeaderType;

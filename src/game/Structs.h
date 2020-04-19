@@ -94,8 +94,8 @@ typedef struct
 		
 typedef struct
 {
-	long		tick;					// time at which this state exists
-	long		accelerationMode;		// mode of in/out acceleration
+	SInt32		tick;					// time at which this state exists
+	SInt32		accelerationMode;		// mode of in/out acceleration
 	TQ3Point3D	coord;					// current 3D coords of joint (relative to link)
 	TQ3Vector3D	rotation;				// current rotation values of joint (relative to link)
 	TQ3Vector3D	scale;					// current scale values of joint mesh
@@ -195,8 +195,8 @@ struct TerrainItemEntryType
 	// Source port fix: changed from pointers to 32-bit longs for 64-bit compatibility.
 	// These "pointers" were loaded from Level1.ter -- they're actually just stored as zeores
 	// in the file and the pointers are properly set in BuildTerrainItemList.
-	long	prevItemIdx;	// index of previous item in linked list (-1 == none)
-	long	nextItemIdx;	// index of next item in linked list (-1 == none)
+	SInt32	prevItemIdx;	// index of previous item in linked list (-1 == none)
+	SInt32	nextItemIdx;	// index of next item in linked list (-1 == none)
 };
 typedef struct TerrainItemEntryType TerrainItemEntryType;
 

@@ -729,7 +729,7 @@ Ptr		data;
 
 void LoadTerrainTileset(FSSpec *fsSpec)
 {
-long		*longPtr;
+SInt32		*longPtr;
 
 			/* LOAD THE FILE */
 			
@@ -742,7 +742,7 @@ long		*longPtr;
 			/* EXTRACT SOME DATA */
 			/*********************/
 
-	longPtr = (long *)gTileFilePtr;
+	longPtr = (SInt32 *)gTileFilePtr;
 	
 				/* GET # TEXTURES */
 				
@@ -819,7 +819,7 @@ long		dummy1,dummy2;
 	gTerrainTextureLayer = (UInt16 **)AllocPtr(sizeof(short *)*				// alloc mem for 1st dimension of array (map is 1/2 dimensions of wid/dep values!)
 							gTerrainTileDepth);
 
-	offset = *((long *)(gTerrainPtr+0));										// get offset to TEXTURE_LAYER
+	offset = *((SInt32 *)(gTerrainPtr+0));										// get offset to TEXTURE_LAYER
 	shortPtr = structpack::UnpackObj<UInt16>(gTerrainPtr + offset,				// calc ptr to TEXTURE_LAYER
 		gTerrainTileDepth * gTerrainTileWidth);
 
@@ -835,7 +835,7 @@ long		dummy1,dummy2;
 	gTerrainHeightMapLayer = (UInt16 **)AllocPtr(sizeof(short *)*				// alloc mem for 1st dimension of array (map is 1/2 dimensions of wid/dep values!)
 							gTerrainTileDepth);
 							
-	offset = *((long *)(gTerrainPtr+4));										// get offset to HEIGHTMAP_LAYER
+	offset = *((SInt32 *)(gTerrainPtr+4));										// get offset to HEIGHTMAP_LAYER
 	if (offset > 0)
 	{
 		shortPtr = structpack::UnpackObj<UInt16>(gTerrainPtr+offset,			// calc ptr to HEIGHTMAP_LAYER
@@ -854,7 +854,7 @@ long		dummy1,dummy2;
 	gTerrainPathLayer = (UInt16 **)AllocPtr(sizeof(short *)*					// alloc mem for 1st dimension of array (map is 1/2 dimensions of wid/dep values!)
 							gTerrainTileDepth);
 							
-	offset = *((long *)(gTerrainPtr+8));										// get offset to PATH_LAYER
+	offset = *((SInt32 *)(gTerrainPtr+8));										// get offset to PATH_LAYER
 	if (offset > 0)
 	{
 		shortPtr = structpack::UnpackObj<UInt16>(gTerrainPtr + offset,			// calc ptr to PATH_LAYER
@@ -870,9 +870,9 @@ long		dummy1,dummy2;
 
 			/* GET TEXTURE_ATTRIBUTES */
 
-	offset = *((long *)(gTerrainPtr+32));									// get offset to TEXTURE_ATTRIBUTES
+	offset = *((SInt32 *)(gTerrainPtr+32));									// get offset to TEXTURE_ATTRIBUTES
 	// SOURCE PORT CHEAT... don't know how to get the number of tile attributes otherwise..
-	long offsetOfNextChunk = *((long*)(gTerrainPtr + 36)); 
+	SInt32 offsetOfNextChunk = *((SInt32*)(gTerrainPtr + 36));
 	int nTileAttributes = (offsetOfNextChunk - offset) / sizeof(TileAttribType);
 	gTileAttributes = structpack::UnpackObj<TileAttribType>(				// calc ptr to TEXTURE_ATTRIBUTES
 		gTerrainPtr + offset, nTileAttributes);
@@ -880,7 +880,7 @@ long		dummy1,dummy2;
 
 			/* GET HEIGHTMAP_TILES */
 
-	offset = *((long *)(gTerrainPtr+20));									// get offset to HEIGHTMAP_TILES
+	offset = *((SInt32 *)(gTerrainPtr+20));									// get offset to HEIGHTMAP_TILES
 	if (offset > 0)
 	{
 		miscPtr = gTerrainPtr+offset;										// calc ptr to HEIGHTMAP_TILES
@@ -896,8 +896,8 @@ long		dummy1,dummy2;
 			/* GET TILE_ANIM_DATA */
 			/**********************/
 
-	offset = *((long *)(gTerrainPtr+36));						// get offset to TILE_ANIM_DATA
-	longPtr = (long *)(gTerrainPtr+offset);	  					// calc ptr to TILE_ANIM_DATA
+	offset = *((SInt32 *)(gTerrainPtr+36));						// get offset to TILE_ANIM_DATA
+	longPtr = (SInt32 *)(gTerrainPtr+offset);	  					// calc ptr to TILE_ANIM_DATA
 
 	gQuickTileAnimListPtr = gTerrainPtr + (*longPtr++);			// calc ptr to TILE_ANIM_QUICKLIST
 	gNumTileAnims = *longPtr++;									// get # tile anims

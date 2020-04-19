@@ -24,7 +24,7 @@ typedef struct
 			
 typedef struct
 {
-	long 				parentBone;			 		// index to previous bone
+	SInt32 				parentBone;			 		// index to previous bone
 	unsigned char		name[32];					// text string name for bone
 	TQ3Point3D			coord;						// absolute coord (not relative to parent!) 
 	UInt16				numPointsAttachedToBone;	// # vertices/points that this bone has
