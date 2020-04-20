@@ -343,6 +343,36 @@ static void MovePangeaLogoPart(ObjNode *theNode)
 }
 
 
+/*************** SLIDESHOW (source port refactor) **********************/
+
+static void Slideshow(const char** imagePaths)
+{
+	FSSpec spec;
+
+	ExclusiveOpenGLMode_Begin();
+
+	for (int i = 0; imagePaths[i]; i++)
+	{
+		FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, imagePaths[i], &spec);
+		DrawPictureToScreen(&spec, 0,0);
+
+		if (i == 0) GammaFadeIn();
+		ReadKeyboard();
+
+		do
+		{
+			ReadKeyboard();
+			DoSoundMaintenance();
+			RenderBackdropQuad();
+		} while(!(gNewKeys_Real[0] || gNewKeys_Real[1] ||  gNewKeys_Real[2] || gNewKeys_Real[3]));
+	}
+
+	ExclusiveOpenGLMode_End();
+
+	GammaFadeOut();
+}
+
+
 /*************** SHOW CHARITY **********************/
 //
 // OEM non-charity version
@@ -350,44 +380,8 @@ static void MovePangeaLogoPart(ObjNode *theNode)
 
 void ShowCharity(void)
 {
-//PicHandle	pic;
-//Rect		r;
-FSSpec	spec;
-
-			/* DO PAGE 1 */
-
-	FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":images:Boot1.pict", &spec);
-    DrawPictureToScreen(&spec, 0,0);
-
-//	pic = LoadAPict(&spec);
-//	SetPort(gCoverWindow);
-//	SetRect(&r,0,0,GAME_VIEW_WIDTH,GAME_VIEW_HEIGHT);
-//	DrawPicture(pic, &r);	
-//	DisposeHandle((Handle)pic);
-	ReadKeyboard();
-		
-	do
-	{
-		ReadKeyboard();
-		DoSoundMaintenance();
-	}while(!(gNewKeys_Real[0] || gNewKeys_Real[1] ||  gNewKeys_Real[2] || gNewKeys_Real[3]));
-
-			/* DO PAGE 2 */
-			
-	FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":images:Boot2.pict", &spec);		// load next page
-    DrawPictureToScreen(&spec, 0,0);
-//	pic = LoadAPict(&spec);
-//	DrawPicture(pic, &r);	
-//	DisposeHandle((Handle)pic);
-	ReadKeyboard();
-		
-	do
-	{
-		ReadKeyboard();
-		DoSoundMaintenance();
-	}while(!(gNewKeys_Real[0] || gNewKeys_Real[1] ||  gNewKeys_Real[2] || gNewKeys_Real[3]));
-
-	GammaFadeOut();
+	const char *images[] = {":images:Boot1.pict", ":images:Boot2.pict", 0};
+	Slideshow(images);
 }
 
 
@@ -395,52 +389,8 @@ FSSpec	spec;
 
 void ShowHelp(void)
 {
-//PicHandle	pic;
-//Rect		r;
-FSSpec	spec;
-
-			/* DO PAGE 1 */
-			
-	FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":images:Help1.pict", &spec);
-    DrawPictureToScreen(&spec, 0,0);
-	
-//	pic = LoadAPict(&spec);
-//	SetPort(gCoverWindow);
-//	SetRect(&r,0,0,GAME_VIEW_WIDTH,GAME_VIEW_HEIGHT);
-//	DrawPicture(pic, &r);	
-	GammaFadeIn();
-//	DisposeHandle((Handle)pic);
-	ReadKeyboard();
-	
-	AllocBackdropTexture();				// Source port addition
-	
-	
-	do
-	{
-		ReadKeyboard();
-		DoSoundMaintenance();
-		RenderBackdropQuad(true);		// Source port addition
-	}while(!(gNewKeys_Real[0] || gNewKeys_Real[1] ||  gNewKeys_Real[2] || gNewKeys_Real[3]));
-
-			/* DO PAGE 2 */
-			
-	FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":images:Help2.pict", &spec);		// load next page
-    DrawPictureToScreen(&spec, 0,0);
-//	pic = LoadAPict(&spec);
-//	DrawPicture(pic, &r);	
-//	DisposeHandle((Handle)pic);
-	ReadKeyboard();
-	
-	do
-	{
-		ReadKeyboard();
-		DoSoundMaintenance();
-		RenderBackdropQuad(true);		// Source port addition
-	}while(!(gNewKeys_Real[0] || gNewKeys_Real[1] ||  gNewKeys_Real[2] || gNewKeys_Real[3]));
-
-	DisposeBackdropTexture();			// Source port addition
-
-	GammaFadeOut();
+	const char *images[] = {":images:Help1.pict", ":images:Help2.pict", 0};
+	Slideshow(images);
 }
 
 

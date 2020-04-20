@@ -450,11 +450,7 @@ unsigned long	someLong;
 	
 				/* DO CHARITY SCREEN */
 			
-#if 1
-	TODO2("ShowCharity doesn't work for now");
-#else
 	ShowCharity();
-#endif
 
 	while(true)
 	{

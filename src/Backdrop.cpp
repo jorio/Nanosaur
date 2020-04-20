@@ -8,6 +8,9 @@ extern SDL_Window* gSDLWindow;
 static GLuint backdropTexture = -1;
 static bool backdropTextureAllocated = false;
 
+static SDL_GLContext exclusiveGLContext = nullptr;
+static bool exclusiveGLContextValid = false;
+
 void AllocBackdropTexture()
 {
 	if (backdropTextureAllocated)
@@ -16,8 +19,11 @@ void AllocBackdropTexture()
 	backdropTextureAllocated = true;
 	
 	glGenTextures(1, &backdropTexture);
-	if (glGetError() != 0)
-		TODOFATAL2("couldn't alloc backdrop texture");
+	auto error = glGetError();
+	if (error != 0) {
+		TODOMINOR2("couldn't alloc backdrop texture: " << error);
+		return;
+	}
 
 	glBindTexture(GL_TEXTURE_2D, backdropTexture);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -36,7 +42,7 @@ void DisposeBackdropTexture()
 	}
 }
 
-void RenderBackdropQuad(bool forceSwapBuffers)
+void RenderBackdropQuad()
 {
 	if (!backdropTextureAllocated || !glIsTexture(backdropTexture))
 		return;
@@ -77,7 +83,7 @@ void RenderBackdropQuad(bool forceSwapBuffers)
 	glTexCoord2f(1.0, 1.0); glVertex2i(640, 480);
 	glEnd();
 
-	if (forceSwapBuffers) {
+	if (exclusiveGLContextValid) { // in exclusive GL mode, force swap buffer
 		SDL_GL_SwapWindow(gSDLWindow);
 	}
 
@@ -89,4 +95,28 @@ void RenderBackdropQuad(bool forceSwapBuffers)
 	glEnable(GL_SCISSOR_TEST);
 
 	glViewport(vp[0], vp[1], (GLsizei)vp[2], (GLsizei)vp[3]);
+}
+
+void ExclusiveOpenGLMode_Begin()
+{
+	if (exclusiveGLContextValid)
+		throw std::runtime_error("already in exclusive GL mode");
+
+	exclusiveGLContext = SDL_GL_CreateContext(gSDLWindow);
+	exclusiveGLContextValid = true;
+	SDL_GL_MakeCurrent(gSDLWindow, exclusiveGLContext);
+
+	AllocBackdropTexture();
+}
+
+void ExclusiveOpenGLMode_End()
+{
+	if (!exclusiveGLContextValid)
+		throw std::runtime_error("not in exclusive GL mode");
+
+	DisposeBackdropTexture();
+
+	exclusiveGLContextValid = false;
+	SDL_GL_DeleteContext(exclusiveGLContext);
+	exclusiveGLContext = nullptr;
 }

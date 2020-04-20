@@ -20,9 +20,13 @@ void GammaFadeIn();
 //-----------------------------------------------------------------------------
 // Backdrop
 
+void ExclusiveOpenGLMode_Begin(void);
+
+void ExclusiveOpenGLMode_End(void);
+
 void AllocBackdropTexture(void);
 
-void RenderBackdropQuad(bool forceSwapBuffers = false);
+void RenderBackdropQuad(void);
 
 void DisposeBackdropTexture(void);
 
