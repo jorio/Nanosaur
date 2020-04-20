@@ -31,13 +31,6 @@
 
 namespace cmixer {
 
-typedef short           cm_Int16;
-typedef int             cm_Int32;
-typedef long long       cm_Int64;
-typedef unsigned char   cm_UInt8;
-typedef unsigned short  cm_UInt16;
-typedef unsigned        cm_UInt32;
-
 enum {
 	CM_STATE_STOPPED,
 	CM_STATE_PLAYING,
@@ -45,12 +38,12 @@ enum {
 };
 
 struct Source {
-	cm_Int16 pcmbuf[BUFFER_SIZE];	// Internal buffer with raw stereo PCM
+	int16_t pcmbuf[BUFFER_SIZE];	// Internal buffer with raw stereo PCM
 	int samplerate;					// Stream's native samplerate
 	int length;						// Stream's length in frames
 	int end;						// End index for the current play-through
 	int state;						// Current state (playing|paused|stopped)
-	cm_Int64 position;				// Current playhead position (fixed point)
+	int64_t position;				// Current playhead position (fixed point)
 	int lgain, rgain;				// Left and right gain (fixed point)
 	int rate;						// Playback rate (fixed point)
 	int nextfill;					// Next frame idx where the buffer needs to be filled
@@ -65,7 +58,7 @@ protected:
 	Source(int theSampleRate, int theLength);
 
 	virtual void Rewind2() = 0;
-	virtual void FillBuffer(cm_Int16* buffer, int length) = 0;
+	virtual void FillBuffer(int16_t* buffer, int length) = 0;
 
 public:
 	void Rewind();
@@ -96,10 +89,10 @@ class WavStream : public Source {
 	std::vector<char> udata;
 
 	void Rewind2();
-	void FillBuffer(cm_Int16* buffer, int length);
+	void FillBuffer(int16_t* buffer, int length);
 
-	inline cm_UInt8* data8() { return (cm_UInt8*)udata.data(); }
-	inline cm_Int16* data16() { return (cm_Int16*)udata.data(); }
+	inline uint8_t* data8() { return (uint8_t*)udata.data(); }
+	inline int16_t* data16() { return (int16_t*)udata.data(); }
 
 public:
 	bool bigEndian;

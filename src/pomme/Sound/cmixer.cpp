@@ -51,12 +51,12 @@ static struct Mixer {
 	SDL_mutex* sdlAudioMutex;
 
 	std::list<Source*> sources;   // Linked list of active (playing) sources
-	cm_Int32 pcmmixbuf[BUFFER_SIZE]; // Internal master buffer
+	int32_t pcmmixbuf[BUFFER_SIZE]; // Internal master buffer
 	int samplerate;               // Master samplerate
 	int gain;                     // Master gain (fixed point)
 
 	void Init(int samplerate);
-	void Process(cm_Int16* dst, int len);
+	void Process(int16_t* dst, int len);
 	void Lock();
 	void Unlock();
 	void SetMasterGain(double newGain);
@@ -85,7 +85,7 @@ void cmixer::InitWithSDL()
 	fmt.channels = 2;
 	fmt.samples = 1024;
 	fmt.callback = [](void* udata, Uint8* stream, int size) {
-		gMixer.Process((cm_Int16*)stream, size / 2);
+		gMixer.Process((int16_t*)stream, size / 2);
 	};
 
 	SDL_AudioSpec got;
@@ -151,7 +151,7 @@ void Mixer::SetMasterGain(double newGain)
 	gain = FX_FROM_FLOAT(newGain);
 }
 
-void Mixer::Process(cm_Int16* dst, int len)
+void Mixer::Process(int16_t* dst, int len)
 {
 	// Process in chunks of BUFFER_SIZE if `len` is larger than BUFFER_SIZE
 	while (len > BUFFER_SIZE) {
@@ -230,7 +230,7 @@ void Source::FillBuffer(int offset, int length)
 
 void Source::Process(int len)
 {
-	cm_Int32* dst = gMixer.pcmmixbuf;
+	int32_t* dst = gMixer.pcmmixbuf;
 
 	// Do rewind if flag is set
 	if (rewind) {
@@ -422,7 +422,7 @@ void WavStream::Rewind2()
 	idx = 0;
 }
 
-void WavStream::FillBuffer(cm_Int16* dst, int len)
+void WavStream::FillBuffer(int16_t* dst, int len)
 {
 	int x, n;
 
