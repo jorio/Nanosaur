@@ -106,7 +106,7 @@ static	float		gWheelCenterZ;
 
 
 /************************* DO MAIN MENU ****************************/
-
+void DumpGLPixels(const char*);
 void DoMainMenu(void)
 {
 FSSpec	file;
@@ -238,6 +238,8 @@ do_again:
 	QD3D_CalcFramesPerSecond();		// call this to prime data for demo playback/record
 
 
+	DumpGLPixels("/tmp/nanodump.tga");
+	
 		/***********/
 		/* CLEANUP */
 		/***********/

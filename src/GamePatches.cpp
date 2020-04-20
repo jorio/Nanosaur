@@ -1,5 +1,5 @@
 #include <QD3DMath.h>
-
+#include <SDL_opengl.h>
 #include "PommeInternal.h"
 #include "input.h"
 
@@ -161,6 +161,32 @@ OSErr DrawPictureToScreen(FSSpec* myFSSpec, short x, short y)
 void MakeFadeEvent(Boolean fadeIn)
 {
 	TODOMINOR2("fadeIn=" << (int)fadeIn);
+}
+
+
+void DumpGLPixels(const char* outFN)
+{
+	/*
+	int pakk = -1;
+	glGetIntegerv(GL_PACK_ALIGNMENT, &pakk);
+	printf("======== PACK_ALIGNMENT is %d\n", pakk);
+	glFinish();
+	 */
+
+	//glPixelStorei(GL_PACK_ALIGNMENT, 1);
+	const int WIDTH = 640;
+	const int HEIGHT = 480;
+	char* buffer = new char[WIDTH * HEIGHT * 3];
+	glReadPixels(0, 0, WIDTH, HEIGHT, GL_BGR, GL_UNSIGNED_BYTE, buffer);
+	//glFinish();
+	
+	FILE* out = fopen(outFN, "w");
+	short  TGAhead[] = { 0, 2, 0, 0, 0, 0, WIDTH, HEIGHT, 24 };
+	fwrite(&TGAhead, sizeof(TGAhead), 1, out);
+	fwrite(buffer, 3 * WIDTH * HEIGHT, 1, out);
+	fclose(out);
+	
+	printf("Screenshot saved to %s\n", outFN);
 }
 
 void GammaFadeOut()
