@@ -110,6 +110,7 @@ add_executable(nsaur
         src/game/triggers.h
         src/game/Weapons.c
         src/game/weapons.h
+        src/game/Windows.c
         src/game/windows_nano.h
         src/pomme/Sound/AIFF.cpp
         src/pomme/Sound/cmixer.cpp
