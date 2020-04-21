@@ -17,11 +17,21 @@
 #include "objects.h"
 #include "file.h"
 #include "input.h"
+#include "GamePatches.h"
 
+#define	ALLOW_FADE		1
+
+static void MoveFadeEvent(ObjNode *theNode);
 
 extern	NewObjectDefinitionType	gNewObjectDefinition;
 extern	ObjNode	*gCurrentNode;
 extern	float	gFramesPerSecondFrac,gAdditionalClipping;
+extern  WindowPtr				gCoverWindow;
+
+Boolean					gGammaIsOn = true;
+
+#if 0
+
 extern	short	gPrefsFolderVRefNum;
 extern	long	gPrefsFolderDirID;
 
@@ -511,6 +521,7 @@ Str255			s;
 	return(handled);
 }
 
+#endif
 
 /**************** GAMMA FADE IN *************************/
 
@@ -518,9 +529,17 @@ void GammaFadeIn(void)
 {
 #if ALLOW_FADE	
 
+#if 0
 	if (gDisplayContext)
 		if (!gGammaIsOn)
 			DSpContext_FadeGammaIn(MONITORS_TO_FADE,nil);
+#else
+	RenderBackdropQuad();
+	for (int i = 0; i <= 100; i++) {
+		SetWindowGamma(i);
+		SDL_Delay(16);
+	}
+#endif
 		
 	gGammaIsOn = true;
 #endif		
@@ -534,9 +553,17 @@ void GammaFadeOut(void)
 Rect	r;
 
 #if ALLOW_FADE	
+#if 0
 	if (gDisplayContext)
 		if (gGammaIsOn)
 			DSpContext_FadeGammaOut(MONITORS_TO_FADE,nil);
+#else
+	RenderBackdropQuad();
+	for (int i = 100; i >= 1; i--) {
+		SetWindowGamma(i);
+		SDL_Delay(16);
+	}
+#endif
 #endif	
 
 	r = gCoverWindow->portRect;									// clear it
@@ -546,6 +573,8 @@ Rect	r;
 	
 	gGammaIsOn = false;
 }
+
+#if 0
 
 /********************** GAMMA ON *********************/
 
@@ -599,6 +628,7 @@ OSStatus 		theError;
 	}
 }
 
+#endif
 
 /******************** MAKE FADE EVENT *********************/
 //
@@ -622,6 +652,8 @@ ObjNode	*newObj;
 	if (newObj == nil)
 		return;
 
+	SetWindowGamma(fadeIn ? 0 : 100);
+	
 	newObj->Flag[0] = fadeIn;
 	if (fadeIn)
 		newObj->SpecialF[0] = 0;
@@ -649,10 +681,11 @@ long	percent;
 			percent = 100;
 			DeleteObject(theNode);
 		}
-#if ALLOW_FADE			
+		SetWindowGamma(percent);
+#if 0 // ALLOW_FADE			
 		if (gDisplayContext)
 			DSpContext_FadeGamma(gDisplayContext,percent,nil);
-#endif		
+#endif
 	}
 	
 			/* FADE OUT */
@@ -664,14 +697,16 @@ long	percent;
 			percent = 0;
 			DeleteObject(theNode);
 		}
-#if ALLOW_FADE		
+		SetWindowGamma(percent);
+#if 0 // ALLOW_FADE		
 		if (gDisplayContext)
 			DSpContext_FadeGamma(gDisplayContext,theNode->SpecialF[0],nil);	
-#endif		
+#endif
 	}
 }
 
 
+#if 0
 /************************ GAME SCREEN TO BLACK ************************/
 
 void GameScreenToBlack(void)
@@ -802,6 +837,7 @@ got_it:
 	
 	*pixelPtr = (UInt16 *)addr;					// return ptr
 }
+#endif
 
 
 
@@ -825,8 +861,10 @@ GWorldPtr	oldGW;
 	ForeColor(blackColor);
 	BackColor(whiteColor);
 
+#if 0
 	DoLockPixels(destWorld);
 	DoLockPixels(thisWorld);
+#endif
 
 	pm = GetGWorldPixMap(thisWorld);	
 	if ((pm == nil) | (*pm == nil) )
@@ -837,13 +875,17 @@ GWorldPtr	oldGW;
 		DoAlert("PixMap Handle or Ptr = Null?!");
 
 		
+#if 0
 	CopyBits((BitMap *)*pm,(BitMap *)*pm2,
 			srcRect,destRect,srcCopy,0);
-
+#else
+	CopyBits(*pm,*pm2,srcRect,destRect,0,0);
+#endif
 	SetGWorld(oldGW,oldGD);								// restore gworld
 
 }
 
+#if 0
 /*********************** DUMP GWORLD 2 **********************/
 //
 //    copies to a destination RECT
@@ -892,6 +934,7 @@ void DoUnlockPixels(GWorldPtr world)
 		pm = GetGWorldPixMap(world);
 		UnlockPixels(pm);
 }
+#endif
 
 
 

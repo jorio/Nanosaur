@@ -11,6 +11,11 @@ static bool backdropTextureAllocated = false;
 static SDL_GLContext exclusiveGLContext = nullptr;
 static bool exclusiveGLContextValid = false;
 
+void SetWindowGamma(int percent)
+{
+	SDL_SetWindowBrightness(gSDLWindow, percent/100.0f);
+}
+
 void AllocBackdropTexture()
 {
 	if (backdropTextureAllocated)

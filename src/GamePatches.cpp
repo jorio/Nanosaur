@@ -90,46 +90,6 @@ char GetTypedKey(void)
 }
 
 
-/*********************** DUMP GWORLD TO GWORLD **********************/
-//
-//    copies RECT to RECT
-//
-
-void DumpGWorldToGWorld(GWorldPtr thisWorld, GWorldPtr destWorld, Rect* srcRect, Rect* destRect)
-{
-	PixMapHandle pm, pm2;
-	GDHandle	oldGD;
-	GWorldPtr	oldGW;
-
-	GetGWorld(&oldGW, &oldGD);
-	SetGWorld(destWorld, nil);
-	ForeColor(blackColor);
-	BackColor(whiteColor);
-
-	SetGWorld(thisWorld, nil);
-	ForeColor(blackColor);
-	BackColor(whiteColor);
-
-//	DoLockPixels(destWorld);
-//	DoLockPixels(thisWorld);
-
-	pm = GetGWorldPixMap(thisWorld);
-//	if ((pm == nil) | (*pm == nil))
-//		DoAlert("PixMap Handle or Ptr = Null?!");
-
-	pm2 = GetGWorldPixMap(destWorld);
-//	if ((pm2 == nil) | (*pm2 == nil))
-//		DoAlert("PixMap Handle or Ptr = Null?!");
-
-
-	CopyBits(/*(BitMap*)*/*pm, /*(BitMap*)*/*pm2,
-		srcRect, destRect, /*srcCopy*/0, 0);
-
-	SetGWorld(oldGW, oldGD);								// restore gworld
-
-}
-
-
 /**************** DRAW PICTURE TO SCREEN ***********************/
 //
 // Uses Quicktime to load any kind of picture format file and draws
@@ -158,12 +118,6 @@ OSErr DrawPictureToScreen(FSSpec* myFSSpec, short x, short y)
 //-----------------------------------------------------------------------------
 // Fade
 
-void MakeFadeEvent(Boolean fadeIn)
-{
-	TODOMINOR2("fadeIn=" << (int)fadeIn);
-}
-
-
 void DumpGLPixels(const char* outFN)
 {
 	/*
@@ -187,14 +141,4 @@ void DumpGLPixels(const char* outFN)
 	fclose(out);
 	
 	printf("Screenshot saved to %s\n", outFN);
-}
-
-void GammaFadeOut()
-{
-	TODOMINOR();
-}
-
-void GammaFadeIn()
-{
-	TODOMINOR();
 }

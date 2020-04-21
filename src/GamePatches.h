@@ -9,16 +9,9 @@ Boolean IsSphereInConeOfVision(TQ3Point3D* coord, float radius, float hither, fl
 char GetTypedKey(void);
 
 //-----------------------------------------------------------------------------
-// Fade
-
-void MakeFadeEvent(Boolean fadeIn);
-
-void GammaFadeOut();
-
-void GammaFadeIn();
-
-//-----------------------------------------------------------------------------
 // Backdrop
+
+void SetWindowGamma(int percent);
 
 void ExclusiveOpenGLMode_Begin(void);
 
@@ -29,9 +22,3 @@ void AllocBackdropTexture(void);
 void RenderBackdropQuad(void);
 
 void DisposeBackdropTexture(void);
-
-
-
-
-void DumpGWorldToGWorld(GWorldPtr thisWorld, GWorldPtr destWorld, Rect* srcRect, Rect* destRect);
-
