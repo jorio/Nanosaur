@@ -18,6 +18,11 @@ char* Pascal2C(const char* pstr)
 	return cstr;
 }
 
+std::string Pomme::Pascal2Cpp(const char* pstr)
+{
+	return std::string(&pstr[1], pstr[0]);
+}
+
 //-----------------------------------------------------------------------------
 // Misc
 

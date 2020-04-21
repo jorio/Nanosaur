@@ -46,7 +46,7 @@ std::filesystem::path Pomme::Files::ToPath(short vRefNum, long parID, ConstStr25
 {
 	std::filesystem::path path(directories[parID]);
 	path += std::filesystem::path::preferred_separator;
-	path += Pascal2C(name);
+	path += Pascal2Cpp(name);
 	return path.lexically_normal();
 }
 
@@ -251,7 +251,7 @@ OSErr FSMakeFSSpec(short vRefNum, long dirID, ConstStr255Param pascalFileName, F
 		TODOFATAL2("FSMakeFSSpec: illegal dirID");
 
 	auto path = directories[dirID];
-	auto suffix = std::string(Pascal2C(pascalFileName));
+	auto suffix = Pascal2Cpp(pascalFileName);
 
 	// Case-insensitive sanitization
 	bool exists = std::filesystem::exists(path);
@@ -466,7 +466,7 @@ OSErr ResolveAlias(const FSSpec* spec, AliasHandle alias, FSSpec* target, Boolea
 		return dirNFErr;
 	}
 
-	LOG << "alias OK: " << Pascal2C(target->name) << "\n";
+	LOG << "alias OK: " << Pascal2Cpp(target->name) << "\n";
 	return noErr;
 }
 
