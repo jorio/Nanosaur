@@ -167,4 +167,8 @@ add_executable(nsaur
         src/nsaur.cpp
         src/StructUnpackers.cpp)
 
-target_link_libraries(${PROJECT_NAME} ${OPENGL_LIBRARY} ${SDL2_LIBRARIES} Quesa_SDL pthread)
+target_link_libraries(${PROJECT_NAME}
+        ${OPENGL_LIBRARY}
+        ${SDL2_LIBRARIES}
+        Quesa_SDL
+        )

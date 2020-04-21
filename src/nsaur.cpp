@@ -1,7 +1,6 @@
 #include "PommeInternal.h"
 #include <SDL.h>
 #include <iostream>
-#include <thread>
 #include <Quesa.h>
 
 #if _WIN32
@@ -9,7 +8,6 @@
 #endif
 
 TQ3ViewObject				gView = nullptr;
-std::thread					gameThread;
 
 // bare minimum from Windows.c to satisfy externs in game code
 WindowPtr gCoverWindow = nullptr;
@@ -18,54 +16,22 @@ UInt32* gCoverWindowPixPtr = nullptr;
 void GameMain(void);
 void RegisterUnpackableTypes(void);
 
-void AppMain()
-{
-    Pomme::Init("Nanosaur\u2122");
-
-	gCoverWindow = Pomme::Graphics::GetScreenPort();
-	gCoverWindowPixPtr = (UInt32*)GetPixBaseAddr(GetGWorldPixMap(gCoverWindow));
-	
-    RegisterUnpackableTypes();
-    GameMain();
-}
-
-void WrapAppMain()
-{
-    std::string uncaught;
-
-    try {
-        AppMain();
-    }
-    catch (const std::exception & ex) {
-        uncaught = ex.what();
-    }
-    catch (const std::string & ex) {
-        uncaught = ex;
-    }
-    catch (const char* ex) {
-        uncaught = ex;
-    }
-    catch (...) {
-        uncaught = "unknown";
-    }
-
-    if (!uncaught.empty()) {
-        SDL_ShowSimpleMessageBox(0, "Uncaught Exception", uncaught.c_str(), nullptr);
-    }
-}
-
 int CommonMain(int argc, const char** argv)
 {
-	// Start the game
-	gameThread = std::thread(WrapAppMain);
+	// Start our "machine"
+	Pomme::Init("Nanosaur\u2122");
 
-	// SDL event loop
-	SDL_Event e;
-	while (0 != SDL_WaitEvent(&e)) {
-	}
+	// Set up globals that the game expects
+	gCoverWindow = Pomme::Graphics::GetScreenPort();
+	gCoverWindowPixPtr = (UInt32*)GetPixBaseAddr(GetGWorldPixMap(gCoverWindow));
+
+	// Register format strings to unpack the structs
+	RegisterUnpackableTypes();
+
+	// Start the game
+	GameMain();
 
 	// Clean up
-
 	if (gView != NULL)
 		Q3Object_Dispose(gView);
 
@@ -78,13 +44,15 @@ int CommonMain(int argc, const char** argv)
 
 	// Terminate Quesa
 	Q3Exit();
+	
+	//Pomme::Shutdown();
 
 	return 0;
 }
 
-#ifdef _WIN32
-void WindowsConsoleInit()
+int main(int argc, const char** argv)
 {
+#ifdef _WIN32
 	AllocConsole();
 	FILE* junk;
 	freopen_s(&junk, "conin$", "r", stdin);
@@ -97,17 +65,23 @@ void WindowsConsoleInit()
 	// Enable ANSI escape codes
 	outMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
 	if (!SetConsoleMode(stdoutHandle, outMode)) exit(GetLastError());
-}
-
-int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
-{
-	WindowsConsoleInit();
-	return CommonMain(0, nullptr);
-}
-#else
-int main(int argc, const char** argv)
-{
-	return CommonMain(argc, argv);
-}
 #endif
 
+	std::string uncaught;
+
+	try {
+		return CommonMain(argc, argv);
+	}
+	catch (const std::exception & ex) {
+		uncaught = ex.what();
+	}
+	catch (...) {
+		uncaught = "unknown";
+	}
+
+	if (!uncaught.empty()) {
+		std::cerr << "Uncaught exception: " << uncaught << "\n";
+		SDL_ShowSimpleMessageBox(0, "Uncaught Exception", uncaught.c_str(), nullptr);
+		exit(1);
+	}
+}
