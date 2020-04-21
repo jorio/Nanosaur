@@ -293,14 +293,25 @@ OSErr FSpOpenDF(const FSSpec* spec, char permission, short* refNum)
 OSErr FSpOpenRF(const FSSpec* spec, char permission, short* refNum)
 {
 	auto path = ToPath(*spec);
+	auto specName = path.filename().string();
+	path.remove_filename();
 
-	// ADF filename
-	std::stringstream adfFilename;
-	adfFilename << "._" << Pascal2C(spec->name);
-	// TODO: on osx, we could try {name}/..namedfork/rsrc
-	path.replace_filename(adfFilename.str());
+	auto candidates = {
+			"._" + specName,
+			specName + ".rsrc",
+#if __APPLE__
+			//specName + "/..namedfork/rsrc" // TODO: check that this works in OSX land
+#endif
+	};
+	
+	for (auto c : candidates) {
+		auto candidatePath = path / c;
+		if (std::filesystem::exists(candidatePath)) {
+			return FSpOpenXF(candidatePath, ForkType::ResourceFork, permission, refNum);
+		}
+	}
 
-	return FSpOpenXF(path, ForkType::ResourceFork, permission, refNum);
+	return fnfErr;
 }
 
 OSErr FindFolder(short vRefNum, OSType folderType, Boolean createFolder, short* foundVRefNum, long* foundDirID)
