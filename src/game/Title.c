@@ -364,6 +364,7 @@ static void Slideshow(const char** imagePaths)
 			ReadKeyboard();
 			DoSoundMaintenance();
 			RenderBackdropQuad();
+			DoSDLMaintenance();
 		} while(!(gNewKeys_Real[0] || gNewKeys_Real[1] ||  gNewKeys_Real[2] || gNewKeys_Real[3]));
 	}
 

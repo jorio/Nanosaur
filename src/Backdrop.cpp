@@ -1,5 +1,7 @@
 #include <SDL_opengl.h>
 #include <SDL_video.h>
+#include <SDL_events.h>
+#include <PommeInternal.h>
 #include "windows_nano.h"
 
 extern UInt32* gCoverWindowPixPtr;
@@ -124,4 +126,24 @@ void ExclusiveOpenGLMode_End()
 	exclusiveGLContextValid = false;
 	SDL_GL_DeleteContext(exclusiveGLContext);
 	exclusiveGLContext = nullptr;
+}
+
+void DoSDLMaintenance()
+{
+	SDL_Event event;
+	while (SDL_PollEvent(&event)) {
+		switch (event.type) {
+			case SDL_QUIT:
+				throw Pomme::QuitRequest();
+				break;
+
+			case SDL_WINDOWEVENT:
+				switch(event.window.event) {
+					case SDL_WINDOWEVENT_CLOSE:
+						throw Pomme::QuitRequest();
+						break;
+				}
+				break;
+		}
+	}
 }

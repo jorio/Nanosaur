@@ -23,11 +23,17 @@ std::string Pomme::Pascal2Cpp(const char* pstr)
 	return std::string(&pstr[1], pstr[0]);
 }
 
+const char* Pomme::QuitRequest::what() const noexcept
+{
+	return "the user has requested to quit the application";
+}
+
 //-----------------------------------------------------------------------------
 // Misc
 
-void ExitToShell() {
-	exit(0);
+void ExitToShell()
+{
+	throw Pomme::QuitRequest();
 }
 
 void SysBeep(short duration)

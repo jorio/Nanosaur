@@ -22,3 +22,5 @@ void AllocBackdropTexture(void);
 void RenderBackdropQuad(void);
 
 void DisposeBackdropTexture(void);
+
+void DoSDLMaintenance(void);

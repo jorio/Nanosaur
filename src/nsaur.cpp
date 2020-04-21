@@ -29,7 +29,11 @@ int CommonMain(int argc, const char** argv)
 	RegisterUnpackableTypes();
 
 	// Start the game
-	GameMain();
+	try {
+		GameMain();
+	} catch (Pomme::QuitRequest&) {
+		// no-op, the game may throw this exception to shut us down cleanly
+	}
 
 	// Clean up
 	if (gView != NULL)

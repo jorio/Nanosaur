@@ -15,6 +15,7 @@
 #include <QD3DGroup.h>
 #include "QD3DMath.h"
 #include <QD3DTransform.h>
+#include <GamePatches.h>
 
 #include "objects.h"
 #include "misc.h"
@@ -428,6 +429,8 @@ next:
 			
 	DoSoundMaintenance();
 	
+	DoSDLMaintenance(); // Source port addition, for convenience as well
+
 			/* FLUSH THE DELETE QUEUE */
 			
 	FlushObjectDeleteQueue();
