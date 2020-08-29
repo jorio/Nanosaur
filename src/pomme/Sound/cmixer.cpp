@@ -455,18 +455,6 @@ void WavStream::FillBuffer(int16_t* dst, int len)
 				dst[1] = data16()[x + 1];
 				});
 		}
-		else if (bitdepth == 16 && channels == 1) {
-			WAV_PROCESS_LOOP({
-				dst[0] = dst[1] = FromBE(data16()[idx]);
-				});
-		}
-		else if (bitdepth == 16 && channels == 2) {
-			WAV_PROCESS_LOOP({
-				x = idx * 2;
-				dst[0] = FromBE(data16()[x]);
-				dst[1] = FromBE(data16()[x + 1]);
-				});
-		}
 		else if (bitdepth == 8 && channels == 1) {
 			WAV_PROCESS_LOOP({
 				dst[0] = dst[1] = (data8()[idx] - 128) << 8;
