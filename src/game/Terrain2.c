@@ -440,9 +440,10 @@ TQ3Vector3D		lookAt,upVector,theXAxis;
 			/* CALC LOOK-AT VECTOR */
 
 	{
-		lookAt.x = front.x-back.x;
-		lookAt.y = front.y-back.y;
-		lookAt.z = front.z-back.z;
+		// Source port fix: flipped sign so the quad points the correct way
+		lookAt.x = back.x-front.x;
+		lookAt.y = back.y-front.y;
+		lookAt.z = back.z-front.z;
 		Q3Vector3D_Normalize(&lookAt,&lookAt);
 	}
 
