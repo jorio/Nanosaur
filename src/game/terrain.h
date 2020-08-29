@@ -10,7 +10,9 @@
 #define	MAP_ITEM_MYSTARTCOORD		0				// map item # for my start coords
 #define	MAP_ITEM_TIMEPORTAL			9				// map item # for TIME PORTAL
 
-#define TERRAIN_160X160_TEXTURES	false			// source port addition - use 160x160 textures as stored in terrain files instead of shrinking to 128x128 or 64x64
+#if SOURCE_PORT_ENHANCEMENTS
+#define TERRAIN_160X160_TEXTURES	true			// source port addition - use 160x160 textures as stored in terrain files instead of shrinking to 128x128 or 64x64
+#endif
 
 extern	const float	gOneOver_TERRAIN_POLYGON_SIZE;
 
@@ -89,6 +91,12 @@ enum
 #define	TERRAIN_POLYGON_SIZE_Frac	((float)1.0/(float)TERRAIN_POLYGON_SIZE)
 
 #define	SUPERTILE_SIZE			5  						// size of a super-tile / terrain object zone
+
+#if SOURCE_PORT_ENHANCEMENTS
+#define SUPERTILE_OVERLAP		0.0
+#else
+#define SUPERTILE_OVERLAP		1.0
+#endif
 
 #define	TEMP_TEXTURE_BUFF_SIZE	(OREOMAP_TILE_SIZE * SUPERTILE_SIZE)
 

@@ -892,14 +892,14 @@ TQ3PlaneEquation	planeEq;
 	pointList[2] = gWorkGrid[SUPERTILE_SIZE][0];
 	pointList[3] = gWorkGrid[SUPERTILE_SIZE][SUPERTILE_SIZE];
 
-	pointList[1].x += 1;														// overlap by n pixels
-	pointList[2].z += 1;
-	pointList[3].x += 1;
-	pointList[3].z += 1;
-	pointList[0].x -= 1;
-	pointList[0].z -= 1;
-	pointList[1].z -= 1;
-	pointList[2].x -= 1;
+	pointList[1].x += SUPERTILE_OVERLAP;										// overlap by n pixels
+	pointList[2].z += SUPERTILE_OVERLAP;
+	pointList[3].x += SUPERTILE_OVERLAP;
+	pointList[3].z += SUPERTILE_OVERLAP;
+	pointList[0].x -= SUPERTILE_OVERLAP;
+	pointList[0].z -= SUPERTILE_OVERLAP;
+	pointList[1].z -= SUPERTILE_OVERLAP;
+	pointList[2].x -= SUPERTILE_OVERLAP;
 
 			/* SET BOUNDING BOX */
 			
