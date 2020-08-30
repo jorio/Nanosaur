@@ -291,7 +291,9 @@ QD3DSetupOutputType	*data;
 static void CreateView(QD3DSetupInputType *setupDefPtr)
 {
 TQ3Status	status;
+#if 0 // Source port removal
 TQ3Uns32	hints;
+#endif
 
 				/* CREATE NEW VIEW OBJECT */
 				
@@ -320,9 +322,11 @@ TQ3Uns32	hints;
 		DoFatalAlert("Q3Renderer_NewFromType Failed!");
 	}
 
+#if 0 // Source port removal - deprecated by Quesa
 	status = Q3InteractiveRenderer_SetPreferences(gQD3D_RendererObject, kQAVendor_BestChoice, kQAEngine_AppleHW);
 	if (status == kQ3Failure)
 		DoFatalAlert("Q3InteractiveRenderer_SetPreferences Failed!");
+#endif
 	
 	status = Q3View_SetRenderer(gQD3D_ViewObject, gQD3D_RendererObject);				// assign renderer to view
 	if (status == kQ3Failure)
@@ -344,7 +348,9 @@ TQ3Uns32	hints;
 	                     sizeof(gQD3D_AngleAffectsAlpha), &gQD3D_AngleAffectsAlpha);
 	
 	Q3InteractiveRenderer_SetRAVETextureFilter(gQD3D_RendererObject,kQATextureFilter_Fast);	// texturing
+#if 0 // Source port removal - deprecated by Quesa
 	Q3InteractiveRenderer_SetDoubleBufferBypass(gQD3D_RendererObject,kQ3True);
+#endif
 }
 
 
