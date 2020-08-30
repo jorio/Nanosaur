@@ -99,7 +99,9 @@ Ptr		gTerrainHeightMapPtrs[MAX_HEIGHTMAP_TILES];
 long	gNumSuperTilesDeep,gNumSuperTilesWide;	  		// dimensions of terrain in terms of supertiles
 long	gCurrentSuperTileRow,gCurrentSuperTileCol;
 
-static UInt8	gTerrainScrollBuffer[MAX_SUPERTILES_DEEP][MAX_SUPERTILES_WIDE];		// 2D array which has index to supertiles for each possible supertile
+// Source port enhancement: these indices were bytes, changed to shorts
+// so we can have an active supertile area of 8x8 supertiles or more
+static short	gTerrainScrollBuffer[MAX_SUPERTILES_DEEP][MAX_SUPERTILES_WIDE];		// 2D array which has index to supertiles for each possible supertile
 
 short	gNumFreeSupertiles;
 static	SuperTileMemoryType		gSuperTileMemoryList[MAX_SUPERTILES];
@@ -2289,7 +2291,7 @@ float	GetTerrainHeightAtCoord_Planar(float x, float z)
 short			superTileX,superTileZ;
 long			xi,zi;
 UInt16			col,row;
-UInt8			superTileNum;
+short			superTileNum;
 SuperTileMemoryType	*superTilePtr;
 TQ3PlaneEquation	*planeEq;
 

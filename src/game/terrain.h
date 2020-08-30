@@ -114,6 +114,14 @@ enum
 #define	SUPERTILE_DIST_DEEP		(SUPERTILE_ACTIVE_RANGE+SUPERTILE_ACTIVE_RANGE)
 #define	MAX_SUPERTILES			(SUPERTILE_DIST_WIDE*SUPERTILE_DIST_DEEP)
 
+// Source port addition: we allow more active supertiles than the original game
+// by using shorts instead of bytes for supertile indices.
+#if MAX_SUPERTILES>32767
+	#error "Active supertile range too large"
+#endif
+
+#define	EMPTY_SUPERTILE		-1
+
 #define	NUM_POLYS_IN_SUPERTILE	(SUPERTILE_SIZE * SUPERTILE_SIZE * 2)					// 2 triangles per tile
 
 #define	MAX_TILE_ANIMS			32
@@ -181,8 +189,6 @@ enum
 #define	TILE_ROT3			(3<<12)
 
 #define	HEIGHT_EXTRUDE_FACTOR 4.0f
-
-#define	EMPTY_SUPERTILE		0xff	
 
 
 		/* TERRAIN ITEM FLAGS */
