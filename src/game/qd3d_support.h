@@ -55,7 +55,7 @@ typedef	struct
 	Boolean			useFog;
 	float			fogHither;
 	float			fogYon;
-	short			fogMode;
+	TQ3FogMode		fogMode;
 
 	float			ambientBrightness;
 	TQ3ColorRGB		ambientColor;
@@ -132,7 +132,7 @@ extern	TQ3StorageObject QD3D_GetMipmapStorageObjectFromAttrib(TQ3AttributeSet at
 extern	GWorldPtr QD3D_MipmapToGWorld(TQ3Mipmap *mipmap, Rect *r);
 extern	void QD3D_GWorldToMipMap(GWorldPtr pGWorld, TQ3Mipmap *mipmap, Boolean pointToGWorld);
 
-extern	void QD3D_SetRaveFog(QD3DSetupOutputType *setupInfo, float fogHither, float fogYon, TQ3ColorARGB *fogColor, short fogMode);
+extern	void QD3D_SetRaveFog(QD3DSetupOutputType *setupInfo, float fogHither, float fogYon, TQ3ColorARGB *fogColor, TQ3FogMode fogMode);
 extern	void QD3D_DisableFog(void);
 extern	void QD3D_ReEnableFog(void);
 extern	void QD3D_SetTextureFilter(unsigned long textureMode);

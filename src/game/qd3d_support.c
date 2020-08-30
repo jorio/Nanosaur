@@ -85,6 +85,7 @@ float	gFramesPerSecondFrac = 1/DEFAULT_FPS;
 float	gAdditionalClipping = 0;
 
 short			gFogMode;
+static TQ3FogStyleData			gQD3D_FogStyleData = { };
 
 Boolean			gQD3DInitialized = false;
 
@@ -176,7 +177,7 @@ TQ3Vector3D			fillDirection2 = { -1, -1, .2 };
 	viewDef->lights.useFog = true;
 	viewDef->lights.fogHither = .4;
 	viewDef->lights.fogYon = 1.0;
-	TODOMINOR2("viewDef->lights.fogMode = kQATIFogLinear;");
+	viewDef->lights.fogMode = kQ3FogModeLinear;
 
 }
 
@@ -736,6 +737,11 @@ TQ3ViewStatus			myViewStatus;
 	{
 				/* DRAW STYLES */
 				
+		// Source port addition
+		myStatus = Q3FogStyle_Submit(&gQD3D_FogStyleData, setupInfo->viewObject);
+		if ( myStatus == kQ3Failure )
+			DoFatalAlert(" Q3FogStyle_Submit Failed!");
+		
 		myStatus = Q3Style_Submit(setupInfo->interpolationStyle,setupInfo->viewObject);
 		if ( myStatus == kQ3Failure )
 			DoFatalAlert(" Q3Style_Submit Failed!");
@@ -1778,106 +1784,34 @@ UInt32		*buffer,*pixelPtr,pixmapRowbytes,size,sizeRead;
 
 /********************** SET RAVE FOG ******************************/
 
-void QD3D_SetRaveFog(QD3DSetupOutputType *setupInfo, float fogHither, float fogYon, TQ3ColorARGB *fogColor, short fogMode)
+// Source port change: this function was originally dependent on RAVE extensions for ATI Rage Pro cards.
+void QD3D_SetRaveFog(QD3DSetupOutputType *setupInfo, float fogHither, float fogYon, TQ3ColorARGB *fogColor, TQ3FogMode fogMode)
 {
-#if 1
-	TODOMINOR();
-#else
-OSErr		iErr;
-
-				/********************/
-				/* GET RAVE CONTEXT */
-				/********************/
-			
-	gRaveDrawContext = nil;
-	if (gATI)
-	{	
-		long response = (long)&gATIRaveDevice;			// must pass this in this way for Chris
-
-		Q3View_StartRendering(setupInfo->viewObject);				// must do this during render state		
-			
-		if ((iErr = QAEngineGestalt(gATIRaveEngine, kQATIGestalt_CurrentContext, &response)) == kQANoErr)
-		{
-			if ((response != nil) && (response != (long)&gATIRaveDevice))
-			{
-				gRaveDrawContext = (TQADrawContext *)response;
-		
-						/* SET FOG PARAMETERS */
-						
-				if (gGamePrefs.canDoFog)		// see if allow fog
-				{
-					gFogMode = fogMode;
-					QASetInt(gRaveDrawContext, (TQATagInt)kATIFogMode, fogMode);
-					QASetFloat(gRaveDrawContext, (TQATagFloat)kATIFogColor_r, fogColor->r );
-					QASetFloat(gRaveDrawContext, (TQATagFloat)kATIFogColor_g, fogColor->g );
-					QASetFloat(gRaveDrawContext, (TQATagFloat)kATIFogColor_b, fogColor->b);
-
-					QASetFloat(gRaveDrawContext, (TQATagFloat)kATIFogStart, fogHither );
-					QASetFloat(gRaveDrawContext, (TQATagFloat)kATIFogEnd, 1);
-
-					QASetFloat(gRaveDrawContext, (TQATagFloat)kATIFogDensity, fogYon);
-				}				
-							/* ALSO SET TEXTURE COMPRESSION */
-							
-				QASetInt(gRaveDrawContext, (TQATagInt)kATITexCompress, kQATexture_NoCompression);
-
-
-								/* SET TEXTURE FILTER */
-								
-				QASetInt(gRaveDrawContext, (TQATagInt)kQATag_TextureFilter, kQATextureFilter_Fast);
-				
-//				QD3D_SetBlendingMode(kQABlend_Interpolate);		//-------------
-				
-//				QASetInt(gRaveDrawContext, (TQATagInt)kQATag_Blend, kQABlend_OpenGL);
-//				QASetInt(gRaveDrawContext, (TQATagInt)kQATagGL_BlendDst,GL_ONE);
-//				QASetInt(gRaveDrawContext, (TQATagInt)kQATagGL_BlendSrc,GL_ONE);
-			}
-		}
-		else
-		{
-			if (!gNotGoodATI)
-			{
-				gNotGoodATI = true;
-				DoAlert("WARNING: This version of Nanosaur needs an ATI Rage Pro card with the latest beta drivers for all of the features to work!");
-				HideCursor();
-			}
-		}
-		
-		Q3View_Cancel(setupInfo->viewObject);		// stop rendering state
-		Q3View_EndRendering(setupInfo->viewObject);		
-	}	
-#endif
+	gQD3D_FogStyleData.state        = gGamePrefs.canDoFog? kQ3On: kQ3Off;
+	gQD3D_FogStyleData.mode         = kQ3FogModeLinear;
+	gQD3D_FogStyleData.color        = *fogColor;
+	gQD3D_FogStyleData.fogStart     = HITHER_DISTANCE + fogHither * (YON_DISTANCE - HITHER_DISTANCE);
+	gQD3D_FogStyleData.fogEnd       = HITHER_DISTANCE + fogYon    * (YON_DISTANCE - HITHER_DISTANCE);
+	gQD3D_FogStyleData.density      = 0.5f;  // Ignored for linear fog
 }
 
 
 
 /******************************* DISABLE FOG *********************************/
 
+// Source port change: this function was originally dependent on RAVE extensions for ATI Rage Pro cards.
 void QD3D_DisableFog(void)
 {
-#if 1
-	TODOMINOR();
-#else
-	if (!gRaveDrawContext)
-		return;
-
-	QASetInt(gRaveDrawContext, (TQATagInt)kATIFogMode, kQATIFogDisable);
-#endif
+	gQD3D_FogStyleData.state        = kQ3Off;
 }
 
 
 /******************************* REENABLE FOG *********************************/
 
+// Source port change: this function was originally dependent on RAVE extensions for ATI Rage Pro cards.
 void QD3D_ReEnableFog(void)
 {
-#if 1
-	TODOMINOR();
-#else
-	if (!gRaveDrawContext)
-		return;
-		
-	QASetInt(gRaveDrawContext, (TQATagInt)kATIFogMode, gFogMode);
-#endif
+	gQD3D_FogStyleData.state        = kQ3Off;
 }
 
 
