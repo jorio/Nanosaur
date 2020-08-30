@@ -2450,11 +2450,11 @@ float	heightf;
 
 	if (row < 0)
 		return(0);
-	if (row > gTerrainTileDepth)
+	if (row >= gTerrainTileDepth)
 		return(0);
 	if (col < 0)
 		return(0);
-	if (col > gTerrainTileWidth)
+	if (col >= gTerrainTileWidth)
 		return(0);
 
 	tile = gTerrainHeightMapLayer[row][col];				// get height data from map
