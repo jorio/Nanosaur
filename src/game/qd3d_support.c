@@ -87,6 +87,12 @@ float	gAdditionalClipping = 0;
 short			gFogMode;
 static TQ3FogStyleData			gQD3D_FogStyleData = { };
 
+// Source port addition: this is a Quesa feature, enabled by default,
+// that renders translucent materials more accurately at an angle.
+// However, it looks "off" in the game -- shadow quads, shield spheres,
+// water patches all appear darker than they would on original hardware.
+static TQ3Boolean gQD3D_AngleAffectsAlpha = kQ3False;
+
 Boolean			gQD3DInitialized = false;
 
 
@@ -332,6 +338,10 @@ TQ3Uns32	hints;
 	hints &= ~kQAContext_NoDither; 					// yes-dither
 	Q3InteractiveRenderer_SetRAVEContextHints(gQD3D_RendererObject, hints);	
 #endif
+
+	// Source port addition: turn off Quesa's angle affect on alpha to preserve the original look of shadows, water, shields etc.
+	Q3Object_SetProperty(gQD3D_RendererObject, kQ3RendererPropertyAngleAffectsAlpha,
+	                     sizeof(gQD3D_AngleAffectsAlpha), &gQD3D_AngleAffectsAlpha);
 	
 	Q3InteractiveRenderer_SetRAVETextureFilter(gQD3D_RendererObject,kQATextureFilter_Fast);	// texturing
 	Q3InteractiveRenderer_SetDoubleBufferBypass(gQD3D_RendererObject,kQ3True);
