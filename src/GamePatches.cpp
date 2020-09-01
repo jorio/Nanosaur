@@ -130,15 +130,14 @@ void DumpGLPixels(const char* outFN)
 	//glPixelStorei(GL_PACK_ALIGNMENT, 1);
 	const int WIDTH = 640;
 	const int HEIGHT = 480;
-	char* buffer = new char[WIDTH * HEIGHT * 3];
-	glReadPixels(0, 0, WIDTH, HEIGHT, GL_BGR, GL_UNSIGNED_BYTE, buffer);
+	auto buf = std::vector<char>(WIDTH * HEIGHT * 3);
+	glReadPixels(0, 0, WIDTH, HEIGHT, GL_BGR, GL_UNSIGNED_BYTE, buf.data());
 	//glFinish();
 	
-	FILE* out = fopen(outFN, "w");
-	short  TGAhead[] = { 0, 2, 0, 0, 0, 0, WIDTH, HEIGHT, 24 };
-	fwrite(&TGAhead, sizeof(TGAhead), 1, out);
-	fwrite(buffer, 3 * WIDTH * HEIGHT, 1, out);
-	fclose(out);
+	std::ofstream out(outFN, std::ios::out | std::ios::binary);
+	short TGAhead[] = { 0, 2, 0, 0, 0, 0, WIDTH, HEIGHT, 24 };
+	out.write(reinterpret_cast<char*>(&TGAhead), sizeof(TGAhead));
+	out.write(buf.data(), buf.size());
 	
 	printf("Screenshot saved to %s\n", outFN);
 }

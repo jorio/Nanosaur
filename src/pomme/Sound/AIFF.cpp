@@ -4,7 +4,7 @@ using namespace Pomme;
 
 #define LOG POMME_GENLOG(POMME_DEBUG_SOUND, "AIFF")
 
-class AIFFException: std::runtime_error {
+class AIFFException: public std::runtime_error {
 public:
 	AIFFException(const char* m) : std::runtime_error(m) {}
 };

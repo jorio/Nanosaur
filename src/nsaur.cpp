@@ -3,9 +3,6 @@
 #include <iostream>
 #include <Quesa.h>
 
-#if _WIN32
-#include <windows.h>
-#endif
 
 TQ3ViewObject				gView = nullptr;
 
@@ -54,38 +51,21 @@ int CommonMain(int argc, const char** argv)
 	return 0;
 }
 
-int main(int argc, const char** argv)
+int main(int argc, char** argv)
 {
-#ifdef _WIN32
-	AllocConsole();
-	FILE* junk;
-	freopen_s(&junk, "conin$", "r", stdin);
-	freopen_s(&junk, "conout$", "w", stdout);
-	freopen_s(&junk, "conout$", "w", stderr);
-
-	DWORD outMode = 0;
-	HANDLE stdoutHandle = GetStdHandle(STD_OUTPUT_HANDLE);
-	if (!GetConsoleMode(stdoutHandle, &outMode)) exit(GetLastError());
-	// Enable ANSI escape codes
-	outMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
-	if (!SetConsoleMode(stdoutHandle, outMode)) exit(GetLastError());
-#endif
-
 	std::string uncaught;
 
 	try {
-		return CommonMain(argc, argv);
+		return CommonMain(argc, const_cast<const char**>(argv));
 	}
-	catch (const std::exception & ex) {
+	catch (std::exception& ex) {
 		uncaught = ex.what();
 	}
 	catch (...) {
 		uncaught = "unknown";
 	}
 
-	if (!uncaught.empty()) {
-		std::cerr << "Uncaught exception: " << uncaught << "\n";
-		SDL_ShowSimpleMessageBox(0, "Uncaught Exception", uncaught.c_str(), nullptr);
-		exit(1);
-	}
+	std::cerr << "Uncaught exception: " << uncaught << "\n";
+	SDL_ShowSimpleMessageBox(0, "Uncaught Exception", uncaught.c_str(), nullptr);
+	return 1;
 }

@@ -19,6 +19,10 @@
 #include "input.h"
 #include "GamePatches.h"
 
+#if _WIN32 // some windows header defines SetPort as a macro
+	#undef SetPort
+#endif
+
 #define	ALLOW_FADE		1
 
 static void MoveFadeEvent(ObjNode *theNode);

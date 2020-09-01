@@ -18,7 +18,7 @@ Pomme::BigEndianIStream::BigEndianIStream(std::istream& theStream) :
 void Pomme::BigEndianIStream::Read(char* dst, int n) {
 	stream.read(dst, n);
 	if (stream.eof()) {
-		throw "Read past end of stream!";
+		throw std::out_of_range("Read past end of stream!");
 	}
 }
 

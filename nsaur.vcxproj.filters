@@ -326,6 +326,9 @@
     <ClCompile Include="src\pomme\ARGBPixmap.cpp">
       <Filter>Pomme</Filter>
     </ClCompile>
+    <ClCompile Include="src\game\Windows.c">
+      <Filter>Game</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\pomme\PommeEnums.h">
