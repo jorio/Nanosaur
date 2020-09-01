@@ -68,18 +68,11 @@ namespace Pomme {
 	namespace Files
 	{
 		void Init(const char* applName);
-
-		bool IsDirIDLegal(long dirID);
 		bool IsRefNumLegal(short refNum);
-		std::fstream& GetStream(short refNum);
-
 		bool IsStreamOpen(short refNum);
 		bool IsStreamPermissionAllowed(short refNum, char perm);
+		std::iostream& GetStream(short refNum);
 		void CloseStream(short refNum);
-
-		std::filesystem::path ToPath(short vRefNum, long parID, ConstStr255Param name);
-		std::filesystem::path ToPath(const FSSpec& spec);
-		std::string GetHostFilename(short refNum);
 	}
 
 	namespace Sound

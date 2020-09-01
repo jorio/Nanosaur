@@ -329,6 +329,9 @@
     <ClCompile Include="src\game\Windows.c">
       <Filter>Game</Filter>
     </ClCompile>
+    <ClCompile Include="src\pomme\Files\HostVolume.cpp">
+      <Filter>Pomme\Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\pomme\PommeEnums.h">
@@ -617,6 +620,12 @@
     <ClInclude Include="src\Pomme\SysFont.h">
       <Filter>Pomme</Filter>
     </ClInclude>
+    <ClInclude Include="src\pomme\Files\HostVolume.h">
+      <Filter>Pomme\Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pomme\Files\Volume.h">
+      <Filter>Pomme\Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Game">
@@ -627,6 +636,9 @@
     </Filter>
     <Filter Include="Pomme\Sound">
       <UniqueIdentifier>{1118f599-240c-4c8b-a10f-3eca2261fd95}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Pomme\Files">
+      <UniqueIdentifier>{afe7492d-583d-499c-9c01-5cd8d9171149}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

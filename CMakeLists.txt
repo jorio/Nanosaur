@@ -112,6 +112,9 @@ add_executable(nsaur
         src/game/weapons.h
         src/game/Windows.c
         src/game/windows_nano.h
+        src/pomme/Files/Volume.h
+        src/pomme/Files/HostVolume.cpp
+        src/pomme/Files/HostVolume.h
         src/pomme/Sound/AIFF.cpp
         src/pomme/Sound/cmixer.cpp
         src/pomme/Sound/cmixer.h

@@ -28,7 +28,7 @@ static void PrintStack(const char* msg) {
 		LOG	<< (rezSearchStackIndex == i? " =====> " : "        ")
 			<< " StackPos=" << i << " "
 			<< " RefNum=" << rezSearchStack[i].fileRefNum << " "
-			<< Pomme::Files::GetHostFilename(rezSearchStack[i].fileRefNum)
+//			<< Pomme::Files::GetHostFilename(rezSearchStack[i].fileRefNum)
 			<< "\n";
 	}
 	LOG << "------------------------------------\n";
