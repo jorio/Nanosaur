@@ -29,14 +29,13 @@ int CommonMain(int argc, const char** argv)
 	RegisterUnpackableTypes();
 
 	// Mount game archive as data volume
-	/*
 	short archiveVolumeID = Pomme::Files::MountArchiveAsVolume("nanosaur134.bin");
 	gDataSpec.vRefNum = archiveVolumeID;
-	*/
 
 	// Use application resource file
 	FSSpec applicationSpec = {};
-	if (noErr != FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":Nanosaur\u2122", &applicationSpec)) {
+	if (noErr != FSMakeFSSpec(0, gDataSpec.parID, ":Nanosaur\u2122", &applicationSpec)) {
+	//if (noErr != FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":Nanosaur#", &applicationSpec)) {
 		throw std::exception("Can't find application resource file.");
 	}
 	UseResFile(FSpOpenResFile(&applicationSpec, fsRdPerm));

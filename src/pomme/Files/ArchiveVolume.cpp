@@ -14,6 +14,28 @@
 using namespace Pomme;
 using namespace Pomme::Files;
 
+struct ArchiveForkHandle : public ForkHandle
+{
+	std::vector<char> rawData;
+	membuf membuf;
+	std::iostream stream;
+
+public:
+	ArchiveForkHandle(ForkType _forkType, char _perm, std::vector<char>&& _rawData)
+		: ForkHandle(_forkType, _perm)
+		, rawData(_rawData)
+		, membuf(rawData)
+		, stream(&membuf)
+	{
+	}
+
+	virtual ~ArchiveForkHandle() override = default;
+
+	virtual std::iostream& GetStream() override
+	{
+		return stream;
+	}
+};
 
 ArchiveVolume::ArchiveVolume(short vRefNum, const std::string& pathToArchiveOnHost)
 	: Volume(vRefNum)
@@ -97,7 +119,7 @@ OSErr ArchiveVolume::OpenFork(
 	const FSSpec* spec,
 	ForkType forkType,
 	char permission,
-	std::unique_ptr<std::iostream>& stream)
+	std::unique_ptr<ForkHandle>& handle)
 {
 	if (permission == fsCurPerm) {
 		TODO2("fsCurPerm not implemented yet");
@@ -118,11 +140,7 @@ OSErr ArchiveVolume::OpenFork(
 	auto& fork = forkType == DataFork ? cfmd.dataFork : cfmd.rsrcFork;
 	backingStream->seekg(fork.offsetToCompressedData, std::ios_base::beg);
 	auto decompressedData0 = DecompressFork(fork);
-// TODO: manage memory!
-	auto dd = new std::vector<char>(decompressedData0);
-
-	auto mb = new membuf(*dd);
-	stream = std::make_unique<std::iostream>(mb);
+	handle = std::make_unique<ArchiveForkHandle>(forkType, permission, std::move(decompressedData0));
 
 	return noErr;
 }

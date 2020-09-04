@@ -78,7 +78,7 @@ namespace Pomme::Files
 
 		OSErr FSMakeFSSpec(long dirID, const std::string& fileName, FSSpec* spec) override;
 
-		OSErr OpenFork(const FSSpec* spec, ForkType forkType, char permission, std::unique_ptr<std::iostream>& stream) override;
+		OSErr OpenFork(const FSSpec* spec, ForkType forkType, char permission, std::unique_ptr<ForkHandle>& stream) override;
 
 		OSErr FSpCreate(const FSSpec* spec, OSType creator, OSType fileType, ScriptCode scriptTag) override;
 

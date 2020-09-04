@@ -22,19 +22,9 @@ using namespace Pomme::Files;
 constexpr int MAX_VOLUMES = 32767;  // vRefNum is a signed short
 
 //-----------------------------------------------------------------------------
-// Internal structs
-
-struct InternalFileHandle
-{
-	std::unique_ptr<std::iostream> stream;
-	int forkType;
-	char permission;
-};
-
-//-----------------------------------------------------------------------------
 // State
 
-static Pomme::GrowablePool<InternalFileHandle, SInt16, 0x7FFF> openFiles;
+static Pomme::GrowablePool<std::unique_ptr<ForkHandle>, SInt16, 0x7FFF> openFiles;
 
 static std::vector<std::unique_ptr<Volume>> volumes;
 
@@ -51,7 +41,7 @@ std::iostream& Pomme::Files::GetStream(short refNum)
 	if (!IsRefNumLegal(refNum)) {
 		throw std::exception("illegal refNum");
 	}
-	return *openFiles[refNum].stream.get();
+	return openFiles[refNum]->GetStream();
 }
 
 void Pomme::Files::CloseStream(short refNum)
@@ -59,7 +49,7 @@ void Pomme::Files::CloseStream(short refNum)
 	if (!IsRefNumLegal(refNum)) {
 		throw std::exception("illegal refNum");
 	}
-	openFiles[refNum].stream.reset(nullptr);
+	openFiles[refNum].reset(nullptr);
 	openFiles.Dispose(refNum);
 	LOG << "Closed stream " << refNum << "\n";
 }
@@ -69,7 +59,7 @@ bool Pomme::Files::IsStreamOpen(short refNum)
 	if (!IsRefNumLegal(refNum)) {
 		throw std::exception("illegal refNum");
 	}
-	return openFiles[refNum].stream.get() != nullptr;
+	return openFiles[refNum].get() != nullptr;
 //	return openFiles[refNum].stream.is_open();
 }
 
@@ -78,7 +68,7 @@ bool Pomme::Files::IsStreamPermissionAllowed(short refNum, char perm)
 	if (!IsRefNumLegal(refNum)) {
 		throw std::exception("illegal refNum");
 	}
-	return (perm & openFiles[refNum].permission) == perm;
+	return (perm & openFiles[refNum]->permission) == perm;
 }
 
 //-----------------------------------------------------------------------------
@@ -118,10 +108,8 @@ static OSErr OpenFork(const FSSpec* spec, ForkType forkType, char permission, sh
 	if (!IsVolumeLegal(spec->vRefNum))
 		return nsvErr;
 	short newRefNum = openFiles.Alloc();
-	auto& fileHandle = openFiles[newRefNum];
-	fileHandle.forkType = forkType;
-	fileHandle.permission = permission;
-	OSErr rc = volumes.at(spec->vRefNum)->OpenFork(spec, forkType, permission, fileHandle.stream);
+	auto& handlePtr = openFiles[newRefNum];
+	OSErr rc = volumes.at(spec->vRefNum)->OpenFork(spec, forkType, permission, handlePtr);
 	if (rc != noErr) {
 		openFiles.Dispose(newRefNum);
 		newRefNum = -1;

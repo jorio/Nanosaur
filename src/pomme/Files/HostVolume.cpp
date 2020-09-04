@@ -15,6 +15,30 @@ using namespace Pomme;
 using namespace Pomme::Files;
 
 
+struct HostForkHandle : public ForkHandle
+{
+	std::fstream backingStream;
+
+public:
+	HostForkHandle(ForkType forkType, char perm, std::filesystem::path& path)
+		: ForkHandle(forkType, perm)
+	{
+		std::ios::openmode openmode = std::ios::binary;
+		if (permission & fsWrPerm) openmode |= std::ios::out;
+		if (permission & fsRdPerm) openmode |= std::ios::in;
+		
+		backingStream = std::fstream(path, openmode);
+	}
+
+	virtual ~HostForkHandle() = default;
+
+	virtual std::iostream& GetStream() override
+	{
+		return backingStream;
+	}
+};
+
+
 HostVolume::HostVolume(short vRefNum)
 	: Volume(vRefNum)
 {
@@ -84,7 +108,7 @@ FSSpec HostVolume::ToFSSpec(const std::filesystem::path& fullPath)
 	return spec;
 }
 
-OSErr HostVolume::OpenFork(const FSSpec* spec, ForkType forkType, char permission, std::unique_ptr<std::iostream>& stream)
+OSErr HostVolume::OpenFork(const FSSpec* spec, ForkType forkType, char permission, std::unique_ptr<ForkHandle>& handle)
 {
 	if (permission == fsCurPerm) {
 		TODO2("fsCurPerm not implemented yet");
@@ -130,11 +154,7 @@ OSErr HostVolume::OpenFork(const FSSpec* spec, ForkType forkType, char permissio
 		return fnfErr;
 	}
 
-	std::ios::openmode openmode = std::ios::binary;
-	if (permission & fsWrPerm) openmode |= std::ios::out;
-	if (permission & fsRdPerm) openmode |= std::ios::in;
-
-	stream = std::make_unique<std::fstream>(path, openmode);
+	handle = std::make_unique<HostForkHandle>(forkType, permission, path);
 
 	return noErr;
 }
