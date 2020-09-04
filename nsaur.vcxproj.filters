@@ -329,8 +329,26 @@
     <ClCompile Include="src\game\Windows.c">
       <Filter>Game</Filter>
     </ClCompile>
+    <ClCompile Include="src\pomme\maconv\utils\bit_reader.cc">
+      <Filter>Pomme\maconv</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pomme\maconv\stuffit\methods\arsenic.cc">
+      <Filter>Pomme\maconv</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pomme\maconv\stuffit\utils\bwt.cc">
+      <Filter>Pomme\maconv</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pomme\maconv\stuffit\utils\crc.cc">
+      <Filter>Pomme\maconv</Filter>
+    </ClCompile>
     <ClCompile Include="src\pomme\Files\HostVolume.cpp">
       <Filter>Pomme\Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pomme\Files\ArchiveVolume.cpp">
+      <Filter>Pomme\Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pomme\membuf.cpp">
+      <Filter>Pomme</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -620,11 +638,29 @@
     <ClInclude Include="src\Pomme\SysFont.h">
       <Filter>Pomme</Filter>
     </ClInclude>
+    <ClInclude Include="src\pomme\maconv\utils\bit_reader.h">
+      <Filter>Pomme\maconv</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pomme\maconv\stuffit\methods\arsenic.h">
+      <Filter>Pomme\maconv</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pomme\maconv\stuffit\utils\bwt.h">
+      <Filter>Pomme\maconv</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pomme\maconv\stuffit\utils\crc.h">
+      <Filter>Pomme\maconv</Filter>
+    </ClInclude>
     <ClInclude Include="src\pomme\Files\HostVolume.h">
       <Filter>Pomme\Files</Filter>
     </ClInclude>
     <ClInclude Include="src\pomme\Files\Volume.h">
       <Filter>Pomme\Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pomme\Files\ArchiveVolume.h">
+      <Filter>Pomme\Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pomme\membuf.h">
+      <Filter>Pomme</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -636,6 +672,9 @@
     </Filter>
     <Filter Include="Pomme\Sound">
       <UniqueIdentifier>{1118f599-240c-4c8b-a10f-3eca2261fd95}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Pomme\maconv">
+      <UniqueIdentifier>{0005629f-330b-4918-9c99-9b2e96543a81}</UniqueIdentifier>
     </Filter>
     <Filter Include="Pomme\Files">
       <UniqueIdentifier>{afe7492d-583d-499c-9c01-5cd8d9171149}</UniqueIdentifier>

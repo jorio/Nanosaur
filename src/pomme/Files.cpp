@@ -6,8 +6,9 @@
 
 #include "PommeInternal.h"
 #include "GrowablePool.h"
-#include "Files/HostVolume.h"
 #include "Files/Volume.h"
+#include "Files/HostVolume.h"
+#include "Files/ArchiveVolume.h"
 
 #ifdef _WIN32
 #include <shlobj.h>
@@ -17,6 +18,8 @@ using namespace Pomme;
 using namespace Pomme::Files;
 
 #define LOG POMME_GENLOG(POMME_DEBUG_FILES, "FILE")
+
+constexpr int MAX_VOLUMES = 32767;  // vRefNum is a signed short
 
 //-----------------------------------------------------------------------------
 // Internal structs
@@ -58,6 +61,7 @@ void Pomme::Files::CloseStream(short refNum)
 	}
 	openFiles[refNum].stream.reset(nullptr);
 	openFiles.Dispose(refNum);
+	LOG << "Closed stream " << refNum << "\n";
 }
 
 bool Pomme::Files::IsStreamOpen(short refNum)
@@ -82,7 +86,8 @@ bool Pomme::Files::IsStreamPermissionAllowed(short refNum, char perm)
 
 void Pomme::Files::Init(const char* applName)
 {
-	volumes.push_back(std::make_unique<HostVolume>(0));
+	auto hostVolume = std::make_unique<HostVolume>(0);
+	volumes.push_back(std::move(hostVolume));
 
 	short systemRefNum = openFiles.Alloc();
 	if (systemRefNum != 0)
@@ -130,6 +135,12 @@ static OSErr OpenFork(const FSSpec* spec, ForkType forkType, char permission, sh
 	if (refNum) {
 		*refNum = newRefNum;
 	}
+	if (rc == noErr) {
+		LOG << "Stream #" << newRefNum << " opened: " << Pascal2Cpp(spec->name) << ", " << (forkType==DataFork?"data":"rsrc") << "\n";
+	} else {
+		LOG << "Failed to open " << Pascal2Cpp(spec->name) << "\n";
+	}
+	
 	return rc;
 }
 
@@ -339,3 +350,20 @@ OSErr SetEOF(short refNum, long logEOF)
 	TODO();
 	return unimpErr;
 }
+
+short Pomme::Files::MountArchiveAsVolume(const std::string& archivePath)
+{
+	if (volumes.size() >= MAX_VOLUMES) {
+		throw std::out_of_range("Too many volumes mounted");
+	}
+	
+	short vRefNum = volumes.size();
+	
+	auto archiveVolume = std::make_unique<ArchiveVolume>(vRefNum, archivePath);
+	volumes.push_back(std::move(archiveVolume));
+	
+	LOG << "Archive \"" << archivePath << "\" mounted as volume " << vRefNum << ".\n";
+	
+	return vRefNum;
+}
+

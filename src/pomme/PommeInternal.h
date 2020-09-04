@@ -73,6 +73,7 @@ namespace Pomme {
 		bool IsStreamPermissionAllowed(short refNum, char perm);
 		std::iostream& GetStream(short refNum);
 		void CloseStream(short refNum);
+		short MountArchiveAsVolume(const std::string& archivePath);
 	}
 
 	namespace Sound

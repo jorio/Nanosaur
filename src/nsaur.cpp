@@ -2,6 +2,7 @@
 #include <SDL.h>
 #include <iostream>
 #include <Quesa.h>
+#include "Files/ArchiveVolume.h"
 
 
 TQ3ViewObject				gView = nullptr;
@@ -9,6 +10,8 @@ TQ3ViewObject				gView = nullptr;
 // bare minimum from Windows.c to satisfy externs in game code
 WindowPtr gCoverWindow = nullptr;
 UInt32* gCoverWindowPixPtr = nullptr;
+
+extern FSSpec gDataSpec;
 
 void GameMain(void);
 void RegisterUnpackableTypes(void);
@@ -24,6 +27,9 @@ int CommonMain(int argc, const char** argv)
 
 	// Register format strings to unpack the structs
 	RegisterUnpackableTypes();
+
+	short archiveVolumeID = Pomme::Files::MountArchiveAsVolume("nanosaur134.bin");
+	gDataSpec.vRefNum = archiveVolumeID;
 
 	// Start the game
 	try {
