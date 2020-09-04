@@ -15,6 +15,11 @@ using namespace Pomme::Graphics;
 #define LOG POMME_GENLOG(POMME_DEBUG_PICT, "PICT")
 #define LOG_NOPREFIX POMME_GENLOG_NOPREFIX(POMME_DEBUG_PICT)
 
+class PICTException : public std::runtime_error {
+public:
+	PICTException(const char* m) : std::runtime_error(m) {}
+};
+
 //-----------------------------------------------------------------------------
 // Color
 
@@ -140,7 +145,7 @@ template<typename T> static std::vector<T> UnpackAllRows(BigEndianIStream& f, in
 	}
 	
 	if (expectedItemCount != data.size())
-		throw "unexpected item count";
+		throw PICTException("UnpackAllRows: unexpected item count");
 
 	LOG_NOPREFIX << "\n";
 	return data;
@@ -156,7 +161,7 @@ static ARGBPixmap Unpack0(BigEndianIStream& f, int w, int h, const std::vector<C
 	for (int i = 0; i < unpacked.size(); i++) {
 		if (i % (w * PRINT_PROGRESS_EVERY) == 0) LOG_NOPREFIX << ".";
 		UInt8 px = unpacked[i];
-		if (px >= palette.size()) throw "illegal color index in pixmap";
+		if (px >= palette.size()) throw PICTException("Unpack0: illegal color index in pixmap");
 		Color c = palette[px];
 		dst.data.push_back(c.a);
 		dst.data.push_back(c.r);
@@ -232,7 +237,7 @@ static ARGBPixmap ReadPICTBits(BigEndianIStream& f, int opcode, const Rect& canv
 	Rect frameRect = ReadRect(f);
 	LOG << "frameRect " << frameRect << "\n";
 	if (frameRect != canvasRect)
-		throw "frame dims != canvas dims 1";
+		throw PICTException("frame dims != canvas dims 1");
 
 	int packType;
 	int pixelSize = -1;
@@ -265,9 +270,9 @@ static ARGBPixmap ReadPICTBits(BigEndianIStream& f, int opcode, const Rect& canv
 			<< "\n\ttable           " << table
 			<< "\n";
 
-		if (pixelSize > 32) throw "pixmap invalid bpp";
-		if (componentCount > 4) throw "pixmap invalid compo cnt";
-		if (componentSize <= 0) throw "pixmap invalid compo sz";
+		if (pixelSize > 32) throw PICTException("pixmap invalid bpp");
+		if (componentCount > 4) throw PICTException("pixmap invalid component count");
+		if (componentSize <= 0) throw PICTException("pixmap invalid component size");
 	}
 
 	auto palette = std::vector<Color>();
@@ -277,7 +282,7 @@ static ARGBPixmap ReadPICTBits(BigEndianIStream& f, int opcode, const Rect& canv
 		int nColors = 1 + f.Read<UInt16>();
 
 		LOG << "Colormap: " << nColors << " colors\n";
-		if (nColors <= 0 || nColors > 256) throw "unsupported palette size";
+		if (nColors <= 0 || nColors > 256) throw PICTException("unsupported palette size");
 
 		palette.resize(nColors);
 
@@ -290,7 +295,7 @@ static ARGBPixmap ReadPICTBits(BigEndianIStream& f, int opcode, const Rect& canv
 			} else {
 				index = f.Read<UInt16>();
 				if (index >= nColors)
-					throw "illegal color index in palette definition";
+					throw PICTException("illegal color index in palette definition");
 			}
 
 			UInt8 r = (f.Read<UInt16>() >> 8) & 0xFF;
@@ -302,16 +307,16 @@ static ARGBPixmap ReadPICTBits(BigEndianIStream& f, int opcode, const Rect& canv
 
 	Rect srcRect = ReadRect(f);
 	Rect dstRect = ReadRect(f);
-	if (srcRect != dstRect) throw "unsupported src/dst rects";
-	if (srcRect != canvasRect) throw "unsupported src/dst rects that aren't the same as the canvas rect";
+	if (srcRect != dstRect) throw PICTException("unsupported src/dst rects");
+	if (srcRect != canvasRect) throw PICTException("unsupported src/dst rects that aren't the same as the canvas rect");
 	f.Skip(2);
 
 	if (opcode == 0x0091 || opcode == 0x0099 || opcode == 0x009b) {
-		throw "unimplemented opcodes";
+		throw PICTException("unimplemented opcode");
 	}
 
 	if (!directBitsOpcode && (rowbytes & 0x8000) == 0) {
-		throw "negative rowbytes";
+		throw PICTException("negative rowbytes");
 	} else {
 		int cw = Width(canvasRect);
 		int ch = Height(canvasRect);
@@ -327,7 +332,7 @@ static ARGBPixmap ReadPICTBits(BigEndianIStream& f, int opcode, const Rect& canv
 			return Unpack4(f, cw, ch, rowbytes, componentCount);
 
 		default:
-			throw "dunno how to unpack this pixel size";
+			throw PICTException("don't know how to unpack this pixel size");
 		}
 	}
 
@@ -349,15 +354,15 @@ ARGBPixmap Pomme::Graphics::ReadPICT(std::istream& theF, bool skip512)
 	Rect canvasRect = ReadRect(f);
 	if (Width(canvasRect) < 0 || Height(canvasRect) < 0) {
 		LOG << "canvas rect: " << canvasRect << "\n";
-		throw "invalid width/height";
+		throw PICTException("invalid width/height");
 	}
 
 	LOG << std::dec << "Pict canvas: " << canvasRect << "\n";
 
 	if (0x0011 != f.Read<SInt16>())
-		throw "didn't find version opcode in PICT header";
-	if (0x02 != f.Read<Byte>()) throw "unrecognized PICT version";
-	if (0xFF != f.Read<Byte>()) throw "bad PICT header";
+		throw PICTException("didn't find version opcode in PICT header");
+	if (0x02 != f.Read<Byte>()) throw PICTException("unrecognized PICT version");
+	if (0xFF != f.Read<Byte>()) throw PICTException("bad PICT header");
 
 	ARGBPixmap pm(0, 0);
 	bool readPixmap = false;
@@ -400,7 +405,7 @@ ARGBPixmap Pomme::Graphics::ReadPICT(std::istream& theF, bool skip512)
 			if (length != 0x0A) f.Skip(length - 2);
 			Rect frameRect = ReadRect(f);
 			//LOG << "CLIP:" << frameRect << "\n";
-			if (frameRect.left < 0 || frameRect.top < 0) throw "illegal frame rect";
+			if (frameRect.left < 0 || frameRect.top < 0) throw PICTException("illegal frame rect");
 			if (frameRect != canvasRect) {
 				std::cerr << "Warning: clip rect " << frameRect << " isn't the same as the canvas rect " << canvasRect << ", using clip rect\n";
 				canvasRect = frameRect;
@@ -411,7 +416,7 @@ ARGBPixmap Pomme::Graphics::ReadPICT(std::istream& theF, bool skip512)
 		case 0x0098: // PackBitsRect
 		case 0x009A: // DirectBitsRect
 			if (readPixmap)
-				throw "already read one pixmap!";
+				throw PICTException("already read one pixmap!");
 			pm = ReadPICTBits(f, opcode, canvasRect);
 			readPixmap = true;
 			break;
@@ -427,7 +432,7 @@ ARGBPixmap Pomme::Graphics::ReadPICT(std::istream& theF, bool skip512)
 
 		default:
 			std::cerr << "unsupported opcode " << opcode << " at offset " << f.Tell() << "\n";
-			throw "unsupported PICT opcode";
+			throw PICTException("unsupported PICT opcode");
 		}
 	}
 
