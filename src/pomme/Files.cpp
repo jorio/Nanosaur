@@ -84,21 +84,15 @@ bool Pomme::Files::IsStreamPermissionAllowed(short refNum, char perm)
 //-----------------------------------------------------------------------------
 // Init
 
-void Pomme::Files::Init(const char* applName)
+void Pomme::Files::Init()
 {
 	auto hostVolume = std::make_unique<HostVolume>(0);
 	volumes.push_back(std::move(hostVolume));
 
 	short systemRefNum = openFiles.Alloc();
-	if (systemRefNum != 0)
+	if (systemRefNum != 0) {
 		throw std::logic_error("expecting 0 for system refnum");
-
-	FSSpec applSpec;
-	OSErr applSpecErr = FSMakeFSSpec(0, 0, applName, &applSpec);
-	if (noErr != applSpecErr)
-		TODOFATAL2("couldn't load applSpec, err " << applSpecErr);
-	short applRefNum = FSpOpenResFile(&applSpec, fsRdPerm);
-	UseResFile(applRefNum);
+	}
 }
 
 //-----------------------------------------------------------------------------

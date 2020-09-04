@@ -67,7 +67,7 @@ namespace Pomme {
 	
 	namespace Files
 	{
-		void Init(const char* applName);
+		void Init();
 		bool IsRefNumLegal(short refNum);
 		bool IsStreamOpen(short refNum);
 		bool IsStreamPermissionAllowed(short refNum, char perm);

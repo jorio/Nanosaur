@@ -19,7 +19,7 @@ void RegisterUnpackableTypes(void);
 int CommonMain(int argc, const char** argv)
 {
 	// Start our "machine"
-	Pomme::Init("Nanosaur\u2122");
+	Pomme::Init("Nanosaur");
 
 	// Set up globals that the game expects
 	gCoverWindow = Pomme::Graphics::GetScreenPort();
@@ -28,8 +28,18 @@ int CommonMain(int argc, const char** argv)
 	// Register format strings to unpack the structs
 	RegisterUnpackableTypes();
 
+	// Mount game archive as data volume
+	/*
 	short archiveVolumeID = Pomme::Files::MountArchiveAsVolume("nanosaur134.bin");
 	gDataSpec.vRefNum = archiveVolumeID;
+	*/
+
+	// Use application resource file
+	FSSpec applicationSpec = {};
+	if (noErr != FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":Nanosaur\u2122", &applicationSpec)) {
+		throw std::exception("Can't find application resource file.");
+	}
+	UseResFile(FSpOpenResFile(&applicationSpec, fsRdPerm));
 
 	// Start the game
 	try {

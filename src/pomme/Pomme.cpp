@@ -71,11 +71,11 @@ void HideCursor() {
 //-----------------------------------------------------------------------------
 // Our own init
 
-void Pomme::Init(const char* applName)
+void Pomme::Init(const char* windowName)
 {
 	Pomme::Time::Init();
-	Pomme::Files::Init(applName);
-	Pomme::Graphics::Init(applName);
+	Pomme::Files::Init();
+	Pomme::Graphics::Init(windowName);
 	Pomme::Sound::Init();
 	Pomme::Input::Init();
 	std::cout << "Pomme initialized\n";
