@@ -28,10 +28,6 @@
 #include 	"selfrundemo.h"
 #include "highscores.h"
 
-#if _WIN32 // some windows header defines SetPort, but we have our own implementation
-	#undef SetPort
-#endif
-
 extern	float				gFramesPerSecondFrac,gFramesPerSecond;
 extern	TQ3Point3D			gCoord;
 extern	WindowPtr			gCoverWindow;

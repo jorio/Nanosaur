@@ -9,7 +9,6 @@
 #if _WIN32
 	#undef min
 	#undef max
-	#undef SetPort
 #endif
 
 using namespace Pomme;

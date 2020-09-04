@@ -7,10 +7,6 @@
 #include "PommeEnums.h"
 #include "PommeDebug.h"
 
-#if _WIN32 // some windows header defines SetPort as a macro
-	#undef SetPort
-#endif
-
 //-----------------------------------------------------------------------------
 // Structure unpacking
 

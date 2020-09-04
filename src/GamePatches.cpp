@@ -3,12 +3,6 @@
 #include "PommeInternal.h"
 #include "input.h"
 
-
-#if _WIN32
-	#undef SetPort
-	#undef GetPort
-#endif
-
 extern TQ3Matrix4x4 gCameraWorldToViewMatrix;
 extern TQ3Matrix4x4 gCameraViewToFrustumMatrix;
 

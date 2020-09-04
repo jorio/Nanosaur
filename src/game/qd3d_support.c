@@ -26,9 +26,6 @@
 #include "3dmath.h"
 #include "selfrundemo.h"
 
-#if _WIN32 // some windows header defines SetPort, but we have our own implementation
-	#undef SetPort
-#endif
 #include "GamePatches.h" // Source port addition - for backdrop quad
 
 extern TQ3ViewObject                   gView;

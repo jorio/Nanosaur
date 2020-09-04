@@ -29,10 +29,6 @@
 #include "enemy.h"
 #include "timeportal.h"
 
-#if _WIN32 // some windows header defines SetPort, but we have our own implementation
-	#undef SetPort
-#endif
-
 extern	NewObjectDefinitionType	gNewObjectDefinition;
 extern	Byte			gCurrentAttackMode;
 extern	float			gFramesPerSecond,gFramesPerSecondFrac,gCameraRotY,gCameraRotX,gMyHealth;
