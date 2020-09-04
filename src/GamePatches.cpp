@@ -98,20 +98,26 @@ char GetTypedKey(void)
 // INPUT: myFSSpec = spec of image file
 //
 
-#include "PommeInternal.h"
-
-OSErr DrawPictureToScreen(FSSpec* myFSSpec, short x, short y)
+OSErr DrawPictureToScreen(FSSpec* spec, short x, short y)
 {
 	short refNum;
-	if (noErr != FSpOpenDF(myFSSpec, fsRdPerm, &refNum))
-		TODOFATAL2(Pascal2C(myFSSpec->name));
+	
+	OSErr error = FSpOpenDF(spec, fsRdPerm, &refNum);
+	if (noErr != error) {
+		TODO2("Couldn't open picture: " << Pascal2C(spec->name));
+		return error;
+	}
+	
 	auto& stream = Pomme::Files::GetStream(refNum);
 	auto pict = Pomme::Graphics::ReadPICT(stream, true);
+	FSClose(refNum);
+	
 	GrafPtr oldPort;
 	GetPort(&oldPort);
 	SetPort(Pomme::Graphics::GetScreenPort());
 	Pomme::Graphics::DrawARGBPixmap(x, y, pict);
 	SetPort(oldPort);
+	
 	return noErr;
 }
 
