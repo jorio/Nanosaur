@@ -156,6 +156,37 @@ OSErr HostVolume::OpenFork(const FSSpec* spec, ForkType forkType, char permissio
 
 	handle = std::make_unique<HostForkHandle>(forkType, permission, path);
 
+	if (forkType == ResourceFork)
+	{
+		// ----------------
+		// Detect AppleDouble
+
+		auto f = Pomme::BigEndianIStream(handle->GetStream());
+		if (0x0005160700020000ULL != f.Read<UInt64>()) {
+			throw std::exception("Not ADF magic");
+		}
+		f.Skip(16);
+		auto numOfEntries = f.Read<UInt16>();
+		UInt32 adfResForkLen = 0;
+		UInt32 adfResForkOff = 0;
+		bool foundEntryID2 = false;
+		for (int i = 0; i < numOfEntries; i++) {
+			auto entryID = f.Read<UInt32>();
+			auto offset = f.Read<UInt32>();
+			auto length = f.Read<UInt32>();
+			if (entryID == 2) {
+				foundEntryID2 = true;
+				f.Goto(offset);
+				adfResForkLen = length;
+				adfResForkOff = offset;
+				break;
+			}
+		}
+		if (!foundEntryID2) {
+			throw std::exception("Didn't find entry ID=2 in ADF");
+		}
+	}
+
 	return noErr;
 }
 

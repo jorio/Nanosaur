@@ -51,27 +51,7 @@ short FSpOpenResFile(const FSSpec* spec, char permission) {
 	}
 
 	auto f = Pomme::BigEndianIStream(Pomme::Files::GetStream(slot));
-
-	// ----------------
-	// Detect AppleDouble
-
-	if (0x0005160700020000ULL != f.Read<UInt64>())
-		TODOFATAL2("Not ADF magic");
-	f.Skip(16);
-	auto numOfEntries = f.Read<UInt16>();
-	UInt32 adfResForkLen = 0;
-	UInt32 adfResForkOff = 0;
-	for (int i = 0; i < numOfEntries; i++) {
-		auto entryID = f.Read<UInt32>();
-		auto offset = f.Read<UInt32>();
-		auto length = f.Read<UInt32>();
-		if (entryID == 2) {
-			f.Goto(offset);
-			adfResForkLen = length;
-			adfResForkOff = offset;
-			break;
-		}
-	}
+	auto resForkOff = f.Tell();
 
 	// ----------------
 	// Load resource fork
@@ -83,8 +63,8 @@ short FSpOpenResFile(const FSSpec* spec, char permission) {
 
 	// -------------------
 	// Resource Header
-	UInt32 dataSectionOff = f.Read<UInt32>() + adfResForkOff;
-	UInt32 mapSectionOff = f.Read<UInt32>() + adfResForkOff;
+	UInt32 dataSectionOff = f.Read<UInt32>() + resForkOff;
+	UInt32 mapSectionOff = f.Read<UInt32>() + resForkOff;
 	UInt32 dataSectionLen = f.Read<UInt32>();
 	UInt32 mapSectionLen = f.Read<UInt32>();
 	f.Skip(112 + 128); // system- (112) and app- (128) reserved data
