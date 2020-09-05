@@ -21,6 +21,27 @@ ARGBPixmap::ARGBPixmap(int w, int h) :
 	Fill(255, 0, 255);
 }
 
+ARGBPixmap::ARGBPixmap(ARGBPixmap&& other) noexcept
+	: width(other.width)
+	, height(other.height)
+	, data(std::move(other.data))
+{
+	other.width = -1;
+	other.height = -1;
+}
+
+ARGBPixmap& ARGBPixmap::operator=(ARGBPixmap&& other) noexcept
+{
+	if (this != &other) {
+		width = other.width;
+		height = other.height;
+		data = std::move(other.data);
+		other.width = -1;
+		other.height = -1;
+	}
+	return *this;
+}
+
 void ARGBPixmap::Fill(UInt8 red, UInt8 green, UInt8 blue, UInt8 alpha)
 {
 	for (int i = 0; i < width * height * 4; i += 4) {

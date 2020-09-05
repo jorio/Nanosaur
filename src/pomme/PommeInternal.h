@@ -115,6 +115,8 @@ namespace Pomme {
 
 			ARGBPixmap();
 			ARGBPixmap(int w, int h);
+			ARGBPixmap(ARGBPixmap&& other) noexcept;
+			ARGBPixmap& operator=(ARGBPixmap&& other) noexcept;
 			void Fill(UInt8 red, UInt8 green, UInt8 blue, UInt8 alpha = 0xFF);
 			void Plot(int x, int y, UInt32 color);
 			void WriteTGA(const char* path) const;
