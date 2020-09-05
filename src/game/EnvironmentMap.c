@@ -27,6 +27,7 @@
 extern	TQ3Matrix4x4 		gWorkMatrix;
 extern	ObjNode			*gFirstNodePtr;
 extern	QD3DSetupOutputType		*gGameViewInfoPtr;
+extern	long				gNodesDrawn;
 
 /****************************/
 /*    PROTOTYPES            */
@@ -88,6 +89,7 @@ TQ3Status	status;
 			status = Q3TriMesh_Submit(&gReflectionMapQueue[i], viewInfo->viewObject);	
 		if (status != kQ3Success)
 			DoFatalAlert("SubmitReflectionMapQueue: Q3TriMesh_Submit failed!");
+		gNodesDrawn++;
 	}
 	
 	QD3D_SetTextureFilter(kQATextureFilter_Fast);						// set normal textures

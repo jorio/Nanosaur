@@ -1,10 +1,13 @@
 #include <QD3DMath.h>
+#include <SDL.h>
 #include <SDL_opengl.h>
 #include "PommeInternal.h"
 #include "input.h"
 
 extern TQ3Matrix4x4 gCameraWorldToViewMatrix;
 extern TQ3Matrix4x4 gCameraViewToFrustumMatrix;
+extern long gNodesDrawn;
+extern SDL_Window* gSDLWindow;
 
 Boolean IsSphereInConeOfVision(TQ3Point3D* coord, float radius, float hither, float yon)
 {
@@ -140,4 +143,50 @@ void DumpGLPixels(const char* outFN)
 	out.write(buf.data(), buf.size());
 	
 	printf("Screenshot saved to %s\n", outFN);
+}
+
+//-----------------------------------------------------------------------------
+// SDL maintenance
+
+static struct {
+	UInt32 lastUpdateAt = 0;
+	const UInt32 updateInterval = 250;
+	UInt32 frameAccumulator = 0;
+	char titleBuffer[1024];
+} debugText;
+
+void DoSDLMaintenance()
+{
+#if _DEBUG
+	UInt32 now = SDL_GetTicks();
+	UInt32 ticksElapsed = now - debugText.lastUpdateAt;
+	if (ticksElapsed >= debugText.updateInterval) {
+		float fps = 1000 * debugText.frameAccumulator / (float)ticksElapsed;
+		snprintf(debugText.titleBuffer, 1024, "nsaur - %d fps - %d nodes drawn", (int)round(fps), gNodesDrawn);
+		SDL_SetWindowTitle(gSDLWindow, debugText.titleBuffer);
+		debugText.frameAccumulator = 0;
+		debugText.lastUpdateAt = now;
+	}
+	debugText.frameAccumulator++;
+#endif
+
+	SDL_Event event;
+	while (SDL_PollEvent(&event)) {
+		switch (event.type) {
+		case SDL_QUIT:
+			throw Pomme::QuitRequest();
+			break;
+
+		case SDL_WINDOWEVENT:
+			switch (event.window.event) {
+			case SDL_WINDOWEVENT_CLOSE:
+				throw Pomme::QuitRequest();
+				break;
+			case SDL_WINDOWEVENT_RESIZED:
+				printf("Window Resized!!\n");
+				break;
+			}
+			break;
+		}
+	}
 }

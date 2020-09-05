@@ -77,6 +77,8 @@ TQ3Object	gKeepBackfaceStyleObject = nil;
 long		gNumObjsInDeleteQueue = 0;
 ObjNode		*gObjectDeleteQueue[OBJ_DEL_Q_SIZE];
 
+long		gNodesDrawn = 0;  // Source port addition - nodes drawn during a frame (for statistics)
+
 //============================================================================================================
 //============================================================================================================
 //============================================================================================================
@@ -452,6 +454,8 @@ TQ3ViewObject	view = setupInfo->viewObject;
 Boolean			cacheMode;
 #endif
 
+	gNodesDrawn = 0;
+
 	if (gFirstNodePtr == nil)							// see if there are any objects
 		return;
 
@@ -526,6 +530,7 @@ Boolean			cacheMode;
 			switch(theNode->Genre)
 			{
 				case	SKELETON_GENRE:	
+						gNodesDrawn++;
 						GetModelCurrentPosition(theNode->Skeleton);			
 						UpdateSkinnedGeometry(theNode);
 
@@ -537,6 +542,7 @@ Boolean			cacheMode;
 				case	DISPLAY_GROUP_GENRE:
 						if (theNode->BaseGroup)
 						{
+							gNodesDrawn++;
 							myStatus = Q3Object_Submit(theNode->BaseGroup, view);
 							if ( myStatus == kQ3Failure )
 								DoFatalAlert("DrawObjects: Q3Object_Submit failed!");
