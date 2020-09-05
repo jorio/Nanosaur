@@ -28,6 +28,7 @@ namespace Pomme {
 		StreamPosGuard GuardPos();
 		std::vector<Byte> ReadBytes(int n);
 		std::string ReadPascalString();
+		std::string ReadPascalString_FixedLengthRecord(const int maxChars);
 		double Read80BitFloat();
 
 		template<typename T> T Read() {

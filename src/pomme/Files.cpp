@@ -244,32 +244,9 @@ OSErr ResolveAlias(const FSSpec* spec, AliasHandle alias, FSSpec* target, Boolea
 	f.Skip(2); // drive type (0=HD, 1=network, 2=400K FD, 3=800K FD, 4=1.4M FD, 5=misc.ejectable)
 	f.Skip(4); // parent directory ID
 
-	auto targetFilenameStr63 = f.ReadBytes(64);
+	auto targetFilename = f.ReadPascalString_FixedLengthRecord(63);
 
-	memcpy((char*)target->name, targetFilenameStr63.data(), 64);
-	target->parID = spec->parID;
-	target->vRefNum = spec->vRefNum;
-
-	if (!IsVolumeLegal(target->vRefNum)) return nsvErr;
-	
-	auto& volume = *volumes.at(target->vRefNum);
-
-	if (!volume.IsDirectoryIDLegal(target->parID)) {
-		return dirNFErr;
-	}
-
-	//auto path = ToPath(*target);
-	if (kind == 0 && !volume.IsRegularFile(target)) {
-		//std::cerr << "alias target file doesn't exist: " << path << "\n";
-		return fnfErr;
-	}
-	else if (kind == 1 && !volume.IsDirectory(target)) {
-		//std::cerr << "alias target dir doesn't exist: " << path << "\n";
-		return dirNFErr;
-	}
-
-	LOG << "alias OK: " << Pascal2Cpp(target->name) << "\n";
-	return noErr;
+	return FSMakeFSSpec(spec->vRefNum, spec->parID, targetFilename.c_str(), target);
 }
 
 OSErr FSRead(short refNum, long* count, Ptr buffPtr)

@@ -35,6 +35,13 @@ std::string Pomme::BigEndianIStream::ReadPascalString() {
 	return std::string((const char*)&bytes.data()[0]);
 }
 
+std::string Pomme::BigEndianIStream::ReadPascalString_FixedLengthRecord(const int maxChars) {
+	int length = Read<UInt8>();
+	char buf[256];
+	stream.read(buf, maxChars);
+	return std::string(buf, length);
+}
+
 double Pomme::BigEndianIStream::Read80BitFloat() {
 	auto bytes = ReadBytes(10);
 	return ConvertFromIeeeExtended(bytes.data());
