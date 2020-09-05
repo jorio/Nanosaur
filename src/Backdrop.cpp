@@ -51,21 +51,26 @@ void DisposeBackdropTexture()
 
 void RenderBackdropQuad()
 {
-	if (!backdropTextureAllocated || !glIsTexture(backdropTexture))
+	if (!backdropTextureAllocated) {
 		return;
+	}
 	
+	int ww, wh;
 	GLint vp[4];
+
+	SDL_GetWindowSize(gSDLWindow, &ww, &wh);
 	glGetIntegerv(GL_VIEWPORT, vp);
+
 	glPushAttrib(GL_ENABLE_BIT);
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_CULL_FACE);
 	glDisable(GL_SCISSOR_TEST);
 	glEnable(GL_TEXTURE_2D);
-	glViewport(0, 0, GAME_VIEW_WIDTH, GAME_VIEW_HEIGHT);
+	glViewport(0, 0, ww, wh);
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
 	glLoadIdentity();
-	glOrtho(0.0, GAME_VIEW_WIDTH, GAME_VIEW_HEIGHT, 0, 0, 1);
+	glOrtho(0.0, ww, wh, 0, 0, 1);
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
 	glLoadIdentity();
@@ -85,9 +90,9 @@ void RenderBackdropQuad()
 
 	glBegin(GL_TRIANGLE_STRIP);
 	glTexCoord2f(0.0, 0.0); glVertex2i(0, 0);
-	glTexCoord2f(1.0, 0.0); glVertex2i(640, 0);
-	glTexCoord2f(0.0, 1.0); glVertex2i(0, 480);
-	glTexCoord2f(1.0, 1.0); glVertex2i(640, 480);
+	glTexCoord2f(1.0, 0.0); glVertex2i(ww, 0);
+	glTexCoord2f(0.0, 1.0); glVertex2i(0,  wh);
+	glTexCoord2f(1.0, 1.0); glVertex2i(ww, wh);
 	glEnd();
 
 	if (exclusiveGLContextValid) { // in exclusive GL mode, force swap buffer

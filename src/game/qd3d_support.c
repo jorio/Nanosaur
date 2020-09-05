@@ -363,7 +363,7 @@ Rect					r;
 extern SDL_Window*		gSDLWindow;
 	int ww, wh;
 	SDL_GL_GetDrawableSize(gSDLWindow, &ww, &wh);
-	r = { 0 /*.top*/, 0 /*.left*/, (SInt16)wh /*.bottom*/, (SInt16)ww /*.right*/ };
+	r = { 0 /*.top*/, 0 /*.left*/, (SInt16)GAME_VIEW_HEIGHT /*.bottom*/, (SInt16)GAME_VIEW_WIDTH /*.right*/ };
 
 #else
 			/* SEE IF DOING PIXMAP CONTEXT */
@@ -392,6 +392,11 @@ extern SDL_Window*		gSDLWindow;
 	drawContexData.pane.min.y += gAdditionalClipping*.75;
 	drawContexData.pane.max.y -= gAdditionalClipping*.75;
 	
+	// Source port addition
+	drawContexData.pane.min.x *= ww / (float)(GAME_VIEW_WIDTH);					// scale clip pane to window size
+	drawContexData.pane.max.x *= ww / (float)(GAME_VIEW_WIDTH);
+	drawContexData.pane.min.y *= wh / (float)(GAME_VIEW_HEIGHT);
+	drawContexData.pane.max.y *= wh / (float)(GAME_VIEW_HEIGHT);
 	
 	
 	drawContexData.paneState = kQ3True;										// use bounds?
