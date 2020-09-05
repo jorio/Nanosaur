@@ -1,129 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="src\game\3DMF.c">
-      <Filter>Game</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\Bones.c">
-      <Filter>Game</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\Camera.c">
-      <Filter>Game</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\Collision.c">
-      <Filter>Game</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\Effects.c">
-      <Filter>Game</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\Enemy.c">
-      <Filter>Game</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\Enemy_Ptera.c">
-      <Filter>Game</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\Enemy_Rex.c">
-      <Filter>Game</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\Enemy_Spitter.c">
-      <Filter>Game</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\Enemy_Stego.c">
-      <Filter>Game</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\Enemy_TriCer.c">
-      <Filter>Game</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\EnvironmentMap.c">
-      <Filter>Game</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\File.c">
-      <Filter>Game</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\HighScores.c">
-      <Filter>Game</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\Infobar.c">
-      <Filter>Game</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\input.c">
-      <Filter>Game</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\Items.c">
-      <Filter>Game</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\Main.c">
-      <Filter>Game</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\MainMenu.c">
-      <Filter>Game</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\Misc.c">
-      <Filter>Game</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\Movie.c">
-      <Filter>Game</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\MyGuy.c">
-      <Filter>Game</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\Objects.c">
-      <Filter>Game</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\Objects2.c">
-      <Filter>Game</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\Pickups.c">
-      <Filter>Game</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\Player_Control.c">
-      <Filter>Game</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\QD3D_Geometry.c">
-      <Filter>Game</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\QD3D_Support.c">
-      <Filter>Game</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\SelfRunDemo.c">
-      <Filter>Game</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\SkeletonAnim.c">
-      <Filter>Game</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\SkeletonJoints.c">
-      <Filter>Game</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\SkeletonObj.c">
-      <Filter>Game</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\Sound.c">
-      <Filter>Game</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\Sprites.c">
-      <Filter>Game</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\Terrain.c">
-      <Filter>Game</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\Terrain2.c">
-      <Filter>Game</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\TimePortal.c">
-      <Filter>Game</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\Title.c">
-      <Filter>Game</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\Traps.c">
-      <Filter>Game</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\Triggers.c">
-      <Filter>Game</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\Weapons.c">
-      <Filter>Game</Filter>
-    </ClCompile>
     <ClCompile Include="src\pomme\Pomme.cpp">
       <Filter>Pomme</Filter>
     </ClCompile>
@@ -145,9 +22,6 @@
     </ClCompile>
     <ClCompile Include="src\pomme\QD3D.cpp">
       <Filter>Pomme</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\3DMath.c">
-      <Filter>Game</Filter>
     </ClCompile>
     <ClCompile Include="src\game\3DMF.c">
       <Filter>Game</Filter>
@@ -290,9 +164,6 @@
       <Filter>Pomme</Filter>
     </ClCompile>
     <ClCompile Include="src\Backdrop.cpp" />
-    <ClCompile Include="src\game\Windows.c">
-      <Filter>Game</Filter>
-    </ClCompile>
     <ClCompile Include="src\pomme\maconv\utils\bit_reader.cc">
       <Filter>Pomme\Files\maconv</Filter>
     </ClCompile>
@@ -350,6 +221,135 @@
     <ClCompile Include="src\pomme\WinInput.cpp">
       <Filter>Pomme\Input</Filter>
     </ClCompile>
+    <ClCompile Include="src\game\Enemy_Ptera.c">
+      <Filter>Game\Enemies</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\Enemy_Rex.c">
+      <Filter>Game\Enemies</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\Enemy_Spitter.c">
+      <Filter>Game\Enemies</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\Enemy_Stego.c">
+      <Filter>Game\Enemies</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\Enemy_TriCer.c">
+      <Filter>Game\Enemies</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\TimePortal.c">
+      <Filter>Game\Items</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\Traps.c">
+      <Filter>Game\Items</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\3DMF.c">
+      <Filter>Game\QD3D</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\SkeletonAnim.c">
+      <Filter>Game\Skeleton</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\SkeletonJoints.c">
+      <Filter>Game\Skeleton</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\SkeletonObj.c">
+      <Filter>Game\Skeleton</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\Bones.c">
+      <Filter>Game\Skeleton</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\Infobar.c">
+      <Filter>Game\Screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\HighScores.c">
+      <Filter>Game\Screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\MainMenu.c">
+      <Filter>Game\Screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\Title.c">
+      <Filter>Game\Screens</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\Enemy.c">
+      <Filter>Game\Enemies</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\Terrain.c">
+      <Filter>Game\Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\Terrain2.c">
+      <Filter>Game\Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\MyGuy.c">
+      <Filter>Game\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\Pickups.c">
+      <Filter>Game\Items</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\Items.c">
+      <Filter>Game\Items</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\File.c">
+      <Filter>Game\System</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\Main.c">
+      <Filter>Game\System</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\Collision.c">
+      <Filter>Game\System</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\Objects.c">
+      <Filter>Game\System</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\Objects2.c">
+      <Filter>Game\System</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\Sprites.c">
+      <Filter>Game\System</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\Sound.c">
+      <Filter>Game\System</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\Windows.c">
+      <Filter>Game\System</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\SelfRunDemo.c">
+      <Filter>Game\System</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\input.c">
+      <Filter>Game\System</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\Misc.c">
+      <Filter>Game\System</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\Movie.c">
+      <Filter>Game\System</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\Player_Control.c">
+      <Filter>Game\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\QD3D_Geometry.c">
+      <Filter>Game\QD3D</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\QD3D_Support.c">
+      <Filter>Game\QD3D</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\3DMath.c">
+      <Filter>Game\QD3D</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\Camera.c">
+      <Filter>Game\QD3D</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\EnvironmentMap.c">
+      <Filter>Game\QD3D</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\Effects.c">
+      <Filter>Game\Items</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\Triggers.c">
+      <Filter>Game\Items</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\Weapons.c">
+      <Filter>Game\Player</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\pomme\PommeEnums.h">
@@ -361,121 +361,13 @@
     <ClInclude Include="src\pomme\PommeTypes.h">
       <Filter>Pomme</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\3dmf.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\bones.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\camera.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\collision.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\effects.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\enemy.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\environmentmap.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\file.h">
-      <Filter>Game</Filter>
-    </ClInclude>
     <ClInclude Include="src\game\Globals.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\highscores.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\infobar.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\input.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\items.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\main.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\mainmenu.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\misc.h">
       <Filter>Game</Filter>
     </ClInclude>
     <ClInclude Include="src\game\mobjTypes.h">
       <Filter>Game</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\movie.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\myguy.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\mytraps.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\objects.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\objtypes.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\pickups.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\player_control.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\qd3d_geometry.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\QD3D_Support.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\selfrundemo.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\skeletonanim.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\skeletonJoints.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\skeletonObj.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\sound2.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\sprites.h">
-      <Filter>Game</Filter>
-    </ClInclude>
     <ClInclude Include="src\game\Structs.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\Terrain.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\timeportal.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\title.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\triggers.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\weapons.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\windows_nano.h">
       <Filter>Game</Filter>
     </ClInclude>
     <ClInclude Include="src\pomme\Pomme.h">
@@ -489,9 +381,6 @@
     </ClInclude>
     <ClInclude Include="src\pomme\PommeTypes.h">
       <Filter>Pomme</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\3DMath.h">
-      <Filter>Game</Filter>
     </ClInclude>
     <ClInclude Include="src\game\3dmf.h">
       <Filter>Game</Filter>
@@ -662,6 +551,117 @@
     <ClInclude Include="src\Pomme\SysFont.h">
       <Filter>Pomme\Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="src\game\timeportal.h">
+      <Filter>Game\Items</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\3dmf.h">
+      <Filter>Game\QD3D</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\skeletonObj.h">
+      <Filter>Game\Skeleton</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\skeletonanim.h">
+      <Filter>Game\Skeleton</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\skeletonJoints.h">
+      <Filter>Game\Skeleton</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\bones.h">
+      <Filter>Game\Skeleton</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\infobar.h">
+      <Filter>Game\Screens</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\highscores.h">
+      <Filter>Game\Screens</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\mainmenu.h">
+      <Filter>Game\Screens</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\title.h">
+      <Filter>Game\Screens</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\enemy.h">
+      <Filter>Game\Enemies</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\Terrain.h">
+      <Filter>Game\Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\myguy.h">
+      <Filter>Game\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\mytraps.h">
+      <Filter>Game\Items</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\pickups.h">
+      <Filter>Game\Items</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\items.h">
+      <Filter>Game\Items</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\file.h">
+      <Filter>Game\System</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\main.h">
+      <Filter>Game\System</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\collision.h">
+      <Filter>Game\System</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\objects.h">
+      <Filter>Game\System</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\objtypes.h">
+      <Filter>Game\System</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\sprites.h">
+      <Filter>Game\System</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\sound2.h">
+      <Filter>Game\System</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\windows_nano.h">
+      <Filter>Game\System</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\selfrundemo.h">
+      <Filter>Game\System</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\input.h">
+      <Filter>Game\System</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\misc.h">
+      <Filter>Game\System</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\movie.h">
+      <Filter>Game\System</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\player_control.h">
+      <Filter>Game\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\qd3d_geometry.h">
+      <Filter>Game\QD3D</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\QD3D_Support.h">
+      <Filter>Game\QD3D</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\3DMath.h">
+      <Filter>Game\QD3D</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\camera.h">
+      <Filter>Game\QD3D</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\environmentmap.h">
+      <Filter>Game\QD3D</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\effects.h">
+      <Filter>Game\Items</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\triggers.h">
+      <Filter>Game\Items</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\weapons.h">
+      <Filter>Game\Player</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Game">
@@ -693,6 +693,30 @@
     </Filter>
     <Filter Include="Pomme\Sound">
       <UniqueIdentifier>{1118f599-240c-4c8b-a10f-3eca2261fd95}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Enemies">
+      <UniqueIdentifier>{8e59cff3-4a1a-4e71-88c0-661dd23512ac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Items">
+      <UniqueIdentifier>{18baf9a9-85ac-4cfc-ad94-46530d22cfc3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\QD3D">
+      <UniqueIdentifier>{2f2f4d7f-2f3c-4047-9621-2cc37d729b7e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Skeleton">
+      <UniqueIdentifier>{17ec421e-d1ed-4a62-b624-4312781a08f2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Screens">
+      <UniqueIdentifier>{ba58521c-51e9-4154-bceb-354463ad0b83}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\System">
+      <UniqueIdentifier>{b863b801-6f1c-4562-a803-b2dcf8813691}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Terrain">
+      <UniqueIdentifier>{14b782d2-79ff-4370-bdba-d1227d32ba23}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Player">
+      <UniqueIdentifier>{7e295514-08bc-4539-92c6-d75726577e2a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
