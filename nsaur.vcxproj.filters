@@ -347,7 +347,7 @@
     <ClCompile Include="src\pomme\Files\ArchiveVolume.cpp">
       <Filter>Pomme\Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\pomme\membuf.cpp">
+    <ClCompile Include="src\pomme\memstream.cpp">
       <Filter>Pomme</Filter>
     </ClCompile>
   </ItemGroup>
@@ -659,7 +659,7 @@
     <ClInclude Include="src\pomme\Files\ArchiveVolume.h">
       <Filter>Pomme\Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\pomme\membuf.h">
+    <ClInclude Include="src\pomme\memstream.h">
       <Filter>Pomme</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,7 +1,6 @@
 #include <iostream>
-#include <strstream>
 #include "PommeInternal.h"
-#include "membuf.h"
+#include "memstream.h"
 #include "Files/ArchiveVolume.h"
 #include "pomme/maconv/stuffit/methods/arsenic.h"
 
@@ -17,15 +16,13 @@ using namespace Pomme::Files;
 struct ArchiveForkHandle : public ForkHandle
 {
 	std::vector<char> rawData;
-	membuf membuf;
-	std::iostream stream;
+	memstream stream;
 
 public:
 	ArchiveForkHandle(ForkType _forkType, char _perm, std::vector<char>&& _rawData)
 		: ForkHandle(_forkType, _perm)
 		, rawData(_rawData)
-		, membuf(rawData)
-		, stream(&membuf)
+		, stream(rawData)
 	{
 	}
 

@@ -2,7 +2,8 @@
 #include <chrono>
 #include <iostream>
 #include <cassert>
-#include <strstream>
+
+#include "memstream.h"
 #include "PommeInternal.h"
 #include "Sound/cmixer.h"
 
@@ -243,8 +244,8 @@ static void ProcessSoundCmd(SndChannelPtr chan, const Ptr sndhdr)
 	GetEx(chan).Recycle();
 
 	// PACKED RECORD
-	std::istrstream f0(sndhdr, 22+42);
-	Pomme::BigEndianIStream f(f0);
+	memstream headerStream(sndhdr, 22+42);
+	Pomme::BigEndianIStream f(headerStream);
 
 	if (f.Read<SInt32>() != 0) {
 		TODOFATAL2("expected 0 at the beginning of an snd");
@@ -440,8 +441,8 @@ static void Expect(const T a, const T b, const char* msg)
 // IM:S:2-58 "MyGetSoundHeaderOffset"
 OSErr GetSoundHeaderOffset(SndListHandle sndHandle, long* offset)
 {
-	std::istrstream f0((Ptr)*sndHandle, GetHandleSize((Handle)sndHandle));
-	Pomme::BigEndianIStream f(f0);
+	memstream sndStream((Ptr)*sndHandle, GetHandleSize((Handle)sndHandle));
+	Pomme::BigEndianIStream f(sndStream);
 
 	// Skip everything before sound commands
 	Expect<SInt16>(1, f.Read<SInt16>(), "'snd ' format");

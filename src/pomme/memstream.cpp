@@ -1,4 +1,7 @@
-#include "membuf.h"
+#include "memstream.h"
+
+//-----------------------------------------------------------------------------
+// membuf
 
 membuf::membuf(char* p, size_t n)
 {
@@ -51,4 +54,19 @@ std::streambuf::pos_type membuf::seekoff(off_type off, std::ios_base::seekdir di
 std::streambuf::pos_type membuf::seekpos(std::streampos pos, std::ios_base::openmode mode)
 {
 	return seekoff(pos - pos_type(off_type(0)), std::ios_base::beg, mode);
+}
+
+//-----------------------------------------------------------------------------
+// memstream
+
+memstream::memstream(char* p, size_t n)
+	: membuf(p, n)
+	, std::iostream(this)
+{
+}
+
+memstream::memstream(std::vector<char>& data)
+	: membuf(data)
+	, std::iostream(this)
+{
 }

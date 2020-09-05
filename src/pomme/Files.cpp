@@ -1,11 +1,10 @@
 #include <filesystem>
 #include <iostream>
-#include <fstream>
 #include <sstream>
-#include <strstream>
 
 #include "PommeInternal.h"
 #include "GrowablePool.h"
+#include "memstream.h"
 #include "Files/Volume.h"
 #include "Files/HostVolume.h"
 #include "Files/ArchiveVolume.h"
@@ -221,7 +220,7 @@ OSErr ResolveAlias(const FSSpec* spec, AliasHandle alias, FSSpec* target, Boolea
 		return unimpErr;
 	}
 
-	std::istrstream istr(*alias, GetHandleSize(alias));
+	memstream istr(*alias, GetHandleSize(alias));
 	Pomme::BigEndianIStream f(istr);
 
 	f.Skip(4); // application signature

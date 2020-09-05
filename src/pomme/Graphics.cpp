@@ -1,7 +1,7 @@
 #include "Pomme.h"
 #include "PommeInternal.h"
 #include "SysFont.h"
-#include <strstream>
+#include "memstream.h"
 #include <iostream>
 #include <SDL.h>
 #include <Quesa.h>
@@ -167,7 +167,7 @@ PicHandle GetPicture(short PICTresourceID)
 	Handle rawResource = GetResource('PICT', PICTresourceID);
 	if (rawResource == nil)
 		return nil;
-	std::istrstream substream(*rawResource, GetHandleSize(rawResource));
+	memstream substream(*rawResource, GetHandleSize(rawResource));
 	ARGBPixmap pm = ReadPICT(substream, false);
 	ReleaseResource(rawResource);
 
