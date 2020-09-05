@@ -41,15 +41,6 @@ namespace Pomme::Files
 		{}
 
 		virtual ~Volume() = default;
-
-		//-----------------------------------------------------------------------------
-		// Utilities
-
-		virtual bool IsRegularFile(const FSSpec*) = 0;
-
-		virtual bool IsDirectory(const FSSpec*) = 0;
-
-		virtual bool IsDirectoryIDLegal(long dirID) const = 0;
 		
 		//-----------------------------------------------------------------------------
 		// Toolbox API Implementation

@@ -49,21 +49,6 @@ HostVolume::HostVolume(short vRefNum)
 //-----------------------------------------------------------------------------
 // Public utilities
 
-bool HostVolume::IsRegularFile(const FSSpec* spec)
-{
-	return std::filesystem::is_regular_file(ToPath(*spec));
-}
-
-bool HostVolume::IsDirectory(const FSSpec* spec)
-{
-	return std::filesystem::is_directory(ToPath(*spec));
-}
-
-bool HostVolume::IsDirectoryIDLegal(long dirID) const
-{
-	return dirID >= 0 && dirID < directories.size();
-}
-
 long HostVolume::GetDirectoryID(const std::filesystem::path& dirPath)
 {
 	if (std::filesystem::exists(dirPath) && !std::filesystem::is_directory(dirPath)) {
@@ -252,11 +237,9 @@ static bool CaseInsensitiveAppendToPath(
 
 OSErr HostVolume::FSMakeFSSpec(long dirID, const std::string& fileName, FSSpec* spec)
 {
-	if (directories.empty())
-		throw std::exception("HostVolume::FSMakeFSSpec: No directories registered.");
-
-	if (!IsDirectoryIDLegal(dirID))
-		throw std::exception("HostVolume::FSMakeFSSpec: Illegal dirID.");
+	if (dirID < 0 || dirID >= directories.size()) {
+		throw std::exception("HostVolume::FSMakeFSSpec: directory ID not registered.");
+	}
 
 	auto path = directories[dirID];
 	std::string suffix = fileName;

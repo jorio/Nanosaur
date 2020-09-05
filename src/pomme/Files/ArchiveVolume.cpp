@@ -44,19 +44,15 @@ ArchiveVolume::ArchiveVolume(short vRefNum, const std::string& pathToArchiveOnHo
 //-----------------------------------------------------------------------------
 // Public utilities
 
-bool ArchiveVolume::IsRegularFile(const FSSpec* spec)
+long ArchiveVolume::GetDirectoryID(const std::string& dirPath)
 {
-	return files.contains(FSSpecToPath(spec));
-}
-
-bool ArchiveVolume::IsDirectory(const FSSpec* spec)
-{
-	return std::find(directories.begin(), directories.end(), FSSpecToPath(spec)) != directories.end();
-}
-
-bool ArchiveVolume::IsDirectoryIDLegal(long dirID) const
-{
-	return dirID >= 0 && dirID < directories.size();
+	for (int i = 0; i < directories.size(); i++) {
+		if (dirPath == directories[i]) {
+			//LOG << "directory [ID already allocated] " << i << ": " << dirPath << "\n";
+			return i;
+		}
+	}
+	return -1;
 }
 
 //-----------------------------------------------------------------------------
@@ -142,24 +138,14 @@ OSErr ArchiveVolume::OpenFork(
 	return noErr;
 }
 
-long ArchiveVolume::GetDirectoryID(const std::string& dirPath)
-{
-	for (int i = 0; i < directories.size(); i++) {
-		if (dirPath == directories[i]) {
-			//LOG << "directory [ID already allocated] " << i << ": " << dirPath << "\n";
-			return i;
-		}
-	}
-	return -1;
-}
-
 //-----------------------------------------------------------------------------
 // Implementation
 
 OSErr ArchiveVolume::FSMakeFSSpec(long dirID, const std::string& fileName, FSSpec* spec)
 {
-	if (!IsDirectoryIDLegal(dirID))
-		throw std::exception("ArchiveVolume::FSMakeFSSpec: Illegal dirID.");
+	if (dirID < 0 || dirID >= directories.size()) {
+		throw std::exception("ArchiveVolume::FSMakeFSSpec: directory ID not registered.");
+	}
 
 	auto path = directories[dirID];
 	std::string suffix = UppercaseCopy(fileName);
@@ -202,7 +188,9 @@ OSErr ArchiveVolume::FSMakeFSSpec(long dirID, const std::string& fileName, FSSpe
 
 	auto pathKey = FSSpecToPath(spec);
 
-	return IsRegularFile(spec) || IsDirectory(spec) ? noErr : fnfErr;
+	return files.contains(pathKey) || GetDirectoryID(pathKey) != -1
+		? noErr
+		: fnfErr;
 }
 
 OSErr ArchiveVolume::DirCreate(long parentDirID, const std::string& directoryName, long* createdDirID)

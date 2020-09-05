@@ -24,12 +24,6 @@ namespace Pomme::Files
 		//-----------------------------------------------------------------------------
 		// Utilities
 
-		bool IsRegularFile(const FSSpec*) override;
-
-		bool IsDirectory(const FSSpec*) override;
-
-		bool IsDirectoryIDLegal(long dirID) const override;
-
 		long GetDirectoryID(const std::filesystem::path& dirPath);
 
 		//-----------------------------------------------------------------------------
