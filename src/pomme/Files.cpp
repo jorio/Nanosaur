@@ -50,7 +50,7 @@ void Pomme::Files::CloseStream(short refNum)
 	}
 	openFiles[refNum].reset(nullptr);
 	openFiles.Dispose(refNum);
-	LOG << "Closed stream " << refNum << "\n";
+	LOG << "Stream #" << refNum << " closed\n";
 }
 
 bool Pomme::Files::IsStreamOpen(short refNum)
@@ -112,16 +112,13 @@ static OSErr OpenFork(const FSSpec* spec, ForkType forkType, char permission, sh
 	if (rc != noErr) {
 		openFiles.Dispose(newRefNum);
 		newRefNum = -1;
+		LOG << "Failed to open " << Pascal2Cpp(spec->name) << "\n";
+	} else {
+		LOG << "Stream #" << newRefNum << " opened: " << Pascal2Cpp(spec->name) << ", " << (forkType == DataFork ? "data" : "rsrc") << "\n";
 	}
 	if (refNum) {
 		*refNum = newRefNum;
 	}
-	if (rc == noErr) {
-		LOG << "Stream #" << newRefNum << " opened: " << Pascal2Cpp(spec->name) << ", " << (forkType==DataFork?"data":"rsrc") << "\n";
-	} else {
-		LOG << "Failed to open " << Pascal2Cpp(spec->name) << "\n";
-	}
-	
 	return rc;
 }
 
