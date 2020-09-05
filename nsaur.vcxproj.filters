@@ -124,34 +124,13 @@
     <ClCompile Include="src\game\Weapons.c">
       <Filter>Game</Filter>
     </ClCompile>
-    <ClCompile Include="src\pomme\Files.cpp">
-      <Filter>Pomme</Filter>
-    </ClCompile>
-    <ClCompile Include="src\pomme\Memory.cpp">
-      <Filter>Pomme</Filter>
-    </ClCompile>
-    <ClCompile Include="src\pomme\PICT.cpp">
-      <Filter>Pomme</Filter>
-    </ClCompile>
     <ClCompile Include="src\pomme\Pomme.cpp">
-      <Filter>Pomme</Filter>
-    </ClCompile>
-    <ClCompile Include="src\pomme\QD3D.cpp">
-      <Filter>Pomme</Filter>
-    </ClCompile>
-    <ClCompile Include="src\pomme\Resources.cpp">
       <Filter>Pomme</Filter>
     </ClCompile>
     <ClCompile Include="src\pomme\Sound\SoundManager.cpp">
       <Filter>Pomme\Sound</Filter>
     </ClCompile>
-    <ClCompile Include="src\pomme\TimeManager.cpp">
-      <Filter>Pomme</Filter>
-    </ClCompile>
     <ClCompile Include="src\nsaur.cpp" />
-    <ClCompile Include="src\pomme\BigEndianIStream.cpp">
-      <Filter>Pomme</Filter>
-    </ClCompile>
     <ClCompile Include="src\pomme\Files.cpp">
       <Filter>Pomme</Filter>
     </ClCompile>
@@ -293,15 +272,6 @@
     <ClCompile Include="src\game\Weapons.c">
       <Filter>Game</Filter>
     </ClCompile>
-    <ClCompile Include="src\pomme\WinInput.cpp">
-      <Filter>Pomme</Filter>
-    </ClCompile>
-    <ClCompile Include="src\pomme\IEEEExtended.c">
-      <Filter>Pomme</Filter>
-    </ClCompile>
-    <ClCompile Include="src\pomme\structpack.cpp">
-      <Filter>Pomme</Filter>
-    </ClCompile>
     <ClCompile Include="src\StructUnpackers.cpp" />
     <ClCompile Include="src\GamePatches.cpp" />
     <ClCompile Include="src\pomme\Sound\MACE.cpp">
@@ -319,27 +289,21 @@
     <ClCompile Include="src\pomme\PommeDebug.cpp">
       <Filter>Pomme</Filter>
     </ClCompile>
-    <ClCompile Include="src\pomme\Graphics.cpp">
-      <Filter>Pomme</Filter>
-    </ClCompile>
     <ClCompile Include="src\Backdrop.cpp" />
-    <ClCompile Include="src\pomme\ARGBPixmap.cpp">
-      <Filter>Pomme</Filter>
-    </ClCompile>
     <ClCompile Include="src\game\Windows.c">
       <Filter>Game</Filter>
     </ClCompile>
     <ClCompile Include="src\pomme\maconv\utils\bit_reader.cc">
-      <Filter>Pomme\maconv</Filter>
+      <Filter>Pomme\Files\maconv</Filter>
     </ClCompile>
     <ClCompile Include="src\pomme\maconv\stuffit\methods\arsenic.cc">
-      <Filter>Pomme\maconv</Filter>
+      <Filter>Pomme\Files\maconv</Filter>
     </ClCompile>
     <ClCompile Include="src\pomme\maconv\stuffit\utils\bwt.cc">
-      <Filter>Pomme\maconv</Filter>
+      <Filter>Pomme\Files\maconv</Filter>
     </ClCompile>
     <ClCompile Include="src\pomme\maconv\stuffit\utils\crc.cc">
-      <Filter>Pomme\maconv</Filter>
+      <Filter>Pomme\Files\maconv</Filter>
     </ClCompile>
     <ClCompile Include="src\pomme\Files\HostVolume.cpp">
       <Filter>Pomme\Files</Filter>
@@ -347,8 +311,44 @@
     <ClCompile Include="src\pomme\Files\ArchiveVolume.cpp">
       <Filter>Pomme\Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\pomme\IEEEExtended.c">
+      <Filter>Pomme\Utilities</Filter>
+    </ClCompile>
     <ClCompile Include="src\pomme\memstream.cpp">
-      <Filter>Pomme</Filter>
+      <Filter>Pomme\Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pomme\structpack.cpp">
+      <Filter>Pomme\Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pomme\ARGBPixmap.cpp">
+      <Filter>Pomme\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pomme\PICT.cpp">
+      <Filter>Pomme\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pomme\Graphics.cpp">
+      <Filter>Pomme\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pomme\Files.cpp">
+      <Filter>Pomme\Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pomme\BigEndianIStream.cpp">
+      <Filter>Pomme\Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pomme\QD3D.cpp">
+      <Filter>Pomme\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pomme\TimeManager.cpp">
+      <Filter>Pomme\Time</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pomme\Resources.cpp">
+      <Filter>Pomme\Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pomme\Memory.cpp">
+      <Filter>Pomme\Memory</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pomme\WinInput.cpp">
+      <Filter>Pomme\Input</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -610,18 +610,6 @@
     <ClInclude Include="src\game\windows_nano.h">
       <Filter>Game</Filter>
     </ClInclude>
-    <ClInclude Include="src\pomme\IEEEExtended.h">
-      <Filter>Pomme</Filter>
-    </ClInclude>
-    <ClInclude Include="src\pomme\FixedPool.h">
-      <Filter>Pomme</Filter>
-    </ClInclude>
-    <ClInclude Include="src\pomme\GrowablePool.h">
-      <Filter>Pomme</Filter>
-    </ClInclude>
-    <ClInclude Include="src\pomme\structpack.h">
-      <Filter>Pomme</Filter>
-    </ClInclude>
     <ClInclude Include="src\GamePatches.h" />
     <ClInclude Include="src\pomme\Sound\cmixer.h">
       <Filter>Pomme\Sound</Filter>
@@ -629,26 +617,20 @@
     <ClInclude Include="src\pomme\Sound\DumpAU.h">
       <Filter>Pomme\Sound</Filter>
     </ClInclude>
-    <ClInclude Include="src\pomme\PascalStringHack.h">
-      <Filter>Pomme</Filter>
-    </ClInclude>
     <ClInclude Include="src\pomme\PommeDebug.h">
       <Filter>Pomme</Filter>
     </ClInclude>
-    <ClInclude Include="src\Pomme\SysFont.h">
-      <Filter>Pomme</Filter>
-    </ClInclude>
     <ClInclude Include="src\pomme\maconv\utils\bit_reader.h">
-      <Filter>Pomme\maconv</Filter>
+      <Filter>Pomme\Files\maconv</Filter>
     </ClInclude>
     <ClInclude Include="src\pomme\maconv\stuffit\methods\arsenic.h">
-      <Filter>Pomme\maconv</Filter>
+      <Filter>Pomme\Files\maconv</Filter>
     </ClInclude>
     <ClInclude Include="src\pomme\maconv\stuffit\utils\bwt.h">
-      <Filter>Pomme\maconv</Filter>
+      <Filter>Pomme\Files\maconv</Filter>
     </ClInclude>
     <ClInclude Include="src\pomme\maconv\stuffit\utils\crc.h">
-      <Filter>Pomme\maconv</Filter>
+      <Filter>Pomme\Files\maconv</Filter>
     </ClInclude>
     <ClInclude Include="src\pomme\Files\HostVolume.h">
       <Filter>Pomme\Files</Filter>
@@ -659,8 +641,26 @@
     <ClInclude Include="src\pomme\Files\ArchiveVolume.h">
       <Filter>Pomme\Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\pomme\FixedPool.h">
+      <Filter>Pomme\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pomme\GrowablePool.h">
+      <Filter>Pomme\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pomme\IEEEExtended.h">
+      <Filter>Pomme\Utilities</Filter>
+    </ClInclude>
     <ClInclude Include="src\pomme\memstream.h">
-      <Filter>Pomme</Filter>
+      <Filter>Pomme\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pomme\PascalStringHack.h">
+      <Filter>Pomme\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pomme\structpack.h">
+      <Filter>Pomme\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Pomme\SysFont.h">
+      <Filter>Pomme\Graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -670,14 +670,29 @@
     <Filter Include="Pomme">
       <UniqueIdentifier>{c97c0370-55d1-410e-953a-12e57f54ca31}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Pomme\Sound">
-      <UniqueIdentifier>{1118f599-240c-4c8b-a10f-3eca2261fd95}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Pomme\maconv">
-      <UniqueIdentifier>{0005629f-330b-4918-9c99-9b2e96543a81}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Pomme\Files">
       <UniqueIdentifier>{afe7492d-583d-499c-9c01-5cd8d9171149}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Pomme\Files\maconv">
+      <UniqueIdentifier>{0005629f-330b-4918-9c99-9b2e96543a81}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Pomme\Graphics">
+      <UniqueIdentifier>{846bb30a-5522-47f3-bb3c-1c2bb0baaa7a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Pomme\Memory">
+      <UniqueIdentifier>{fb8c3cd2-fe55-453c-9f55-525682c9f3e8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Pomme\Input">
+      <UniqueIdentifier>{7e59b10e-a7c1-4ceb-8aeb-941b32d15496}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Pomme\Time">
+      <UniqueIdentifier>{a45b3df7-02ca-4fd6-b5ed-8df313d3ab8f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Pomme\Utilities">
+      <UniqueIdentifier>{f2af5262-bd9a-4072-a896-22d5cccd41ab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Pomme\Sound">
+      <UniqueIdentifier>{1118f599-240c-4c8b-a10f-3eca2261fd95}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
