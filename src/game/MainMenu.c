@@ -44,6 +44,7 @@ extern	FSSpec		gDataSpec;
 /****************************/
 
 static void MakeMainMenuModels(void);
+static void SpinMainMenuIcons(float delta);
 static void SpinToPreviousMainMenuIcon(void);
 static void SpinToNextMainMenuIcon(void);
 static void MoveFallingEgg(ObjNode *theNode);
@@ -392,49 +393,7 @@ float	r;
 
 static void SpinToPreviousMainMenuIcon(void)
 {
-float	targetRot,r;
-Byte	i;
-
-	PlayEffect(EFFECT_MENUCHANGE);										// play sound
-
-
-	targetRot = gMainMenuWheelRot + (PI2/ NUM_MAINMENU_ICONS);			// calc target rotation
-
-	do
-	{
-		gMainMenuWheelRot += SPIN_SPEED * gFramesPerSecondFrac;
-
-
-		for (i = 0; i < NUM_MAINMENU_ICONS; i++)
-		{
-			r = gMainMenuWheelRot + (PI2 / NUM_MAINMENU_ICONS * i);
-		
-			gMainMenuIcons[i]->Coord.x = sin(r) * WHEEL_SEPARATION;
-			gMainMenuIcons[i]->Coord.z = gWheelCenterZ + (cos(r) * WHEEL_SEPARATION - 5);
-			gMainMenuIcons[i]->Coord.y = MENU_RING_Y;	
-			
-			if (i == 0)										// offset skeleton rot by 90 degrees
-				r += PI/2;
-				
-			gMainMenuIcons[i]->Rot.y = r;
-			UpdateObjectTransforms(gMainMenuIcons[i]);
-		}
-	
-				/* UPDATE FRAME */
-				
-		QD3D_CalcFramesPerSecond();					
-		MoveObjects();
-		CalcEnvironmentMappingCoords(&gGameViewInfoPtr->currentCameraCoords);		
-		QD3D_DrawScene(gGameViewInfoPtr,DrawObjects);
-		
-		
-		ReadKeyboard();
-		
-	}while(gMainMenuWheelRot < targetRot);
-
-	gMainMenuWheelRot = targetRot;
-
-
+	SpinMainMenuIcons(1.0f);
 }
 
 
@@ -445,17 +404,37 @@ Byte	i;
 
 static void SpinToNextMainMenuIcon(void)
 {
+	SpinMainMenuIcons(-1.0f);
+}
+
+
+/****************** SPIN MAIN MENU ICONS ************************/
+// Spins all the icons until they're in the right position.
+// Pass in 1.0f as delta to spin counter-clockwise; -1.0f to spin clockwise.
+//
+// Source port refactor. The original game would also spin one loop
+// iteration too far, which is fixed.
+
+static void SpinMainMenuIcons(float delta)
+{
 float	targetRot,r;
 Byte	i;
+Boolean	stop;
 
 	PlayEffect(EFFECT_MENUCHANGE);										// play sound
 
-	targetRot = gMainMenuWheelRot - (PI2/ NUM_MAINMENU_ICONS);				// calc target rotation
+	targetRot = gMainMenuWheelRot + delta * (PI2 / NUM_MAINMENU_ICONS);	// calc target rotation
+	stop = false;
 
 	do
 	{
-		gMainMenuWheelRot -= SPIN_SPEED * gFramesPerSecondFrac;
-
+		gMainMenuWheelRot += delta * SPIN_SPEED * gFramesPerSecondFrac;
+		if ((delta < 0 && gMainMenuWheelRot < targetRot) ||
+			(delta > 0 && gMainMenuWheelRot > targetRot))
+		{
+			gMainMenuWheelRot = targetRot;
+			stop = true;
+		}
 
 		for (i = 0; i < NUM_MAINMENU_ICONS; i++)
 		{
@@ -478,10 +457,9 @@ Byte	i;
 		QD3D_DrawScene(gGameViewInfoPtr,DrawObjects);		
 		ReadKeyboard();
 		
-	}while(gMainMenuWheelRot > targetRot);
-
-	gMainMenuWheelRot = targetRot;
+	} while (!stop);
 }
+
 
 /********************* GENERATE FALLING EGG ***********************/
 
