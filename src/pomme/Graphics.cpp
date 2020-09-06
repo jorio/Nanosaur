@@ -87,7 +87,7 @@ CGrafPtr Pomme::Graphics::GetScreenPort(void)
 	return &screenPort->port;
 }
 
-void Pomme::Graphics::Init(const char* windowTitle)
+void Pomme::Graphics::Init(const char* windowTitle, int windowWidth, int windowHeight)
 {
 	SDL_ENSURE(0 == SDL_Init(SDL_INIT_VIDEO));
 
@@ -95,8 +95,8 @@ void Pomme::Graphics::Init(const char* windowTitle)
 		windowTitle,
 		SDL_WINDOWPOS_UNDEFINED,
 		SDL_WINDOWPOS_UNDEFINED,
-		640,
-		480,
+		windowWidth,
+		windowHeight,
 		SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_SHOWN);
 
 	SDL_ENSURE(gSDLWindow);

@@ -124,7 +124,7 @@ namespace Pomme {
 			inline UInt32* GetPtr(int x, int y) { return (UInt32*)&data.data()[4 * (y * width + x)]; }
 		};
 
-		void Init(const char* windowTitle);
+		void Init(const char* windowTitle, int windowWidth, int windowHeight);
 		ARGBPixmap ReadPICT(std::istream& f, bool skip512 = true);
 		void DumpTGA(const char* path, short width, short height, const char* argbData);
 		void DrawARGBPixmap(int left, int top, ARGBPixmap& p);
