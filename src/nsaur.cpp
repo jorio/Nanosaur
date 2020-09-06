@@ -61,7 +61,7 @@ int CommonMain(int argc, const char** argv)
 	// Terminate Quesa
 	Q3Exit();
 	
-	//Pomme::Shutdown();
+	Pomme::Shutdown();
 
 	return 0;
 }

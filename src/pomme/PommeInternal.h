@@ -60,6 +60,7 @@ namespace Pomme {
 	};
 
 	void Init(const char* applName);
+	void Shutdown();
 
 	namespace Time
 	{
@@ -88,6 +89,7 @@ namespace Pomme {
 		};
 
 		void Init();
+		void Shutdown();
 		AudioClip ReadAIFF(std::istream& f);
 		std::vector<SInt16> DecodeMACE3(const std::vector<Byte>& input, const int nChannels);
 		std::vector<SInt16> DecodeIMA4(const std::vector<Byte>& input, const int nChannels);

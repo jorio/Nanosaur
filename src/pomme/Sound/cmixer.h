@@ -67,7 +67,7 @@ public:
 	void Process(int len);
 
 public:
-	~Source();
+	virtual ~Source();
 	double GetLength() const;
 	double GetPosition() const;
 	int GetState() const;
@@ -88,8 +88,8 @@ class WavStream : public Source {
 
 	std::vector<char> udata;
 
-	void Rewind2();
-	void FillBuffer(int16_t* buffer, int length);
+	void Rewind2() override;
+	void FillBuffer(int16_t* buffer, int length) override;
 
 	inline uint8_t* data8() { return (uint8_t*)udata.data(); }
 	inline int16_t* data16() { return (int16_t*)udata.data(); }

@@ -569,3 +569,11 @@ void Pomme::Sound::Init()
 	InitMidiFrequencyTable();
 	cmixer::InitWithSDL();
 }
+
+void Pomme::Sound::Shutdown()
+{
+	while (headChan) {
+		SndDisposeChannel(headChan, true);
+	}
+	cmixer::ShutdownWithSDL();
+}

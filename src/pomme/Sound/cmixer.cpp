@@ -210,10 +210,6 @@ Source::~Source()
 		gMixer.sources.remove(this);
 	}
 	gMixer.Unlock();
-	//CMEvent e;
-	//e.type = CM_EVENT_DESTROY;
-	//e.udata = udata;
-	//handler(&e);
 }
 
 void Source::Rewind()
@@ -419,13 +415,13 @@ WavStream::WavStream(
 	int nChannels,
 	std::vector<char>&& data
 )
-	:Source(theSampleRate, int((data.size() / (theBitDepth / 8)) / nChannels))
-	,udata(data)
-	,idx(0)
-	,bitdepth(theBitDepth)
-	,channels(nChannels)
+	: Source(theSampleRate, int((data.size() / (theBitDepth / 8)) / nChannels))
+	, bitdepth(theBitDepth)
+	, channels(nChannels)
+	, idx(0)
+	, udata(data)
+	, bigEndian(false)
 {
-	bigEndian = false;
 }
 
 void WavStream::Rewind2()

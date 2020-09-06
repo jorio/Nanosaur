@@ -80,3 +80,9 @@ void Pomme::Init(const char* windowName)
 	Pomme::Input::Init();
 	std::cout << "Pomme initialized\n";
 }
+
+void Pomme::Shutdown()
+{
+	Pomme::Sound::Shutdown();
+	std::cout << "Pomme shut down\n";
+}
