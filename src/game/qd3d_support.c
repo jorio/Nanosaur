@@ -180,7 +180,7 @@ TQ3Vector3D			fillDirection2 = { -1, -1, .2 };
 	viewDef->lights.useFog = true;
 	viewDef->lights.fogHither = .4;
 	viewDef->lights.fogYon = 1.0;
-	viewDef->lights.fogMode = kQ3FogModeLinear;
+	viewDef->lights.fogMode = kQ3FogModePlaneBasedLinear;
 
 }
 
@@ -1806,10 +1806,10 @@ UInt32		*buffer,*pixelPtr,pixmapRowbytes,size,sizeRead;
 void QD3D_SetRaveFog(QD3DSetupOutputType *setupInfo, float fogHither, float fogYon, TQ3ColorARGB *fogColor, TQ3FogMode fogMode)
 {
 	gQD3D_FogStyleData.state        = gGamePrefs.canDoFog? kQ3On: kQ3Off;
-	gQD3D_FogStyleData.mode         = kQ3FogModeLinear;
+	gQD3D_FogStyleData.mode         = kQ3FogModePlaneBasedLinear;
 	gQD3D_FogStyleData.color        = *fogColor;
-	gQD3D_FogStyleData.fogStart     = HITHER_DISTANCE + fogHither * (YON_DISTANCE - HITHER_DISTANCE);
-	gQD3D_FogStyleData.fogEnd       = HITHER_DISTANCE + fogYon    * (YON_DISTANCE - HITHER_DISTANCE);
+	gQD3D_FogStyleData.fogStart     = setupInfo->hither + fogHither * (setupInfo->yon - setupInfo->hither);
+	gQD3D_FogStyleData.fogEnd       = setupInfo->hither + fogYon    * (setupInfo->yon - setupInfo->hither);
 	gQD3D_FogStyleData.density      = 0.5f;  // Ignored for linear fog
 }
 
