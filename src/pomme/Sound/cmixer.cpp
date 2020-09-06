@@ -44,6 +44,8 @@ using namespace cmixer;
 
 #define BUFFER_MASK (BUFFER_SIZE - 1)
 
+static constexpr bool INTERPOLATED_RESAMPLING = false;
+
 //-----------------------------------------------------------------------------
 // Global mixer
 
@@ -287,8 +289,8 @@ void Source::Process(int len)
 			}
 			this->position += count * FX_UNIT;
 		}
-		else {
-			// Add audio to buffer -- interpolated
+		else if (INTERPOLATED_RESAMPLING) {
+			// Resample audio (with linear interpolation) and add to buffer
 			for (int i = 0; i < count; i++) {
 				n = int(position >> FX_BITS) * 2;
 				int p = position & FX_MASK;
@@ -303,7 +305,16 @@ void Source::Process(int len)
 				dst += 2;
 			}
 		}
-
+		else {
+			// Resample audio (without interpolation) and add to buffer
+			for (int i = 0; i < count; i++) {
+				n = int(position >> FX_BITS) * 2;
+				dst[0] += (pcmbuf[(n)&BUFFER_MASK] * lgain) >> FX_BITS;
+				dst[1] += (pcmbuf[(n + 1) & BUFFER_MASK] * rgain) >> FX_BITS;
+				position += rate;
+				dst += 2;
+			}
+		}
 	}
 }
 
