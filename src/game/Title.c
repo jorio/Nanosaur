@@ -56,6 +56,14 @@ static void MoveTitleBG(ObjNode *theNode);
 /*    CONSTANTS             */
 /****************************/
 
+// Source port addition.
+// These values have been tweaked so that the intro screen looks good
+// in widescreen without any gaps appearing in the background.
+static const int	kBackgroundRepeat			= 3;		// was 2
+static const float	kBackgroundScale			= 2.6f;		// was 2.5
+static const float	kBackgroundLeftmostX		= -600.0f;	// was -480
+static const float	kBackgroundLength			= 300.0f;
+
 
 /*********************/
 /*    VARIABLES      */
@@ -92,7 +100,7 @@ TQ3Point3D		cameraFrom2 = { 110, 90, 190.0 };
 
 	QD3D_NewViewDef(&viewDef, gCoverWindow);
 	viewDef.camera.hither 			= 10;
-	viewDef.camera.yon 				= 500;
+	viewDef.camera.yon				= gGamePrefs.canDoFog? 500: 700;		// Source port change from 500 to look good in widescreen without fog
 	viewDef.camera.fov 				= 1.0;
 	viewDef.lights.fogHither		= .3;
 	viewDef.styles.usePhong = false;
@@ -163,18 +171,19 @@ TQ3Point3D		cameraFrom2 = { 110, 90, 190.0 };
 			
 	gNewObjectDefinition.group = MODEL_GROUP_TITLE;	
 	gNewObjectDefinition.type = TITLE_MObjType_Background;	
-	gNewObjectDefinition.coord.x = -400;
+	gNewObjectDefinition.coord.x = kBackgroundLeftmostX * kBackgroundScale;
 	gNewObjectDefinition.coord.y = 0;
 	gNewObjectDefinition.coord.z = -40;
 	gNewObjectDefinition.flags = STATUS_BIT_DONTCULL;
 	gNewObjectDefinition.moveCall = MoveTitleBG;
 	gNewObjectDefinition.rot = 0;
-	gNewObjectDefinition.scale = 2.5;
-	MakeNewDisplayGroupObject(&gNewObjectDefinition);
-	
-	gNewObjectDefinition.coord.x += 300.0f * gNewObjectDefinition.scale;
-	MakeNewDisplayGroupObject(&gNewObjectDefinition);
+	gNewObjectDefinition.scale = kBackgroundScale;
 
+	for (int i = 0; i < kBackgroundRepeat; i++)
+	{
+		MakeNewDisplayGroupObject(&gNewObjectDefinition);
+		gNewObjectDefinition.coord.x += kBackgroundLength * kBackgroundScale;
+	}
 
 
 
@@ -218,9 +227,9 @@ static void MoveTitleBG(ObjNode *theNode)
 	GetObjectInfo(theNode);
 
 	gCoord.x -= gFramesPerSecondFrac * 65.0f;
-	if (gCoord.x < (-480.0f * theNode->Scale.x))
+	if (gCoord.x < (kBackgroundLeftmostX * kBackgroundScale))
 	{
-		gCoord.x += 300.0f * theNode->Scale.x * 2.0f;
+		gCoord.x += kBackgroundLength * kBackgroundScale * kBackgroundRepeat;
 	}
 	
 	UpdateObject(theNode);
