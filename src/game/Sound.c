@@ -322,6 +322,11 @@ short		i;
 		c = i;
 		StopAChannel(&c);
 	}
+
+	// Source port fix: Clear streaming sound channels
+	gAmbientEffect = -1;
+	gLavaSoundChannel = -1;
+	gSteamSoundChannel = -1;
 }
 
 
