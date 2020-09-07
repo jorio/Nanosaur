@@ -35,7 +35,8 @@ struct ChannelEx {
 		pitchMult = 1;
 	}
 
-	void ApplyPitch() {
+	void ApplyPitch()
+	{
 		if (!streamPtr) return;
 		double baseFreq = midiNoteFrequencies[baseNote];
 		double playbackFreq = midiNoteFrequencies[playbackNote];
@@ -378,6 +379,7 @@ OSErr SndDoImmediate(SndChannelPtr chan, const SndCommand* cmd)
 {
 	auto& impl = GetEx(chan);
 
+	// Discard the high bit of the command (it indicates whether an 'snd ' resource has associated data).
 	switch (cmd->cmd & 0x7FFF) {
 	case nullCmd:
 		break;
@@ -400,8 +402,8 @@ OSErr SndDoImmediate(SndChannelPtr chan, const SndCommand* cmd)
 	{
 		double desiredAmplitude = cmd->param1 / 255.0;
 		LOG << "ampCmd " << desiredAmplitude << "\n";
-		if (GetEx(chan).streamPtr)
-			GetEx(chan).streamPtr->SetGain(desiredAmplitude);
+		if (impl.streamPtr)
+			impl.streamPtr->SetGain(desiredAmplitude);
 		break;
 	}
 
@@ -419,6 +421,14 @@ OSErr SndDoImmediate(SndChannelPtr chan, const SndCommand* cmd)
 		// even for sounds sampled at 44Khz, so I'm treating it as just a pitch multiplier.
 		impl.pitchMult = cmd->param2 / 65536.0;
 		impl.ApplyPitch();
+		break;
+	}
+
+	case pommeSetLoopCmd:
+	{
+		if (impl.streamPtr) {
+			impl.streamPtr->SetLoop(cmd->param1);
+		}
 		break;
 	}
 

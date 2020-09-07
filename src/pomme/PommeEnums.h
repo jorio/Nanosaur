@@ -240,7 +240,9 @@ enum ESndCmds {
     rateMultiplierCmd = 86,
     getRateMultiplierCmd = 87,
     sizeCmd = 90,       // obsolete command
-    convertCmd = 91        // obsolete MACE command
+    convertCmd = 91,        // obsolete MACE command
+    pommeSetLoopCmd = 0x7001,
+    // Do not define commands above 0x7FFF -- the high bit means a 'snd ' resource has associated sound data
 };
 
 //-----------------------------------------------------------------------------

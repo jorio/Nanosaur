@@ -443,6 +443,16 @@ stream_again:
 			
 	if (gMuteMusicFlag)													
 		SndPauseFilePlay(gMusicChannel);						// pause it	
+
+			/* SET LOOP FLAG ON STREAM (SOURCE PORT ADDITION) */
+			/* So we don't need to re-read the file over and over. */
+
+	mySndCmd.cmd = pommeSetLoopCmd;
+	mySndCmd.param1 = loopFlag ? 1 : 0;
+	mySndCmd.param2 = 0;
+	iErr = SndDoImmediate(gMusicChannel, &mySndCmd);
+	if (iErr)
+		DoFatalAlert("PlaySong: SndDoImmediate (pomme loop extension) failed!");
 }
 
 
