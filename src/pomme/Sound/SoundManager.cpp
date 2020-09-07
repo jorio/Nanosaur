@@ -274,7 +274,7 @@ static void ProcessSoundCmd(SndChannelPtr chan, const Ptr sndhdr)
 
 		LOG_NOPREFIX << "stdSH: 8-bit mono, " << nBytes << " frames\n";
 
-		source.Init(sampleRate, 8, 1, false, std::vector<char>(here, here + nBytes));
+		source.Init(sampleRate, 8, 1, false, std::span<char>(here, nBytes));
 		break;
 	}
 
@@ -295,8 +295,7 @@ static void ProcessSoundCmd(SndChannelPtr chan, const Ptr sndhdr)
 
 		LOG_NOPREFIX << "extSH: " << bitDepth << "-bit " << (nChannels == 1? "mono": "stereo") << ", " << nFrames << " frames\n";
 
-		// TODO: Get rid of gratuitous buffer copy
-		source.Init(sampleRate, bitDepth, nChannels, true, std::vector<char>(here, here + nBytes));
+		source.Init(sampleRate, bitDepth, nChannels, true, std::span<char>(here, nBytes));
 		break;
 	}
 
@@ -326,25 +325,27 @@ static void ProcessSoundCmd(SndChannelPtr chan, const Ptr sndhdr)
 		switch (format) {
 		case 'ima4':
 		{
-			int nBytes = 34 * nChannels * nCompressedChunks;
-			// TODO: Get rid of gratuitous buffer copy
-			auto decoded = Pomme::Sound::DecodeIMA4(std::vector<Byte>(here, here + nBytes), nChannels);
-			LOG_NOPREFIX << nBytes << " B (" << nBytes/nChannels << "), " << decoded.size() / nChannels << " frames\n";
-			// TODO: Get rid of gratuitous buffer copy
-			source.Init(sampleRate, 16, nChannels, false,
-				std::vector<char>((char*)decoded.data(), (char*)(decoded.data() + decoded.size())));
+			int nBytesIn = 34 * nChannels * nCompressedChunks;
+			int nBytesOut = Pomme::Sound::IMA4::GetOutputSize(nBytesIn, nChannels);
+
+			auto spanIn = std::span(here, nBytesIn);
+			auto spanOut = source.GetBuffer(nBytesOut);
+
+			Pomme::Sound::IMA4::Decode(nChannels, spanIn, spanOut);
+			source.Init(sampleRate, 16, nChannels, false, spanOut);
 			break;
 		}
 
 		case 'MAC3':
 		{
-			int nBytes = 2 * nChannels * nCompressedChunks;
-			// TODO: Get rid of gratuitous buffer copy
-			auto decoded = Pomme::Sound::DecodeMACE3(std::vector<Byte>(here, here + nBytes), nChannels);
-			LOG_NOPREFIX << nBytes << " B (" << nBytes / nChannels << "), " << decoded.size() / nChannels << " frames\n";
-			// TODO: Get rid of gratuitous buffer copy
-			source.Init(sampleRate, 16, nChannels, false,
-				std::vector<char>((char*)decoded.data(), (char*)(decoded.data() + decoded.size())));
+			int nBytesIn = 2 * nChannels * nCompressedChunks;
+			int nBytesOut = Pomme::Sound::MACE::GetOutputSize(nBytesIn, nChannels);
+
+			auto spanIn = std::span(here, nBytesIn);
+			auto spanOut = source.GetBuffer(nBytesOut);
+
+			Pomme::Sound::MACE::Decode(nChannels, spanIn, spanOut);
+			source.Init(sampleRate, 16, nChannels, false, spanOut);
 			break;
 		}
 
@@ -506,8 +507,8 @@ OSErr SndStartFilePlay(
 	auto& impl = GetEx(chan);
 
 	impl.Recycle();
-
-	impl.source.Init(clip.sampleRate, 16, clip.nChannels, false, std::move(clip.pcmData));
+	auto span = impl.source.SetBuffer(std::move(clip.pcmData));
+	impl.source.Init(clip.sampleRate, 16, clip.nChannels, false, span);
 
 	if (theCompletion) {
 		impl.source.onComplete = [=]() { theCompletion(chan); };

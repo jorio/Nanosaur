@@ -438,7 +438,7 @@ WavStream::WavStream()
 	, bitdepth(0)
 	, channels(0)
 	, bigEndian(false)
-	, udata()
+	, userBuffer()
 	, idx(0)
 {}
 
@@ -449,7 +449,7 @@ void WavStream::Clear()
 	channels = 0;
 	bigEndian = false;
 	idx = 0;
-	udata.clear();
+	userBuffer.clear();
 }
 
 void WavStream::Init(
@@ -457,15 +457,28 @@ void WavStream::Init(
 	int theBitDepth,
 	int nChannels,
 	bool bigEndian,
-	std::vector<char>&& data)
+	std::span<char> span)
 {
 	Clear();
-	Source::Init(theSampleRate, int((data.size() / (theBitDepth / 8)) / nChannels));
+	Source::Init(theSampleRate, int((span.size() / (theBitDepth / 8)) / nChannels));
 	this->bitdepth = theBitDepth;
 	this->channels = nChannels;
 	this->idx = 0;
-	this->udata = std::move(data);
+	this->span = span;
 	this->bigEndian = bigEndian;
+}
+
+std::span<char> WavStream::GetBuffer(int nBytesOut)
+{
+	userBuffer.clear();
+	userBuffer.reserve(nBytesOut);
+	return std::span(userBuffer.data(), nBytesOut);
+}
+
+std::span<char> WavStream::SetBuffer(std::vector<char>&& data)
+{
+	userBuffer = std::move(data);
+	return std::span(userBuffer.data(), userBuffer.size());
 }
 
 void WavStream::Rewind2()

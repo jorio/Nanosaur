@@ -26,6 +26,7 @@
 
 #include <vector>
 #include <functional>
+#include <span>
 
 #define BUFFER_SIZE (512)
 
@@ -81,19 +82,20 @@ public:
 	void Stop();
 };
 
-class WavStream : public Source {
+class WavStream : public Source
+{
 	int bitdepth;
 	int channels;
 	bool bigEndian;
-
-	std::vector<char> udata;
 	int idx;
+	std::span<char> span;
+	std::vector<char> userBuffer;
 
 	void Rewind2() override;
 	void FillBuffer(int16_t* buffer, int length) override;
 
-	inline uint8_t* data8() { return (uint8_t*)udata.data(); }
-	inline int16_t* data16() { return (int16_t*)udata.data(); }
+	inline uint8_t* data8() const { return reinterpret_cast<uint8_t*>(span.data()); }
+	inline int16_t* data16() const { return reinterpret_cast<int16_t*>(span.data()); }
 
 public:
 	WavStream();
@@ -105,8 +107,12 @@ public:
 		int theBitDepth,
 		int nChannels,
 		bool bigEndian,
-		std::vector<char>&& data
+		std::span<char> data
 	);
+
+	std::span<char> GetBuffer(int nBytesOut);
+
+	std::span<char> SetBuffer(std::vector<char>&& data);
 };
 
 

@@ -79,7 +79,7 @@ static inline int adpcm_ima_qt_expand_nibble(ADPCMChannelStatus* c, int nibble, 
 }
 
 // In QuickTime, IMA is encoded by chunks of 34 bytes (=64 samples). Channel data is interleaved per-chunk.
-void DecodeIMA4Chunk(
+static void DecodeIMA4Chunk(
 	const unsigned char** input,
 	SInt16** output,
 	std::vector<ADPCMChannelStatus>& ctx)
@@ -126,7 +126,19 @@ void DecodeIMA4Chunk(
 	*output += 64 * nChannels;
 }
 
-std::vector<SInt16> Pomme::Sound::DecodeIMA4(const std::vector<Byte>& input, const int nChannels)
+int Pomme::Sound::IMA4::GetOutputSize(
+	const int inputByteCount,
+	const int nChannels)
+{
+	int nChunks = int(inputByteCount) / (34 * nChannels);
+	int nSamples = 64 * nChunks;
+	return nSamples * nChannels * 2;
+}
+
+void Pomme::Sound::IMA4::Decode(
+	const int nChannels,
+	const std::span<char>& input,
+	std::span<char> output)
 {
 	if (input.size() % 34 != 0)
 		throw std::invalid_argument("odd input buffer size");
@@ -134,10 +146,11 @@ std::vector<SInt16> Pomme::Sound::DecodeIMA4(const std::vector<Byte>& input, con
 	int nChunks = int(input.size()) / (34 * nChannels);
 	int nSamples = 64 * nChunks;
 
-	std::vector<SInt16> output(nSamples * nChannels);
+	if (output.size() != nSamples * nChannels * 2)
+		throw std::invalid_argument("incorrect output size");
 
-	const unsigned char* in = input.data();
-	SInt16* out = output.data();
+	const unsigned char* in = reinterpret_cast<unsigned char*>(input.data());
+	SInt16* out = reinterpret_cast<SInt16*>(output.data());
 	std::vector<ADPCMChannelStatus> ctx(nChannels);
 
 	for (int chunk = 0; chunk < nChunks; chunk++)
@@ -145,8 +158,5 @@ std::vector<SInt16> Pomme::Sound::DecodeIMA4(const std::vector<Byte>& input, con
 		DecodeIMA4Chunk(&in, &out, ctx);
 	}
 
-	assert(output.size() == nSamples * nChannels);
-	assert(in == (input.data() + input.size()));
-
-	return output;
+	assert(in == reinterpret_cast<unsigned char*>(input.data() + input.size()));
 }

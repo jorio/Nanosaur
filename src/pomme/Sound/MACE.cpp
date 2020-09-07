@@ -1,3 +1,4 @@
+#include <cassert>
 #include <iostream>
 #include <vector>
 
@@ -185,15 +186,28 @@ static int16_t read_table(ChannelData *chd, uint8_t val, int tab_idx)
 	return current;
 }
 
-std::vector<SInt16> Pomme::Sound::DecodeMACE3(const std::vector<Byte>& input, const int nChannels)
+int Pomme::Sound::MACE::GetOutputSize(
+	const int inputByteCount,
+	const int nChannels)
+{
+	int nSamples = 3 * inputByteCount / nChannels;
+	return nChannels * nSamples * 2;
+}
+
+void Pomme::Sound::MACE::Decode(
+	const int nChannels,
+	const std::span<char>& input,
+	std::span<char> output)
 {
 	if (input.size() % (nChannels * 2) != 0)
 		throw std::invalid_argument("odd input buffer size");
 
 	int nSamples = 3 * int(input.size()) / nChannels;
 
-	std::vector<SInt16> output;
-	output.reserve(nSamples * nChannels);
+	if (output.size() != nSamples * 2)
+		throw std::invalid_argument("incorrect output size");
+
+	SInt16* out = reinterpret_cast<SInt16*>(output.data());
 
 	MACEContext ctx = {};
 
@@ -209,12 +223,10 @@ std::vector<SInt16> Pomme::Sound::DecodeMACE3(const std::vector<Byte>& input, co
 			current = mace_broken_clip_int16(current + ctx.chd[chan].level);
 			ctx.chd[chan].level = current - (current >> 3);
 			current = QT_8S_2_16S(current);
-			output.push_back(current);
+			*out = current;
+			out++;
 		}
 	}
 
-	if (output.size() != nSamples * nChannels)
-		throw std::runtime_error("unexpected final output size");
-
-	return output;
+	assert(out == reinterpret_cast<SInt16*>(output.data() + output.size()));
 }

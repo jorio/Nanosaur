@@ -5,6 +5,7 @@
 #include <fstream>
 #include <string>
 #include <filesystem>
+#include <span>
 
 namespace Pomme {
 	class StreamPosGuard {
@@ -91,8 +92,17 @@ namespace Pomme {
 		void Init();
 		void Shutdown();
 		AudioClip ReadAIFF(std::istream& f);
-		std::vector<SInt16> DecodeMACE3(const std::vector<Byte>& input, const int nChannels);
-		std::vector<SInt16> DecodeIMA4(const std::vector<Byte>& input, const int nChannels);
+
+		namespace MACE
+		{
+			int GetOutputSize(const int inputByteCount, const int nChannels);
+			void Decode(const int nChannels, const std::span<char>& input, std::span<char> output);
+		}
+		namespace IMA4
+		{
+			int GetOutputSize(const int inputByteCount, const int nChannels);
+			void Decode(const int nChannels, const std::span<char>& input, std::span<char> output);
+		}
 	}
 
 	namespace Input

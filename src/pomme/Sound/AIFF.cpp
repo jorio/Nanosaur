@@ -80,28 +80,24 @@ Pomme::Sound::AudioClip Pomme::Sound::ReadAIFF(std::istream& theF)
 			if (f.Read<UInt64>() != 0) throw AIFFException("unexpected offset/blockSize in SSND");
 			// sampled sound data is here
 
-			auto ssnd = f.ReadBytes(ckSize - 8);
+			const int ssndSize = ckSize - 8;
+			auto ssnd = std::vector<char>(ssndSize);
+			f.Read(ssnd.data(), ssndSize);
 			LOG << "SSND bytes " << ssnd.size() << "\n";
 
 			switch (COMM.compressionType) {
 			case 'MAC3':
-			{
-				auto pcm = Pomme::Sound::DecodeMACE3(ssnd, COMM.numChannels);
-				//DumpAU("Decoded from AIFF-C MACE-3.au", pcm, COMM.numChannels, COMM.sampleRate);
-				clip.bitDepth = 16; // force bitdepth to 16 (decoder output)
-				// TODO: get rid of the gratuitous buffer copy
-				clip.pcmData = std::vector<char>((char*)pcm.data(), (char*)(pcm.data() + pcm.size()));
+				clip.bitDepth = 16;  // force bitdepth to 16 (decoder output)
+				clip.pcmData.resize(MACE::GetOutputSize(ssndSize, COMM.numChannels));
+				MACE::Decode(COMM.numChannels, std::span(ssnd), std::span(clip.pcmData));
 				break;
-			}
+
 			case 'ima4':
-			{
-				auto pcm = Pomme::Sound::DecodeIMA4(ssnd, COMM.numChannels);
-				//DumpAU("Decoded from AIFF-C IMA-4.au", pcm, COMM.numChannels, COMM.sampleRate);
-				clip.bitDepth = 16; // force bitdepth to 16 (decoder output)
-				// TODO: get rid of the gratuitous buffer copy
-				clip.pcmData = std::vector<char>((char*)pcm.data(), (char*)(pcm.data() + pcm.size()));
+				clip.bitDepth = 16;  // force bitdepth to 16 (decoder output)
+				clip.pcmData.resize(IMA4::GetOutputSize(ssndSize, COMM.numChannels));
+				IMA4::Decode(COMM.numChannels, std::span(ssnd), std::span(clip.pcmData));
 				break;
-			}
+
 			default:
 				TODO2("unknown compression type " << FourCCString(COMM.compressionType));
 				break;
@@ -121,3 +117,4 @@ Pomme::Sound::AudioClip Pomme::Sound::ReadAIFF(std::istream& theF)
 
 	return clip;
 }
+
