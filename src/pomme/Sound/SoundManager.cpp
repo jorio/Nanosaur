@@ -15,10 +15,11 @@ static int nManagedChans = 0;
 static double midiNoteFrequencies[128];
 
 // Internal channel info
-struct ChannelEx {
+struct ChannelEx
+{
 	SndChannelPtr prevChan;
 	bool macChannelStructAllocatedByPomme;
-	std::unique_ptr<cmixer::WavStream> streamPtr;
+	cmixer::WavStream source;
 	FilePlayCompletionProcPtr onComplete;
 
 	Byte baseNote = kMiddleC;
@@ -27,9 +28,7 @@ struct ChannelEx {
 
 	void Recycle()
 	{
-		if (streamPtr) {
-			streamPtr.reset(nullptr);
-		}
+		source.Clear();
 		baseNote = kMiddleC;
 		playbackNote = kMiddleC;
 		pitchMult = 1;
@@ -37,10 +36,12 @@ struct ChannelEx {
 
 	void ApplyPitch()
 	{
-		if (!streamPtr) return;
+		if (!source.active) {
+			return;
+		}
 		double baseFreq = midiNoteFrequencies[baseNote];
 		double playbackFreq = midiNoteFrequencies[playbackNote];
-		streamPtr->SetPitch(pitchMult * playbackFreq / baseFreq);
+		source.SetPitch(pitchMult * playbackFreq / baseFreq);
 	}
 };
 
@@ -49,9 +50,9 @@ static inline ChannelEx& GetEx(SndChannelPtr chan)
 	return *(ChannelEx*)chan->firstMod;
 }
 
-static inline std::unique_ptr<cmixer::WavStream>& GetMixSource(SndChannelPtr chan)
+static inline cmixer::WavStream& GetMixSource(SndChannelPtr chan)
 {
-	return GetEx(chan).streamPtr;
+	return GetEx(chan).source;
 }
 
 static inline SndChannelPtr* NextOf(SndChannelPtr chan)
@@ -221,12 +222,10 @@ OSErr SndChannelStatus(SndChannelPtr chan, short theLength, SCStatusPtr theStatu
 {
 	memset(theStatus, 0, sizeof(SCStatus));
 
-	auto& ex = GetEx(chan);
+	auto& source = GetMixSource(chan);
 
-	if (ex.streamPtr) {
-		theStatus->scChannelPaused = ex.streamPtr->GetState() == cmixer::CM_STATE_PAUSED;
-		theStatus->scChannelBusy   = ex.streamPtr->GetState() == cmixer::CM_STATE_PLAYING;
-	}
+	theStatus->scChannelPaused = source.GetState() == cmixer::CM_STATE_PAUSED;
+	theStatus->scChannelBusy   = source.GetState() == cmixer::CM_STATE_PLAYING;
 
 	return noErr;
 }
@@ -239,9 +238,11 @@ static void ProcessSoundCmd(SndChannelPtr chan, const Ptr sndhdr)
 	// high bit is not set, param2 is interpreted as a pointer to the sound
 	// header.
 
-	std::unique_ptr<cmixer::WavStream>& streamPtr = GetEx(chan).streamPtr;
+	auto& impl = GetEx(chan);
 
-	GetEx(chan).Recycle();
+	cmixer::WavStream& source = impl.source;
+
+	impl.Recycle();
 
 	// PACKED RECORD
 	memstream headerInput(sndhdr, 22+42);
@@ -259,7 +260,7 @@ static void ProcessSoundCmd(SndChannelPtr chan, const Ptr sndhdr)
 	Byte	baseFrequency	= f.Read<Byte>(); // 0-127, see Table 2-2, IM:S:2-43
 
 	int		sampleRate		= (((unsigned)fixedSampleRate) >> 16) & 0xFFFF;
-	GetEx(chan).baseNote = baseFrequency;
+	impl.baseNote = baseFrequency;
 
 	LOG << sampleRate << "Hz, " << GetMidiNoteName(baseFrequency) << ", loop " << loopStart << "->" << loopEnd << ", ";
 
@@ -273,7 +274,7 @@ static void ProcessSoundCmd(SndChannelPtr chan, const Ptr sndhdr)
 
 		LOG_NOPREFIX << "stdSH: 8-bit mono, " << nBytes << " frames\n";
 
-		streamPtr = std::make_unique<cmixer::WavStream>(sampleRate, 8, 1, std::vector<char>(here, here + nBytes));
+		source.Init(sampleRate, 8, 1, false, std::vector<char>(here, here + nBytes));
 		break;
 	}
 
@@ -295,8 +296,7 @@ static void ProcessSoundCmd(SndChannelPtr chan, const Ptr sndhdr)
 		LOG_NOPREFIX << "extSH: " << bitDepth << "-bit " << (nChannels == 1? "mono": "stereo") << ", " << nFrames << " frames\n";
 
 		// TODO: Get rid of gratuitous buffer copy
-		streamPtr = std::make_unique<cmixer::WavStream>(sampleRate, bitDepth, nChannels, std::vector<char>(here, here + nBytes));
-		streamPtr->bigEndian = true;
+		source.Init(sampleRate, bitDepth, nChannels, true, std::vector<char>(here, here + nBytes));
 		break;
 	}
 
@@ -331,7 +331,7 @@ static void ProcessSoundCmd(SndChannelPtr chan, const Ptr sndhdr)
 			auto decoded = Pomme::Sound::DecodeIMA4(std::vector<Byte>(here, here + nBytes), nChannels);
 			LOG_NOPREFIX << nBytes << " B (" << nBytes/nChannels << "), " << decoded.size() / nChannels << " frames\n";
 			// TODO: Get rid of gratuitous buffer copy
-			streamPtr = std::make_unique<cmixer::WavStream>(sampleRate, 16, nChannels,
+			source.Init(sampleRate, 16, nChannels, false,
 				std::vector<char>((char*)decoded.data(), (char*)(decoded.data() + decoded.size())));
 			break;
 		}
@@ -343,7 +343,7 @@ static void ProcessSoundCmd(SndChannelPtr chan, const Ptr sndhdr)
 			auto decoded = Pomme::Sound::DecodeMACE3(std::vector<Byte>(here, here + nBytes), nChannels);
 			LOG_NOPREFIX << nBytes << " B (" << nBytes / nChannels << "), " << decoded.size() / nChannels << " frames\n";
 			// TODO: Get rid of gratuitous buffer copy
-			streamPtr = std::make_unique<cmixer::WavStream>(sampleRate, 16, nChannels,
+			source.Init(sampleRate, 16, nChannels, false,
 				std::vector<char>((char*)decoded.data(), (char*)(decoded.data() + decoded.size())));
 			break;
 		}
@@ -358,21 +358,19 @@ static void ProcessSoundCmd(SndChannelPtr chan, const Ptr sndhdr)
 		TODOFATAL2("unsupported snd header encoding " << (int)encoding);
 	}
 
-	if (streamPtr) {
-		if (loopEnd - loopStart <= 1) {
-			// don't loop
-		}
-		else if (loopStart == 0) {
-			streamPtr->SetLoop(true);
-		}
-		else {
-			TODO2("looping on a portion of the snd isn't supported yet");
-			streamPtr->SetLoop(true);
-		}
-
-		GetEx(chan).ApplyPitch();
-		streamPtr->Play();
+	if (loopEnd - loopStart <= 1) {
+		// don't loop
 	}
+	else if (loopStart == 0) {
+		source.SetLoop(true);
+	}
+	else {
+		TODO2("looping on a portion of the snd isn't supported yet");
+		source.SetLoop(true);
+	}
+
+	impl.ApplyPitch();
+	source.Play();
 }
 
 OSErr SndDoImmediate(SndChannelPtr chan, const SndCommand* cmd)
@@ -390,8 +388,7 @@ OSErr SndDoImmediate(SndChannelPtr chan, const SndCommand* cmd)
 		break;
 
 	case quietCmd:
-		if (GetMixSource(chan))
-			GetMixSource(chan)->Stop();
+		impl.source.Stop();
 		break;
 
 	case soundCmd:
@@ -399,38 +396,26 @@ OSErr SndDoImmediate(SndChannelPtr chan, const SndCommand* cmd)
 		break;
 
 	case ampCmd:
-	{
-		double desiredAmplitude = cmd->param1 / 255.0;
-		LOG << "ampCmd " << desiredAmplitude << "\n";
-		if (impl.streamPtr)
-			impl.streamPtr->SetGain(desiredAmplitude);
+		impl.source.SetGain(cmd->param1 / 255.0);
+		LOG << "ampCmd " << impl.source.gain << "\n";
 		break;
-	}
 
 	case freqCmd:
-	{
 		LOG << "freqCmd " << cmd->param2 << " " << GetMidiNoteName(cmd->param2) << " " << midiNoteFrequencies[cmd->param2] << "\n";
 		impl.playbackNote = Byte(cmd->param2);
 		impl.ApplyPitch();
 		break;
-	}
 
 	case rateCmd:
-	{
 		// IM:S says it's a fixed-point multiplier of 22KHz, but Nanosaur uses rate "1" everywhere,
 		// even for sounds sampled at 44Khz, so I'm treating it as just a pitch multiplier.
 		impl.pitchMult = cmd->param2 / 65536.0;
 		impl.ApplyPitch();
 		break;
-	}
 
 	case pommeSetLoopCmd:
-	{
-		if (impl.streamPtr) {
-			impl.streamPtr->SetLoop(cmd->param1);
-		}
+		impl.source.SetLoop(cmd->param1);
 		break;
-	}
 
 	default:
 		TODOMINOR2(cmd->cmd << "(" << cmd->param1 << "," << cmd->param2 << ")");
@@ -522,18 +507,16 @@ OSErr SndStartFilePlay(
 
 	impl.Recycle();
 
-	// TODO: get rid of the gratuitous buffer copy
-	impl.streamPtr = std::make_unique<cmixer::WavStream>(clip.sampleRate, 16, clip.nChannels, std::vector<char>(clip.pcmData));
+	impl.source.Init(clip.sampleRate, 16, clip.nChannels, false, std::move(clip.pcmData));
 
-	if (theCompletion)
-		impl.streamPtr->onComplete = [=]() { theCompletion(chan); };
-	else
-		impl.streamPtr->onComplete = nullptr;
+	if (theCompletion) {
+		impl.source.onComplete = [=]() { theCompletion(chan); };
+	}
 
-	impl.streamPtr->Play();
+	impl.source.Play();
 
 	if (!async) {
-		while (impl.streamPtr->GetState() != cmixer::CM_STATE_STOPPED) {
+		while (impl.source.GetState() != cmixer::CM_STATE_STOPPED) {
 			std::this_thread::sleep_for(std::chrono::milliseconds(100));
 		}
 		theCompletion(chan);
@@ -547,8 +530,7 @@ OSErr SndStartFilePlay(
 OSErr SndPauseFilePlay(SndChannelPtr chan)
 {
 	// TODO: check that chan is being used for play from disk
-	auto& stream = GetEx(chan).streamPtr;
-	if (stream) stream->TogglePause();
+	GetMixSource(chan).TogglePause();
 	return noErr;
 }
 
@@ -557,8 +539,7 @@ OSErr SndStopFilePlay(SndChannelPtr chan, Boolean quietNow)
 	// TODO: check that chan is being used for play from disk
 	if (!quietNow)
 		TODO2("quietNow==false not supported yet, sound will be cut off immediately instead");
-	auto& stream = GetEx(chan).streamPtr;
-	if (stream) stream->Stop();
+	GetMixSource(chan).Stop();
 	return noErr;
 }
 

@@ -191,15 +191,39 @@ void Mixer::Process(int16_t* dst, int len)
 //-----------------------------------------------------------------------------
 // Source implementation
 
-Source::Source(int theSampleRate, int theLength)
+Source::Source()
 {
-	memset(this, 0, sizeof(*this));
-	length = theLength;
-	samplerate = theSampleRate;
+	active = false;
+	Clear();
+}
+
+void Source::Clear()
+{
+	samplerate	= 0;
+	length		= 0;
+	end			= 0;
+	state		= CM_STATE_STOPPED;
+	position	= 0;
+	lgain		= 0;
+	rgain		= 0;
+	rate		= 0;
+	nextfill	= 0;
+	loop		= false;
+	rewind		= true;
+	// DON'T touch active. The source may still be in gMixer!
+	gain		= 0;
+	pan			= 0;
+	onComplete	= nullptr;
+}
+
+void Source::Init(int samplerate, int length)
+{
+	this->samplerate = samplerate;
+	this->length = length;
 	SetGain(1);
 	SetPan(0);
 	SetPitch(1);
-	SetLoop(0);
+	SetLoop(false);
 	Stop();
 }
 
@@ -409,19 +433,39 @@ void Source::Stop()
     idx++;					\
   }
 
-WavStream::WavStream(
+WavStream::WavStream()
+	: Source()
+	, bitdepth(0)
+	, channels(0)
+	, bigEndian(false)
+	, udata()
+	, idx(0)
+{}
+
+void WavStream::Clear()
+{
+	Source::Clear();
+	bitdepth = 0;
+	channels = 0;
+	bigEndian = false;
+	idx = 0;
+	udata.clear();
+}
+
+void WavStream::Init(
 	int theSampleRate,
 	int theBitDepth,
 	int nChannels,
-	std::vector<char>&& data
-)
-	: Source(theSampleRate, int((data.size() / (theBitDepth / 8)) / nChannels))
-	, bitdepth(theBitDepth)
-	, channels(nChannels)
-	, idx(0)
-	, udata(data)
-	, bigEndian(false)
+	bool bigEndian,
+	std::vector<char>&& data)
 {
+	Clear();
+	Source::Init(theSampleRate, int((data.size() / (theBitDepth / 8)) / nChannels));
+	this->bitdepth = theBitDepth;
+	this->channels = nChannels;
+	this->idx = 0;
+	this->udata = std::move(data);
+	this->bigEndian = bigEndian;
 }
 
 void WavStream::Rewind2()

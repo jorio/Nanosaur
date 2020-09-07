@@ -55,19 +55,19 @@ struct Source {
 	std::function<void()> onComplete;		// Callback
 
 protected:
-	Source(int theSampleRate, int theLength);
+	Source();
+	void Init(int samplerate, int length);
 
 	virtual void Rewind2() = 0;
 	virtual void FillBuffer(int16_t* buffer, int length) = 0;
 
 public:
+	virtual ~Source();
+	virtual void Clear();
 	void Rewind();
 	void RecalcGains();
 	void FillBuffer(int offset, int length);
 	void Process(int len);
-
-public:
-	virtual ~Source();
 	double GetLength() const;
 	double GetPosition() const;
 	int GetState() const;
@@ -84,9 +84,10 @@ public:
 class WavStream : public Source {
 	int bitdepth;
 	int channels;
-	int idx;
+	bool bigEndian;
 
 	std::vector<char> udata;
+	int idx;
 
 	void Rewind2() override;
 	void FillBuffer(int16_t* buffer, int length) override;
@@ -95,12 +96,15 @@ class WavStream : public Source {
 	inline int16_t* data16() { return (int16_t*)udata.data(); }
 
 public:
-	bool bigEndian;
+	WavStream();
 
-	WavStream(
+	virtual void Clear() override;
+
+	void Init(
 		int theSampleRate,
 		int theBitDepth,
 		int nChannels,
+		bool bigEndian,
 		std::vector<char>&& data
 	);
 };
