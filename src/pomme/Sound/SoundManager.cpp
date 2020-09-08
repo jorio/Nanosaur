@@ -14,7 +14,33 @@ static SndChannelPtr headChan = nullptr;
 static int nManagedChans = 0;
 static double midiNoteFrequencies[128];
 
+//-----------------------------------------------------------------------------
+// 'snd ' resource header
+
+struct SndHeader
+{
+	SInt32	zero;
+	union						// the meaning of union this is decided by the encoding type
+	{
+		SInt32	stdSH_nBytes;
+		SInt32	cmpSH_nChannels;
+		SInt32	extSH_nChannels;
+	};
+	Fixed	fixedSampleRate;
+	UInt32	loopStart;
+	UInt32	loopEnd;
+	Byte	encoding;
+	Byte	baseFrequency;		 // 0-127, see Table 2-2, IM:S:2-43
+
+	int sampleRate() const
+	{
+		return (((unsigned)fixedSampleRate) >> 16) & 0xFFFF;
+	}
+};
+
+//-----------------------------------------------------------------------------
 // Internal channel info
+
 struct ChannelEx
 {
 	SndChannelPtr prevChan;
@@ -44,6 +70,9 @@ struct ChannelEx
 		source.SetPitch(pitchMult * playbackFreq / baseFreq);
 	}
 };
+
+//-----------------------------------------------------------------------------
+// Internal utilities
 
 static inline ChannelEx& GetEx(SndChannelPtr chan)
 {
@@ -240,69 +269,57 @@ static void ProcessSoundCmd(SndChannelPtr chan, const Ptr sndhdr)
 
 	auto& impl = GetEx(chan);
 
-	cmixer::WavStream& source = impl.source;
-
 	impl.Recycle();
 
 	// PACKED RECORD
 	memstream headerInput(sndhdr, 22+42);
 	Pomme::BigEndianIStream f(headerInput);
 
-	if (f.Read<SInt32>() != 0) {
+	SndHeader sh;
+	static_assert(sizeof(SndHeader) >= 22 && sizeof(SndHeader) <= 24, "unexpected SndHeader size");
+	f.Read(reinterpret_cast<char*>(&sh), 22);
+	structpack::Unpack("iiIIIbb", reinterpret_cast<char*>(&sh));
+
+	if (sh.zero != 0) {
 		TODOFATAL2("expected 0 at the beginning of an snd");
 	}
 
-	SInt32	mysteryNumber	= f.Read<SInt32>(); // the meaning of this is decided by the encoding just a bit later
-	Fixed	fixedSampleRate	= f.Read<Fixed>();
-	UInt32	loopStart		= f.Read<UInt32>();
-	UInt32	loopEnd			= f.Read<UInt32>();
-	Byte	encoding		= f.Read<Byte>();
-	Byte	baseFrequency	= f.Read<Byte>(); // 0-127, see Table 2-2, IM:S:2-43
+	int sampleRate = sh.sampleRate();
+	impl.baseNote = sh.baseFrequency;
 
-	int		sampleRate		= (((unsigned)fixedSampleRate) >> 16) & 0xFFFF;
-	impl.baseNote = baseFrequency;
+	LOG << sampleRate << "Hz, " << GetMidiNoteName(sh.baseFrequency) << ", loop " << sh.loopStart << "->" << sh.loopEnd << ", ";
 
-	LOG << sampleRate << "Hz, " << GetMidiNoteName(baseFrequency) << ", loop " << loopStart << "->" << loopEnd << ", ";
-
-	switch (encoding) {
+	switch (sh.encoding) {
 	case 0x00: // stdSH - standard sound header - IM:S:2-104
 	{
-		SInt32 nBytes = mysteryNumber; // first field meant nBytes
-
 		// noncompressed sample data (8-bit mono) from this point on
 		auto here = sndhdr + f.Tell();
-
-		LOG_NOPREFIX << "stdSH: 8-bit mono, " << nBytes << " frames\n";
-
-		source.Init(sampleRate, 8, 1, false, std::span<char>(here, nBytes));
+		impl.source.Init(sampleRate, 8, 1, false, std::span<char>(here, sh.stdSH_nBytes));
+		std::cout << "stdSH: 8-bit mono, " << sh.stdSH_nBytes << " frames\n";
 		break;
 	}
 
 	case 0xFF: // extSH - extended sound header - IM:S:2-106
 	{
-		SInt32 nChannels = mysteryNumber; // first field meant nChannels
-
 		// fields that follow baseFrequency
 		SInt32 nFrames = f.Read<SInt32>();
 		f.Skip(22);
 		SInt16 bitDepth = f.Read<SInt16>();
 		f.Skip(14);
 
-		int nBytes = nChannels * nFrames * bitDepth / 8;
+		int nBytes = sh.extSH_nChannels * nFrames * bitDepth / 8;
 
 		// noncompressed sample data (big endian) from this point on
 		auto here = sndhdr + f.Tell();
 
-		LOG_NOPREFIX << "extSH: " << bitDepth << "-bit " << (nChannels == 1? "mono": "stereo") << ", " << nFrames << " frames\n";
+		LOG_NOPREFIX << "extSH: " << bitDepth << "-bit " << (sh.extSH_nChannels == 1? "mono": "stereo") << ", " << nFrames << " frames\n";
 
-		source.Init(sampleRate, bitDepth, nChannels, true, std::span<char>(here, nBytes));
+		impl.source.Init(sampleRate, bitDepth, sh.extSH_nChannels, true, std::span<char>(here, nBytes));
 		break;
 	}
 
 	case 0xFE: // cmpSH - compressed sound header - IM:S:2-108
 	{
-		SInt32 nChannels = mysteryNumber; // first field meant nChannels
-
 		// fields that follow baseFrequency
 		SInt32 nCompressedChunks = f.Read<SInt32>();
 		f.Skip(14);
@@ -320,32 +337,32 @@ static void ProcessSoundCmd(SndChannelPtr chan, const Ptr sndhdr)
 		// compressed sample data from this point on
 		auto here = sndhdr + f.Tell();
 
-		LOG_NOPREFIX << "cmpSH: " << Pomme::FourCCString(format) << " " << (nChannels == 1 ? "mono" : "stereo") << ", " << nCompressedChunks << " ck, ";
+		std::cout << "cmpSH: " << Pomme::FourCCString(format) << " " << (sh.cmpSH_nChannels == 1 ? "mono" : "stereo") << ", " << nCompressedChunks << " ck\n";
 
 		switch (format) {
 		case 'ima4':
 		{
-			int nBytesIn = 34 * nChannels * nCompressedChunks;
-			int nBytesOut = Pomme::Sound::IMA4::GetOutputSize(nBytesIn, nChannels);
+			int nBytesIn = 34 * sh.cmpSH_nChannels * nCompressedChunks;
+			int nBytesOut = Pomme::Sound::IMA4::GetOutputSize(nBytesIn, sh.cmpSH_nChannels);
 
 			auto spanIn = std::span(here, nBytesIn);
-			auto spanOut = source.GetBuffer(nBytesOut);
+			auto spanOut = impl.source.GetBuffer(nBytesOut);
 
-			Pomme::Sound::IMA4::Decode(nChannels, spanIn, spanOut);
-			source.Init(sampleRate, 16, nChannels, false, spanOut);
+			Pomme::Sound::IMA4::Decode(sh.cmpSH_nChannels, spanIn, spanOut);
+			impl.source.Init(sampleRate, 16, sh.cmpSH_nChannels, false, spanOut);
 			break;
 		}
 
 		case 'MAC3':
 		{
-			int nBytesIn = 2 * nChannels * nCompressedChunks;
-			int nBytesOut = Pomme::Sound::MACE::GetOutputSize(nBytesIn, nChannels);
+			int nBytesIn = 2 * sh.cmpSH_nChannels * nCompressedChunks;
+			int nBytesOut = Pomme::Sound::MACE::GetOutputSize(nBytesIn, sh.cmpSH_nChannels);
 
 			auto spanIn = std::span(here, nBytesIn);
-			auto spanOut = source.GetBuffer(nBytesOut);
+			auto spanOut = impl.source.GetBuffer(nBytesOut);
 
-			Pomme::Sound::MACE::Decode(nChannels, spanIn, spanOut);
-			source.Init(sampleRate, 16, nChannels, false, spanOut);
+			Pomme::Sound::MACE::Decode(sh.cmpSH_nChannels, spanIn, spanOut);
+			impl.source.Init(sampleRate, 16, sh.cmpSH_nChannels, false, spanOut);
 			break;
 		}
 
@@ -356,22 +373,22 @@ static void ProcessSoundCmd(SndChannelPtr chan, const Ptr sndhdr)
 	}
 
 	default:
-		TODOFATAL2("unsupported snd header encoding " << (int)encoding);
+		TODOFATAL2("unsupported snd header encoding " << (int)sh.encoding);
 	}
 
-	if (loopEnd - loopStart <= 1) {
+	if (sh.loopEnd - sh.loopStart <= 1) {
 		// don't loop
 	}
-	else if (loopStart == 0) {
-		source.SetLoop(true);
+	else if (sh.loopStart == 0) {
+		impl.source.SetLoop(true);
 	}
 	else {
 		TODO2("looping on a portion of the snd isn't supported yet");
-		source.SetLoop(true);
+		impl.source.SetLoop(true);
 	}
 
 	impl.ApplyPitch();
-	source.Play();
+	impl.source.Play();
 }
 
 OSErr SndDoImmediate(SndChannelPtr chan, const SndCommand* cmd)
