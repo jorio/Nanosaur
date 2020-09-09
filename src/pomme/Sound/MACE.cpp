@@ -196,8 +196,8 @@ int Pomme::Sound::MACE::GetOutputSize(
 
 void Pomme::Sound::MACE::Decode(
 	const int nChannels,
-	const std::span<char>& input,
-	std::span<char> output)
+	const std::span<const char>& input,
+	const std::span<char> output)
 {
 	if (input.size() % (nChannels * 2) != 0)
 		throw std::invalid_argument("odd input buffer size");
@@ -207,7 +207,7 @@ void Pomme::Sound::MACE::Decode(
 	if (output.size() != nSamples * 2)
 		throw std::invalid_argument("incorrect output size");
 
-	SInt16* out = reinterpret_cast<SInt16*>(output.data());
+	int16_t* out = reinterpret_cast<int16_t*>(output.data());
 
 	MACEContext ctx = {};
 
@@ -228,5 +228,5 @@ void Pomme::Sound::MACE::Decode(
 		}
 	}
 
-	assert(out == reinterpret_cast<SInt16*>(output.data() + output.size()));
+	assert(reinterpret_cast<char*>(out) == output.data() + output.size());
 }

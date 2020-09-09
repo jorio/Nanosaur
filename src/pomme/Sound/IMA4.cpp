@@ -80,13 +80,13 @@ static inline int adpcm_ima_qt_expand_nibble(ADPCMChannelStatus* c, int nibble, 
 
 // In QuickTime, IMA is encoded by chunks of 34 bytes (=64 samples). Channel data is interleaved per-chunk.
 static void DecodeIMA4Chunk(
-	const unsigned char** input,
-	SInt16** output,
+	const uint8_t** input,
+	int16_t** output,
 	std::vector<ADPCMChannelStatus>& ctx)
 {
 	const int nChannels = ctx.size();
 	const unsigned char* in = *input;
-	SInt16* out = *output;
+	int16_t* out = *output;
 	
 	for (int chan = 0; chan < nChannels; chan++) {
 		ADPCMChannelStatus& cs = ctx[chan];
@@ -114,7 +114,7 @@ static void DecodeIMA4Chunk(
 
 		int pos = chan;
 		for (int m = 0; m < 32; m++) {
-			int byte = (unsigned char)(*in++);
+			int byte = (uint8_t)(*in++);
 			out[pos] = adpcm_ima_qt_expand_nibble(&cs, byte & 0x0F, 3);
 			pos += nChannels;
 			out[pos] = adpcm_ima_qt_expand_nibble(&cs, byte >> 4, 3);
@@ -137,20 +137,20 @@ int Pomme::Sound::IMA4::GetOutputSize(
 
 void Pomme::Sound::IMA4::Decode(
 	const int nChannels,
-	const std::span<char>& input,
-	std::span<char> output)
+	const std::span<const char>& input,
+	const std::span<char> output)
 {
 	if (input.size() % 34 != 0)
 		throw std::invalid_argument("odd input buffer size");
 
-	int nChunks = int(input.size()) / (34 * nChannels);
-	int nSamples = 64 * nChunks;
+	const int nChunks = int(input.size()) / (34 * nChannels);
+	const int nSamples = 64 * nChunks;
 
 	if (output.size() != nSamples * nChannels * 2)
 		throw std::invalid_argument("incorrect output size");
 
-	const unsigned char* in = reinterpret_cast<unsigned char*>(input.data());
-	SInt16* out = reinterpret_cast<SInt16*>(output.data());
+	const uint8_t* in = reinterpret_cast<const unsigned char*>(input.data());
+	int16_t* out = reinterpret_cast<int16_t*>(output.data());
 	std::vector<ADPCMChannelStatus> ctx(nChannels);
 
 	for (int chunk = 0; chunk < nChunks; chunk++)
@@ -158,5 +158,6 @@ void Pomme::Sound::IMA4::Decode(
 		DecodeIMA4Chunk(&in, &out, ctx);
 	}
 
-	assert(in == reinterpret_cast<unsigned char*>(input.data() + input.size()));
+	assert(reinterpret_cast<const char*>(in) == input.data() + input.size());
+	assert(reinterpret_cast<char*>(out) == output.data() + output.size());
 }
