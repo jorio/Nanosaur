@@ -123,22 +123,14 @@ OSErr DrawPictureToScreen(FSSpec* spec, short x, short y)
 
 void DumpGLPixels(const char* outFN)
 {
-	/*
-	int pakk = -1;
-	glGetIntegerv(GL_PACK_ALIGNMENT, &pakk);
-	printf("======== PACK_ALIGNMENT is %d\n", pakk);
-	glFinish();
-	 */
-
-	//glPixelStorei(GL_PACK_ALIGNMENT, 1);
-	const int WIDTH = 640;
-	const int HEIGHT = 480;
-	auto buf = std::vector<char>(WIDTH * HEIGHT * 3);
-	glReadPixels(0, 0, WIDTH, HEIGHT, GL_BGR, GL_UNSIGNED_BYTE, buf.data());
-	//glFinish();
+	int width = 640;
+	int height = 480;
+	SDL_GetWindowSize(gSDLWindow, &width, &height);
+	auto buf = std::vector<char>(width * height * 3);
+	glReadPixels(0, 0, width, height, GL_BGR, GL_UNSIGNED_BYTE, buf.data());
 	
 	std::ofstream out(outFN, std::ios::out | std::ios::binary);
-	short TGAhead[] = { 0, 2, 0, 0, 0, 0, WIDTH, HEIGHT, 24 };
+	short TGAhead[] = { 0, 2, 0, 0, 0, 0, width, height, 24 };
 	out.write(reinterpret_cast<char*>(&TGAhead), sizeof(TGAhead));
 	out.write(buf.data(), buf.size());
 	

@@ -235,7 +235,7 @@ do_again:
 	QD3D_CalcFramesPerSecond();		// call this to prime data for demo playback/record
 
 
-	DumpGLPixels("/tmp/nanodump.tga");
+	DumpGLPixels("nanodump_menu.tga");
 	
 		/***********/
 		/* CLEANUP */
