@@ -251,6 +251,7 @@ void WriteResource(Handle theResource) {
 }
 
 void DetachResource(Handle theResource) {
+	lastResError = noErr;
 	ONCE(TODOMINOR());
 }
 

@@ -15,16 +15,35 @@ static int nManagedChans = 0;
 static double midiNoteFrequencies[128];
 
 //-----------------------------------------------------------------------------
+// Cookie-cutter sound command list.
+// Used to generate 'snd ' resources.
+
+static const char kSampledSoundCommandList[20] = {
+	0,1,			// format
+	0,1,			// modifier count
+	0,5,			// modifier "sampled synth"
+	0,0,0,0,		// init bits
+	0,1,			// command count
+	(char)0x80,soundCmd,	// command soundCmd (high bit set)
+	0,0,			// param1
+	0,0,0,20,		// param2 (offset)
+	// Sample data follows
+};
+
+constexpr int kSampledSoundCommandListLength = sizeof(kSampledSoundCommandList);
+
+//-----------------------------------------------------------------------------
 // 'snd ' resource header
 
-struct SndHeader
+struct SampledSoundHeader
 {
-	SInt32	zero;
+	UInt32	zero;
 	union						// the meaning of union this is decided by the encoding type
 	{
 		SInt32	stdSH_nBytes;
 		SInt32	cmpSH_nChannels;
 		SInt32	extSH_nChannels;
+		SInt32	nativeSH_nBytes;
 	};
 	Fixed	fixedSampleRate;
 	UInt32	loopStart;
@@ -32,10 +51,25 @@ struct SndHeader
 	Byte	encoding;
 	Byte	baseFrequency;		 // 0-127, see Table 2-2, IM:S:2-43
 
-	int sampleRate() const
+	unsigned int sampleRate() const
 	{
-		return (((unsigned)fixedSampleRate) >> 16) & 0xFFFF;
+		return (static_cast<unsigned int>(fixedSampleRate) >> 16) & 0xFFFF;
 	}
+};
+
+static_assert(sizeof(SampledSoundHeader) >= 22 && sizeof(SampledSoundHeader) <= 24,
+	"unexpected SampledSoundHeader size");
+
+constexpr int kSampledSoundHeaderLength = 22;
+constexpr const char* kSampledSoundHeaderPackFormat = "IiIIIbb";
+
+enum SampledSoundEncoding
+{
+	stdSH				= 0x00,
+	nativeSH_mono16		= 0x10,		// pomme extension
+	nativeSH_stereo16	= 0x11,		// pomme extension
+	cmpSH				= 0xFE,
+	extSH				= 0xFF,
 };
 
 //-----------------------------------------------------------------------------
@@ -272,15 +306,16 @@ static void ProcessSoundCmd(SndChannelPtr chan, const Ptr sndhdr)
 	impl.Recycle();
 
 	// PACKED RECORD
-	memstream headerInput(sndhdr, 22+42);
+	memstream headerInput(sndhdr, kSampledSoundHeaderLength+42);
 	Pomme::BigEndianIStream f(headerInput);
 
-	SndHeader sh;
-	static_assert(sizeof(SndHeader) >= 22 && sizeof(SndHeader) <= 24, "unexpected SndHeader size");
-	f.Read(reinterpret_cast<char*>(&sh), 22);
-	structpack::Unpack("iiIIIbb", reinterpret_cast<char*>(&sh));
+	SampledSoundHeader sh;
+	f.Read(reinterpret_cast<char*>(&sh), kSampledSoundHeaderLength);
+	structpack::Unpack(kSampledSoundHeaderPackFormat, reinterpret_cast<char*>(&sh));
 
 	if (sh.zero != 0) {
+		// The first field can be a pointer to the sampled-sound data.
+		// In practice it's always gonna be 0.
 		TODOFATAL2("expected 0 at the beginning of an snd");
 	}
 
@@ -293,9 +328,20 @@ static void ProcessSoundCmd(SndChannelPtr chan, const Ptr sndhdr)
 	case 0x00: // stdSH - standard sound header - IM:S:2-104
 	{
 		// noncompressed sample data (8-bit mono) from this point on
-		auto here = sndhdr + f.Tell();
+		char* here = sndhdr + f.Tell();
 		impl.source.Init(sampleRate, 8, 1, false, std::span<char>(here, sh.stdSH_nBytes));
-		std::cout << "stdSH: 8-bit mono, " << sh.stdSH_nBytes << " frames\n";
+		LOG_NOPREFIX << "stdSH: 8-bit mono, " << sh.stdSH_nBytes << " frames\n";
+		break;
+	}
+
+	case nativeSH_mono16:
+	case nativeSH_stereo16:
+	{
+		int nChannels = sh.encoding == nativeSH_mono16 ? 1 : 2;
+		char* here = sndhdr + f.Tell();
+		auto span = std::span(here, sh.nativeSH_nBytes);
+		impl.source.Init(sampleRate, 16, nChannels, false, span);
+		LOG_NOPREFIX << "nativeSH\n";
 		break;
 	}
 
@@ -310,7 +356,7 @@ static void ProcessSoundCmd(SndChannelPtr chan, const Ptr sndhdr)
 		int nBytes = sh.extSH_nChannels * nFrames * bitDepth / 8;
 
 		// noncompressed sample data (big endian) from this point on
-		auto here = sndhdr + f.Tell();
+		char* here = sndhdr + f.Tell();
 
 		LOG_NOPREFIX << "extSH: " << bitDepth << "-bit " << (sh.extSH_nChannels == 1? "mono": "stereo") << ", " << nFrames << " frames\n";
 
@@ -335,7 +381,7 @@ static void ProcessSoundCmd(SndChannelPtr chan, const Ptr sndhdr)
 		}
 		
 		// compressed sample data from this point on
-		auto here = sndhdr + f.Tell();
+		char* here = sndhdr + f.Tell();
 
 		std::cout << "cmpSH: " << Pomme::FourCCString(format) << " " << (sh.cmpSH_nChannels == 1 ? "mono" : "stereo") << ", " << nCompressedChunks << " ck\n";
 
@@ -467,7 +513,6 @@ OSErr GetSoundHeaderOffset(SndListHandle sndHandle, long* offset)
 	SInt16 nCmds = f.Read<SInt16>();
 	//LOG << nCmds << " commands\n";
 	for (; nCmds >= 1; nCmds--) {
-		// todo: ReadStruct<SndCommand>, packfmt = Hhl (noalign)
 		UInt16 cmd = f.Read<UInt16>();
 		SInt16 param1 = f.Read<SInt16>();
 		SInt32 param2 = f.Read<SInt32>();
@@ -477,9 +522,7 @@ OSErr GetSoundHeaderOffset(SndListHandle sndHandle, long* offset)
 		// command from a pointer to a location in RAM to an offset value that specifies the offset
 		// in bytes from the resource's beginning to the location of the associated sound data (such
 		// as a sampled sound header). 
-		//LOG << "command " << cmd << "\n";
 		if (cmd == bufferCmd || cmd == soundCmd) {
-			//LOG << "offset found! " << param2 << "\n";
 			*offset = param2;
 			return noErr;
 		}
@@ -561,13 +604,108 @@ OSErr SndStopFilePlay(SndChannelPtr chan, Boolean quietNow)
 	return noErr;
 }
 
-NumVersion SndSoundManagerVersion() {
-	NumVersion v;
+NumVersion SndSoundManagerVersion()
+{
+	NumVersion v = {};
 	v.majorRev = 3;
 	v.minorAndBugRev = 9;
 	v.stage = 0x80;
 	v.nonRelRev = 0;
 	return v;
+}
+
+//-----------------------------------------------------------------------------
+// Extension: decompress
+
+Boolean Pomme_DecompressSoundResource(SndListHandle* sndHandlePtr, long* offsetToHeader)
+{
+	// Prep the BE reader on the header.
+	Ptr sndhdr = (Ptr)(**sndHandlePtr) + *offsetToHeader;
+	memstream headerInput(sndhdr, kSampledSoundHeaderLength + 42);
+	Pomme::BigEndianIStream f(headerInput);
+
+	// Read in SampledSoundHeader and unpack it.
+	SampledSoundHeader sh;
+	f.Read(reinterpret_cast<char*>(&sh), kSampledSoundHeaderLength);
+	structpack::Unpack(kSampledSoundHeaderPackFormat, reinterpret_cast<char*>(&sh));
+
+	// We only handle cmpSH (compressed) 'snd ' resources.
+	if (sh.encoding != cmpSH) {
+		return false;
+	}
+
+	// Fields that follow SampledSoundHeader when the encoding is cmpSH.
+	const auto nCompressedChunks = f.Read<SInt32>();
+	f.Skip(14);
+	const auto format = f.Read<OSType>();
+	f.Skip(20);
+
+	// Compressed sample data in the input stream from this point on.
+
+	const char* here = sndhdr + f.Tell();
+
+	int outInitialSize = kSampledSoundCommandListLength + kSampledSoundHeaderLength;
+	SndListHandle outHandle = nil;
+	int nBytesOut = 0;
+
+	// Decompress
+	switch (format) {
+	case 'ima4':
+	{
+		const int nBytesIn = 34 * sh.cmpSH_nChannels * nCompressedChunks;
+		nBytesOut = Pomme::Sound::IMA4::GetOutputSize(nBytesIn, sh.cmpSH_nChannels);
+		outHandle = (SndListHandle)NewHandle(outInitialSize + nBytesOut);
+		auto spanIn = std::span(here, nBytesIn);
+		auto spanOut = std::span((char*)*outHandle + outInitialSize, nBytesOut);
+		Pomme::Sound::IMA4::Decode(sh.cmpSH_nChannels, spanIn, spanOut);
+		break;
+	}
+
+	case 'MAC3':
+	case 0:  // Assume MACE-3 by default
+	{
+		int nBytesIn = 2 * sh.cmpSH_nChannels * nCompressedChunks;
+		nBytesOut = Pomme::Sound::MACE::GetOutputSize(nBytesIn, sh.cmpSH_nChannels);
+		outHandle = (SndListHandle)NewHandle(outInitialSize + nBytesOut);
+		auto spanIn = std::span(here, nBytesIn);
+		auto spanOut = std::span((char*)*outHandle + outInitialSize, nBytesOut);
+		Pomme::Sound::MACE::Decode(sh.cmpSH_nChannels, spanIn, spanOut);
+		break;
+	}
+
+	default:
+		// Unsupported sound compression format. Don't try to decompress it.
+		// It'll blow up if the mac program tries to play it back, but perhaps
+		// it never will, so it's not worth throwing an error here.
+		// (Namely, nanosaur has 'ulaw'-encoded sounds that it never uses.)
+		return false;
+	}
+
+	// ------------------------------------------------------
+	// Now we have the PCM data.
+	// Put the output 'snd ' resource together.
+	
+	SampledSoundHeader shOut = sh;
+	shOut.zero = 0;
+	shOut.encoding = sh.cmpSH_nChannels == 2 ? nativeSH_stereo16 : nativeSH_mono16;
+	shOut.nativeSH_nBytes = nBytesOut;
+	structpack::Pack(kSampledSoundHeaderPackFormat, reinterpret_cast<char*>(&shOut));
+
+	memcpy(*outHandle, kSampledSoundCommandList, kSampledSoundCommandListLength);
+	memcpy((char*)*outHandle + kSampledSoundCommandListLength, &shOut, kSampledSoundHeaderLength);
+
+	// Nuke compressed sound handle, replace it with the decopmressed one we've just created
+	DisposeHandle((Handle)*sndHandlePtr);
+	*sndHandlePtr = outHandle;
+	*offsetToHeader = kSampledSoundCommandListLength;
+
+	long offsetCheck = 0;
+	OSErr err = GetSoundHeaderOffset(outHandle, &offsetCheck);
+	if (err != noErr || offsetCheck != kSampledSoundCommandListLength) {
+		throw std::exception("Incorrect decompressed sound header offset");
+	}
+
+	return true;
 }
 
 //-----------------------------------------------------------------------------

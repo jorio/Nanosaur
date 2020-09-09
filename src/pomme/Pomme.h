@@ -311,3 +311,7 @@ OSErr SndPauseFilePlay(SndChannelPtr chan);
 OSErr SndStopFilePlay(SndChannelPtr chan, Boolean quietNow);
 
 NumVersion SndSoundManagerVersion();
+
+// Pomme extension
+Boolean Pomme_DecompressSoundResource(SndListHandle* sndHandlePtr, long* offsetToHeader);
+
