@@ -30,9 +30,9 @@ namespace stuffit {
 
 
 // Exception when extracting a fork.
-struct ExtractException : public std::exception {
+struct ExtractException : public std::runtime_error {
 
-    ExtractException(const char* msg) : std::exception(msg) {}
+    ExtractException(const char* msg) : std::runtime_error(msg) {}
 };
 
 

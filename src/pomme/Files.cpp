@@ -38,7 +38,7 @@ bool Pomme::Files::IsRefNumLegal(short refNum)
 std::iostream& Pomme::Files::GetStream(short refNum)
 {
 	if (!IsRefNumLegal(refNum)) {
-		throw std::exception("illegal refNum");
+		throw std::runtime_error("illegal refNum");
 	}
 	return openFiles[refNum]->GetStream();
 }
@@ -46,7 +46,7 @@ std::iostream& Pomme::Files::GetStream(short refNum)
 void Pomme::Files::CloseStream(short refNum)
 {
 	if (!IsRefNumLegal(refNum)) {
-		throw std::exception("illegal refNum");
+		throw std::runtime_error("illegal refNum");
 	}
 	openFiles[refNum].reset(nullptr);
 	openFiles.Dispose(refNum);
@@ -56,7 +56,7 @@ void Pomme::Files::CloseStream(short refNum)
 bool Pomme::Files::IsStreamOpen(short refNum)
 {
 	if (!IsRefNumLegal(refNum)) {
-		throw std::exception("illegal refNum");
+		throw std::runtime_error("illegal refNum");
 	}
 	return openFiles[refNum].get() != nullptr;
 //	return openFiles[refNum].stream.is_open();
@@ -65,7 +65,7 @@ bool Pomme::Files::IsStreamOpen(short refNum)
 bool Pomme::Files::IsStreamPermissionAllowed(short refNum, char perm)
 {
 	if (!IsRefNumLegal(refNum)) {
-		throw std::exception("illegal refNum");
+		throw std::runtime_error("illegal refNum");
 	}
 	return (perm & openFiles[refNum]->permission) == perm;
 }

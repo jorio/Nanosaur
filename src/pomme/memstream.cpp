@@ -39,10 +39,10 @@ std::streambuf::pos_type membuf::seekoff(off_type off, std::ios_base::seekdir di
 			pbump((int32_t)off);
 		}
 		else if (dir == std::ios_base::end) {
-			setp(begin, end + off, end);
+			setp(begin, end + off);
 		}
 		else if (dir == std::ios_base::beg) {
-			setp(begin, begin + off, end);
+			setp(begin, begin + off);
 		}
 
 		ret = pptr() - pbase();

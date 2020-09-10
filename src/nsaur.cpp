@@ -36,7 +36,7 @@ int CommonMain(int argc, const char** argv)
 	FSSpec applicationSpec = {};
 	//if (noErr != FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":Nanosaur\u2122", &applicationSpec)) {
 	if (noErr != FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":Nanosaur#", &applicationSpec)) {
-		throw std::exception("Can't find application resource file.");
+		throw std::runtime_error("Can't find application resource file.");
 	}
 	UseResFile(FSpOpenResFile(&applicationSpec, fsRdPerm));
 

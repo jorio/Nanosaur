@@ -702,7 +702,7 @@ Boolean Pomme_DecompressSoundResource(SndListHandle* sndHandlePtr, long* offsetT
 	long offsetCheck = 0;
 	OSErr err = GetSoundHeaderOffset(outHandle, &offsetCheck);
 	if (err != noErr || offsetCheck != kSampledSoundCommandListLength) {
-		throw std::exception("Incorrect decompressed sound header offset");
+		throw std::runtime_error("Incorrect decompressed sound header offset");
 	}
 
 	return true;

@@ -58,10 +58,10 @@ long ArchiveVolume::GetDirectoryID(const std::string& dirPath)
 //-----------------------------------------------------------------------------
 // Internal utilities
 
-class ArchiveVolumeException : public std::exception
+class ArchiveVolumeException : public std::runtime_error
 {
 public:
-	ArchiveVolumeException(const char* m) : std::exception(m) {}
+	ArchiveVolumeException(const char* m) : std::runtime_error(m) {}
 };
 
 static void ArchiveAssert(bool condition, const char* message)
@@ -144,7 +144,7 @@ OSErr ArchiveVolume::OpenFork(
 OSErr ArchiveVolume::FSMakeFSSpec(long dirID, const std::string& fileName, FSSpec* spec)
 {
 	if (dirID < 0 || dirID >= directories.size()) {
-		throw std::exception("ArchiveVolume::FSMakeFSSpec: directory ID not registered.");
+		throw std::runtime_error("ArchiveVolume::FSMakeFSSpec: directory ID not registered.");
 	}
 
 	auto path = directories[dirID];

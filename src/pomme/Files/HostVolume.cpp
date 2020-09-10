@@ -148,7 +148,7 @@ OSErr HostVolume::OpenFork(const FSSpec* spec, ForkType forkType, char permissio
 
 		auto f = Pomme::BigEndianIStream(handle->GetStream());
 		if (0x0005160700020000ULL != f.Read<UInt64>()) {
-			throw std::exception("Not ADF magic");
+			throw std::runtime_error("No ADF magic found in " + path.string());
 		}
 		f.Skip(16);
 		auto numOfEntries = f.Read<UInt16>();
@@ -168,7 +168,7 @@ OSErr HostVolume::OpenFork(const FSSpec* spec, ForkType forkType, char permissio
 			}
 		}
 		if (!foundEntryID2) {
-			throw std::exception("Didn't find entry ID=2 in ADF");
+			throw std::runtime_error("Didn't find entry ID=2 in ADF");
 		}
 	}
 
@@ -238,7 +238,7 @@ static bool CaseInsensitiveAppendToPath(
 OSErr HostVolume::FSMakeFSSpec(long dirID, const std::string& fileName, FSSpec* spec)
 {
 	if (dirID < 0 || dirID >= directories.size()) {
-		throw std::exception("HostVolume::FSMakeFSSpec: directory ID not registered.");
+		throw std::runtime_error("HostVolume::FSMakeFSSpec: directory ID not registered.");
 	}
 
 	auto path = directories[dirID];
