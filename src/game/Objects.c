@@ -517,10 +517,12 @@ Boolean			cacheMode;
 					QD3D_SetTextureFilter(kQATextureFilter_Mid);			// set nice textures
 			}
 		
+#if 0   // Source port removal
 				/* CHECK BLENDING */
 				
 			if (statusBits & STATUS_BIT_BLEND_INTERPOLATE)
 				ONCE(TODOMINOR2("QD3D_SetBlendingMode(kQABlend_Interpolate);"));
+#endif
 		
 				/* CHECK NULL SHADER */
 				
@@ -558,8 +560,10 @@ Boolean			cacheMode;
 			if (statusBits & STATUS_BIT_NULLSHADER)							// undo NULL shader
 				Q3Shader_Submit(setupInfo->shaderObject, view);
 				
+#if 0   // Source port removal
 			if (statusBits & STATUS_BIT_BLEND_INTERPOLATE)
 				ONCE(TODOMINOR2("QD3D_SetBlendingMode(kQABlend_PreMultiply);"));						// premul is normal
+#endif
 				
 		}
 		
