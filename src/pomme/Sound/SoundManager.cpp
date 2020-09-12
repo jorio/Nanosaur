@@ -91,6 +91,7 @@ public:
 	Byte baseNote = kMiddleC;
 	Byte playbackNote = kMiddleC;
 	double pitchMult = 1;
+	bool temporaryPause = false;
 	
 	ChannelImpl(SndChannelPtr _macChannel, bool transferMacChannelOwnership)
 		: macChannel(_macChannel)
@@ -123,6 +124,7 @@ public:
 		baseNote = kMiddleC;
 		playbackNote = kMiddleC;
 		pitchMult = 1;
+		temporaryPause = false;
 	}
 
 	void ApplyPitch()
@@ -471,6 +473,7 @@ static void ProcessSoundCmd(SndChannelPtr chan, const Ptr sndhdr)
 	}
 
 	impl.ApplyPitch();
+	impl.temporaryPause = false;
 	impl.source.Play();
 }
 
@@ -611,6 +614,7 @@ OSErr SndStartFilePlay(
 		impl.source.onComplete = [=]() { theCompletion(chan); };
 	}
 
+	impl.temporaryPause = false;
 	impl.source.Play();
 
 	if (!async) {
@@ -754,6 +758,23 @@ Boolean Pomme_DecompressSoundResource(SndListHandle* sndHandlePtr, long* offsetT
 	}
 
 	return true;
+}
+
+//-----------------------------------------------------------------------------
+// Extension: pause/unpause looping channels
+
+void Pomme_PauseLoopingChannels(Boolean pause)
+{
+	for (auto* chan = headChan; chan; chan = chan->GetNext()) {
+		auto& source = chan->source;
+		if (pause && source.state == cmixer::CM_STATE_PLAYING && !chan->temporaryPause) {
+			source.Pause();
+			chan->temporaryPause = true;
+		} else if (!pause && source.state == cmixer::CM_STATE_PAUSED && chan->temporaryPause) {
+			source.Play();
+			chan->temporaryPause = false;
+		}
+	}
 }
 
 //-----------------------------------------------------------------------------

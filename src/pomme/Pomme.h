@@ -319,3 +319,5 @@ NumVersion SndSoundManagerVersion();
 // Pomme extension
 Boolean Pomme_DecompressSoundResource(SndListHandle* sndHandlePtr, long* offsetToHeader);
 
+// Pomme extension
+void Pomme_PauseLoopingChannels(Boolean pause);

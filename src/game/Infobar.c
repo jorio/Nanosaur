@@ -407,7 +407,7 @@ Boolean	toggleMusic = !gMuteMusicFlag;
 	if (toggleMusic)
 		ToggleMusic();								// pause music
 
-	SetDefaultOutputVolume(0);						// Source port addition: mute mixer
+	Pomme_PauseLoopingChannels(true);				// Source port addition: pause all looping channels
 
 			/***************/
 			/* MAKE RESUME */
@@ -490,7 +490,7 @@ Boolean	toggleMusic = !gMuteMusicFlag;
 	if (toggleMusic)
 		ToggleMusic();										// restart music
 
-	SetDefaultOutputVolume(gCurrentSystemVolume);		// Source port addition: unmute mixer
+	Pomme_PauseLoopingChannels(false);						// Source port addition: unpause looping channels
 	
 	if (selected == 1)									// see if want out
 	{
