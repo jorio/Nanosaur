@@ -29,7 +29,7 @@ include_directories(
 add_definitions(-include Pomme.h)
 
 add_executable(nsaur
-        src/game/3dmath.c
+        src/game/3DMath.c
         src/game/3dmath.h
         src/game/3DMF.c
         src/game/3dmf.h

@@ -16,7 +16,7 @@
 #include "objects.h"
 #include "camera.h"
 #include "qd3d_support.h"
-#include "3DMath.h"
+#include "3dmath.h"
 #include "misc.h"
 #include "player_control.h"
 #include "input.h"
