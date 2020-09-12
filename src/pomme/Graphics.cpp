@@ -20,39 +20,25 @@ using namespace Pomme::Graphics;
 struct GrafPortImpl
 {
 	GrafPort port;
-	ARGBPixmap* pixels;
-	SDL_Window* window;
+	ARGBPixmap pixels;
 	bool dirty;
-
 	PixMap macpm;
 	PixMap* macpmPtr;
 
-	GrafPortImpl(const Rect boundsRect, SDL_Window* sdlWindow)
+	GrafPortImpl(const Rect boundsRect)
+		: port({boundsRect, this})
+		, pixels(boundsRect.right - boundsRect.left, boundsRect.bottom - boundsRect.top)
+		, dirty(false)
 	{
-		const int width = boundsRect.right - boundsRect.left;
-		const int height = boundsRect.bottom - boundsRect.top;
-
-		port = {};
-		port._impl = this;
-		port.portRect = boundsRect;
-
-		pixels = new ARGBPixmap(width, height);
-		window = sdlWindow;
-		dirty = false;
-
 		macpm = {};
 		macpm.bounds = boundsRect;
 		macpm.pixelSize = 32;
-		//macpm.baseAddr
-		macpm._impl = (Ptr)pixels;
-
+		macpm._impl = (Ptr)&pixels;
 		macpmPtr = &macpm;
 	}
 
 	~GrafPortImpl()
 	{
-		delete pixels;
-		pixels = nullptr;
 		macpm._impl = nullptr;
 	}
 };
@@ -60,7 +46,7 @@ struct GrafPortImpl
 // ---------------------------------------------------------------------------- -
 // Internal State
 
-static GrafPortImpl* screenPort = nullptr;
+static std::unique_ptr<GrafPortImpl> screenPort = nullptr;
 static GrafPortImpl* curPort = nullptr;
 static UInt32 penFG = 0xFF'FF'00'FF;
 static UInt32 penBG = 0xFF'00'00'FF;
@@ -101,8 +87,9 @@ void Pomme::Graphics::Init(const char* windowTitle, int windowWidth, int windowH
 
 	SDL_ENSURE(gSDLWindow);
 
-	screenPort = new GrafPortImpl({ 0,0,480,640}, gSDLWindow);
-	curPort = screenPort;
+	Rect boundsRect = {0,0,480,640};
+	screenPort = std::make_unique<GrafPortImpl>(boundsRect);
+	curPort = screenPort.get();
 
 	// the sdl gl context is now obtained by quesa
 	//SDL_ENSURE(gGLCtx = SDL_GL_CreateContext(gSDLWindow));
@@ -213,7 +200,7 @@ static inline ARGBPixmap& GetImpl(PixMapPtr pixMap)
 
 OSErr NewGWorld(GWorldPtr* offscreenGWorld, short pixelDepth, const Rect* boundsRect, void* junk1, void* junk2, long junk3)
 {
-	GrafPortImpl* impl = new GrafPortImpl(*boundsRect, nullptr);
+	GrafPortImpl* impl = new GrafPortImpl(*boundsRect);
 	*offscreenGWorld = &impl->port;
 	return noErr;
 }
@@ -280,7 +267,7 @@ void Pomme_SetPortDirty(Boolean dirty)
 
 void Pomme_DumpPortTGA(const char* outPath)
 {
-	curPort->pixels->WriteTGA(outPath);
+	curPort->pixels.WriteTGA(outPath);
 }
 
 // ---------------------------------------------------------------------------- -
@@ -322,7 +309,7 @@ void RGBForeColor(const RGBColor* color)
 // ---------------------------------------------------------------------------- -
 // Paint
 
-static void _FillRect(const struct Rect* r, UInt32 fillColor)
+static void _FillRect(const int left, const int top, const int right, const int bottom, UInt32 fillColor)
 {
 	if (!curPort) {
 		throw std::runtime_error("_FillRect: no port set");
@@ -330,15 +317,15 @@ static void _FillRect(const struct Rect* r, UInt32 fillColor)
 
 	fillColor = ToBE(fillColor);
 
-	UInt32* dst = (UInt32*)curPort->pixels->data.data();
-	dst += r->left;
-	dst += r->top * curPort->pixels->width;
+	UInt32* dst = (UInt32*)curPort->pixels.data.data();
+	dst += left;
+	dst += top * curPort->pixels.width;
 
-	for (int y = r->top; y < r->bottom; y++) {
-		for (int x = 0; x < r->right - r->left; x++) {
+	for (int y = top; y < bottom; y++) {
+		for (int x = 0; x < right - left; x++) {
 			dst[x] = fillColor;
 		}
-		dst += curPort->pixels->width;
+		dst += curPort->pixels.width;
 	}
 
 	curPort->dirty = true;
@@ -346,12 +333,12 @@ static void _FillRect(const struct Rect* r, UInt32 fillColor)
 
 void PaintRect(const struct Rect* r)
 {
-	_FillRect(r, penFG);
+	_FillRect(r->left, r->top, r->right, r->bottom, penFG);
 }
 
 void EraseRect(const struct Rect* r)
 {
-	_FillRect(r, penBG);
+	_FillRect(r->left, r->top, r->right, r->bottom, penBG);
 }
 
 void LineTo(short x1, short y1)
@@ -368,7 +355,7 @@ void LineTo(short x1, short y1)
 	int sy = y0 < y1 ? 1 : -1;
 	int err = dx + dy;
 	while (1) {
-		curPort->pixels->Plot(x0 - off.h, y0 - off.v, color);
+		curPort->pixels.Plot(x0 - off.h, y0 - off.v, color);
 		if (x0 == x1 && y0 == y1) break;
 		int e2 = 2 * err;
 		if (e2 >= dy) {
@@ -388,7 +375,7 @@ void LineTo(short x1, short y1)
 void FrameRect(const Rect* r)
 {
 	auto color = ToBE(penFG);
-	auto& pm = *curPort->pixels;
+	auto& pm = curPort->pixels;
 	Point off = curPort->port.portRect.topLeft;
 
 	for (int x = r->left; x < r->right; x++) pm.Plot(x            - off.h, r->top        - off.v, color);
@@ -409,12 +396,12 @@ void Pomme::Graphics::DrawARGBPixmap(int left, int top, ARGBPixmap& p)
 	top -= curPort->port.portRect.top;
 
 	UInt32* src = (UInt32*)p.data.data();
-	UInt32* dst = (UInt32*)curPort->pixels->data.data();
+	UInt32* dst = (UInt32*)curPort->pixels.data.data();
 	dst += left;
-	dst += top * curPort->pixels->width;
+	dst += top * curPort->pixels.width;
 
-	int bottom = std::min(curPort->pixels->height, top + p.height);
-	int right = std::min(curPort->pixels->width, top + p.width);
+	int bottom = std::min(curPort->pixels.height, top + p.height);
+	int right = std::min(curPort->pixels.width, top + p.width);
 
 	for (int y = top; y < bottom; y++)
 	{
@@ -422,7 +409,7 @@ void Pomme::Graphics::DrawARGBPixmap(int left, int top, ARGBPixmap& p)
 		{
 			dst[x] = src[x - left];
 		}
-		dst += curPort->pixels->width;
+		dst += curPort->pixels.width;
 		src += p.width;
 	}
 
@@ -446,7 +433,7 @@ void DrawPicture(PicHandle myPicture, const Rect* dstRect)
 	for (int y = 0; y < dstHeight; y++)
 	{
 		memcpy(
-			curPort->pixels->GetPtr(dstRect->left, dstRect->top + y),
+			curPort->pixels.GetPtr(dstRect->left, dstRect->top + y),
 			srcPixels + y * srcWidth,
 			4 * dstWidth);
 	}
@@ -513,11 +500,11 @@ void DrawChar(char c)
 
 	auto& glyph = SysFont::GetGlyph(c);
 
-	auto* dst2 = curPort->pixels->GetPtr(penX - SysFont::leftMargin, penY - SysFont::ascend);
+	auto* dst2 = curPort->pixels.GetPtr(penX - SysFont::leftMargin, penY - SysFont::ascend);
 
 	int minCol = std::max(0, -(penX - SysFont::leftMargin));
-	int maxCol = std::min(SysFont::widthBits, curPort->pixels->width - (penX - SysFont::leftMargin));
-	int maxRow = std::min(SysFont::rows, curPort->pixels->height - (penY - SysFont::ascend));
+	int maxCol = std::min(SysFont::widthBits, curPort->pixels.width - (penX - SysFont::leftMargin));
+	int maxRow = std::min(SysFont::rows, curPort->pixels.height - (penY - SysFont::ascend));
 
 	for (int glyphRow = 0; glyphRow < maxRow; glyphRow++) {
 		auto rowBits = glyph.bits[glyphRow];
@@ -529,10 +516,10 @@ void DrawChar(char c)
 			rowBits >>= 1;
 		}
 
-		dst2 += curPort->pixels->width;
+		dst2 += curPort->pixels.width;
 	}
 
-	penX += glyph.width + (int)SysFont::charSpacing;
+	penX += glyph.width;
 
 	curPort->dirty = true;
 }
