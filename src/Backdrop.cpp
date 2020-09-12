@@ -2,10 +2,12 @@
 #include <SDL_video.h>
 #include <SDL_events.h>
 #include <PommeInternal.h>
+#include "game/Structs.h"
 #include "windows_nano.h"
 
 extern UInt32* gCoverWindowPixPtr;
 extern SDL_Window* gSDLWindow;
+extern PrefsType gGamePrefs;
 
 static GLuint backdropTexture = -1;
 static bool backdropTextureAllocated = false;
@@ -86,6 +88,14 @@ void RenderBackdropQuad()
 			0, 0, 0, GAME_VIEW_WIDTH, GAME_VIEW_HEIGHT,
 			GL_BGRA, GL_UNSIGNED_INT_8_8_8_8, gCoverWindowPixPtr);
 		Pomme_SetPortDirty(false);
+	}
+
+	if (gGamePrefs.highQualityTextures) {
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	} else {
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	}
 
 	glBegin(GL_TRIANGLE_STRIP);
