@@ -43,6 +43,8 @@
 #include "pickups.h"
 #include "qd3d_geometry.h"
 
+#include "GamePatches.h"
+
 extern	Boolean			gAbortDemoFlag,gRestartSavedGame,gGameIsDemoFlag,gSongPlayingFlag;
 extern	NewObjectDefinitionType	gNewObjectDefinition;
 extern	float			gFramesPerSecond,gFramesPerSecondFrac,gTimeRemaining,gMyHealth,gFuel;
@@ -168,12 +170,14 @@ OSErr		iErr;
 	gGamePrefs.shadows = true;
 	gGamePrefs.dust = true;
 	gGamePrefs.allowGammaFade = false;
+	gGamePrefs.fullscreen = false;
 	gGamePrefs.reserved[0] = false;
 	gGamePrefs.reserved[1] = false;
 	gGamePrefs.reserved[2] = false;
 	gGamePrefs.reserved[3] = false;
 				
 	LoadPrefs(&gGamePrefs);							// attempt to read from prefs file
+	SetFullscreenMode();
 					
 }
 

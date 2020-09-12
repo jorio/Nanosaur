@@ -75,7 +75,7 @@ void Pomme::Init(const char* windowName)
 {
 	Pomme::Time::Init();
 	Pomme::Files::Init();
-	Pomme::Graphics::Init(windowName, 640*2, 480*2);
+	Pomme::Graphics::Init(windowName, 640, 480);
 	Pomme::Sound::Init();
 	Pomme::Input::Init();
 	std::cout << "Pomme initialized\n";

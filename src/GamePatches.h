@@ -4,6 +4,9 @@
 
 #define USE_BUGGY_CULLING false
 
+//-----------------------------------------------------------------------------
+// Reimplementations of game functions
+
 Boolean IsSphereInConeOfVision(TQ3Point3D* coord, float radius, float hither, float yon);
 
 char GetTypedKey(void);
@@ -25,4 +28,9 @@ void RenderBackdropQuad(void);
 
 void DisposeBackdropTexture(void);
 
+//-----------------------------------------------------------------------------
+// Misc additions
+
 void DoSDLMaintenance(void);
+
+void SetFullscreenMode(void);

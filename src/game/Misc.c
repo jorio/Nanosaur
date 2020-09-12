@@ -35,6 +35,7 @@ extern	Boolean		gUsingDSP;
 extern	QD3DSetupOutputType		*gGameViewInfoPtr;
 extern	Boolean		gQD3DInitialized;
 extern  WindowPtr				gCoverWindow;
+extern  PrefsType	gGamePrefs;
 
 /****************************/
 /*    CONSTANTS             */
@@ -128,6 +129,10 @@ static	Boolean beenHere = false;
 		if (gQD3DInitialized)
 			Q3Exit();
 	}
+
+	// Source port addition: save prefs before quitting if any setting was
+	// changed without going through the settings screen (e.g. fullscreen mode)
+	SavePrefs(&gGamePrefs);
 	
 	InitCursor();
 	FlushEvents ( everyEvent, REMOVE_ALL_EVENTS);

@@ -298,6 +298,7 @@ typedef struct
 	Boolean	dust;
 	Boolean	allowGammaFade;
 	Boolean softerLighting;
+	Boolean fullscreen;
 	Boolean	reserved[4];
 }PrefsType;
 

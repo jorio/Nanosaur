@@ -3,12 +3,14 @@
 #include <game/file.h>
 #include <game/sound2.h>
 #include <game/qd3d_support.h>
+#include <functional>
 #include "GamePatches.h"
 
 extern	WindowPtr				gCoverWindow;
 extern	KeyMap					gNewKeys_Real;
 extern	PrefsType				gGamePrefs;
 extern	float			gFramesPerSecond,gFramesPerSecondFrac;
+extern	SDL_Window*				gSDLWindow;
 
 static const RGBColor backgroundColor = {0xA000,0xA000,0xA000};
 static const RGBColor foregroundColor = {0x0000,0x0000,0x0000};
@@ -32,23 +34,28 @@ struct SettingEntry
 {
 	Byte*       ptr;
 	const char* label;
-	std::vector<const char*> choices;
+	std::function<void()> callback = nullptr;
+	std::vector<const char*> choices = {"OFF", "ON"};
 	
 	void Cycle(int delta)
 	{
 		unsigned int value = (unsigned int)*ptr;
 		value = PositiveModulo(value + delta, choices.size());
 		*ptr = value;
-	} 
+		if (callback) {
+			callback();
+		}
+	}
 };
 
 std::vector<SettingEntry> settings = {
-		{&gGamePrefs.highQualityTextures    ,   "Texture Filtering"         ,   {"OFF", "ON"}},
-		{&gGamePrefs.canDoFog               ,   "Fog"                       ,   {"OFF", "ON"}},
-		{&gGamePrefs.shadows                ,   "Shadow Decals"             ,   {"OFF", "ON"}},
-		{&gGamePrefs.dust                   ,   "Dust"                      ,   {"OFF", "ON"}},
-		{&gGamePrefs.allowGammaFade         ,   "Allow Gamma Fade"          ,   {"OFF", "ON"}},
-		{&gGamePrefs.softerLighting         ,   "Softer Lighting"           ,   {"OFF", "ON"}},
+		{&gGamePrefs.fullscreen         , "Fullscreen"        , SetFullscreenMode },
+		{&gGamePrefs.highQualityTextures, "Texture Filtering"   },
+		{&gGamePrefs.canDoFog           , "Fog"                 },
+		{&gGamePrefs.shadows            , "Shadow Decals"       },
+		{&gGamePrefs.dust               , "Dust"                },
+		{&gGamePrefs.allowGammaFade     , "Allow Gamma Fade"    },
+		{&gGamePrefs.softerLighting     , "Softer Lighting"     },
 };
 
 static void RenderQualityDialog()

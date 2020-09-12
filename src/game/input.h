@@ -131,6 +131,7 @@ enum
 	
 	kKey_ToggleMusic = KEY_F9,
 	kKey_ToggleAmbient = KEY_F10,
+	kKey_ToggleFullscreen = KEY_F11,
 	kKey_RaiseVolume = KEY_PLUS,
 	kKey_LowerVolume = KEY_MINUS,
 	

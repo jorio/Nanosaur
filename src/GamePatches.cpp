@@ -1,14 +1,17 @@
 #include <QD3DMath.h>
 #include <SDL.h>
 #include <SDL_opengl.h>
+#include "game/Structs.h"
+#include "game/input.h"
 #include "PommeInternal.h"
-#include "input.h"
+#include "GamePatches.h"
 
 extern TQ3Matrix4x4 gCameraWorldToViewMatrix;
 extern TQ3Matrix4x4 gCameraViewToFrustumMatrix;
 extern long gNodesDrawn;
 extern SDL_Window* gSDLWindow;
 extern float	gFramesPerSecond;
+extern PrefsType gGamePrefs;
 
 Boolean IsSphereInConeOfVision(TQ3Point3D* coord, float radius, float hither, float yon)
 {
@@ -148,6 +151,8 @@ static struct {
 	char titleBuffer[1024];
 } debugText;
 
+static bool isFullscreen = false;
+
 void DoSDLMaintenance()
 {
 	static int holdFramerateCap = 0;
@@ -174,6 +179,11 @@ void DoSDLMaintenance()
 	debugText.frameAccumulator++;
 #endif
 
+	if (GetNewKeyState(kKey_ToggleFullscreen)) {
+		gGamePrefs.fullscreen = gGamePrefs.fullscreen? 0: 1;
+		SetFullscreenMode();
+	}
+
 	SDL_Event event;
 	while (SDL_PollEvent(&event)) {
 		switch (event.type) {
@@ -193,4 +203,14 @@ void DoSDLMaintenance()
 			break;
 		}
 	}
+}
+
+//-----------------------------------------------------------------------------
+// SDL maintenance
+
+void SetFullscreenMode()
+{
+	SDL_SetWindowFullscreen(
+			gSDLWindow,
+			gGamePrefs.fullscreen? SDL_WINDOW_FULLSCREEN_DESKTOP: 0);
 }
