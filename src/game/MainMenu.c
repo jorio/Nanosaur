@@ -28,6 +28,8 @@
 #include 	"selfrundemo.h"
 #include "highscores.h"
 
+#include "GamePatches.h"
+
 extern	float				gFramesPerSecondFrac,gFramesPerSecond;
 extern	TQ3Point3D			gCoord;
 extern	WindowPtr			gCoverWindow;
@@ -49,7 +51,6 @@ static void SpinToPreviousMainMenuIcon(void);
 static void SpinToNextMainMenuIcon(void);
 static void MoveFallingEgg(ObjNode *theNode);
 static void GenerateFallingEgg(void);
-static void DoQualityDialog(void);
 static void MoveMenuBG(ObjNode *theNode);
 
 /****************************/
@@ -163,6 +164,10 @@ do_again:
 	LoadGrouped3DMF(&file, MODEL_GROUP_MENU);
 	LoadASkeleton(SKELETON_TYPE_DEINON);
 
+	// Source port addition: load main sounds for settings screen
+	FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":Audio:Main.sounds", &file);
+	LoadSoundBank(&file, SOUND_BANK_DEFAULT);
+
 	FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":Audio:Menu.sounds", &file);
 	LoadSoundBank(&file, SOUND_BANK_MENU);
 
@@ -235,7 +240,7 @@ do_again:
 	QD3D_CalcFramesPerSecond();		// call this to prime data for demo playback/record
 
 
-	DumpGLPixels("nanodump_menu.tga");
+//	DumpGLPixels("nanodump_menu.tga");
 	
 		/***********/
 		/* CLEANUP */
@@ -524,11 +529,9 @@ static void MoveMenuBG(ObjNode *theNode)
 
 /**************** DO QUALITY DIALOG *********************/
 
+#if 0   // Source port modification: entirely rewritten in SettingsScreen.cpp
 static void DoQualityDialog(void)
 {
-#if 1
-	TODO();
-#else
 DialogPtr 		myDialog;
 short			itemType,itemHit;
 ControlHandle	itemHandle;
@@ -605,9 +608,10 @@ done:
 	DisposeDialog(myDialog);
 	
 	HideCursor();	
-#endif
+
 	SavePrefs(&gGamePrefs);
 }
+#endif
 
 
 

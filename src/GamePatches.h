@@ -8,6 +8,8 @@ Boolean IsSphereInConeOfVision(TQ3Point3D* coord, float radius, float hither, fl
 
 char GetTypedKey(void);
 
+void DoQualityDialog(void);
+
 //-----------------------------------------------------------------------------
 // Backdrop
 

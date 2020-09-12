@@ -182,7 +182,9 @@ add_executable(nsaur
         src/GamePatches.cpp
         src/GamePatches.h
         src/nsaur.cpp
-        src/StructUnpackers.cpp)
+        src/StructUnpackers.cpp
+        src/SettingsScreen.cpp
+        )
 
 target_link_libraries(${PROJECT_NAME}
         ${OPENGL_LIBRARY}
