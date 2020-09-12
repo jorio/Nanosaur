@@ -62,7 +62,7 @@ static struct Mixer {
 	void Lock();
 	void Unlock();
 	void SetMasterGain(double newGain);
-} gMixer;
+} gMixer = {};
 
 //-----------------------------------------------------------------------------
 // Global init/shutdown
@@ -108,6 +108,10 @@ void cmixer::ShutdownWithSDL()
 	if (sdlDeviceID) {
 		SDL_CloseAudioDevice(sdlDeviceID);
 		sdlDeviceID = 0;
+	}
+	if (gMixer.sdlAudioMutex) {
+		SDL_DestroyMutex(gMixer.sdlAudioMutex);
+		gMixer.sdlAudioMutex = nullptr;
 	}
 	if (sdlAudioSubSystemInited) {
 		SDL_QuitSubSystem(SDL_INIT_AUDIO);
