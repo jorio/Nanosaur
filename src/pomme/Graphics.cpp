@@ -50,8 +50,8 @@ static std::unique_ptr<GrafPortImpl> screenPort = nullptr;
 static GrafPortImpl* curPort = nullptr;
 static UInt32 penFG = 0xFF'FF'00'FF;
 static UInt32 penBG = 0xFF'00'00'FF;
-static short penX = 0;
-static short penY = 0;
+static int penX = 0;
+static int penY = 0;
 
 // ---------------------------------------------------------------------------- -
 // Globals
@@ -492,19 +492,32 @@ void CopyBits(
 // ---------------------------------------------------------------------------- -
 // Text rendering
 
-short TextWidth(Ptr textBuf, short firstByte, short byteCount)
+short TextWidth(const char* textBuf, short firstByte, short byteCount)
 {
-	short totalWidth = 0;
+	int totalWidth = 0;
 	for (int i = firstByte; i < firstByte + byteCount; i++) {
-		totalWidth += SysFont::GetGlyph(textBuf[i]).width + SysFont::charSpacing;
+		if (i > firstByte) {
+			totalWidth += SysFont::charSpacing;
+		}
+		totalWidth += SysFont::GetGlyph(textBuf[i]).width;
 	}
 	return totalWidth;
 }
 
 void DrawString(ConstStr255Param s)
 {
-	for (unsigned i = 1; i <= (unsigned int)s[0]; i++)
-	{
+	_FillRect(
+			penX,
+			penY - SysFont::ascend,
+			penX + TextWidth(s, 1, s[0]),
+			penY + SysFont::descend,
+			penBG
+			);
+	
+	for (unsigned int i = 1; i <= (unsigned int)s[0]; i++) {
+		if (i > 1) {
+			penX += SysFont::charSpacing;
+		}
 		DrawChar(s[i]);
 	}
 }
@@ -512,7 +525,6 @@ void DrawString(ConstStr255Param s)
 void DrawChar(char c)
 {
 	UInt32 fg = FromBE(penFG);
-	UInt32 bg = FromBE(penBG);
 
 	auto& glyph = SysFont::GetGlyph(c);
 
@@ -528,7 +540,9 @@ void DrawChar(char c)
 		rowBits >>= minCol;
 
 		for (int glyphX = minCol; glyphX < maxCol; glyphX++) {
-			dst2[glyphX] = rowBits & 1 ? fg : bg;
+			if (rowBits & 1) {
+				dst2[glyphX] = fg;
+			}
 			rowBits >>= 1;
 		}
 

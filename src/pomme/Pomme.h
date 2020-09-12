@@ -156,7 +156,7 @@ void LineTo(short h, short v);
 
 void FrameRect(const Rect*);
 
-short TextWidth(Ptr textBuf, short firstByte, short byteCount);
+short TextWidth(const char* textBuf, short firstByte, short byteCount);
 
 void DrawChar(char c);
 
