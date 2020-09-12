@@ -667,14 +667,8 @@ ObjNode *tempNode;
 	{
 		gFirstNodePtr = theNode->NextNode;		
 		tempNode = theNode->NextNode;
-#if 1
-		if (tempNode == nil) {
-			printf("%s: WARNING: tempNode is nil!\n", __func__);
-			TODOMINOR2("was it a bug in the original game???");
-		} else tempNode->PrevNode = nil;
-#else
-		tempNode->PrevNode = nil;
-#endif
+		if (tempNode != nil)
+			tempNode->PrevNode = nil;
 	}
 	else if (theNode->NextNode == nil)				// special case last node
 	{
