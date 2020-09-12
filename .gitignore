@@ -4,8 +4,13 @@
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
 /Nanosaur™
+/Nanosaur™.rsrc
+/Nanosaur™ Extreme
+/Nanosaur™ Extreme.rsrc
 /._Nanosaur™
+/._Nanosaur™ Extreme
 /Data/
+/DataExtreme/
 
 /Quesa
 /SDL2-*
