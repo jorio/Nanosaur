@@ -151,6 +151,8 @@ do_again:
 		Str255	s = "Use the Arrow Keys to change the Selection.  Press the Spacebar to make a Selection.";
 		
 		SetPort(gCoverWindow);
+		BackColor(blackColor);              // Source port addition: ensure the background is black
+		EraseRect(&gCoverWindow->portRect); // (it might not be if we're coming from the custom settings screen)
 		w = TextWidth(&s[1], 0, s[0]);
 		MoveTo(320-(w/2), 478);
 		ForeColor(whiteColor);
