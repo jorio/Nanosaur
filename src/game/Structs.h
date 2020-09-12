@@ -299,6 +299,7 @@ typedef struct
 	Boolean	allowGammaFade;
 	Boolean softerLighting;
 	Boolean fullscreen;
+	Boolean mainMenuHelp;
 	Boolean	reserved[4];
 }PrefsType;
 

@@ -50,12 +50,14 @@ struct SettingEntry
 
 std::vector<SettingEntry> settings = {
 		{&gGamePrefs.fullscreen         , "Fullscreen"        , SetFullscreenMode },
+		{&gGamePrefs.vsync              , "Vertical Sync"       },
 		{&gGamePrefs.highQualityTextures, "Texture Filtering"   },
 		{&gGamePrefs.canDoFog           , "Fog"                 },
 		{&gGamePrefs.shadows            , "Shadow Decals"       },
 //		{&gGamePrefs.dust               , "Dust"                },
 		{&gGamePrefs.allowGammaFade     , "Allow Gamma Fade"    },
 		{&gGamePrefs.softerLighting     , "Softer Lighting"     },
+		{&gGamePrefs.mainMenuHelp       , "Main Menu Help"      },
 };
 
 static void RenderQualityDialog()

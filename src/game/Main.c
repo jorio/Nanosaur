@@ -171,6 +171,7 @@ OSErr		iErr;
 	gGamePrefs.dust = true;
 	gGamePrefs.allowGammaFade = false;
 	gGamePrefs.fullscreen = false;
+	gGamePrefs.mainMenuHelp = true;
 	gGamePrefs.reserved[0] = false;
 	gGamePrefs.reserved[1] = false;
 	gGamePrefs.reserved[2] = false;
