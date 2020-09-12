@@ -245,7 +245,7 @@ static void InitMidiFrequencyTable()
 
 OSErr GetDefaultOutputVolume(long* stereoLevel)
 {
-	unsigned short g = (unsigned short)(cmixer::GetMasterGain() / 256.0);
+	unsigned short g = (unsigned short)(cmixer::GetMasterGain() * 256.0);
 	*stereoLevel = (g << 16) | g;
 	return noErr;
 }
