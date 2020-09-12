@@ -108,6 +108,12 @@ void Pomme::Graphics::Init(const char* windowTitle, int windowWidth, int windowH
 //	Q3Memory_StartRecording();
 }
 
+void Pomme::Graphics::Shutdown()
+{
+	SDL_DestroyWindow(gSDLWindow);
+	gSDLWindow = nullptr;
+}
+
 // ---------------------------------------------------------------------------- -
 // Internal utils
 

@@ -84,5 +84,6 @@ void Pomme::Init(const char* windowName)
 void Pomme::Shutdown()
 {
 	Pomme::Sound::Shutdown();
+	Pomme::Graphics::Shutdown();
 	std::cout << "Pomme shut down\n";
 }
