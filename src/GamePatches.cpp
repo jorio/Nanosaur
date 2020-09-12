@@ -8,6 +8,7 @@ extern TQ3Matrix4x4 gCameraWorldToViewMatrix;
 extern TQ3Matrix4x4 gCameraViewToFrustumMatrix;
 extern long gNodesDrawn;
 extern SDL_Window* gSDLWindow;
+extern float	gFramesPerSecond;
 
 Boolean IsSphereInConeOfVision(TQ3Point3D* coord, float radius, float hither, float yon)
 {
@@ -149,6 +150,17 @@ static struct {
 
 void DoSDLMaintenance()
 {
+	static int holdFramerateCap = 0;
+
+	// Cap frame rate.
+	if (gFramesPerSecond > 200 || holdFramerateCap > 0) {
+		SDL_Delay(5);
+		// Keep framerate cap for a while to avoid jitter in game physics
+		holdFramerateCap = 10;
+	} else {
+		holdFramerateCap--;
+	}
+	
 #if _DEBUG
 	UInt32 now = SDL_GetTicks();
 	UInt32 ticksElapsed = now - debugText.lastUpdateAt;
