@@ -213,6 +213,11 @@ TQ3ColorRGB		c2 = { 1, .9, .6 };
 	viewDef.lights.fillBrightness[0] = 1.2;
 	viewDef.lights.fillBrightness[1] = .4;
 	
+	if (gGamePrefs.softerLighting) {
+		viewDef.lights.ambientBrightness = 0.4;
+		viewDef.lights.fillBrightness[0] = 0.8;
+	}
+	
 	if (!gGamePrefs.canDoFog)		// if no fog possible, then bg is black
 	{
 		viewDef.view.clearColor.r = 0;

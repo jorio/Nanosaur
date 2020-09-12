@@ -297,6 +297,7 @@ typedef struct
 	Boolean	shadows;
 	Boolean	dust;
 	Boolean	allowGammaFade;
+	Boolean softerLighting;
 	Boolean	reserved[4];
 }PrefsType;
 
