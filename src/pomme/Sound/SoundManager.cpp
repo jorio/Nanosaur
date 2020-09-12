@@ -10,7 +10,7 @@
 #define LOG POMME_GENLOG(POMME_DEBUG_SOUND, "SOUN")
 #define LOG_NOPREFIX POMME_GENLOG_NOPREFIX(POMME_DEBUG_SOUND)
 
-static SndChannelPtr headChan = nullptr;
+static struct ChannelImpl* headChan = nullptr;
 static int nManagedChans = 0;
 static double midiNoteFrequencies[128];
 
@@ -75,9 +75,15 @@ enum SampledSoundEncoding
 //-----------------------------------------------------------------------------
 // Internal channel info
 
-struct ChannelEx
+struct ChannelImpl
 {
-	SndChannelPtr prevChan;
+private:
+	ChannelImpl* prev;
+	ChannelImpl* next;
+
+public:
+	SndChannelPtr macChannel;
+
 	bool macChannelStructAllocatedByPomme;
 	cmixer::WavStream source;
 	FilePlayCompletionProcPtr onComplete;
@@ -85,6 +91,31 @@ struct ChannelEx
 	Byte baseNote = kMiddleC;
 	Byte playbackNote = kMiddleC;
 	double pitchMult = 1;
+	
+	ChannelImpl(SndChannelPtr _macChannel, bool transferMacChannelOwnership)
+		: macChannel(_macChannel)
+		, macChannelStructAllocatedByPomme(transferMacChannelOwnership)
+		, source()
+		, onComplete(nullptr)
+		, baseNote(kMiddleC)
+		, playbackNote(kMiddleC)
+		, pitchMult(1.0)
+	{
+		macChannel->firstMod = (Ptr)this;
+		
+		Link();  // Link chan into our list of managed chans
+	}
+	
+	~ChannelImpl()
+	{
+		Unlink();
+
+		macChannel->firstMod = nullptr;
+
+		if (macChannelStructAllocatedByPomme) {
+			delete macChannel;
+		}
+	}
 
 	void Recycle()
 	{
@@ -103,60 +134,72 @@ struct ChannelEx
 		double playbackFreq = midiNoteFrequencies[playbackNote];
 		source.SetPitch(pitchMult * playbackFreq / baseFreq);
 	}
+
+	ChannelImpl* GetPrev() const
+	{
+		return prev;
+	}
+	
+	ChannelImpl* GetNext() const
+	{
+		return next;
+	}
+	
+	void SetPrev(ChannelImpl* newPrev)
+	{
+		prev = newPrev;
+	}
+	
+	void SetNext(ChannelImpl* newNext)
+	{
+		next = newNext;
+		macChannel->nextChan = newNext ? newNext->macChannel : nullptr;
+	}
+	
+	void Link()
+	{
+		if (!headChan) {
+			SetNext(nullptr);
+		}
+		else {
+			assert(nullptr == headChan->GetPrev());
+			headChan->SetPrev(this);
+			SetNext(headChan);
+		}
+
+		headChan = this;
+		SetPrev(nullptr);
+
+		nManagedChans++;
+	}
+
+	void Unlink()
+	{
+		if (headChan == this) {
+			headChan = GetNext();
+		}
+
+		if (nullptr != GetPrev()) {
+			GetPrev()->SetNext(GetNext());
+		}
+
+		if (nullptr != GetNext()) {
+			GetNext()->SetPrev(GetPrev());
+		}
+
+		SetPrev(nullptr);
+		SetNext(nullptr);
+
+		nManagedChans--;
+	}
 };
 
 //-----------------------------------------------------------------------------
 // Internal utilities
 
-static inline ChannelEx& GetEx(SndChannelPtr chan)
+static inline ChannelImpl& GetImpl(SndChannelPtr chan)
 {
-	return *(ChannelEx*)chan->firstMod;
-}
-
-static inline cmixer::WavStream& GetMixSource(SndChannelPtr chan)
-{
-	return GetEx(chan).source;
-}
-
-static inline SndChannelPtr* NextOf(SndChannelPtr chan)
-{
-	return &chan->nextChan;
-}
-
-static inline SndChannelPtr* PrevOf(SndChannelPtr chan)
-{
-	return &GetEx(chan).prevChan;
-}
-
-static void Link(SndChannelPtr chan)
-{
-	if (!headChan) {
-		*NextOf(chan) = nullptr;
-	}
-	else {
-		assert(nullptr == *PrevOf(headChan));
-		*PrevOf(headChan) = chan;
-		*NextOf(chan) = headChan;
-	}
-
-	headChan = chan;
-	*PrevOf(chan) = nullptr;
-
-	nManagedChans++;
-}
-
-static void Unlink(SndChannelPtr chan)
-{
-	if (headChan == chan)
-		headChan = *NextOf(chan);
-
-	if (*PrevOf(chan))
-		*NextOf(*PrevOf(chan)) = *NextOf(chan);
-
-	*PrevOf(chan) = nullptr;
-	*NextOf(chan) = nullptr;
-
-	nManagedChans--;
+	return *(ChannelImpl*)chan->firstMod;
 }
 
 //-----------------------------------------------------------------------------
@@ -220,7 +263,7 @@ OSErr SetDefaultOutputVolume(long stereoLevel)
 }
 
 // IM:S:2-127
-OSErr SndNewChannel(SndChannelPtr* chan, short synth, long init, SndCallBackProcPtr userRoutine)
+OSErr SndNewChannel(SndChannelPtr* macChanPtr, short synth, long init, SndCallBackProcPtr userRoutine)
 {
 	if (synth != sampledSynth) {
 		TODO2("unimplemented synth type " << sampledSynth);
@@ -228,30 +271,21 @@ OSErr SndNewChannel(SndChannelPtr* chan, short synth, long init, SndCallBackProc
 	}
 
 	//---------------------------
-	// Do allocs
+	// Allocate Mac channel record if needed
+	
+	bool transferMacChannelOwnership = false;
 
-	bool allocatedByPomme = false;
-
-	ChannelEx* impl = new ChannelEx;
-	*impl = {};
-	impl->baseNote = kMiddleC;
-
-	if (!*chan) {
-		*chan = new SndChannel;
-		(**chan) = {};
-		impl->macChannelStructAllocatedByPomme = true;
+	if (!*macChanPtr) {
+		*macChanPtr = new SndChannel;
+		(**macChanPtr) = {};
+		transferMacChannelOwnership = true;
 	}
-	else {
-		impl->macChannelStructAllocatedByPomme = false;
-	}
-
-	(**chan).firstMod = (Ptr)impl;
 
 	//---------------------------
 	// Set up
-
-	Link(*chan);	// Link chan into our list of managed chans
-	(**chan).callBack = userRoutine;
+	
+	(**macChanPtr).callBack = userRoutine;
+	new ChannelImpl(*macChanPtr, transferMacChannelOwnership);
 
 	//---------------------------
 	// Done
@@ -262,22 +296,12 @@ OSErr SndNewChannel(SndChannelPtr* chan, short synth, long init, SndCallBackProc
 }
 
 // IM:S:2-129
-OSErr SndDisposeChannel(SndChannelPtr chan, Boolean quietNow)
+OSErr SndDisposeChannel(SndChannelPtr macChanPtr, Boolean quietNow)
 {
-	Unlink(chan);
-
-	auto* ex = &GetEx(chan);
-
-	bool alsoDeleteMacStruct = ex->macChannelStructAllocatedByPomme;
-	delete ex;
-	chan->firstMod = nullptr;
-
-	if (alsoDeleteMacStruct) {
-		delete chan;
+	if (!quietNow) {
+		TODO2("SndDisposeChannel: quietNow == false is not implemented");
 	}
-
-	TODOMINOR2("issue flushCmd, quietCmd, etc. (IM: S ");
-
+	delete &GetImpl(macChanPtr);
 	return noErr;
 }
 
@@ -285,7 +309,7 @@ OSErr SndChannelStatus(SndChannelPtr chan, short theLength, SCStatusPtr theStatu
 {
 	memset(theStatus, 0, sizeof(SCStatus));
 
-	auto& source = GetMixSource(chan);
+	auto& source = GetImpl(chan).source;
 
 	theStatus->scChannelPaused = source.GetState() == cmixer::CM_STATE_PAUSED;
 	theStatus->scChannelBusy   = source.GetState() == cmixer::CM_STATE_PLAYING;
@@ -301,7 +325,7 @@ static void ProcessSoundCmd(SndChannelPtr chan, const Ptr sndhdr)
 	// high bit is not set, param2 is interpreted as a pointer to the sound
 	// header.
 
-	auto& impl = GetEx(chan);
+	auto& impl = GetImpl(chan);
 
 	impl.Recycle();
 
@@ -439,7 +463,7 @@ static void ProcessSoundCmd(SndChannelPtr chan, const Ptr sndhdr)
 
 OSErr SndDoImmediate(SndChannelPtr chan, const SndCommand* cmd)
 {
-	auto& impl = GetEx(chan);
+	auto& impl = GetImpl(chan);
 
 	// Discard the high bit of the command (it indicates whether an 'snd ' resource has associated data).
 	switch (cmd->cmd & 0x7FFF) {
@@ -564,7 +588,7 @@ OSErr SndStartFilePlay(
 	stream.seekg(0, std::ios::beg);
 	Pomme::Sound::AudioClip clip = Pomme::Sound::ReadAIFF(stream);
 
-	auto& impl = GetEx(chan);
+	auto& impl = GetImpl(chan);
 
 	impl.Recycle();
 	auto span = impl.source.SetBuffer(std::move(clip.pcmData));
@@ -591,7 +615,7 @@ OSErr SndStartFilePlay(
 OSErr SndPauseFilePlay(SndChannelPtr chan)
 {
 	// TODO: check that chan is being used for play from disk
-	GetMixSource(chan).TogglePause();
+	GetImpl(chan).source.TogglePause();
 	return noErr;
 }
 
@@ -600,7 +624,7 @@ OSErr SndStopFilePlay(SndChannelPtr chan, Boolean quietNow)
 	// TODO: check that chan is being used for play from disk
 	if (!quietNow)
 		TODO2("quietNow==false not supported yet, sound will be cut off immediately instead");
-	GetMixSource(chan).Stop();
+	GetImpl(chan).source.Stop();
 	return noErr;
 }
 
@@ -719,8 +743,8 @@ void Pomme::Sound::Init()
 
 void Pomme::Sound::Shutdown()
 {
-	while (headChan) {
-		SndDisposeChannel(headChan, true);
-	}
 	cmixer::ShutdownWithSDL();
+	while (headChan) {
+		SndDisposeChannel(headChan->macChannel, true);
+	}
 }

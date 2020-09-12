@@ -298,6 +298,8 @@ OSErr SetDefaultOutputVolume(long);
 
 OSErr SndNewChannel(SndChannelPtr* chan, short synth, long init, SndCallBackProcPtr userRoutine);
 
+OSErr SndDisposeChannel(SndChannelPtr chan, Boolean quietNow);
+
 OSErr SndChannelStatus(SndChannelPtr chan, short theLength, SCStatusPtr theStatus);
 
 OSErr SndDoImmediate(SndChannelPtr chan, const SndCommand* cmd);
