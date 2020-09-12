@@ -3,6 +3,25 @@
 #include <iostream>
 #include "Files/ArchiveVolume.h"
 
+#ifndef USE_ARCHIVE
+	#define USE_ARCHIVE 1
+#endif
+
+#if PRO_MODE
+	constexpr const char* ARCHIVE_NAME = "nanosaurextreme134.bin";
+	#if USE_ARCHIVE
+		constexpr const char* APPLICATION_FILE = ":Nanosaur# Extreme";
+	#else
+		constexpr const char* APPLICATION_FILE = ":Nanosaur\u2122 Extreme";
+	#endif
+#else
+	constexpr const char* ARCHIVE_NAME = "nanosaur134.bin";
+	#if USE_ARCHIVE
+		constexpr const char* APPLICATION_FILE = ":Nanosaur#";
+	#else
+		constexpr const char* APPLICATION_FILE = ":Nanosaur\u2122";
+	#endif
+#endif
 
 // bare minimum from Windows.c to satisfy externs in game code
 WindowPtr gCoverWindow = nullptr;
@@ -25,15 +44,16 @@ int CommonMain(int argc, const char** argv)
 	// Register format strings to unpack the structs
 	RegisterUnpackableTypes();
 
+#if USE_ARCHIVE
 	// Mount game archive as data volume
-	short archiveVolumeID = Pomme::Files::MountArchiveAsVolume("nanosaur134.bin");
+	short archiveVolumeID = Pomme::Files::MountArchiveAsVolume(ARCHIVE_NAME);
 	gDataSpec.vRefNum = archiveVolumeID;
+#endif
 
 	// Use application resource file
 	FSSpec applicationSpec = {};
-	//if (noErr != FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":Nanosaur\u2122", &applicationSpec)) {
-	if (noErr != FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":Nanosaur#", &applicationSpec)) {
-		throw std::runtime_error("Can't find application resource file.");
+	if (noErr != FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, APPLICATION_FILE, &applicationSpec)) {
+		throw std::runtime_error("Can't find application resource file: " + std::string(APPLICATION_FILE));
 	}
 	UseResFile(FSpOpenResFile(&applicationSpec, fsRdPerm));
 
