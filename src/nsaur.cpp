@@ -1,11 +1,8 @@
 #include "PommeInternal.h"
 #include <SDL.h>
 #include <iostream>
-#include <Quesa.h>
 #include "Files/ArchiveVolume.h"
 
-
-TQ3ViewObject				gView = nullptr;
 
 // bare minimum from Windows.c to satisfy externs in game code
 WindowPtr gCoverWindow = nullptr;
@@ -48,19 +45,6 @@ int CommonMain(int argc, const char** argv)
 	}
 
 	// Clean up
-	if (gView != NULL)
-		Q3Object_Dispose(gView);
-
-	// TODO: dispose SDL gl context
-
-//	if (gDC != NULL)
-//		ReleaseDC((HWND)gWindow, gDC);
-
-//	DestroyWindow((HWND)gWindow);
-
-	// Terminate Quesa
-	Q3Exit();
-	
 	Pomme::Shutdown();
 
 	return 0;

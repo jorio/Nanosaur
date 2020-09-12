@@ -28,8 +28,6 @@
 
 #include "GamePatches.h" // Source port addition - for backdrop quad
 
-extern TQ3ViewObject                   gView;
-
 extern	WindowPtr			gCoverWindow;
 extern	long		gScreenXOffset,gScreenYOffset;
 extern	Byte		gDemoMode;
@@ -298,7 +296,6 @@ TQ3Uns32	hints;
 	if (gQD3D_ViewObject == nil)
 		DoFatalAlert("Q3View_New failed!");
 
-	gView = gQD3D_ViewObject;
 
 			/* CREATE & SET DRAW CONTEXT */
 	
