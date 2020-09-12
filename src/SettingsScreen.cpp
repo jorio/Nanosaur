@@ -53,7 +53,7 @@ std::vector<SettingEntry> settings = {
 		{&gGamePrefs.highQualityTextures, "Texture Filtering"   },
 		{&gGamePrefs.canDoFog           , "Fog"                 },
 		{&gGamePrefs.shadows            , "Shadow Decals"       },
-		{&gGamePrefs.dust               , "Dust"                },
+//		{&gGamePrefs.dust               , "Dust"                },
 		{&gGamePrefs.allowGammaFade     , "Allow Gamma Fade"    },
 		{&gGamePrefs.softerLighting     , "Softer Lighting"     },
 };
