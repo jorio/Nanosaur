@@ -858,9 +858,12 @@ TQ3Point3D	pt2;
 		Q3Point3D_Transform(&pt, &jointMat, &pt2);							// calc coord to put exhaust
 
 		dustObj = MakeDustPuff(pt2.x, pt2.y, pt2.z, .15);					// make exhaust
-		dustObj->Delta.x = playerObj->Delta.x;			
-		dustObj->Delta.z = playerObj->Delta.z;
-		dustObj->Delta.y = -200;
+		if (dustObj)
+		{
+			dustObj->Delta.x = playerObj->Delta.x;
+			dustObj->Delta.z = playerObj->Delta.z;
+			dustObj->Delta.y = -200;
+		}
 	}
 	
 	
