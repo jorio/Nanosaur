@@ -115,6 +115,18 @@ add_executable(nsaur
         src/pomme/Files/Volume.h
         src/pomme/Files/HostVolume.cpp
         src/pomme/Files/HostVolume.h
+        src/pomme/Files/ArchiveVolume.cpp
+        src/pomme/Files/ArchiveVolume.h
+        src/pomme/maconv/stuffit/methods.h
+        src/pomme/maconv/stuffit/methods/arsenic.cc
+        src/pomme/maconv/stuffit/methods/arsenic.h
+        src/pomme/maconv/stuffit/utils/bwt.cc
+        src/pomme/maconv/stuffit/utils/bwt.h
+        src/pomme/maconv/stuffit/utils/crc.cc
+        src/pomme/maconv/stuffit/utils/crc.h
+        src/pomme/maconv/utils/bit_reader.h
+        src/pomme/maconv/utils/bit_reader.cc
+        src/pomme/maconv/utils/bit_reader.h
         src/pomme/Sound/AIFF.cpp
         src/pomme/Sound/cmixer.cpp
         src/pomme/Sound/cmixer.h
@@ -147,6 +159,8 @@ add_executable(nsaur
         src/pomme/SysFont.h
         src/pomme/TimeManager.cpp
         src/pomme/WinInput.cpp
+        src/pomme/memstream.cpp
+        src/pomme/memstream.h
         src/qd3d/QD3D.h
         src/qd3d/QD3DCamera.h
         src/qd3d/QD3DDrawContext.h
