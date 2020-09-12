@@ -59,6 +59,7 @@ static void ReadDataFromSkeletonFile(SkeletonDefType *skeleton, FSSpec *fsSpec);
 #define	SKELETON_FILE_VERS_NUM	0x0110			// v1.1
 
 
+// Source port note: SaveGameType is a leftover from Weekend Warrior and is not used in Nanosaur.
 typedef struct
 {
 	long		score;
@@ -507,6 +508,7 @@ kill:
 
 
 /***************************** SAVE GAME ********************************/
+// Source port note: this is a leftover from Weekend Warrior and isn't used in Nanosaur.
 
 void SaveGame(void)
 {
@@ -598,6 +600,7 @@ long		i;
 
 
 /***************************** LOAD SAVED GAME ********************************/
+// Source port note: this is a leftover from Weekend Warrior and isn't used in Nanosaur.
 
 OSErr LoadSavedGame(void)
 {
