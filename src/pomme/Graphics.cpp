@@ -302,6 +302,16 @@ void GetForeColor(RGBColor* rgb)
 	rgb->blue = (penFG & 0xFF) << 8;
 }
 
+void RGBBackColor(const RGBColor* color)
+{
+	penBG
+		= 0xFF'00'00'00
+		| ((color->red >> 8) << 16)
+		| ((color->green >> 8) << 8)
+		| (color->blue >> 8)
+		;
+}
+
 void RGBForeColor(const RGBColor* color)
 {
 	penFG

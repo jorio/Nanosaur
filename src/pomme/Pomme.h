@@ -144,6 +144,8 @@ void ForeColor(long color);
 
 void BackColor(long color);
 
+void RGBBackColor(const RGBColor* color);
+
 void RGBForeColor(const RGBColor* color);
 
 void PaintRect(const Rect* r);
