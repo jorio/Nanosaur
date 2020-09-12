@@ -297,7 +297,10 @@ Byte		currentAnim;
 			if (theNode->JetThrust)								// if jetting, then just drop it
 				DropItem(theNode);		
 			else
+			{
+				theNode->Accel = 0;								// Source port fix - don't skid while throw anim is playing
 				SetSkeletonAnim(theNode->Skeleton,PLAYER_ANIM_THROW);
+			}
 		}
 		
 			/* OTHERWISE SEE IF WE SHOULD ATTEMPT A PICKUP */
@@ -305,7 +308,10 @@ Byte		currentAnim;
 		else
 		{		
 			if (theNode->StatusBits & STATUS_BIT_ONGROUND)					// must be on ground
-				SetSkeletonAnim(theNode->Skeleton,PLAYER_ANIM_PICKUP);
+			{
+				theNode->Accel = 0;								// Source port fix - don't skid while throw pickup is playing
+				SetSkeletonAnim(theNode->Skeleton, PLAYER_ANIM_PICKUP);
+			}
 		}
 	}
 }
