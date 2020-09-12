@@ -43,6 +43,7 @@ extern	long	gNumSuperTilesDeep,gNumSuperTilesWide;
 extern	FSSpec		gDataSpec;
 extern	TimePortalType	gTimePortalList[];
 extern	Boolean			gMuteMusicFlag;
+extern	long	gOriginalSystemVolume,gCurrentSystemVolume;
 
 
 /****************************/
@@ -406,6 +407,8 @@ Boolean	toggleMusic = !gMuteMusicFlag;
 	if (toggleMusic)
 		ToggleMusic();								// pause music
 
+	SetDefaultOutputVolume(0);						// Source port addition: mute mixer
+
 			/***************/
 			/* MAKE RESUME */
 			/***************/
@@ -486,6 +489,8 @@ Boolean	toggleMusic = !gMuteMusicFlag;
 	
 	if (toggleMusic)
 		ToggleMusic();										// restart music
+
+	SetDefaultOutputVolume(gCurrentSystemVolume);		// Source port addition: unmute mixer
 	
 	if (selected == 1)									// see if want out
 	{
