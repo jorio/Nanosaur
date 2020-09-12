@@ -184,6 +184,7 @@ add_executable(nsaur
         src/nsaur.cpp
         src/StructUnpackers.cpp
         src/SettingsScreen.cpp
+        src/pomme/Sound/xlaw.cpp
         )
 
 target_link_libraries(${PROJECT_NAME}

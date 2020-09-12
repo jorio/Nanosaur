@@ -436,6 +436,19 @@ static void ProcessSoundCmd(SndChannelPtr chan, const Ptr sndhdr)
 			break;
 		}
 
+		case 'ulaw':
+		{
+			int nBytesIn = sh.cmpSH_nChannels * nCompressedChunks;
+			int nBytesOut = 2 * nBytesIn;
+
+			auto spanIn = std::span(here, nBytesIn);
+			auto spanOut = impl.source.GetBuffer(nBytesOut);
+
+			Pomme::Sound::ulaw::Decode(sh.cmpSH_nChannels, spanIn, spanOut);
+			impl.source.Init(sampleRate, 16, sh.cmpSH_nChannels, false, spanOut);
+			break;
+		}
+
 		default:
 			TODOFATAL2("unsupported snd compression format " << Pomme::FourCCString(format));
 		}
@@ -697,11 +710,22 @@ Boolean Pomme_DecompressSoundResource(SndListHandle* sndHandlePtr, long* offsetT
 		break;
 	}
 
+	case 'ulaw':
+	{
+		int nBytesIn = sh.cmpSH_nChannels * nCompressedChunks;
+		nBytesOut = 2 * nBytesIn;
+		outHandle = (SndListHandle)NewHandle(outInitialSize + nBytesOut);
+		auto spanIn = std::span(here, nBytesIn);
+		auto spanOut = std::span((char*)*outHandle + outInitialSize, nBytesOut);
+		Pomme::Sound::ulaw::Decode(sh.cmpSH_nChannels, spanIn, spanOut);
+		break;
+	}
+
 	default:
 		// Unsupported sound compression format. Don't try to decompress it.
 		// It'll blow up if the mac program tries to play it back, but perhaps
 		// it never will, so it's not worth throwing an error here.
-		// (Namely, nanosaur has 'ulaw'-encoded sounds that it never uses.)
+		LOG << "Unsupported sound compression format: " << Pomme::FourCCString(format) << "\n";
 		return false;
 	}
 

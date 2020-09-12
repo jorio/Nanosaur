@@ -103,6 +103,11 @@ namespace Pomme {
 			int GetOutputSize(const int inputByteCount, const int nChannels);
 			void Decode(const int nChannels, const std::span<const char>& input, const std::span<char> output);
 		}
+		namespace ulaw
+		{
+			int GetOutputSize(const int inputByteCount, const int nChannels);
+			void Decode(const int nChannels, const std::span<const char>& input, const std::span<char> output);
+		}
 	}
 
 	namespace Input
