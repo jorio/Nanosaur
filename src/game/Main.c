@@ -167,6 +167,7 @@ OSErr		iErr;
 	gGamePrefs.canDoFog = true;
 	gGamePrefs.shadows = true;
 	gGamePrefs.dust = true;
+	gGamePrefs.allowGammaFade = false;
 	gGamePrefs.reserved[0] = false;
 	gGamePrefs.reserved[1] = false;
 	gGamePrefs.reserved[2] = false;

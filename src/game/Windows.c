@@ -27,6 +27,7 @@ extern	NewObjectDefinitionType	gNewObjectDefinition;
 extern	ObjNode	*gCurrentNode;
 extern	float	gFramesPerSecondFrac,gAdditionalClipping;
 extern  WindowPtr				gCoverWindow;
+extern	PrefsType	gGamePrefs;
 
 Boolean					gGammaIsOn = true;
 
@@ -527,6 +528,9 @@ Str255			s;
 
 void GammaFadeIn(void)
 {
+	if (!gGamePrefs.allowGammaFade)
+		return;
+
 #if ALLOW_FADE	
 
 #if 0
@@ -549,6 +553,8 @@ void GammaFadeIn(void)
 
 void GammaFadeOut(void)
 {
+	if (!gGamePrefs.allowGammaFade)
+		return;
 
 Rect	r;
 
@@ -637,7 +643,11 @@ OSStatus 		theError;
 
 void MakeFadeEvent(Boolean	fadeIn)
 {
+	
 ObjNode	*newObj;
+
+	if (!gGamePrefs.allowGammaFade)
+		return;
 
 #if ALLOW_FADE			
 

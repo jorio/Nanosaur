@@ -296,6 +296,7 @@ typedef struct
 	Boolean	canDoFog;
 	Boolean	shadows;
 	Boolean	dust;
+	Boolean	allowGammaFade;
 	Boolean	reserved[4];
 }PrefsType;
 

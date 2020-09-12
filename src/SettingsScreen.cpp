@@ -47,6 +47,7 @@ std::vector<SettingEntry> settings = {
 		{&gGamePrefs.canDoFog               ,   "Fog"                       ,   {"OFF", "ON"}},
 		{&gGamePrefs.shadows                ,   "Shadow Decals"             ,   {"OFF", "ON"}},
 		{&gGamePrefs.dust                   ,   "Dust"                      ,   {"OFF", "ON"}},
+		{&gGamePrefs.allowGammaFade         ,   "Allow Gamma Fade"          ,   {"OFF", "ON"}},
 };
 
 static void RenderQualityDialog()
