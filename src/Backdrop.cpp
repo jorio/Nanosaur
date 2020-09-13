@@ -5,7 +5,6 @@
 #include "game/Structs.h"
 #include "windows_nano.h"
 
-extern UInt32* gCoverWindowPixPtr;
 extern SDL_Window* gSDLWindow;
 extern PrefsType gGamePrefs;
 
@@ -16,15 +15,27 @@ static bool backdropPillarbox = false;
 static SDL_GLContext exclusiveGLContext = nullptr;
 static bool exclusiveGLContextValid = false;
 
+constexpr const bool ALLOW_BACKDROP_TEXTURE = true;
+
 void SetWindowGamma(int percent)
 {
 	SDL_SetWindowBrightness(gSDLWindow, percent/100.0f);
 }
 
+static UInt32* GetBackdropPixPtr()
+{
+	return (UInt32*)GetPixBaseAddr(GetGWorldPixMap(Pomme::Graphics::GetScreenPort()));
+}
+
 void AllocBackdropTexture()
 {
-	if (backdropTextureAllocated)
+	if (!ALLOW_BACKDROP_TEXTURE) {
 		return;
+	}
+
+	if (backdropTextureAllocated) {
+		return;
+	}
 	
 	backdropTextureAllocated = true;
 	
@@ -38,12 +49,16 @@ void AllocBackdropTexture()
 	glBindTexture(GL_TEXTURE_2D, backdropTexture);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, GAME_VIEW_WIDTH, GAME_VIEW_HEIGHT, 0, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8, gCoverWindowPixPtr);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, GAME_VIEW_WIDTH, GAME_VIEW_HEIGHT, 0, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8, GetBackdropPixPtr());
 	Pomme_SetPortDirty(false);
 }
 
 void DisposeBackdropTexture()
 {
+	if (!ALLOW_BACKDROP_TEXTURE) {
+		return;
+	}
+
 	printf("[BACKDROP] disposed\n");
 	
 	if (backdropTextureAllocated) {
@@ -59,9 +74,15 @@ void EnableBackdropPillarboxing(Boolean pillarbox)
 
 void RenderBackdropQuad()
 {
+	if (!ALLOW_BACKDROP_TEXTURE) {
+		return;
+	}
+
 	if (!backdropTextureAllocated) {
 		return;
 	}
+
+	UInt32* pixPtr = GetBackdropPixPtr();
 	
 	int windowWidth, windowHeight;
 	GLint vp[4];
@@ -84,9 +105,9 @@ void RenderBackdropQuad()
 	glLoadIdentity();
 	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
 	if (backdropPillarbox) {
-		float clearR = ((gCoverWindowPixPtr[0] >> 24) & 0xFF) / 255.0;
-		float clearG = ((gCoverWindowPixPtr[0] >> 16) & 0xFF) / 255.0;
-		float clearB = ((gCoverWindowPixPtr[0] >> 8) & 0xFF) / 255.0;
+		float clearR = ((pixPtr[0] >> 24) & 0xFF) / 255.0;
+		float clearG = ((pixPtr[0] >> 16) & 0xFF) / 255.0;
+		float clearB = ((pixPtr[0] >> 8) & 0xFF) / 255.0;
 		glClearColor(clearR, clearG, clearB, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT);
 	}
@@ -97,7 +118,7 @@ void RenderBackdropQuad()
 	{
 		glTexSubImage2D(GL_TEXTURE_2D,
 			0, 0, 0, GAME_VIEW_WIDTH, GAME_VIEW_HEIGHT,
-			GL_BGRA, GL_UNSIGNED_INT_8_8_8_8, gCoverWindowPixPtr);
+			GL_BGRA, GL_UNSIGNED_INT_8_8_8_8, pixPtr);
 		Pomme_SetPortDirty(false);
 	}
 
@@ -144,6 +165,9 @@ void RenderBackdropQuad()
 
 void ExclusiveOpenGLMode_Begin()
 {
+	if (!ALLOW_BACKDROP_TEXTURE)
+		return;
+
 	if (exclusiveGLContextValid)
 		throw std::runtime_error("already in exclusive GL mode");
 
@@ -156,6 +180,9 @@ void ExclusiveOpenGLMode_Begin()
 
 void ExclusiveOpenGLMode_End()
 {
+	if (!ALLOW_BACKDROP_TEXTURE)
+		return;
+
 	if (!exclusiveGLContextValid)
 		throw std::runtime_error("not in exclusive GL mode");
 
