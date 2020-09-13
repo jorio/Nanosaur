@@ -140,6 +140,7 @@ extern	void QD3D_SetTriangleCacheMode(Boolean isOn);
 extern	void QD3D_SetTextureWrapMode(int mode);
 extern	void QD3D_SetBlendingMode(int mode);
 
+extern	void QD3D_OnWindowResized(int windowWidth, int windowHeight);
 
 
 

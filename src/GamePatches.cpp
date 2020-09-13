@@ -3,6 +3,7 @@
 #include <SDL_opengl.h>
 #include "game/Structs.h"
 #include "game/input.h"
+#include "game/qd3d_support.h"
 #include "PommeInternal.h"
 #include "GamePatches.h"
 
@@ -151,8 +152,6 @@ static struct {
 	char titleBuffer[1024];
 } debugText;
 
-static bool isFullscreen = false;
-
 void DoSDLMaintenance()
 {
 	static int holdFramerateCap = 0;
@@ -196,8 +195,9 @@ void DoSDLMaintenance()
 			case SDL_WINDOWEVENT_CLOSE:
 				throw Pomme::QuitRequest();
 				break;
+
 			case SDL_WINDOWEVENT_RESIZED:
-				printf("Window Resized!!\n");
+				QD3D_OnWindowResized(event.window.data1, event.window.data2);
 				break;
 			}
 			break;

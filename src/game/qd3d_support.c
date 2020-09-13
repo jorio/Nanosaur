@@ -32,6 +32,7 @@ extern	WindowPtr			gCoverWindow;
 extern	long		gScreenXOffset,gScreenYOffset;
 extern	Byte		gDemoMode;
 extern	PrefsType	gGamePrefs;
+extern	QD3DSetupOutputType		*gGameViewInfoPtr;
 
 /****************************/
 /*    PROTOTYPES            */
@@ -51,6 +52,7 @@ static void PreTransformTriMesh(TQ3GeometryObject theMesh);
 static void ReverseMeshVertexOrder(TQ3GeometryObject theMesh);
 static void Data16ToMipmap(Ptr data, short width, short height, TQ3Mipmap *mipmap);
 static void MakeShadowTexture(void);
+static TQ3Area GetAdjustedPane(int windowWidth, int windowHeight, Rect paneClip);
 
 
 /****************************/
@@ -354,46 +356,16 @@ static void CreateDrawContext(QD3DViewDefType *viewDefPtr)
 {
 TQ3DrawContextData		drawContexData;
 TQ3SDLDrawContextData	myMacDrawContextData;
-Rect					r;
-
-#if 1
 extern SDL_Window*		gSDLWindow;
 	int ww, wh;
 	SDL_GL_GetDrawableSize(gSDLWindow, &ww, &wh);
-	r = { 0 /*.top*/, 0 /*.left*/, (SInt16)GAME_VIEW_HEIGHT /*.bottom*/, (SInt16)GAME_VIEW_WIDTH /*.right*/ };
-
-#else
-			/* SEE IF DOING PIXMAP CONTEXT */
-			
-	if (!viewDefPtr->useWindow)
-	{
-		CreateDrawContext_Pixmap(viewDefPtr);
-		return;	
-	}
-
-	r = viewDefPtr->displayWindow->portRect;
-#endif
 
 
 			/* FILL IN DRAW CONTEXT DATA */
 
 	drawContexData.clearImageMethod = kQ3ClearMethodWithColor;				// how to clear
 	drawContexData.clearImageColor = viewDefPtr->clearColor;				// color to clear to
-	drawContexData.pane.min.x = viewDefPtr->paneClip.left;					// set bounds?
-	drawContexData.pane.max.x = r.right-viewDefPtr->paneClip.right;
-	drawContexData.pane.min.y = viewDefPtr->paneClip.top;
-	drawContexData.pane.max.y = r.bottom-viewDefPtr->paneClip.bottom;
-	
-	drawContexData.pane.min.x += gAdditionalClipping;						// offset bounds by user clipping
-	drawContexData.pane.max.x -= gAdditionalClipping;
-	drawContexData.pane.min.y += gAdditionalClipping*.75;
-	drawContexData.pane.max.y -= gAdditionalClipping*.75;
-	
-	// Source port addition
-	drawContexData.pane.min.x *= ww / (float)(GAME_VIEW_WIDTH);					// scale clip pane to window size
-	drawContexData.pane.max.x *= ww / (float)(GAME_VIEW_WIDTH);
-	drawContexData.pane.min.y *= wh / (float)(GAME_VIEW_HEIGHT);
-	drawContexData.pane.max.y *= wh / (float)(GAME_VIEW_HEIGHT);
+	drawContexData.pane = GetAdjustedPane(ww, wh, viewDefPtr->paneClip);
 	
 	
 	drawContexData.paneState = kQ3True;										// use bounds?
@@ -401,14 +373,7 @@ extern SDL_Window*		gSDLWindow;
 	drawContexData.doubleBufferState = kQ3True;								// double buffering
 
 	myMacDrawContextData.drawContextData = drawContexData;					// set MAC specifics
-#if 1
 	myMacDrawContextData.sdlWindow = gSDLWindow;							// assign window to draw to
-#else
-	myMacDrawContextData.window = (CWindowPtr)viewDefPtr->displayWindow;	// assign window to draw to
-	myMacDrawContextData.library = kQ3Mac2DLibraryNone;						// use standard QD libraries (no GX crap!)
-	myMacDrawContextData.viewPort = nil;									// (for GX only)
-	myMacDrawContextData.grafPort = (CWindowPtr)viewDefPtr->displayWindow;	// assign grafport
-#endif
 
 
 			/* CREATE DRAW CONTEXT */
@@ -1903,4 +1868,44 @@ void QD3D_SetBlendingMode(int mode)
 
 
 
+
+#pragma mark ---------- source port additions -------------
+
+static TQ3Area GetAdjustedPane(int windowWidth, int windowHeight, Rect paneClip)
+{
+	TQ3Area pane;
+
+	pane.min.x = paneClip.left;					// set bounds?
+	pane.max.x = GAME_VIEW_WIDTH - paneClip.right;
+	pane.min.y = paneClip.top;
+	pane.max.y = GAME_VIEW_HEIGHT - paneClip.bottom;
+
+	pane.min.x += gAdditionalClipping;						// offset bounds by user clipping
+	pane.max.x -= gAdditionalClipping;
+	pane.min.y += gAdditionalClipping*.75;
+	pane.max.y -= gAdditionalClipping*.75;
+
+	// Source port addition
+	pane.min.x *= windowWidth / (float)(GAME_VIEW_WIDTH);					// scale clip pane to window size
+	pane.max.x *= windowWidth / (float)(GAME_VIEW_WIDTH);
+	pane.min.y *= windowHeight / (float)(GAME_VIEW_HEIGHT);
+	pane.max.y *= windowHeight / (float)(GAME_VIEW_HEIGHT);
+
+	return pane;
+}
+
+// Called when the game window gets resized.
+// Adjusts the clipping pane and camera aspect ratio.
+void QD3D_OnWindowResized(int windowWidth, int windowHeight)
+{
+	if (!gGameViewInfoPtr)
+		return;
+
+	TQ3Area pane = GetAdjustedPane(windowWidth, windowHeight, gGameViewInfoPtr->paneClip);
+	Q3DrawContext_SetPane(gGameViewInfoPtr->drawContext, &pane);
+
+	float aspectRatioXToY = (pane.max.x-pane.min.x)/(pane.max.y-pane.min.y);
+
+	Q3ViewAngleAspectCamera_SetAspectRatio(gGameViewInfoPtr->cameraObject, aspectRatioXToY);
+}
 
