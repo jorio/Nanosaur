@@ -359,6 +359,7 @@ static void Slideshow(const char** imagePaths)
 	FSSpec spec;
 
 	ExclusiveOpenGLMode_Begin();
+	EnableBackdropPillarboxing(true);
 
 	for (int i = 0; imagePaths[i]; i++)
 	{

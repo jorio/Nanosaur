@@ -112,6 +112,7 @@ static void RenderQualityDialog()
 void DoQualityDialog()
 {
 	ExclusiveOpenGLMode_Begin();
+	EnableBackdropPillarboxing(true);
 
 	RenderQualityDialog();
 

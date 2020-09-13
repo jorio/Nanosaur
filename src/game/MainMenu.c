@@ -154,6 +154,7 @@ do_again:
 
 	if (gGamePrefs.mainMenuHelp)
 	{
+		EnableBackdropPillarboxing(true);
 		int w;
 		Str255	s = "Use the Arrow Keys to change the Selection.  Press the Spacebar to make a Selection.";
 		w = TextWidth(&s[1], 0, s[0]);

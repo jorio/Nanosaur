@@ -11,6 +11,7 @@ extern PrefsType gGamePrefs;
 
 static GLuint backdropTexture = -1;
 static bool backdropTextureAllocated = false;
+static bool backdropPillarbox = false;
 
 static SDL_GLContext exclusiveGLContext = nullptr;
 static bool exclusiveGLContextValid = false;
@@ -51,16 +52,21 @@ void DisposeBackdropTexture()
 	}
 }
 
+void EnableBackdropPillarboxing(Boolean pillarbox)
+{
+	backdropPillarbox = pillarbox;
+}
+
 void RenderBackdropQuad()
 {
 	if (!backdropTextureAllocated) {
 		return;
 	}
 	
-	int ww, wh;
+	int windowWidth, windowHeight;
 	GLint vp[4];
 
-	SDL_GetWindowSize(gSDLWindow, &ww, &wh);
+	SDL_GetWindowSize(gSDLWindow, &windowWidth, &windowHeight);
 	glGetIntegerv(GL_VIEWPORT, vp);
 
 	glPushAttrib(GL_ENABLE_BIT);
@@ -68,17 +74,22 @@ void RenderBackdropQuad()
 	glDisable(GL_CULL_FACE);
 	glDisable(GL_SCISSOR_TEST);
 	glEnable(GL_TEXTURE_2D);
-	glViewport(0, 0, ww, wh);
+	glViewport(0, 0, windowWidth, windowHeight);
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
 	glLoadIdentity();
-	glOrtho(0.0, ww, wh, 0, 0, 1);
+	glOrtho(0.0, windowWidth, windowHeight, 0, 0, 1);
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
 	glLoadIdentity();
 	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
-	glClearColor(0.0, 0.0, 0.5, 1.0);
-	glClear(GL_COLOR_BUFFER_BIT);
+	if (backdropPillarbox) {
+		float clearR = ((gCoverWindowPixPtr[0] >> 24) & 0xFF) / 255.0;
+		float clearG = ((gCoverWindowPixPtr[0] >> 16) & 0xFF) / 255.0;
+		float clearB = ((gCoverWindowPixPtr[0] >> 8) & 0xFF) / 255.0;
+		glClearColor(clearR, clearG, clearB, 1.0);
+		glClear(GL_COLOR_BUFFER_BIT);
+	}
 
 	glBindTexture(GL_TEXTURE_2D, backdropTexture);
 
@@ -97,12 +108,24 @@ void RenderBackdropQuad()
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	}
+	
+	int quadLeft = 0;
+	int quadRight = windowWidth;
+	if (backdropPillarbox) {
+		const float ratio = (float) windowWidth / windowHeight;
+		const float fourThirds = 4.0f / 3.0f;
+		if (ratio > fourThirds) {
+			int pillarboxedWidth = fourThirds * windowWidth / ratio;
+			quadLeft = (windowWidth / 2) - (pillarboxedWidth / 2);
+			quadRight = quadLeft + pillarboxedWidth;
+		}
+	}
 
 	glBegin(GL_TRIANGLE_STRIP);
-	glTexCoord2f(0.0, 0.0); glVertex2i(0, 0);
-	glTexCoord2f(1.0, 0.0); glVertex2i(ww, 0);
-	glTexCoord2f(0.0, 1.0); glVertex2i(0,  wh);
-	glTexCoord2f(1.0, 1.0); glVertex2i(ww, wh);
+	glTexCoord2f(0.0, 0.0); glVertex2i(quadLeft, 0);
+	glTexCoord2f(1.0, 0.0); glVertex2i(quadRight, 0);
+	glTexCoord2f(0.0, 1.0); glVertex2i(quadLeft, windowHeight);
+	glTexCoord2f(1.0, 1.0); glVertex2i(quadRight, windowHeight);
 	glEnd();
 
 	if (exclusiveGLContextValid) { // in exclusive GL mode, force swap buffer

@@ -24,6 +24,8 @@ void ExclusiveOpenGLMode_End(void);
 
 void AllocBackdropTexture(void);
 
+void EnableBackdropPillarboxing(Boolean pillarbox);
+
 void RenderBackdropQuad(void);
 
 void DisposeBackdropTexture(void);
