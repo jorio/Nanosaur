@@ -300,6 +300,7 @@ typedef struct
 	Boolean softerLighting;
 	Boolean fullscreen;
 	Boolean mainMenuHelp;
+	Boolean interpolationStyle;
 	Boolean	reserved[4];
 }PrefsType;
 

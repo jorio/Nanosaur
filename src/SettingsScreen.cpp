@@ -57,6 +57,7 @@ std::vector<SettingEntry> settings = {
 //		{&gGamePrefs.dust               , "Dust"                },
 		{&gGamePrefs.allowGammaFade     , "Allow Gamma Fade"    },
 		{&gGamePrefs.softerLighting     , "Softer Lighting"     },
+		{&gGamePrefs.interpolationStyle , "Face Shading"      , nullptr, {"Flat", "Per-Pixel"} },
 		{&gGamePrefs.mainMenuHelp       , "Main Menu Help"      },
 };
 
