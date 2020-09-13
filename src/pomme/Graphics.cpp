@@ -2,6 +2,7 @@
 #include "PommeInternal.h"
 #include "SysFont.h"
 #include "memstream.h"
+#include "GamePatches.h"
 #include <iostream>
 #include <SDL.h>
 #include <Quesa.h>
@@ -91,10 +92,15 @@ void Pomme::Graphics::Init(const char* windowTitle, int windowWidth, int windowH
 	screenPort = std::make_unique<GrafPortImpl>(boundsRect);
 	curPort = screenPort.get();
 
-	// the sdl gl context is now obtained by quesa
-	//SDL_ENSURE(gGLCtx = SDL_GL_CreateContext(gSDLWindow));
+	// Clear window
+	static const RGBColor backgroundColor = {0xA500,0xA500,0xA500};
+	RGBBackColor(&backgroundColor);//BackColor(blackColor);
+	EraseRect(&curPort->port.portRect);
+	ExclusiveOpenGLMode_Begin();
+	RenderBackdropQuad();
+	ExclusiveOpenGLMode_End();
 
-	// Initialise ourselves
+	// Initialize Quesa
 	auto qd3dStatus = Q3Initialize();
 	if (qd3dStatus != kQ3Success)
 		TODOFATAL2("Couldn't init Quesa");
