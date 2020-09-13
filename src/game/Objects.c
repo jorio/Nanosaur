@@ -42,6 +42,7 @@ extern	float		gFramesPerSecondFrac;
 extern	TQ3ShaderObject	gQD3D_gShadowTexture;
 extern	ObjNode		*gPlayerObj;
 extern	QD3DSetupOutputType		*gGameViewInfoPtr;
+extern	PrefsType	gGamePrefs;
 
 
 /****************************/
@@ -472,6 +473,17 @@ Boolean			cacheMode;
 	cacheMode = true;
 #endif
 	
+
+				/* SET TEXTURE FILTER FOR ALL NODES */
+	// Source port change: the original game used to default to nearest-neighbor texturing.
+	// You had to enable texture filtering by setting STATUS_BIT_HIGHFILTER in the statusBits of
+	// individual nodes. However, this was applied inconsistently -- some props (mushrooms,
+	// trees etc.) didn't have this status bit and therefore always used NN. I assume this was
+	// unintentional, so I'm setting texture filtering for ALL nodes here, rather than per-node.
+	QD3D_SetTextureFilter(gGamePrefs.highQualityTextures
+			? kQATextureFilter_Best
+			: kQATextureFilter_Fast);
+
 			/***********************/
 			/* MAIN NODE TASK LOOP */
 			/***********************/			
@@ -507,6 +519,7 @@ Boolean			cacheMode;
 
 		if (!(statusBits & STATUS_BIT_REFLECTIONMAP))
 		{
+#if 0   // Source port removal
 				/* CHECK TEXTURE FILTERING */
 				
 			if (statusBits & STATUS_BIT_HIGHFILTER)
@@ -517,6 +530,7 @@ Boolean			cacheMode;
 					QD3D_SetTextureFilter(kQATextureFilter_Mid);			// set nice textures
 			}
 		
+#endif
 #if 0   // Source port removal
 				/* CHECK BLENDING */
 				
@@ -554,8 +568,10 @@ Boolean			cacheMode;
 
 					/* UNDO STATUS MODES */
 								
+#if 0   // Source port removal
 			if (statusBits & STATUS_BIT_HIGHFILTER)
 				QD3D_SetTextureFilter(kQATextureFilter_Fast);				// undo nice textures			
+#endif
 
 			if (statusBits & STATUS_BIT_NULLSHADER)							// undo NULL shader
 				Q3Shader_Submit(setupInfo->shaderObject, view);
