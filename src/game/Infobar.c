@@ -29,6 +29,8 @@
 #include "enemy.h"
 #include "timeportal.h"
 
+#include "GamePatches.h"
+
 extern	NewObjectDefinitionType	gNewObjectDefinition;
 extern	Byte			gCurrentAttackMode;
 extern	float			gFramesPerSecond,gFramesPerSecondFrac,gCameraRotY,gCameraRotX,gMyHealth;
@@ -479,8 +481,9 @@ Boolean	toggleMusic = !gMuteMusicFlag;
 		UpdateInfobarIcon(quit);
 		
 		QD3D_DrawScene(gGameViewInfoPtr,DrawTerrain);
+		DoSDLMaintenance();
 	}
-	while(!GetNewKeyState_Real(KEY_SPACE));					// see if select
+	while(!GetNewKeyState_Real(KEY_SPACE) && !GetNewKeyState_Real(KEY_RETURN));					// see if select
 
 			/* CLEANUP */
 			
