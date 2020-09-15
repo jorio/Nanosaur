@@ -2,10 +2,10 @@
 #include "PommeInternal.h"
 #include "SysFont.h"
 #include "memstream.h"
-#include "GamePatches.h"
 #include <iostream>
 #include <SDL.h>
 #include <Quesa.h>
+#include "GamePatches.h"
 
 #if _WIN32
 	#undef min
