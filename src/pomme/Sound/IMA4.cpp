@@ -126,6 +126,16 @@ static void DecodeIMA4Chunk(
 	*output += 64 * nChannels;
 }
 
+int Pomme::Sound::IMA4::GetInputSize(
+	const int nSamples,
+	const int nChannels)
+{
+	if (nSamples % 64 != 0)
+		throw std::invalid_argument("odd input sample count");
+	int nChunks = nSamples / 64;
+	return nChannels * 34 * nChunks;
+}
+
 int Pomme::Sound::IMA4::GetOutputSize(
 	const int inputByteCount,
 	const int nChannels)

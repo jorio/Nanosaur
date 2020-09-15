@@ -194,6 +194,8 @@
     <ClCompile Include="src\pomme\Sound\xlaw.cpp" />
     <ClCompile Include="src\pomme\structpack.cpp" />
     <ClCompile Include="src\GamePatches.cpp" />
+    <ClCompile Include="src\pomme\Video\Cinepak.cpp" />
+    <ClCompile Include="src\pomme\Video\moov.cpp" />
     <ClCompile Include="src\SettingsScreen.cpp" />
     <ClCompile Include="src\StructUnpackers.cpp" />
     <ClCompile Include="src\game\3DMath.c" />
@@ -318,6 +320,7 @@
     <ClInclude Include="src\pomme\structpack.h" />
     <ClInclude Include="src\GamePatches.h" />
     <ClInclude Include="src\Pomme\SysFont.h" />
+    <ClInclude Include="src\pomme\Video\Cinepak.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

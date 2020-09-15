@@ -354,6 +354,12 @@
     <ClCompile Include="src\pomme\Sound\xlaw.cpp">
       <Filter>Pomme\Sound</Filter>
     </ClCompile>
+    <ClCompile Include="src\pomme\Video\moov.cpp">
+      <Filter>Pomme\Video</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pomme\Video\Cinepak.cpp">
+      <Filter>Pomme\Video</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\pomme\PommeEnums.h">
@@ -666,6 +672,9 @@
     <ClInclude Include="src\game\weapons.h">
       <Filter>Game\Player</Filter>
     </ClInclude>
+    <ClInclude Include="src\pomme\Video\Cinepak.h">
+      <Filter>Pomme\Video</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Game">
@@ -721,6 +730,9 @@
     </Filter>
     <Filter Include="Game\Player">
       <UniqueIdentifier>{7e295514-08bc-4539-92c6-d75726577e2a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Pomme\Video">
+      <UniqueIdentifier>{e88e4ac2-565a-4b95-95af-917c7d9cdf06}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

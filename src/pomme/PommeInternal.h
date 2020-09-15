@@ -102,6 +102,7 @@ namespace Pomme {
 		}
 		namespace IMA4
 		{
+			int GetInputSize(const int nSamples, const int nChannels);
 			int GetOutputSize(const int inputByteCount, const int nChannels);
 			void Decode(const int nChannels, const std::span<const char>& input, const std::span<char> output);
 		}
@@ -110,6 +111,11 @@ namespace Pomme {
 			int GetOutputSize(const int inputByteCount, const int nChannels);
 			void Decode(const int nChannels, const std::span<const char>& input, const std::span<char> output);
 		}
+	}
+
+	namespace Video
+	{
+		void ReadMoov(std::istream& f);
 	}
 
 	namespace Input
