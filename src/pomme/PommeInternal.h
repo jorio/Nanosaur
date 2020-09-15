@@ -6,6 +6,8 @@
 #include <string>
 #include <filesystem>
 #include <span>
+#include <queue>
+#include "cmixer.h"
 
 namespace Pomme {
 	class StreamPosGuard {
@@ -115,7 +117,23 @@ namespace Pomme {
 
 	namespace Video
 	{
-		void ReadMoov(std::istream& f);
+		struct Movie
+		{
+			int				width;
+			int				height;
+			FourCharCode	videoFormat;
+			float			videoFrameRate;
+			std::queue<std::vector<unsigned char>> videoFrames;
+
+			FourCharCode	audioFormat;
+			int				audioSampleRate;
+			int				audioBitDepth;
+			int				audioNChannels;
+			cmixer::WavStream	audioStream;
+			unsigned audioSampleCount;
+		};
+
+		Movie ReadMoov(std::istream& f);
 	}
 
 	namespace Input

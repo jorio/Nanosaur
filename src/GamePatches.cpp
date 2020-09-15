@@ -1,11 +1,13 @@
 #include <QD3DMath.h>
 #include <SDL.h>
 #include <SDL_opengl.h>
+#include "game/sound2.h"
 #include "game/Structs.h"
 #include "game/input.h"
 #include "game/qd3d_support.h"
 #include "PommeInternal.h"
 #include "GamePatches.h"
+#include "Video/Cinepak.h"
 
 extern TQ3Matrix4x4 gCameraWorldToViewMatrix;
 extern TQ3Matrix4x4 gCameraViewToFrustumMatrix;
@@ -121,6 +123,107 @@ OSErr DrawPictureToScreen(FSSpec* spec, short x, short y)
 	SetPort(oldPort);
 	
 	return noErr;
+}
+
+
+//-----------------------------------------------------------------------------
+// Movie
+
+
+void PlayAMovie(FSSpec* spec)
+{
+	KillSong();
+
+	Pomme::Video::Movie movie;
+
+	short refNum;
+	FSpOpenDF(spec, fsRdPerm, &refNum);
+	{
+		auto& movieFileStream = Pomme::Files::GetStream(refNum);
+		movie = Pomme::Video::ReadMoov(movieFileStream);
+	}
+	FSClose(refNum);
+
+	// -----------
+
+	CinepakContext cinepak(movie.width, movie.height);
+
+	auto renderer = SDL_CreateRenderer(gSDLWindow, -1, 0);
+
+	auto texture = SDL_CreateTexture(
+			renderer, SDL_PIXELFORMAT_ABGR8888, SDL_TEXTUREACCESS_STREAMING,
+			movie.width, movie.height);
+
+	SDL_SetRenderTarget(renderer, texture);
+
+	movie.audioStream.Play();
+
+	while (!movie.videoFrames.empty()) {
+		unsigned int startTicks = SDL_GetTicks();
+
+		{
+			const auto &frame = movie.videoFrames.front();
+			cinepak.DecodeFrame(frame.data(), frame.size());
+			movie.videoFrames.pop();
+		}
+
+		char *pixels = nullptr;
+		int pitch = 0;
+		SDL_LockTexture(texture, nullptr, (void**)&pixels, &pitch);
+		// RGB888 to RGBA8888
+		for (int y = 0; y < movie.height; y++) {
+			const char *in = cinepak.frame_data0 + cinepak.frame_linesize0 * y;
+			char *out = pixels + pitch * y;
+			for (int x = 0; x < movie.width; x++) {
+				*out++ = *in++;
+				*out++ = *in++;
+				*out++ = *in++;
+				*out++ = 0xFF;
+			}
+		}
+		SDL_UnlockTexture(texture);
+
+		SDL_Rect dstrect = {};
+		int windowWidth, windowHeight;
+		SDL_GetWindowSize(gSDLWindow, &windowWidth, &windowHeight);
+		float windowAspectRatio = windowWidth / (float)windowHeight;
+		float sourceAspectRatio = movie.width / (float)movie.height;
+		if (fabs(sourceAspectRatio - windowAspectRatio) < 0.1) {
+			// source and window have nearly the same aspect ratio -- fit
+			dstrect.x = dstrect.y = 0;
+			dstrect.w = windowWidth;
+			dstrect.h = windowHeight;
+		} else if (sourceAspectRatio > windowAspectRatio) {
+			// source is wider than window -- letterbox
+			dstrect.x = 0;
+			dstrect.w = windowWidth;
+			dstrect.h = windowWidth / sourceAspectRatio;
+			dstrect.y = (windowHeight - dstrect.h) / 2;
+		} else {
+			// source is narrower than window -- pillarbox
+			dstrect.y = 0;
+			dstrect.h = windowHeight;
+			dstrect.w = windowHeight * sourceAspectRatio;
+			dstrect.x = (windowWidth - dstrect.w) / 2;
+		}
+		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+		SDL_RenderClear(renderer);
+		SDL_RenderCopy(renderer, texture, nullptr, &dstrect);
+		SDL_RenderPresent(renderer);
+		DoSDLMaintenance();
+
+		unsigned int endTicks = SDL_GetTicks();
+		int diffTicks = endTicks - startTicks;
+		int waitTicks = 1000 / movie.videoFrameRate - diffTicks;
+		if (waitTicks > 0)
+			SDL_Delay(waitTicks);
+	}
+
+	movie.audioStream.Stop();
+
+	SDL_DestroyTexture(texture);
+
+	SDL_DestroyRenderer(renderer);
 }
 
 //-----------------------------------------------------------------------------

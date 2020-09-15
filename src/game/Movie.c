@@ -61,6 +61,7 @@ long	theResult;
 
 /****************** PLAY A MOVIE *************************/
 
+#if 0  // Source port: complete replacement implemented in GamePatches.cpp
 void PlayAMovie(FSSpec *spec)
 {
 #if 1
@@ -114,6 +115,7 @@ OSErr	iErr;
 	ExitMovies();
 #endif
 }
+#endif
 
 
 /***************** GET MOVIE ***************************/

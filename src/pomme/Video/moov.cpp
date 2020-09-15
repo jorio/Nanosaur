@@ -1,29 +1,14 @@
 #include <pomme/PommeInternal.h>
 #include <iostream>
-#include <queue>
 
 #include "Video/Cinepak.h"
 #include "Sound/cmixer.h"
 
+using namespace Pomme::Video;
+
 class MoovException: public std::runtime_error {
 public:
 	MoovException(const std::string m) : std::runtime_error(m) {}
-};
-
-struct Movie
-{
-	int				width;
-	int				height;
-	FourCharCode	videoFormat;
-	float			videoFrameRate;
-	std::queue<std::vector<unsigned char>> videoFrames;
-
-	FourCharCode	audioFormat;
-	int				audioSampleRate;
-	int				audioBitDepth;
-	int				audioNChannels;
-	cmixer::WavStream	audioStream;
-	unsigned audioSampleCount;
 };
 
 //-----------------------------------------------------------------------------
@@ -409,7 +394,7 @@ static void Parse_trak(Pomme::BigEndianIStream& f, Movie& movie)
 //-----------------------------------------------------------------------------
 // Moov parser
 
-void Pomme::Video::ReadMoov(std::istream& theF)
+Movie Pomme::Video::ReadMoov(std::istream& theF)
 {
 	Pomme::BigEndianIStream f(theF);
 	Movie movie;
@@ -418,5 +403,5 @@ void Pomme::Video::ReadMoov(std::istream& theF)
 	Parse_trak(f, movie);		// Parse first track(video)
 	Parse_trak(f, movie);		// Parse second track (audio)
 	SkipAtomIfPresent(f, 'udta');
+	return movie;
 }
-
