@@ -11,10 +11,12 @@ namespace Pomme {
 	class StreamPosGuard {
 		std::istream& stream;
 		const std::streampos backup;
+		bool active;
 
 	public:
 		StreamPosGuard(std::istream& f);
 		~StreamPosGuard();
+		void Cancel();
 	};
 
 	class BigEndianIStream {

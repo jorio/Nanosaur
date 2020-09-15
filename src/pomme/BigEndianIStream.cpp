@@ -3,12 +3,21 @@
 
 Pomme::StreamPosGuard::StreamPosGuard(std::istream& theStream) :
 	stream(theStream),
-	backup(theStream.tellg())
+	backup(theStream.tellg()),
+	active(true)
 {
 }
 
-Pomme::StreamPosGuard::~StreamPosGuard() {
-	stream.seekg(backup, std::ios_base::beg);
+Pomme::StreamPosGuard::~StreamPosGuard()
+{
+	if (active) {
+		stream.seekg(backup, std::ios_base::beg);
+	}
+}
+
+void Pomme::StreamPosGuard::Cancel()
+{
+	active = false;
 }
 
 Pomme::BigEndianIStream::BigEndianIStream(std::istream& theStream) :
