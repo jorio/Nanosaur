@@ -208,6 +208,7 @@ Boolean					hasMask;
 			/****************/
 			/*  READ ANIMS  */
 			/****************/
+			// SOURCE PORT NOTE: Nanosaur doesn't use sprite animations at all. We could remove this and all associated anim structures.
 			
 	for (i = 0; i < numAnims; i++)
 	{
@@ -218,6 +219,15 @@ Boolean					hasMask;
 		numLines = gShapeTables[groupNum].anims[i].numLines =
 					(**(AnimHeaderType **)hand).numLines;							// get # lines in anim
 		ReleaseResource(hand);
+
+			/* SEE IF WE HAVE ANIM DATA AT ALL */
+			/* (Source port fix to avoid illegal memory access if 0 anims) */
+
+		if (!numLines)
+		{
+			gShapeTables[groupNum].anims[i].animData = nil;
+			continue;
+		}
 
 			/* ALLOC MEMORY FOR ANIM DATA */
 			
@@ -264,6 +274,8 @@ ShapeFrameHeader	*sfh;
 	numAnims = 	gShapeTables[groupNum].numAnims;
 	for (i = 0; i < numAnims; i++)
 	{
+		if (!(Handle)gShapeTables[groupNum].anims[i].animData)				// don't nuke if we had no animData (source port fix)
+			continue;
 		DisposeHandle((Handle)gShapeTables[groupNum].anims[i].animData);	// nuke anim data
 	}
 	
