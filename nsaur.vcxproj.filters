@@ -350,6 +350,10 @@
     <ClCompile Include="src\game\Weapons.c">
       <Filter>Game\Player</Filter>
     </ClCompile>
+    <ClCompile Include="src\SettingsScreen.cpp" />
+    <ClCompile Include="src\pomme\Sound\xlaw.cpp">
+      <Filter>Pomme\Sound</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\pomme\PommeEnums.h">
