@@ -185,6 +185,9 @@ add_executable(nsaur
         src/StructUnpackers.cpp
         src/SettingsScreen.cpp
         src/pomme/Sound/xlaw.cpp
+        src/pomme/Video/moov.cpp
+        src/pomme/Video/Cinepak.cpp
+        src/pomme/Video/Cinepak.h
         )
 
 target_link_libraries(${PROJECT_NAME}
