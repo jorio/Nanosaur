@@ -169,6 +169,7 @@ OSErr		iErr;
 	gGamePrefs.canDoFog = true;
 	gGamePrefs.shadows = true;
 	gGamePrefs.dust = true;
+	gGamePrefs.interpolationStyle = 1;
 	gGamePrefs.allowGammaFade = false;
 	gGamePrefs.fullscreen = false;
 	gGamePrefs.mainMenuHelp = true;
