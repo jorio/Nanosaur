@@ -98,7 +98,7 @@ static void RenderQualityDialog()
 		MoveTo(xOffset + column1X, y);
 		DrawString(settings[i].label);
 
-		int settingByte = (unsigned int)*setting.ptr;
+		unsigned int settingByte = (unsigned int)*setting.ptr;
 		if (settingByte < 0) settingByte = 0;
 		if (settingByte > settings[i].choices.size()) settingByte = 0;
 

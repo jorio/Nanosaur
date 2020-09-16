@@ -442,8 +442,8 @@ WavStream::WavStream()
 	, bitdepth(0)
 	, channels(0)
 	, bigEndian(false)
-	, userBuffer()
 	, idx(0)
+	, userBuffer()
 {}
 
 void WavStream::Clear()

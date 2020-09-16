@@ -14,7 +14,7 @@ char* Pascal2C(const char* pstr)
 {
 	static char cstr[256];
 	memcpy(cstr, &pstr[1], pstr[0]);
-	cstr[pstr[0]] = '\0';
+	cstr[(unsigned)pstr[0]] = '\0';
 	return cstr;
 }
 

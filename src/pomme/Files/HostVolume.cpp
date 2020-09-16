@@ -54,12 +54,12 @@ long HostVolume::GetDirectoryID(const std::filesystem::path& dirPath)
 	if (std::filesystem::exists(dirPath) && !std::filesystem::is_directory(dirPath)) {
 		std::cerr << "Warning: GetDirectoryID should only be used on directories! " << dirPath << "\n";
 	}
-	for (int i = 0; i < directories.size(); i++) {
-		if (dirPath == directories[i]) {
-			//LOG << "directory [ID already allocated] " << i << ": " << dirPath << "\n";
-			return i;
-		}
+
+	auto it = std::find(directories.begin(), directories.end(), dirPath);
+	if (it != directories.end()) {
+		return std::distance(directories.begin(), it);
 	}
+
 	directories.emplace_back(dirPath);
 	LOG << "directory " << directories.size() - 1 << ": " << dirPath << "\n";
 	return (long)directories.size() - 1;
@@ -131,7 +131,7 @@ OSErr HostVolume::OpenFork(const FSSpec* spec, ForkType forkType, char permissio
 		}
 
 		if (!foundRF) {
-			fnfErr;
+			return fnfErr;
 		}
 	}
 
@@ -152,8 +152,6 @@ OSErr HostVolume::OpenFork(const FSSpec* spec, ForkType forkType, char permissio
 		}
 		f.Skip(16);
 		auto numOfEntries = f.Read<UInt16>();
-		UInt32 adfResForkLen = 0;
-		UInt32 adfResForkOff = 0;
 		bool foundEntryID2 = false;
 		for (int i = 0; i < numOfEntries; i++) {
 			auto entryID = f.Read<UInt32>();
@@ -162,8 +160,6 @@ OSErr HostVolume::OpenFork(const FSSpec* spec, ForkType forkType, char permissio
 			if (entryID == 2) {
 				foundEntryID2 = true;
 				f.Goto(offset);
-				adfResForkLen = length;
-				adfResForkOff = offset;
 				break;
 			}
 		}
@@ -237,7 +233,7 @@ static bool CaseInsensitiveAppendToPath(
 
 OSErr HostVolume::FSMakeFSSpec(long dirID, const std::string& fileName, FSSpec* spec)
 {
-	if (dirID < 0 || dirID >= directories.size()) {
+	if (dirID < 0 || (unsigned long)dirID >= directories.size()) {
 		throw std::runtime_error("HostVolume::FSMakeFSSpec: directory ID not registered.");
 	}
 

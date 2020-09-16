@@ -391,7 +391,7 @@ CinepakContext::~CinepakContext()
 void CinepakContext::DumpFrameTGA(const char* outFN)
 {
 	std::ofstream out(outFN, std::ios::out | std::ios::binary);
-	short TGAhead[] = { 0, 2, 0, 0, 0, 0, width, height, 24 };
+	uint16_t TGAhead[] = { 0, 2, 0, 0, 0, 0, (uint16_t)width, (uint16_t)height, 24 };
 	out.write(reinterpret_cast<char*>(&TGAhead), sizeof(TGAhead));
 	out.write(frame_data0, width*height*3);
 }

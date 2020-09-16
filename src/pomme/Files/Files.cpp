@@ -89,7 +89,7 @@ void Pomme::Files::Init()
 
 bool IsVolumeLegal(short vRefNum)
 {
-	return vRefNum >= 0 && vRefNum < volumes.size();
+	return vRefNum >= 0 && (unsigned short)vRefNum < volumes.size();
 }
 
 OSErr FSMakeFSSpec(short vRefNum, long dirID, ConstStr255Param pascalFileName, FSSpec* spec)

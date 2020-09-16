@@ -46,13 +46,8 @@ ArchiveVolume::ArchiveVolume(short vRefNum, const std::string& pathToArchiveOnHo
 
 long ArchiveVolume::GetDirectoryID(const std::string& dirPath)
 {
-	for (int i = 0; i < directories.size(); i++) {
-		if (dirPath == directories[i]) {
-			//LOG << "directory [ID already allocated] " << i << ": " << dirPath << "\n";
-			return i;
-		}
-	}
-	return -1;
+	auto it = std::find(directories.begin(), directories.end(), dirPath);
+	return it == directories.end() ? -1 : std::distance(directories.begin(), it);
 }
 
 //-----------------------------------------------------------------------------
@@ -143,7 +138,7 @@ OSErr ArchiveVolume::OpenFork(
 
 OSErr ArchiveVolume::FSMakeFSSpec(long dirID, const std::string& fileName, FSSpec* spec)
 {
-	if (dirID < 0 || dirID >= directories.size()) {
+	if (dirID < 0 || (unsigned long)dirID >= directories.size()) {
 		throw std::runtime_error("ArchiveVolume::FSMakeFSSpec: directory ID not registered.");
 	}
 

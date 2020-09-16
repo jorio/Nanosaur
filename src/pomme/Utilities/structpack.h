@@ -20,7 +20,7 @@ namespace structpack {
 			for (int i = 0; i < repeat; i++)
 				p += Unpack(format, (Ptr)p);
 		}
-		catch (std::out_of_range) {
+		catch (std::out_of_range&) {
 			std::stringstream ss;
 			ss << typeid(T).name() << " isn't registered in structpack::formatDB";
 			throw std::out_of_range(ss.str());

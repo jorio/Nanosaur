@@ -222,7 +222,7 @@ Handle GetResource(ResType theType, short theID) {
 
 			return h;
 		}
-		catch (std::out_of_range) {
+		catch (std::out_of_range&) {
 			LOG << "Resource not found, go deeper in stack of open resource forks\n";
 			continue;
 		}

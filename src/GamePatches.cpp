@@ -238,7 +238,7 @@ void DumpGLPixels(const char* outFN)
 	glReadPixels(0, 0, width, height, GL_BGR, GL_UNSIGNED_BYTE, buf.data());
 	
 	std::ofstream out(outFN, std::ios::out | std::ios::binary);
-	short TGAhead[] = { 0, 2, 0, 0, 0, 0, width, height, 24 };
+	uint16_t TGAhead[] = { 0, 2, 0, 0, 0, 0, (uint16_t)width, (uint16_t)height, 24 };
 	out.write(reinterpret_cast<char*>(&TGAhead), sizeof(TGAhead));
 	out.write(buf.data(), buf.size());
 	
@@ -273,7 +273,7 @@ void DoSDLMaintenance()
 	UInt32 ticksElapsed = now - debugText.lastUpdateAt;
 	if (ticksElapsed >= debugText.updateInterval) {
 		float fps = 1000 * debugText.frameAccumulator / (float)ticksElapsed;
-		snprintf(debugText.titleBuffer, 1024, "nsaur - %d fps - %d nodes drawn", (int)round(fps), gNodesDrawn);
+		snprintf(debugText.titleBuffer, 1024, "nsaur - %d fps - %ld nodes drawn", (int)round(fps), gNodesDrawn);
 		SDL_SetWindowTitle(gSDLWindow, debugText.titleBuffer);
 		debugText.frameAccumulator = 0;
 		debugText.lastUpdateAt = now;

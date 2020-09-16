@@ -10,8 +10,6 @@
 using namespace Pomme;
 using namespace Pomme::Graphics;
 
-#define PRINT_PROGRESS_EVERY 16
-
 #define LOG POMME_GENLOG(POMME_DEBUG_PICT, "PICT")
 #define LOG_NOPREFIX POMME_GENLOG_NOPREFIX(POMME_DEBUG_PICT)
 
@@ -24,15 +22,15 @@ public:
 // Color
 
 Color::Color(UInt8 r_, UInt8 g_, UInt8 b_) :
-	r(r_), g(g_), b(b_), a(0xFF)
+	a(0xFF), r(r_), g(g_), b(b_)
 {}
 
 Color::Color(UInt8 r_, UInt8 g_, UInt8 b_, UInt8 a_) :
-	r(r_), g(g_), b(b_), a(a_)
+	a(a_), r(r_), g(g_), b(b_)
 {}
 
 Color::Color() :
-	r(0xFF), g(0x00), b(0xFF), a(0xFF)
+	a(0xFF), r(0xFF), g(0x00), b(0xFF)
 {}
 
 //-----------------------------------------------------------------------------
@@ -130,22 +128,21 @@ template<typename T> static std::vector<T> UnpackBits(BigEndianIStream& f, UInt1
 //-----------------------------------------------------------------------------
 // Unpack PICT pixmap formats
 
-template<typename T> static std::vector<T> UnpackAllRows(BigEndianIStream& f, int w, int h, UInt16 rowbytes, int expectedItemCount)
+template<typename T> static std::vector<T> UnpackAllRows(BigEndianIStream& f, int w, int h, UInt16 rowbytes, std::size_t expectedItemCount)
 {
 	LOG << "UnpackBits<" << typeid(T).name() << ">";
 	
 	std::vector<T> data;
 	data.reserve(expectedItemCount);
 	for (int y = 0; y < h; y++) {
-		if (y % PRINT_PROGRESS_EVERY == 0) LOG_NOPREFIX << ".";
 		int packedRowBytes = rowbytes > 250 ? f.Read<UInt16>() : f.Read<UInt8>();
-		auto rowPixels = UnpackBits<T>(f, rowbytes, packedRowBytes);
-		for (int i = 0; i < rowPixels.size(); i++)
-			data.push_back(rowPixels[i]);
+		std::vector<T> rowPixels = UnpackBits<T>(f, rowbytes, packedRowBytes);
+		data.insert(data.end(), rowPixels.begin(), rowPixels.end());
 	}
 	
-	if (expectedItemCount != data.size())
+	if (expectedItemCount != data.size()) {
 		throw PICTException("UnpackAllRows: unexpected item count");
+	}
 
 	LOG_NOPREFIX << "\n";
 	return data;
@@ -158,10 +155,10 @@ static ARGBPixmap Unpack0(BigEndianIStream& f, int w, int h, const std::vector<C
 	ARGBPixmap dst(w, h);
 	dst.data.clear();
 	LOG << "indexed to RGBA";
-	for (int i = 0; i < unpacked.size(); i++) {
-		if (i % (w * PRINT_PROGRESS_EVERY) == 0) LOG_NOPREFIX << ".";
-		UInt8 px = unpacked[i];
-		if (px >= palette.size()) throw PICTException("Unpack0: illegal color index in pixmap");
+	for (uint8_t px : unpacked) {
+		if (px >= palette.size()) {
+			throw PICTException("Unpack0: illegal color index in pixmap");
+		}
 		Color c = palette[px];
 		dst.data.push_back(c.a);
 		dst.data.push_back(c.r);
@@ -178,10 +175,9 @@ static ARGBPixmap Unpack3(BigEndianIStream& f, int w, int h, UInt16 rowbytes)
 	auto unpacked = UnpackAllRows<UInt16>(f, w, h, rowbytes, w*h);
 	ARGBPixmap dst(w, h);
 	dst.data.clear();
+	dst.data.reserve(unpacked.size() * 4);
 	LOG << "Chunky16 to RGBA";
-	for (int i = 0; i < unpacked.size(); i++) {
-		if (i % (w*PRINT_PROGRESS_EVERY) == 0) LOG_NOPREFIX << ".";
-		UInt16 px = unpacked[i];
+	for (UInt16 px : unpacked) {
 		dst.data.push_back(0xFF); // a
 		dst.data.push_back(((px >> 10) & 0x1F) << 3); // r
 		dst.data.push_back(((px >>  5) & 0x1F) << 3); // g
@@ -199,7 +195,6 @@ static ARGBPixmap Unpack4(BigEndianIStream& f, int w, int h, UInt16 rowbytes, in
 	dst.data.clear();
 	LOG << "Planar" << numPlanes*8 << " to RGBA";
 	for (int y = 0; y < h; y++) {
-		if (y % PRINT_PROGRESS_EVERY == 0) LOG_NOPREFIX << ".";
 		if (numPlanes == 3) {
 			for (int x = 0; x < w; x++) {
 				dst.data.push_back(0xFF);

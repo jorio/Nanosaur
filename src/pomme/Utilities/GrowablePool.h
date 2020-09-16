@@ -69,7 +69,7 @@ public:
 	}
 
 	bool IsAllocated(TId id) const {
-		return id >= 0 && id < pool.size() && isInUse[id];
+		return id >= 0 && (unsigned)id < pool.size() && isInUse[id];
 	}
 };
 
