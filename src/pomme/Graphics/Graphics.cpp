@@ -439,6 +439,8 @@ void DrawPicture(PicHandle myPicture, const Rect* dstRect)
 			srcPixels + y * srcWidth,
 			4 * dstWidth);
 	}
+
+	curPort->dirty = true;
 }
 
 void CopyBits(
