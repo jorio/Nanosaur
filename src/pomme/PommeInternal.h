@@ -174,6 +174,10 @@ namespace Pomme {
 		void DumpTGA(const char* path, short width, short height, const char* argbData);
 		void DrawARGBPixmap(int left, int top, ARGBPixmap& p);
 		CGrafPtr GetScreenPort(void);
+		void SetWindowIconFromIcl8Resource(short i);
+
+		extern const uint32_t clut8[256];
+		extern const uint32_t clut4[16];
 	}
 
 	inline int Width(const Rect& r) { return r.right - r.left; }

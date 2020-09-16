@@ -182,6 +182,7 @@
     <ClCompile Include="src\Backdrop.cpp" />
     <ClCompile Include="src\game\Windows.c" />
     <ClCompile Include="src\GamePatches.cpp" />
+    <ClCompile Include="src\pomme\Graphics\SystemPalettes.cpp" />
     <ClCompile Include="src\SettingsScreen.cpp" />
     <ClCompile Include="src\StructUnpackers.cpp" />
     <ClCompile Include="src\game\3DMath.c" />

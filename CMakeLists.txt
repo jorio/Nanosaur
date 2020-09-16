@@ -147,6 +147,7 @@ add_executable(nsaur
         src/pomme/Graphics/Graphics.cpp
         src/pomme/Graphics/SysFont.h
         src/pomme/Graphics/QD3D.cpp
+        src/pomme/Graphics/SystemPalettes.cpp
         src/pomme/Utilities/memstream.cpp
         src/pomme/Utilities/memstream.h
         src/pomme/Utilities/structpack.cpp

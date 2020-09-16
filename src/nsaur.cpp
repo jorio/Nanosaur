@@ -56,6 +56,7 @@ int CommonMain(int argc, const char** argv)
 		throw std::runtime_error("Can't find application resource file: " + std::string(APPLICATION_FILE));
 	}
 	UseResFile(FSpOpenResFile(&applicationSpec, fsRdPerm));
+	Pomme::Graphics::SetWindowIconFromIcl8Resource(128);
 
 	// Start the game
 	try {

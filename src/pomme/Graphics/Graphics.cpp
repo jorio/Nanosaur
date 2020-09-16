@@ -559,3 +559,29 @@ void DrawChar(char c)
 
 	curPort->dirty = true;
 }
+
+// ----------------------------------------------------------------------------
+// Icons
+
+void Pomme::Graphics::SetWindowIconFromIcl8Resource(short icl8ID)
+{
+	Handle macIcon = GetResource('icl8', icl8ID);
+	if (1024 != GetHandleSize(macIcon)) {
+		throw std::invalid_argument("icl8 resource has incorrect size");
+	}
+
+	const int width = 32;
+	const int height = 32;
+
+	SDL_Surface* icon = SDL_CreateRGBSurface(0, width, height, 32, 0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000);
+	for (int y = 0; y < height; y++) {
+		uint32_t *out = (uint32_t*)((char*) icon->pixels + icon->pitch * y);
+		for (int x = 0; x < width; x++) {
+			unsigned char pixel = (*macIcon)[y*width + x];
+			*out++ = pixel == 0 ? 0 : Pomme::Graphics::clut8[pixel];
+		}
+	}
+	SDL_SetWindowIcon(gSDLWindow, icon);
+	SDL_FreeSurface(icon);
+	DisposeHandle(macIcon);
+}

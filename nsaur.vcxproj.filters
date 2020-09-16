@@ -348,6 +348,9 @@
     <ClCompile Include="src\pomme\Video\Cinepak.cpp">
       <Filter>Pomme\Video</Filter>
     </ClCompile>
+    <ClCompile Include="src\pomme\Graphics\SystemPalettes.cpp">
+      <Filter>Pomme\Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\pomme\PommeEnums.h">
