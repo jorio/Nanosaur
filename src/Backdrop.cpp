@@ -82,7 +82,7 @@ void RenderBackdropQuad()
 		return;
 	}
 
-	UInt32* pixPtr = GetBackdropPixPtr();
+	unsigned char* pixPtr = (unsigned char*)GetBackdropPixPtr();
 	
 	int windowWidth, windowHeight;
 	GLint vp[4];
@@ -105,9 +105,9 @@ void RenderBackdropQuad()
 	glLoadIdentity();
 	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
 	if (backdropPillarbox) {
-		float clearR = ((pixPtr[0] >> 24) & 0xFF) / 255.0;
-		float clearG = ((pixPtr[0] >> 16) & 0xFF) / 255.0;
-		float clearB = ((pixPtr[0] >> 8) & 0xFF) / 255.0;
+		float clearR = pixPtr[1] / 255.0f;
+		float clearG = pixPtr[2] / 255.0f;
+		float clearB = pixPtr[3] / 255.0f;
 		glClearColor(clearR, clearG, clearB, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT);
 	}
