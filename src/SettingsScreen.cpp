@@ -50,7 +50,6 @@ struct SettingEntry
 
 std::vector<SettingEntry> settings = {
 		{&gGamePrefs.fullscreen         , "Fullscreen"        , SetFullscreenMode },
-		{&gGamePrefs.vsync              , "Vertical Sync"       },
 		{&gGamePrefs.highQualityTextures, "Texture Filtering"   },
 		{&gGamePrefs.canDoFog           , "Fog"                 },
 		{&gGamePrefs.shadows            , "Shadow Decals"       },
