@@ -1,7 +1,7 @@
 #include "Pomme.h"
 #include "PommeInternal.h"
 #include "SysFont.h"
-#include "memstream.h"
+#include "pomme/Utilities/memstream.h"
 #include <iostream>
 #include <SDL.h>
 #include <Quesa.h>

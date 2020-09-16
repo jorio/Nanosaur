@@ -1,6 +1,6 @@
 #include <iostream>
 #include "PommeInternal.h"
-#include "memstream.h"
+#include "pomme/Utilities/memstream.h"
 #include "Files/ArchiveVolume.h"
 #include "pomme/maconv/stuffit/methods/arsenic.h"
 

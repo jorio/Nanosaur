@@ -1,4 +1,4 @@
-#include "structpack.h"
+#include "pomme/Utilities/structpack.h"
 
 #include "globals.h"
 #include "sprites.h"

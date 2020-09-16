@@ -8,19 +8,7 @@
       <Filter>Pomme\Sound</Filter>
     </ClCompile>
     <ClCompile Include="src\nsaur.cpp" />
-    <ClCompile Include="src\pomme\Files.cpp">
-      <Filter>Pomme</Filter>
-    </ClCompile>
-    <ClCompile Include="src\pomme\Memory.cpp">
-      <Filter>Pomme</Filter>
-    </ClCompile>
-    <ClCompile Include="src\pomme\PICT.cpp">
-      <Filter>Pomme</Filter>
-    </ClCompile>
     <ClCompile Include="src\pomme\Pomme.cpp">
-      <Filter>Pomme</Filter>
-    </ClCompile>
-    <ClCompile Include="src\pomme\QD3D.cpp">
       <Filter>Pomme</Filter>
     </ClCompile>
     <ClCompile Include="src\game\3DMF.c">
@@ -182,43 +170,43 @@
     <ClCompile Include="src\pomme\Files\ArchiveVolume.cpp">
       <Filter>Pomme\Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\pomme\IEEEExtended.c">
+    <ClCompile Include="src\pomme\Utilities\IEEEExtended.c">
       <Filter>Pomme\Utilities</Filter>
     </ClCompile>
-    <ClCompile Include="src\pomme\memstream.cpp">
+    <ClCompile Include="src\pomme\Utilities\memstream.cpp">
       <Filter>Pomme\Utilities</Filter>
     </ClCompile>
-    <ClCompile Include="src\pomme\structpack.cpp">
+    <ClCompile Include="src\pomme\Utilities\structpack.cpp">
       <Filter>Pomme\Utilities</Filter>
     </ClCompile>
-    <ClCompile Include="src\pomme\ARGBPixmap.cpp">
+    <ClCompile Include="src\pomme\Graphics\ARGBPixmap.cpp">
       <Filter>Pomme\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="src\pomme\PICT.cpp">
+    <ClCompile Include="src\pomme\Graphics\PICT.cpp">
       <Filter>Pomme\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="src\pomme\Graphics.cpp">
+    <ClCompile Include="src\pomme\Graphics\Graphics.cpp">
       <Filter>Pomme\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="src\pomme\Files.cpp">
+    <ClCompile Include="src\pomme\Files\Files.cpp">
       <Filter>Pomme\Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\pomme\BigEndianIStream.cpp">
+    <ClCompile Include="src\pomme\Utilities\BigEndianIStream.cpp">
       <Filter>Pomme\Utilities</Filter>
     </ClCompile>
-    <ClCompile Include="src\pomme\QD3D.cpp">
+    <ClCompile Include="src\pomme\Graphics\QD3D.cpp">
       <Filter>Pomme\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="src\pomme\TimeManager.cpp">
+    <ClCompile Include="src\pomme\Time\TimeManager.cpp">
       <Filter>Pomme\Time</Filter>
     </ClCompile>
-    <ClCompile Include="src\pomme\Resources.cpp">
+    <ClCompile Include="src\pomme\Files\Resources.cpp">
       <Filter>Pomme\Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\pomme\Memory.cpp">
+    <ClCompile Include="src\pomme\Memory\Memory.cpp">
       <Filter>Pomme\Memory</Filter>
     </ClCompile>
-    <ClCompile Include="src\pomme\WinInput.cpp">
+    <ClCompile Include="src\pomme\Input\SDLInput.cpp">
       <Filter>Pomme\Input</Filter>
     </ClCompile>
     <ClCompile Include="src\game\Enemy_Ptera.c">
@@ -540,27 +528,6 @@
     <ClInclude Include="src\pomme\Files\ArchiveVolume.h">
       <Filter>Pomme\Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\pomme\FixedPool.h">
-      <Filter>Pomme\Utilities</Filter>
-    </ClInclude>
-    <ClInclude Include="src\pomme\GrowablePool.h">
-      <Filter>Pomme\Utilities</Filter>
-    </ClInclude>
-    <ClInclude Include="src\pomme\IEEEExtended.h">
-      <Filter>Pomme\Utilities</Filter>
-    </ClInclude>
-    <ClInclude Include="src\pomme\memstream.h">
-      <Filter>Pomme\Utilities</Filter>
-    </ClInclude>
-    <ClInclude Include="src\pomme\PascalStringHack.h">
-      <Filter>Pomme\Utilities</Filter>
-    </ClInclude>
-    <ClInclude Include="src\pomme\structpack.h">
-      <Filter>Pomme\Utilities</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Pomme\SysFont.h">
-      <Filter>Pomme\Graphics</Filter>
-    </ClInclude>
     <ClInclude Include="src\game\timeportal.h">
       <Filter>Game\Items</Filter>
     </ClInclude>
@@ -674,6 +641,27 @@
     </ClInclude>
     <ClInclude Include="src\pomme\Video\Cinepak.h">
       <Filter>Pomme\Video</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pomme\Utilities\memstream.h">
+      <Filter>Pomme\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pomme\Utilities\structpack.h">
+      <Filter>Pomme\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pomme\Utilities\FixedPool.h">
+      <Filter>Pomme\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pomme\Utilities\GrowablePool.h">
+      <Filter>Pomme\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pomme\Utilities\IEEEExtended.h">
+      <Filter>Pomme\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pomme\Utilities\PascalStringHack.h">
+      <Filter>Pomme\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pomme\Graphics\SysFont.h">
+      <Filter>Pomme\Graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

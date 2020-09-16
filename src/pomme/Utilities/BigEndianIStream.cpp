@@ -1,5 +1,5 @@
 #include "PommeInternal.h"
-#include "IEEEExtended.h"
+#include "pomme/Utilities/IEEEExtended.h"
 
 Pomme::StreamPosGuard::StreamPosGuard(std::istream& theStream) :
 	stream(theStream),

@@ -3,7 +3,7 @@
 #include <iostream>
 #include <cassert>
 
-#include "memstream.h"
+#include "pomme/Utilities/memstream.h"
 #include "PommeInternal.h"
 #include "Sound/cmixer.h"
 

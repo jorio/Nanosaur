@@ -10,7 +10,7 @@
 //-----------------------------------------------------------------------------
 // Structure unpacking
 
-#include "structpack.h"
+#include "pomme/Utilities/structpack.h"
 
 //-----------------------------------------------------------------------------
 // Big-endian transparent conversion

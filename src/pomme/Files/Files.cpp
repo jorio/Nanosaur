@@ -3,8 +3,8 @@
 #include <sstream>
 
 #include "PommeInternal.h"
-#include "GrowablePool.h"
-#include "memstream.h"
+#include "pomme/Utilities/GrowablePool.h"
+#include "pomme/Utilities/memstream.h"
 #include "Files/Volume.h"
 #include "Files/HostVolume.h"
 #include "Files/ArchiveVolume.h"

@@ -22,7 +22,6 @@ include_directories(
         src
         src/game
         src/pomme
-        src/pomme/Sound
         src/qd3d
 )
 
@@ -112,11 +111,20 @@ add_executable(nsaur
         src/game/weapons.h
         src/game/Windows.c
         src/game/windows_nano.h
+        src/pomme/Pomme.cpp
+        src/pomme/Pomme.h
+        src/pomme/PommeDebug.cpp
+        src/pomme/PommeDebug.h
+        src/pomme/PommeEnums.h
+        src/pomme/PommeInternal.h
+        src/pomme/PommeTypes.h
+        src/pomme/Files/Files.cpp
         src/pomme/Files/Volume.h
         src/pomme/Files/HostVolume.cpp
         src/pomme/Files/HostVolume.h
         src/pomme/Files/ArchiveVolume.cpp
         src/pomme/Files/ArchiveVolume.h
+        src/pomme/Files/Resources.cpp
         src/pomme/maconv/stuffit/methods.h
         src/pomme/maconv/stuffit/methods/arsenic.cc
         src/pomme/maconv/stuffit/methods/arsenic.h
@@ -134,33 +142,28 @@ add_executable(nsaur
         src/pomme/Sound/IMA4.cpp
         src/pomme/Sound/MACE.cpp
         src/pomme/Sound/SoundManager.cpp
-        src/pomme/ARGBPixmap.cpp
-        src/pomme/BigEndianIStream.cpp
-        src/pomme/Files.cpp
-        src/pomme/FixedPool.h
-        src/pomme/Graphics.cpp
-        src/pomme/GrowablePool.h
-        src/pomme/IEEEExtended.c
-        src/pomme/IEEEExtended.h
-        src/pomme/Memory.cpp
-        src/pomme/PascalStringHack.h
-        src/pomme/PICT.cpp
-        src/pomme/Pomme.cpp
-        src/pomme/Pomme.h
-        src/pomme/PommeDebug.cpp
-        src/pomme/PommeDebug.h
-        src/pomme/PommeEnums.h
-        src/pomme/PommeInternal.h
-        src/pomme/PommeTypes.h
-        src/pomme/QD3D.cpp
-        src/pomme/Resources.cpp
-        src/pomme/structpack.cpp
-        src/pomme/structpack.h
-        src/pomme/SysFont.h
-        src/pomme/TimeManager.cpp
-        src/pomme/WinInput.cpp
-        src/pomme/memstream.cpp
-        src/pomme/memstream.h
+        src/pomme/Sound/xlaw.cpp
+        src/pomme/Graphics/ARGBPixmap.cpp
+        src/pomme/Graphics/Graphics.cpp
+        src/pomme/Graphics/SysFont.h
+        src/pomme/Graphics/QD3D.cpp
+        src/pomme/Utilities/memstream.cpp
+        src/pomme/Utilities/memstream.h
+        src/pomme/Utilities/structpack.cpp
+        src/pomme/Utilities/structpack.h
+        src/pomme/Utilities/BigEndianIStream.cpp
+        src/pomme/Utilities/FixedPool.h
+        src/pomme/Utilities/GrowablePool.h
+        src/pomme/Utilities/IEEEExtended.c
+        src/pomme/Utilities/IEEEExtended.h
+        src/pomme/Memory/Memory.cpp
+        src/pomme/Utilities/PascalStringHack.h
+        src/pomme/Graphics/PICT.cpp
+        src/pomme/Time/TimeManager.cpp
+        src/pomme/Input/SDLInput.cpp
+        src/pomme/Video/moov.cpp
+        src/pomme/Video/Cinepak.cpp
+        src/pomme/Video/Cinepak.h
         src/qd3d/QD3D.h
         src/qd3d/QD3DCamera.h
         src/qd3d/QD3DDrawContext.h
@@ -184,10 +187,6 @@ add_executable(nsaur
         src/nsaur.cpp
         src/StructUnpackers.cpp
         src/SettingsScreen.cpp
-        src/pomme/Sound/xlaw.cpp
-        src/pomme/Video/moov.cpp
-        src/pomme/Video/Cinepak.cpp
-        src/pomme/Video/Cinepak.h
         )
 
 target_link_libraries(${PROJECT_NAME}

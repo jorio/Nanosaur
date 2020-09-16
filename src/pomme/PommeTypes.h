@@ -68,7 +68,7 @@ typedef void                            (*ProcPtr);
 
 char* Pascal2C(const char* pstr);
 
-#include "PascalStringHack.h"
+#include "pomme/Utilities/PascalStringHack.h"
 
 typedef PascalString<32>				Str32;
 typedef PascalString<255>				Str255;
