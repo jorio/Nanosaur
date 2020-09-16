@@ -123,37 +123,17 @@ void Pomme::Graphics::Shutdown()
 // ---------------------------------------------------------------------------- -
 // Internal utils
 
-// According to https://lowendmac.com/mac-16-color-4-bit-palette/
-static const UInt32 fourBitPalette[16] = {
-	0xFF'FF'FF'FF,	// 0 white
-	0xFF'FF'FF'00,	// 1 yellow
-	0xFF'FF'66'00,	// 2 orange
-	0xFF'DD'00'00,	// 3 red
-	0xFF'FF'00'99,	// 4 magenta
-	0xFF'33'00'99,	// 5 purple
-	0xFF'00'00'CC,	// 6 blue
-	0xFF'00'99'FF,	// 7 cyan
-	0xFF'00'AA'00,	// 8 light green
-	0xFF'00'66'00,	// 9 dark green
-	0xFF'66'33'00,	//10 dark brown
-	0xFF'99'66'33,	//11 light brown
-	0xFF'BB'BB'BB,	//12 light gray
-	0xFF'88'88'88,	//13 gray
-	0xFF'44'44'44,	//14 dark gray
-	0xFF'00'00'00,	//15 black
-};
-
 static UInt32 GetEightColorPaletteValue(long color)
 {
 	switch (color) {
-	case whiteColor:	return fourBitPalette[0];
-	case yellowColor:	return fourBitPalette[1];
-	case redColor:		return fourBitPalette[3];
-	case magentaColor:	return fourBitPalette[4];
-	case blackColor:	return fourBitPalette[15];
-	case cyanColor:		return fourBitPalette[7];
-	case greenColor:	return fourBitPalette[8]; // I'm assuming this is light green rather than dark
-	case blueColor:		return fourBitPalette[6];
+	case whiteColor:	return clut4[0];
+	case yellowColor:	return clut4[1];
+	case redColor:		return clut4[3];
+	case magentaColor:	return clut4[4];
+	case blackColor:	return clut4[15];
+	case cyanColor:		return clut4[7];
+	case greenColor:	return clut4[8]; // I'm assuming this is light green rather than dark
+	case blueColor:		return clut4[6];
 	default:			return 0xFF'FF'00'FF;
 	}
 }
