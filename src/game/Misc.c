@@ -121,6 +121,9 @@ static	Boolean beenHere = false;
 //		SetDefaultOutputVolume((gOriginalSystemVolume<<16)|gOriginalSystemVolume); // reset system volume
 
 		TurnOffISp();
+		
+		ShowBugdomAd();
+		
 #if 0
 		CleanupDisplay();								// unloads Draw Sprocket
 		

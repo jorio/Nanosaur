@@ -363,8 +363,24 @@ static void Slideshow(const char** imagePaths)
 
 	for (int i = 0; imagePaths[i]; i++)
 	{
-		FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, imagePaths[i], &spec);
-		DrawPictureToScreen(&spec, 0,0);
+		// If the "file name" starts with "PICT#", load a PICT resource instead of a file.
+		if (0 == strncmp(imagePaths[i], "PICT#", 5))
+		{
+			int pictResourceID = atoi(&imagePaths[i][5]);
+			PicHandle picHandle = GetPicture(pictResourceID);
+			if (!picHandle)
+				continue;
+			DrawPicture(picHandle, &(**picHandle).picFrame);
+			ReleaseResource((Handle)picHandle);
+		}
+		else
+		{
+			OSErr result;
+			result = FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, imagePaths[i], &spec);
+			if (result != noErr)
+				continue;
+			DrawPictureToScreen(&spec, 0, 0);
+		}
 
 		if (i == 0) GammaFadeIn();
 		ReadKeyboard();
@@ -407,4 +423,10 @@ void ShowHelp(void)
 
 
 
+/******************* SHOW BUGDOM AD *************************/
 
+void ShowBugdomAd(void)
+{
+	const char* images[] = { "PICT#130", 0 };
+	Slideshow(images);
+}
