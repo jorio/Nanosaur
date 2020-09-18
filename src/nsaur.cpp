@@ -7,7 +7,7 @@
 	#define USE_ARCHIVE 1
 #endif
 
-#if PRO_MODE
+#ifdef PRO_MODE
 	constexpr const char* ARCHIVE_NAME = "nanosaurextreme134.bin";
 	#if USE_ARCHIVE
 		constexpr const char* APPLICATION_FILE = ":Nanosaur# Extreme";
