@@ -34,13 +34,6 @@ public:
 	}
 };
 
-ArchiveVolume::ArchiveVolume(short vRefNum, const std::string& pathToArchiveOnHost)
-	: Volume(vRefNum)
-{
-	backingStream = std::make_unique<std::ifstream>(pathToArchiveOnHost, std::ios::binary | std::ios::in);
-	ReadStuffIt5();
-}
-
 //-----------------------------------------------------------------------------
 // Public utilities
 
@@ -56,7 +49,7 @@ long ArchiveVolume::GetDirectoryID(const std::string& dirPath)
 class ArchiveVolumeException : public std::runtime_error
 {
 public:
-	ArchiveVolumeException(const char* m) : std::runtime_error(m) {}
+	ArchiveVolumeException(std::string m) : std::runtime_error(m) {}
 };
 
 static void ArchiveAssert(bool condition, const char* message)
@@ -135,6 +128,17 @@ OSErr ArchiveVolume::OpenFork(
 
 //-----------------------------------------------------------------------------
 // Implementation
+
+ArchiveVolume::ArchiveVolume(short vRefNum, const std::string& pathToArchiveOnHost)
+	: Volume(vRefNum)
+{
+	std::ifstream file(pathToArchiveOnHost, std::ios::binary | std::ios::in);
+	if (!file.is_open()) {
+		throw ArchiveVolumeException("Couldn't open \"" + pathToArchiveOnHost + "\".");
+	}
+	backingStream = std::make_unique<std::ifstream>(std::move(file));
+	ReadStuffIt5();
+}
 
 OSErr ArchiveVolume::FSMakeFSSpec(long dirID, const std::string& fileName, FSSpec* spec)
 {
