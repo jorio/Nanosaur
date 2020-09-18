@@ -217,6 +217,10 @@ void PlayAMovie(FSSpec* spec)
 		int waitTicks = 1000 / movie.videoFrameRate - diffTicks;
 		if (waitTicks > 0)
 			SDL_Delay(waitTicks);
+
+		ReadKeyboard();
+		if (GetNewKeyState_Real(KEY_SPACE) || GetNewKeyState_Real(KEY_ESC))
+			break;
 	}
 
 	movie.audioStream.Stop();
