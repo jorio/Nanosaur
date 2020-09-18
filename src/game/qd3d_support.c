@@ -33,6 +33,7 @@ extern	long		gScreenXOffset,gScreenYOffset;
 extern	Byte		gDemoMode;
 extern	PrefsType	gGamePrefs;
 extern	QD3DSetupOutputType		*gGameViewInfoPtr;
+extern	long		gNodesDrawn;
 
 /****************************/
 /*    PROTOTYPES            */
@@ -263,6 +264,8 @@ QD3DSetupOutputType	*data;
 		DoFatalAlert("QD3D_DisposeWindowSetup: data == nil");
 
 	DisposeBackdropTexture(); // Source port addition - release backdrop GL texture
+
+	gNodesDrawn = 0;  // Source port addition - reset debug "nodes drawn" counter
 	
 	Q3Object_Dispose(data->viewObject);
 	Q3Object_Dispose(data->interpolationStyle);
