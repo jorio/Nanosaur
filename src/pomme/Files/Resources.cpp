@@ -34,6 +34,23 @@ static void PrintStack(const char* msg) {
 	LOG << "------------------------------------\n";
 }
 
+static void DumpResource(Pomme::ResourceMetadata& meta)
+{
+	Handle handle = NewHandle(meta.size);
+	auto& fork = Pomme::Files::GetStream(meta.forkRefNum);
+	fork.seekg(meta.dataOffset, std::ios::beg);
+	fork.read(*handle, meta.size);
+
+	std::stringstream fn;
+	fn << "rezdump/" << meta.id << "_" << meta.name << "." << Pomme::FourCCString(meta.type, '_');
+	std::ofstream dump(fn.str(), std::ofstream::binary);
+	dump.write(*handle, meta.size);
+	dump.close();
+	std::cout << "wrote " << fn.str() << "\n";
+
+	DisposeHandle(handle);
+}
+
 //-----------------------------------------------------------------------------
 // Resource file management
 
@@ -41,7 +58,8 @@ OSErr ResError(void) {
 	return lastResError;
 }
 
-short FSpOpenResFile(const FSSpec* spec, char permission) {
+short FSpOpenResFile(const FSSpec* spec, char permission)
+{
 	short slot;
 
 	lastResError = FSpOpenRF(spec, permission, &slot);
@@ -59,7 +77,7 @@ short FSpOpenResFile(const FSSpec* spec, char permission) {
 	rezSearchStack.emplace_back();
 	rezSearchStackIndex = int(rezSearchStack.size() - 1);
 	GetCurRF().fileRefNum = slot;
-	GetCurRF().rezMap.clear();
+	GetCurRF().resourceMap.clear();
 
 	// -------------------
 	// Resource Header
@@ -83,7 +101,7 @@ short FSpOpenResFile(const FSSpec* spec, char permission) {
 	// all resource types
 	int nResTypes = 1 + f.Read<UInt16>();
 	for (int i = 0; i < nResTypes; i++) {
-		UInt32 resType = f.Read<OSType>();
+		OSType resType = f.Read<OSType>();
 		int    resCount = f.Read<UInt16>() + 1;
 		UInt32 resRefListOff = f.Read<UInt16>() + typeListOff;
 
@@ -108,11 +126,26 @@ short FSpOpenResFile(const FSSpec* spec, char permission) {
 			if (resFlags & 1) // compressed
 				TODOFATAL2("we don't support compressed resources yet");
 
-			Pomme::ResourceOnDisk r;
-			r.flags			= resFlags;
-			r.dataOffset	= resDataOff;
-			r.nameOffset	= resNameRelativeOff == 0xFFFF ? -1 : (resNameListOff + resNameRelativeOff);
-			GetCurRF().rezMap[resType][resID] = r;
+			// Fetch name
+			std::string name;
+			if (resNameRelativeOff != 0xFFFF) {
+				f.Goto(resNameListOff + resNameRelativeOff);
+				name = f.ReadPascalString();
+			}
+
+			// Fetch size
+			f.Goto(resDataOff);
+			SInt32 size = f.Read<SInt32>();
+
+			Pomme::ResourceMetadata resMetadata;
+			resMetadata.forkRefNum = slot;
+			resMetadata.type       = resType;
+			resMetadata.id         = resID;
+			resMetadata.flags      = resFlags;
+			resMetadata.dataOffset = resDataOff + 4;
+			resMetadata.size       = size;
+			resMetadata.name       = name;
+			GetCurRF().resourceMap[resType][resID] = resMetadata;
 		}
 	}
 
@@ -180,7 +213,7 @@ short Count1Resources(ResType theType) {
 	lastResError = noErr;
 
 	try {
-		return (short)GetCurRF().rezMap.at(theType).size();
+		return (short)GetCurRF().resourceMap.at(theType).size();
 	}
 	catch (std::out_of_range&) {
 		return 0;
@@ -193,39 +226,21 @@ Handle GetResource(ResType theType, short theID) {
 	for (int i = rezSearchStackIndex; i >= 0; i--) {
 		PrintStack("GetResource");
 
-		try {
-			const auto& rez = rezSearchStack[i].rezMap.at(theType).at(theID);
+		const auto& fork = rezSearchStack[i];
 
-			auto f = BigEndianIStream(Pomme::Files::GetStream(rezSearchStack[i].fileRefNum));
-
-			f.Goto(rez.dataOffset);
-			auto len = f.Read<UInt32>();
-
-			Handle h = NewHandle(len);
-			f.Read(*h, len);
-
-			LOG << FourCCString(theType) << " " << theID << ": " << len << "\n";
-
-			/*
-			if (theType == 'snd ') {
-				f.Goto(rez.nameOffset);
-				auto name = f.ReadPascalString();
-
-				std::stringstream fn;
-				fn << "b:\\rez_" << theID << "_" << name << "." << Pomme::FourCCString(theType, '_');
-				std::ofstream dump(fn.str(), std::ofstream::binary);
-				dump.write(*h, len);
-				dump.close();
-				std::cout << "wrote " << fn.str() << "\n";
-			}
-			*/
-
-			return h;
-		}
-		catch (std::out_of_range&) {
-			LOG << "Resource not found, go deeper in stack of open resource forks\n";
+		if (!fork.resourceMap.contains(theType) ||
+			!fork.resourceMap.at(theType).contains(theID))
+		{
 			continue;
 		}
+		
+		const auto& meta = fork.resourceMap.at(theType).at(theID);
+		auto& forkStream = Pomme::Files::GetStream(rezSearchStack[i].fileRefNum);
+		Handle handle = NewHandle(meta.size);
+		forkStream.seekg(meta.dataOffset, std::ios::beg);
+		forkStream.read(*handle, meta.size);
+		LOG << FourCCString(theType) << " " << theID << ": " << meta.size << "\n";
+		return handle;
 	}
 
 	std::cerr << "Couldn't get resource " << FourCCString(theType) << " #" << theID << "\n";

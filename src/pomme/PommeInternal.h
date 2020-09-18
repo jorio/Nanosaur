@@ -47,15 +47,21 @@ namespace Pomme {
 		}
 	};
 
-	struct ResourceOnDisk {
-		Byte	flags;
-		UInt32	dataOffset;
-		UInt32	nameOffset;
+	struct ResourceMetadata
+	{
+		short			forkRefNum;
+		OSType			type;
+		SInt16			id;
+		Byte			flags;
+		SInt32			size;
+		UInt32			dataOffset;
+		std::string		name;
 	};
 
-	struct ResourceFork {
+	struct ResourceFork
+	{
 		SInt16 fileRefNum;
-		std::map<ResType, std::map<SInt16, ResourceOnDisk> > rezMap;
+		std::map<ResType, std::map<SInt16, ResourceMetadata> > resourceMap;
 	};
 
 	// Throw this exception to interrupt the game's main loop
