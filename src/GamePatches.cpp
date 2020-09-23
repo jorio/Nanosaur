@@ -160,7 +160,9 @@ void PlayAMovie(FSSpec* spec)
 
 	movie.audioStream.Play();
 
-	while (!movie.videoFrames.empty()) {
+	bool movieAbortedByUser = false;
+
+	while (!movieAbortedByUser && !movie.videoFrames.empty()) {
 		unsigned int startTicks = SDL_GetTicks();
 
 		{
@@ -221,8 +223,16 @@ void PlayAMovie(FSSpec* spec)
 			SDL_Delay(waitTicks);
 
 		ReadKeyboard();
-		if (GetNewKeyState_Real(KEY_SPACE) || GetNewKeyState_Real(KEY_ESC))
-			break;
+		movieAbortedByUser = GetNewKeyState_Real(KEY_SPACE) || GetNewKeyState_Real(KEY_ESC);
+	}
+
+	// Freeze on last frame while audio track is still playing (Lose.mov requires this)
+	while (!movieAbortedByUser && movie.audioStream.GetState() == cmixer::CM_STATE_PLAYING)
+	{
+		DoSDLMaintenance();
+		SDL_Delay(100);
+		ReadKeyboard();
+		movieAbortedByUser = GetNewKeyState_Real(KEY_SPACE) || GetNewKeyState_Real(KEY_ESC);
 	}
 
 	movie.audioStream.Stop();
