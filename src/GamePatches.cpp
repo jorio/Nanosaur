@@ -148,6 +148,8 @@ void PlayAMovie(FSSpec* spec)
 
 	CinepakContext cinepak(movie.width, movie.height);
 
+	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, gGamePrefs.highQualityTextures? "1": "0");
+	
 	auto renderer = SDL_CreateRenderer(gSDLWindow, -1, 0);
 
 	auto texture = SDL_CreateTexture(
