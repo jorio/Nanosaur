@@ -12,7 +12,7 @@ extern	PrefsType				gGamePrefs;
 extern	float			gFramesPerSecond,gFramesPerSecondFrac;
 extern	SDL_Window*				gSDLWindow;
 
-static const RGBColor backgroundColor = {0xA000,0xA000,0xA000};
+static const RGBColor backgroundColor = {0xA500,0xA500,0xA500};
 static const RGBColor foregroundColor = {0x0000,0x0000,0x0000};
 static const RGBColor selectedForegroundColor1 = {0x1000,0x8000,0x2000};
 static const RGBColor lineColor       = {0x8000,0x8000,0x8000};
@@ -35,7 +35,7 @@ struct SettingEntry
 	Byte*       ptr;
 	const char* label;
 	std::function<void()> callback = nullptr;
-	std::vector<const char*> choices = {"OFF", "ON"};
+	std::vector<const char*> choices = {"NO", "YES"};
 	
 	void Cycle(int delta)
 	{
