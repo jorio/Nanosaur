@@ -320,4 +320,9 @@ void SetFullscreenMode()
 	SDL_SetWindowFullscreen(
 			gSDLWindow,
 			gGamePrefs.fullscreen? SDL_WINDOW_FULLSCREEN_DESKTOP: 0);
+
+	// Ensure the clipping pane gets resized properly after switching in or out of fullscreen mode
+	int width, height;
+	SDL_GetWindowSize(gSDLWindow, &width, &height);
+	QD3D_OnWindowResized(width, height);
 }
