@@ -1,33 +1,16 @@
 cmake_minimum_required(VERSION 3.17)
 
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+
 #set(CMAKE_VERBOSE_MAKEFILE ON)
-set(CMAKE_USER_MAKE_RULES_OVERRIDE "C_as_CXX.cmake")
 set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DQUESA_OS_SDL -DQUESA_APPLY_FOG_COLOR_IN_ALL_PASSES -DSOURCE_PORT_ENHANCEMENTS -Wno-multichar -Wno-deprecated")
 
 project(nsaur CXX)
 
 add_subdirectory(Quesa)
 
-INCLUDE(FindPkgConfig)
-
-PKG_SEARCH_MODULE(SDL2 REQUIRED sdl2)
-
-find_package(SDL2 REQUIRED)
-find_package(OpenGL REQUIRED)
-
-include_directories(
-        ${SDL2_INCLUDE_DIRS}
-        ${OPENGL_INCLUDE_DIRS}
-        src
-        src/game
-        src/pomme
-        src/qd3d
-)
-
-add_definitions(-include Pomme.h)
-
-add_executable(nsaur
+# "WIN32" here is equivalent to /SUBSYSTEM:WINDOWS for MSVC
+add_executable(nsaur WIN32
         src/game/3DMath.c
         src/game/3dmath.h
         src/game/3DMF.c
@@ -188,10 +171,51 @@ add_executable(nsaur
         src/nsaur.cpp
         src/StructUnpackers.cpp
         src/SettingsScreen.cpp
-        )
+)
+
+find_package(SDL2 REQUIRED COMPONENTS main)
+find_package(OpenGL REQUIRED)
+
+# Compile game C files as C++
+file(GLOB_RECURSE ALL_C_FILES "src/*.c")
+set_source_files_properties(${ALL_C_FILES} PROPERTIES LANGUAGE CXX)
+
+target_compile_definitions(Quesa_SDL PUBLIC QUESA_OS_SDL QUESA_APPLY_FOG_COLOR_IN_ALL_PASSES)
+target_compile_definitions(${PROJECT_NAME} PRIVATE SOURCE_PORT_ENHANCEMENTS)
+
+if(NOT MSVC)
+    target_compile_options(${PROJECT_NAME} PRIVATE
+        -include Pomme.h
+        -Wall -Wno-multichar
+    )
+else()
+    target_compile_options(${PROJECT_NAME} PRIVATE
+        /FIPomme.h
+        /EHsc
+        /W3
+    )
+    target_compile_definitions(${PROJECT_NAME} PRIVATE WIN32_LEAN_AND_MEAN)
+endif()
+
+target_include_directories(${PROJECT_NAME} PRIVATE
+    ${SDL2_INCLUDE_DIRS}
+    ${OPENGL_INCLUDE_DIRS}
+    src
+    src/game
+    src/pomme
+    src/qd3d
+)
 
 target_link_libraries(${PROJECT_NAME}
-        ${OPENGL_LIBRARY}
-        ${SDL2_LIBRARIES}
-        Quesa_SDL
-        )
+    ${OPENGL_LIBRARIES}
+    ${SDL2_LIBRARIES}
+    Quesa_SDL
+)
+
+# Copy SDL2 DLLs to output folder on Windows
+if(WIN32)
+    foreach(DLL ${SDL2_DLLS})
+        add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND
+            ${CMAKE_COMMAND} -E copy_if_different ${DLL} $<TARGET_FILE_DIR:${PROJECT_NAME}>)
+    endforeach()
+endif()
