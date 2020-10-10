@@ -145,9 +145,11 @@ OSErr FindFolder(short vRefNum, OSType folderType, Boolean createFolder, short* 
 		SHGetKnownFolderPath(FOLDERID_RoamingAppData, 0, 0, &wpath);
 		path = std::filesystem::path(wpath);
 #elif defined(__APPLE__)
-		// TODO: mac pref folder
-		TODO2("your OS is not supported yet for folder type " << Pomme::FourCCString(folderType));
-		return fnfErr;
+		const char *home = getenv("HOME");
+		if (!home) {
+			return fnfErr;
+		}
+		path = std::filesystem::path(home) / "Library" / "Preferences";
 #else
 		const char *home = getenv("XDG_CONFIG_HOME");
 		if (home) {
