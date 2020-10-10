@@ -3,6 +3,7 @@
 #include "SysFont.h"
 #include "pomme/Utilities/memstream.h"
 #include <iostream>
+#include <memory>
 #include <SDL.h>
 #include <Quesa.h>
 #include "GamePatches.h"

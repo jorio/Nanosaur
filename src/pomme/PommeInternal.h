@@ -4,7 +4,6 @@
 #include <map>
 #include <fstream>
 #include <string>
-#include <filesystem>
 #include <span>
 #include <queue>
 #include "pomme/Sound/cmixer.h"

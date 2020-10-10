@@ -1,6 +1,7 @@
 #pragma once
 
 #include "PommeInternal.h"
+#include <memory>
 
 namespace Pomme::Files
 {
