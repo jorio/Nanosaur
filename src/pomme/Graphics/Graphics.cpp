@@ -62,13 +62,6 @@ SDL_Window* gSDLWindow = nullptr;
 // ---------------------------------------------------------------------------- -
 // Initialization
 
-#define SDL_ENSURE(X) { \
-	if (!(X)) { \
-		std::cerr << #X << " --- " << SDL_GetError() << "\n"; \
-		exit(1); \
-	} \
-}
-
 CGrafPtr Pomme::Graphics::GetScreenPort(void)
 {
 	return &screenPort->port;
@@ -76,7 +69,9 @@ CGrafPtr Pomme::Graphics::GetScreenPort(void)
 
 void Pomme::Graphics::Init(const char* windowTitle, int windowWidth, int windowHeight)
 {
-	SDL_ENSURE(0 == SDL_Init(SDL_INIT_VIDEO));
+	if (0 != SDL_Init(SDL_INIT_VIDEO)) {
+		throw std::runtime_error("Couldn't initialize SDL video subsystem.");
+	}
 
 	gSDLWindow = SDL_CreateWindow(
 		windowTitle,
@@ -86,7 +81,9 @@ void Pomme::Graphics::Init(const char* windowTitle, int windowWidth, int windowH
 		windowHeight,
 		SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_SHOWN);
 
-	SDL_ENSURE(gSDLWindow);
+	if (!gSDLWindow) {
+		throw std::runtime_error("Couldn't create SDL window.");
+	}
 
 	Rect boundsRect = {0,0,480,640};
 	screenPort = std::make_unique<GrafPortImpl>(boundsRect);
@@ -102,16 +99,9 @@ void Pomme::Graphics::Init(const char* windowTitle, int windowWidth, int windowH
 
 	// Initialize Quesa
 	auto qd3dStatus = Q3Initialize();
-	if (qd3dStatus != kQ3Success)
-		TODOFATAL2("Couldn't init Quesa");
-
-	// Install error handlers.
-	//Q3Error_Register(errorCallback, 0);
-	//Q3Warning_Register(warningCallback, 0);
-	//Q3Notice_Register(noticeCallback, 0);
-
-	// Watch for leaks
-//	Q3Memory_StartRecording();
+	if (qd3dStatus != kQ3Success) {
+		throw std::runtime_error("Couldn't initialize Quesa.");
+	}
 }
 
 void Pomme::Graphics::Shutdown()
