@@ -190,7 +190,6 @@ OSErr NewGWorld(GWorldPtr* offscreenGWorld, short pixelDepth, const Rect* bounds
 void DisposeGWorld(GWorldPtr offscreenGWorld)
 {
 	delete &GetImpl(offscreenGWorld);
-	offscreenGWorld->_impl = nullptr;
 }
 
 void GetGWorld(CGrafPtr* port, GDHandle* gdh)
