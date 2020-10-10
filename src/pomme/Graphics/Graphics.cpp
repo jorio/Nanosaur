@@ -74,6 +74,10 @@ void Pomme::Graphics::Init(const char* windowTitle, int windowWidth, int windowH
 		throw std::runtime_error("Couldn't initialize SDL video subsystem.");
 	}
 
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
+
 	gSDLWindow = SDL_CreateWindow(
 		windowTitle,
 		SDL_WINDOWPOS_UNDEFINED,
