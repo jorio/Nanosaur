@@ -5,8 +5,8 @@
 
 extern	void ShowSystemErr(long err);
 extern void	ErrorHandler(short);
-extern void	DoAlert(Str255);
-extern void	DoFatalAlert(Str255);
+extern void	DoAlert(const char*);
+extern void	DoFatalAlert(const char*);
 extern void	Wait(long);
 extern unsigned char	*NumToHex(unsigned short);
 extern unsigned char	*NumToHex2(unsigned long, short);
@@ -23,7 +23,7 @@ extern	void PStringToC(char *pString, char *cString);
 extern	void DrawCString(char *string);
 extern	void InitMyRandomSeed(void);
 extern	void VerifySystem(void);
-extern	void DoFatalAlert2(Str255 s1, Str255 s2);
+extern	void DoFatalAlert2(const char* s1, const char* s2);
 extern	float RandomFloat(void);
 extern	unsigned long MyRandomLong_Alt(void);
 extern	void RegulateSpeed(short fps);

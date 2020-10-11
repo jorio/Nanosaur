@@ -21,8 +21,6 @@
 #include "qd3d_support.h"
 #include "qd3d_geometry.h"
 
-#include "PommeInternal.h" // FourCCString, for debugging only
-
 extern	QD3DSetupOutputType		*gGameViewInfoPtr;
 
 
@@ -183,7 +181,7 @@ TQ3Object		myObject;
 		if (myObject == nil)
 		{
 #if 1
-			printf("%s: Failed to ReadObject %s\n", __func__, Pomme::FourCCString(objtype).c_str());
+//			printf("%s: Failed to ReadObject %s\n", __func__, Pomme::FourCCString(objtype).c_str());
 			QD3D_ShowRecentError();
 			continue;
 #else

@@ -2,6 +2,7 @@
 #include <chrono>
 #include <iostream>
 #include <cassert>
+#include <cstring>
 
 #include "pomme/Utilities/memstream.h"
 #include "PommeInternal.h"
@@ -309,7 +310,7 @@ OSErr SndDisposeChannel(SndChannelPtr macChanPtr, Boolean quietNow)
 
 OSErr SndChannelStatus(SndChannelPtr chan, short theLength, SCStatusPtr theStatus)
 {
-	memset(theStatus, 0, sizeof(SCStatus));
+	*theStatus = {};
 
 	auto& source = GetImpl(chan).source;
 
@@ -337,7 +338,7 @@ static void ProcessSoundCmd(SndChannelPtr chan, const Ptr sndhdr)
 
 	SampledSoundHeader sh;
 	f.Read(reinterpret_cast<char*>(&sh), kSampledSoundHeaderLength);
-	structpack::Unpack(kSampledSoundHeaderPackFormat, reinterpret_cast<char*>(&sh));
+	ByteswapStructs(kSampledSoundHeaderPackFormat, kSampledSoundHeaderLength, 1, reinterpret_cast<char*>(&sh));
 
 	if (sh.zero != 0) {
 		// The first field can be a pointer to the sampled-sound data.
@@ -668,7 +669,7 @@ Boolean Pomme_DecompressSoundResource(SndListHandle* sndHandlePtr, long* offsetT
 	// Read in SampledSoundHeader and unpack it.
 	SampledSoundHeader sh;
 	f.Read(reinterpret_cast<char*>(&sh), kSampledSoundHeaderLength);
-	structpack::Unpack(kSampledSoundHeaderPackFormat, reinterpret_cast<char*>(&sh));
+	ByteswapStructs(kSampledSoundHeaderPackFormat, kSampledSoundHeaderLength, 1, reinterpret_cast<char*>(&sh));
 
 	// We only handle cmpSH (compressed) 'snd ' resources.
 	if (sh.encoding != cmpSH) {
@@ -741,7 +742,7 @@ Boolean Pomme_DecompressSoundResource(SndListHandle* sndHandlePtr, long* offsetT
 	shOut.zero = 0;
 	shOut.encoding = sh.cmpSH_nChannels == 2 ? nativeSH_stereo16 : nativeSH_mono16;
 	shOut.nativeSH_nBytes = nBytesOut;
-	structpack::Pack(kSampledSoundHeaderPackFormat, reinterpret_cast<char*>(&shOut));
+	ByteswapStructs(kSampledSoundHeaderPackFormat, kSampledSoundHeaderLength, 1, reinterpret_cast<char*>(&shOut));
 
 	memcpy(*outHandle, kSampledSoundCommandList, kSampledSoundCommandListLength);
 	memcpy((char*)*outHandle + kSampledSoundCommandListLength, &shOut, kSampledSoundHeaderLength);

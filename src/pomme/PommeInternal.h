@@ -189,7 +189,6 @@ namespace Pomme {
 	inline int Height(const Rect& r) { return r.bottom - r.top; }
 	
 	std::string FourCCString(FourCharCode t, char filler = '?');
-	std::string Pascal2Cpp(const char* pstr);
 
 }
 

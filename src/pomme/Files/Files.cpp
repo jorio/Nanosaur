@@ -92,12 +92,12 @@ bool IsVolumeLegal(short vRefNum)
 	return vRefNum >= 0 && (unsigned short)vRefNum < volumes.size();
 }
 
-OSErr FSMakeFSSpec(short vRefNum, long dirID, ConstStr255Param pascalFileName, FSSpec* spec)
+OSErr FSMakeFSSpec(short vRefNum, long dirID, const char* cstrFileName, FSSpec* spec)
 {
 	if (!IsVolumeLegal(vRefNum))
 		return nsvErr;
 	
-	return volumes.at(vRefNum)->FSMakeFSSpec(dirID, Pascal2Cpp(pascalFileName), spec);
+	return volumes.at(vRefNum)->FSMakeFSSpec(dirID, cstrFileName, spec);
 }
 
 static OSErr OpenFork(const FSSpec* spec, ForkType forkType, char permission, short* refNum)
@@ -112,9 +112,9 @@ static OSErr OpenFork(const FSSpec* spec, ForkType forkType, char permission, sh
 	if (rc != noErr) {
 		openFiles.Dispose(newRefNum);
 		newRefNum = -1;
-		LOG << "Failed to open " << Pascal2Cpp(spec->name) << "\n";
+		LOG << "Failed to open " << spec->cName << "\n";
 	} else {
-		LOG << "Stream #" << newRefNum << " opened: " << Pascal2Cpp(spec->name) << ", " << (forkType == DataFork ? "data" : "rsrc") << "\n";
+		LOG << "Stream #" << newRefNum << " opened: " << spec->cName << ", " << (forkType == DataFork ? "data" : "rsrc") << "\n";
 	}
 	if (refNum) {
 		*refNum = newRefNum;
@@ -186,10 +186,10 @@ OSErr FindFolder(short vRefNum, OSType folderType, Boolean createFolder, short* 
 	return noErr;
 }
 
-OSErr DirCreate(short vRefNum, long parentDirID, ConstStr255Param directoryName, long* createdDirID)
+OSErr DirCreate(short vRefNum, long parentDirID, const char* cstrDirectoryName, long* createdDirID)
 {
 	return IsVolumeLegal(vRefNum)
-		? volumes.at(vRefNum)->DirCreate(parentDirID, Pascal2Cpp(directoryName), createdDirID)
+		? volumes.at(vRefNum)->DirCreate(parentDirID, cstrDirectoryName, createdDirID)
 		: nsvErr;
 }
 

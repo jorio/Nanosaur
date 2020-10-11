@@ -25,7 +25,7 @@ extern	float				gFramesPerSecondFrac,gFramesPerSecond;
 /*    PROTOTYPES            */
 /****************************/
 
-inline float MaskAngle(float angle);
+static inline float MaskAngle(float angle);
 
 
 /****************************/

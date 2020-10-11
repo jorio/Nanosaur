@@ -2,11 +2,15 @@
 #include <SDL_video.h>
 #include <SDL_events.h>
 #include <PommeInternal.h>
+#include "GamePatches.h"
+
+extern "C" {
 #include "game/Structs.h"
-#include "windows_nano.h"
+#include "game/windows_nano.h"
 
 extern SDL_Window* gSDLWindow;
 extern PrefsType gGamePrefs;
+}
 
 static GLuint backdropTexture = -1;
 static bool backdropTextureAllocated = false;

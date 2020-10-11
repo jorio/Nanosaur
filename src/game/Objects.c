@@ -633,9 +633,8 @@ ObjNode *tempNode;
 	if (theNode->CType == INVALID_NODE_FLAG)		// see if already deleted
 	{
 		Str255	errString;		//-----------
-		NumToString(theNode->Type,errString);		//------------
-		DoAlert("Attempted to Double Delete an Object.  Object was already deleted!");
-		DoFatalAlert(errString);					//---------
+		NumToStringC(theNode->Type,errString);		//------------
+		DoFatalAlert2("Attempted to Double Delete an Object.  Object was already deleted!", errString);
 	}
 
 			/* RECURSIVE DELETE OF CHAIN NODE & SHADOW NODE */

@@ -1,8 +1,5 @@
 #pragma once
 
-#include <algorithm>
-#include <sstream>
-
 #include "PommeTypes.h"
 #include "PommeEnums.h"
 #include "PommeDebug.h"
@@ -11,22 +8,6 @@
 // Structure unpacking
 
 #include "pomme/Utilities/structpack.h"
-
-//-----------------------------------------------------------------------------
-// Big-endian transparent conversion
-
-template<typename T> T BEByteSwap(T x) {
-#if TARGET_RT_BIGENDIAN
-	return x;
-#else
-	char* b = (char*)&x;
-	std::reverse(b, b + sizeof(T));
-	return x;
-#endif
-}
-
-template<typename T> T ToBE(T x) { return BEByteSwap(x); }
-template<typename T> T FromBE(T x) { return BEByteSwap(x); }
 
 //-----------------------------------------------------------------------------
 // PowerPC intrinsics
@@ -40,10 +21,15 @@ template<typename T> T FromBE(T x) { return BEByteSwap(x); }
 
 #define nil NULL
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 //-----------------------------------------------------------------------------
 // FSSpec
 
-OSErr FSMakeFSSpec(short vRefNum, long dirID, ConstStr255Param fileName, FSSpec* spec);
+OSErr FSMakeFSSpec(short vRefNum, long dirID, const char* cstrFileName, FSSpec* spec);
 
 short FSpOpenResFile(const FSSpec* spec, char permission);
 
@@ -61,7 +47,7 @@ OSErr ResolveAlias(const FSSpec* spec, AliasHandle alias, FSSpec* target, Boolea
 
 OSErr FindFolder(short vRefNum, OSType folderType, Boolean createFolder, short* foundVRefNum, long* foundDirID);
 
-OSErr DirCreate(short vRefNum, long parentDirID, ConstStr255Param directoryName, long* createdDirID);
+OSErr DirCreate(short vRefNum, long parentDirID, const char* cstrDirectoryName, long* createdDirID);
 
 //-----------------------------------------------------------------------------
 // File I/O
@@ -156,11 +142,13 @@ void LineTo(short h, short v);
 
 void FrameRect(const Rect*);
 
-short TextWidth(const char* textBuf, short firstByte, short byteCount);
+//short TextWidth(const char* textBuf, short firstByte, short byteCount);
+
+short TextWidthC(const char* cstr);
 
 void DrawChar(char c);
 
-void DrawString(ConstStr255Param s);
+void DrawStringC(const char* cstr);
 
 // IM:QD:7-44
 void DrawPicture(PicHandle myPicture, const Rect* dstRect);
@@ -198,7 +186,7 @@ void SysBeep(short duration);
 
 void FlushEvents(short, short);
 
-void NumToString(long theNum, Str255& theString);
+void NumToStringC(long theNum, Str255 theString);
 
 //-----------------------------------------------------------------------------
 // Input
@@ -321,3 +309,7 @@ Boolean Pomme_DecompressSoundResource(SndListHandle* sndHandlePtr, long* offsetT
 
 // Pomme extension
 void Pomme_PauseLoopingChannels(Boolean pause);
+
+#ifdef __cplusplus
+}
+#endif

@@ -64,9 +64,6 @@ long	theResult;
 #if 0  // Source port: complete replacement implemented in GamePatches.cpp
 void PlayAMovie(FSSpec *spec)
 {
-#if 1
-	TODO2(Pascal2C(spec->name));
-#else
 Movie	aMovie;
 Rect	movieBox;
 Size	size;
@@ -113,7 +110,6 @@ OSErr	iErr;
 			/* QUIT QUICKTIME */
 			
 	ExitMovies();
-#endif
 }
 #endif
 

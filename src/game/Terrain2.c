@@ -16,6 +16,7 @@
 #include "enemy.h"
 #include "mytraps.h"
 #include "timeportal.h"
+#include "structformats.h"
 
 /***************/
 /* EXTERNALS   */
@@ -118,11 +119,15 @@ TerrainItemEntryType *lastPtr;
 
 	offset = *((SInt32 *)(gTerrainPtr+12));							// get offset to OBJECT_LIST
 	longPtr = (SInt32  *)(gTerrainPtr+offset);	  					// get pointer to OBJECT_LIST
-	gNumTerrainItems = FromBE(*longPtr++);									// get # items in file
+
+	SInt32 numTerrainItemsAsLong = *longPtr++;						// get # items in file
+	ByteswapInts(sizeof(SInt32), 1, &numTerrainItemsAsLong);
+	gNumTerrainItems = numTerrainItemsAsLong;
 	if (gNumTerrainItems == 0)
 		return;
 
-	gMasterItemList = structpack::UnpackObj<TerrainItemEntryType>((Ptr)longPtr, gNumTerrainItems); // point to items in file
+	gMasterItemList = (TerrainItemEntryType *)longPtr;				// point to items in file
+	ByteswapStructs(STRUCTFORMAT_TerrainItemEntryType, sizeof(TerrainItemEntryType), gNumTerrainItems, gMasterItemList);
 
 
 				/* BUILD HORIZ LOOKUP TABLE */

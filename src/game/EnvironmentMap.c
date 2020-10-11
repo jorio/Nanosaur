@@ -33,7 +33,7 @@ extern	long				gNodesDrawn;
 /*    PROTOTYPES            */
 /****************************/
 
-inline void ReflectVector(float viewX, float viewY, float viewZ, TQ3Vector3D *N, TQ3Vector3D *out);
+static inline void ReflectVector(float viewX, float viewY, float viewZ, TQ3Vector3D *N, TQ3Vector3D *out);
 static void CalcEnvMap_Recurse(TQ3Object obj);
 static void EnvironmentMapTriMesh(TQ3Object theTriMesh, TQ3TriMeshData *inData);
 

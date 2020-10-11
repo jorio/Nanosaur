@@ -1,5 +1,8 @@
 #pragma once
 
+#include <stdbool.h>
+#include <stdint.h>
+
 //-----------------------------------------------------------------------------
 // Integer types
 
@@ -17,9 +20,9 @@ typedef unsigned int                    UInt32;
 typedef unsigned long long              UInt64;
 
 #if TARGET_RT_BIGENDIAN
-struct UnsignedWide { UInt32 hi, lo; };
+typedef struct { UInt32 hi, lo; } UnsignedWide;
 #else
-struct UnsignedWide { UInt32 lo, hi; };
+typedef struct { UInt32 lo, hi; } UnsignedWide;
 #endif
 
 //-----------------------------------------------------------------------------
@@ -66,39 +69,36 @@ typedef void                            (*ProcPtr);
 //-----------------------------------------------------------------------------
 // (Pascal) String types
 
-char* Pascal2C(const char* pstr);
-
-#include "pomme/Utilities/PascalStringHack.h"
-
-typedef PascalString<32>				Str32;
-typedef PascalString<255>				Str255;
-typedef const Str255&					ConstStr255Param;
+typedef char                            Str32[33];
+typedef char                            Str255[256];
 typedef char*							StringPtr;
+typedef const char*                     ConstStr255Param;
 
 //-----------------------------------------------------------------------------
 // Point & Rect types
 
-struct Point { SInt16 v, h; };
+typedef struct Point { SInt16 v, h; } Point;
 
-struct Rect
+typedef struct Rect
 {
 	union
 	{
 		struct { SInt16 top, left, bottom, right; };
 		struct { Point topLeft, bottomRight; };
 	};
-};
+} Rect;
 
 typedef Point* PointPtr;
 typedef Rect* RectPtr;
 
-struct FixedPoint { Fixed x, y; };
-struct FixedRect { Fixed left, top, right, bottom; };
+typedef struct FixedPoint { Fixed x, y; } FixedPoint;
+typedef struct FixedRect { Fixed left, top, right, bottom; } FixedRect;
 
 //-----------------------------------------------------------------------------
 // FSSpec types
 
-struct FSSpec {
+typedef struct FSSpec
+{
 	// Volume reference number of the volume containing the specified file or directory.
 	short vRefNum;
 
@@ -106,8 +106,10 @@ struct FSSpec {
 	long parID;
 
 	// The name of the specified file or directory. In Carbon, this name must be a leaf name; the name cannot contain a semicolon.
-	Str255 name;
-};
+	// WARNING: this is a C string, NOT a pascal string!
+	// Mac application code using "name" (the pascal string) must be adjusted.
+	Str255 cName;
+} FSSpec;
 
 typedef Handle AliasHandle;
 
@@ -116,13 +118,15 @@ typedef Handle AliasHandle;
 
 typedef SInt16							QDErr;
 
-struct RGBColor {
+typedef struct RGBColor
+{
 	UInt16 red;
 	UInt16 green;
 	UInt16 blue;
-};
+} RGBColor;
 
-struct Picture {
+typedef struct Picture
+{
 	// Version 1 size.
 	// Not used for version 2 PICTs, as the size may easily exceed 16 bits.
 	SInt16 picSize;
@@ -133,25 +137,26 @@ struct Picture {
 	// directly by the Mac application as it is stored in a format internal
 	// to the Pomme implementation for rendering (typically ARGB32).
 	Ptr __pomme_pixelsARGB32;
-};
+} Picture;
 
 
 typedef Picture* PicPtr;
 typedef PicPtr* PicHandle;
 typedef Handle GDHandle; // GDevice handle. Game code doesn't care about GDevice internals, so we just alias a generic Handle
 // http://mirror.informatimago.com/next/developer.apple.com/documentation/Carbon/Reference/QuickDraw_Ref/qdref_main/data_type_41.html
-struct PixMap
+typedef struct PixMap
 {
 	Rect bounds;
 	short pixelSize;
 	Ptr _impl;
-};
+} PixMap;
 typedef PixMap*							PixMapPtr;
 typedef PixMapPtr*						PixMapHandle;
-struct GrafPort {
+typedef struct GrafPort
+{
 	Rect portRect;
 	void* _impl;
-};
+} GrafPort;
 typedef GrafPort*						GrafPtr;
 typedef GrafPtr                         WindowPtr;
 typedef GrafPort                        CGrafPort;
@@ -161,16 +166,18 @@ typedef CGrafPtr						GWorldPtr;
 //-----------------------------------------------------------------------------
 // Sound Manager types
 
-struct SndCommand {
+typedef struct SndCommand
+{
 	unsigned short    cmd;
 	short             param1;
 	union {
 		long          param2;
 		Ptr           ptr; // pomme addition to pass 64-bit clean pointers
 	};
-};
+} SndCommand;
 
-struct SCStatus {
+typedef struct SCStatus
+{
 	UnsignedFixed                   scStartTime;                // starting time for play from disk (based on audio selection record)
 	UnsignedFixed                   scEndTime;                  // ending time for play from disk (based on audio selection record)
 	UnsignedFixed                   scCurrentTime;              // current time for play from disk
@@ -180,7 +187,7 @@ struct SCStatus {
 	Boolean                         scUnused;                   // reserved
 	unsigned long                   scChannelAttributes;        // attributes of this channel
 	long                            scCPULoad;                  // cpu load for this channel ("obsolete")
-};
+} SCStatus;
 
 typedef struct SndChannel* SndChannelPtr;
 
@@ -188,7 +195,8 @@ typedef void (*SndCallBackProcPtr)(SndChannelPtr chan, SndCommand* cmd);
 // for pomme implementation purposes we don't care about the 68000/ppc specifics of universal procedure pointers
 typedef SndCallBackProcPtr          SndCallbackUPP;
 
-struct SndChannel {
+typedef struct SndChannel
+{
 	SndChannelPtr                   nextChan;
 	Ptr                             firstMod;                   // reserved for the Sound Manager (Pomme: used as internal ptr)
 	SndCallBackProcPtr              callBack;
@@ -202,14 +210,16 @@ struct SndChannel {
 	short                           qTail;
 	SndCommand                      queue[128];
 #endif
-};
+} SndChannel;
 
-struct ModRef {
+typedef struct ModRef
+{
 	unsigned short                  modNumber;
 	long                            modInit;
-};
+} ModRef;
 
-struct SndListResource {
+typedef struct SndListResource
+{
 	short                           format;
 	short                           numModifiers;
 	// flexible array hack
@@ -218,7 +228,7 @@ struct SndListResource {
 	// flexible array hack
 	SndCommand                      commandPart[1];
 	UInt8                           dataPart[1];
-};
+} SndListResource;
 
 typedef SCStatus* SCStatusPtr;
 typedef SndListResource* SndListPtr;
@@ -238,17 +248,19 @@ typedef UInt32 KeyMap[4];
 
 #if TARGET_RT_BIG_ENDIAN
 //BCD encoded, e.g. "4.2.1a3" is 0x04214003
-struct NumVersion {
+typedef struct NumVersion
+{
 	UInt8               majorRev;               // 1st part of version number in BCD
 	UInt8               minorAndBugRev;         // 2nd & 3rd part of version number share a byte
 	UInt8               stage;                  // stage code: dev, alpha, beta, final
 	UInt8               nonRelRev;              // revision level of non-released version
-};
+} NumVersion;
 #else
-struct NumVersion {
+typedef struct NumVersion
+{
 	UInt8               nonRelRev;              // revision level of non-released version
 	UInt8               stage;                  // stage code: dev, alpha, beta, final
 	UInt8               minorAndBugRev;         // 2nd & 3rd part of version number share a byte
 	UInt8               majorRev;               // 1st part of version number in BCD
-};
+} NumVersion;
 #endif

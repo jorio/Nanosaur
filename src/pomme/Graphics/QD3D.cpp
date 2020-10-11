@@ -1,5 +1,6 @@
 #include "PommeInternal.h"
-#include "QuesaStorage.h"
+#include <QuesaStorage.h>  // For TQ3StorageObject
+#include "QD3DStorage.h"
 
 //-----------------------------------------------------------------------------
 // Pomme extensions for Quesa

@@ -13,6 +13,7 @@
 #include "misc.h"
 #include "sprites.h"
 #include "windows_nano.h"
+#include "structformats.h"
 
 extern	short		gMainAppRezFile;
 extern	UInt32		*gCoverWindowPixPtr;
@@ -121,7 +122,8 @@ Boolean					hasMask;
 		return;
 	}
 	
-	headerPtr = structpack::UnpackObj<FramesFile_Header_Type>(*hand);
+	headerPtr = (FramesFile_Header_Type *) *hand;
+	ByteswapStructs(STRUCTFORMAT_FramesFile_Header_Type, sizeof(FramesFile_Header_Type), 1, headerPtr);
 	
 	numAnims = headerPtr->numAnims;									// get # anims
 	numFrames = headerPtr->numFrames;								// get # frames
@@ -151,7 +153,8 @@ Boolean					hasMask;
 			/* READ HEADER */
 			
 		hand = GetResource('FrHd',1000+i);
-		frameHeaderPtr = structpack::UnpackObj<FrameHeaderType>(*hand);
+		frameHeaderPtr = (FrameHeaderType *) (*hand);
+		ByteswapStructs(STRUCTFORMAT_FrameHeaderType, sizeof(FrameHeaderType), 1, frameHeaderPtr);
 		
 		sfh = (*gShapeTables[groupNum].frameHeaders)+i;		// get ptr to Shape Frame Header[i]
 		sfh->width = frameHeaderPtr->width;						// get width
@@ -173,9 +176,13 @@ Boolean					hasMask;
 								
 		// --------- Begin source port mod ------------
 		// Rewrote this part to unpack 16-bit (with optional 16-bit mask) to 32-bit ARGB
-		pixelPtr = structpack::UnpackObj<UInt16>(*hand, w*h);				// get ptr to file's data
+		pixelPtr = (UInt16 *) (*hand);										// get ptr to file's data
+		ByteswapInts(sizeof(UInt16), w*h, pixelPtr);
 		if (sfh->hasMask)
-			maskPtr = structpack::UnpackObj<UInt16>(*hand + w*h * 2, w*h);	// mask data is stored after color data
+		{
+			maskPtr = (UInt16 *) (*hand + w*h * 2);							// mask data is stored after color data
+			ByteswapInts(sizeof(UInt16), w*h, maskPtr);
+		}
 		else
 			maskPtr = nil;
 
@@ -215,7 +222,7 @@ Boolean					hasMask;
 			/* READ ANIM HEADER */
 
 		hand = GetResource('AnHd',1000+i);		
-		structpack::UnpackObj<AnimHeaderType>(*hand);
+		ByteswapStructs(STRUCTFORMAT_AnimHeaderType, sizeof(AnimHeaderType), 1, *hand);
 		numLines = gShapeTables[groupNum].anims[i].numLines =
 					(**(AnimHeaderType **)hand).numLines;							// get # lines in anim
 		ReleaseResource(hand);
@@ -237,7 +244,7 @@ Boolean					hasMask;
 			/* READ ANIM DATA */
 	
 		hand = GetResource('Anim',1000+i);
-		structpack::UnpackObj<AnimEntryType>(*hand, numLines);
+		ByteswapStructs(STRUCTFORMAT_AnimEntryType, sizeof(AnimEntryType), numLines, *hand);
 		**(gShapeTables[groupNum].anims[i].animData) = **(AnimEntryType **)hand;		
 		BlockMove(*hand,*gShapeTables[groupNum].anims[i].animData,numLines*sizeof(AnimEntryType));
 		ReleaseResource(hand);

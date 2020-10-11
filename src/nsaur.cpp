@@ -23,6 +23,8 @@
 	#endif
 #endif
 
+extern "C"
+{
 // bare minimum from Windows.c to satisfy externs in game code
 WindowPtr gCoverWindow = nullptr;
 UInt32* gCoverWindowPixPtr = nullptr;
@@ -30,7 +32,7 @@ UInt32* gCoverWindowPixPtr = nullptr;
 extern FSSpec gDataSpec;
 
 void GameMain(void);
-void RegisterUnpackableTypes(void);
+}
 
 int CommonMain(int argc, const char** argv)
 {
@@ -40,9 +42,6 @@ int CommonMain(int argc, const char** argv)
 	// Set up globals that the game expects
 	gCoverWindow = Pomme::Graphics::GetScreenPort();
 	gCoverWindowPixPtr = (UInt32*)GetPixBaseAddr(GetGWorldPixMap(gCoverWindow));
-
-	// Register format strings to unpack the structs
-	RegisterUnpackableTypes();
 
 #if USE_ARCHIVE
 	// Mount game archive as data volume

@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <cstring>
 
 #include "PommeInternal.h"
 #include "pomme/Utilities/FixedPool.h"

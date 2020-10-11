@@ -26,6 +26,7 @@
 
 #include <vector>
 #include <functional>
+#include <cstdint>
 #include <span>
 
 #define BUFFER_SIZE (512)

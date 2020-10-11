@@ -33,7 +33,7 @@ static void InterpolateKeyFrames(JointKeyframeType *kf1, JointKeyframeType *kf2,
 static void GetModelMorphPosition(SkeletonObjDataType *skeleton,long jointNum, JointKeyframeType *interpKf);
 static short GetNextAnimEventAtTime(SkeletonObjDataType *skeleton, float time);
 static float CalcMaxKeyFrameTime(SkeletonObjDataType *skeleton);
-inline float	AccelerationPercent(float percent);
+static inline float	AccelerationPercent(float percent);
 
 
 /****************************/

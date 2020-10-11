@@ -55,7 +55,7 @@ void ARGBPixmap::Fill(UInt8 red, UInt8 green, UInt8 blue, UInt8 alpha)
 void ARGBPixmap::Plot(int x, int y, UInt32 color)
 {
 	if (x < 0 || y < 0 || x >= width || y >= height) {
-		TODO2("OOB " << x << ", " << y);
+		throw std::out_of_range("ARGBPixmap::Plot: out of bounds");
 	}
 	else {
 		*(UInt32*)&data[4 * (y * width + x)] = color;

@@ -60,7 +60,7 @@ void ShowSystemErr(long err)
 {
 Str255		numStr;
 
-	NumToString(err, numStr);
+	NumToStringC(err, numStr);
 	DoAlert (numStr);
 	CleanQuit();
 }
@@ -73,33 +73,33 @@ void ShowSystemErr_NonFatal(long err)
 {
 Str255		numStr;
 
-	NumToString(err, numStr);
+	NumToStringC(err, numStr);
 	DoAlert (numStr);
 }
 
 /*********************** DO ALERT *******************/
 
-void DoAlert(Str255 s)
+void DoAlert(const char* s)
 {
-	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, __func__, Pascal2C(s), nullptr);
+	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, __func__, s, NULL);
 }
 
 		
 /*********************** DO FATAL ALERT *******************/
 
-void DoFatalAlert(Str255 s)
+void DoFatalAlert(const char* s)
 {
-	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, __func__, Pascal2C(s), nullptr);
+	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, __func__, s, NULL);
 	CleanQuit();
 }
 
 /*********************** DO FATAL ALERT 2 *******************/
 
-void DoFatalAlert2(Str255 s1, Str255 s2)
+void DoFatalAlert2(const char* s1, const char* s2)
 {
-	std::stringstream ss;
-	ss << Pascal2C(s1) << "\n" << Pascal2C(s2);
-	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, __func__, ss.str().c_str(), nullptr);
+	static char alertbuf[1024];
+	snprintf(alertbuf, 1024, "%s\n%s", s1, s2);
+	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, __func__, alertbuf, NULL);
 	ExitToShell();
 }
 
@@ -155,6 +155,7 @@ long	start;
 }
 
 
+#if 0  // Source port removal - unused in game
 /***************** NUM TO HEX *****************/
 //
 // NumToHex - fixed length, returns a C string
@@ -229,6 +230,7 @@ unsigned long temp;
 	return format;
 }
 
+#endif
 
 
 
@@ -315,6 +317,7 @@ void InitMyRandomSeed(void)
 
 /******************* FLOAT TO STRING *******************/
 
+#if 0  // Source port removal
 void FloatToString(float num, Str255 string)
 {
 Str255	sf;
@@ -353,6 +356,7 @@ long	i,f;
 		string[++string[0]] = sf[i+1];	// copy fraction into string
 	}
 }
+#endif
 
 /****************** ALLOC HANDLE ********************/
 

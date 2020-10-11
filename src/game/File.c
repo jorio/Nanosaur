@@ -26,6 +26,7 @@
 #include 	"sprites.h"
 #include 	"bones.h"
 #include 	"sound2.h"
+#include	"structformats.h"
 
 extern	short			gMainAppRezFile;
 extern  TQ3Object		gObjectGroupList[MAX_3DMF_GROUPS][MAX_OBJECTS_IN_GROUP];
@@ -137,8 +138,9 @@ SkeletonDefType	*skeleton;
 	if (fRefNum == -1)
 	{
 		iErr = ResError();
-		DoAlert("Error opening Skel Rez file");
-		ShowSystemErr(iErr);
+		Str255 numStr;
+		NumToStringC(iErr, numStr);
+		DoFatalAlert2("Error opening Skel Rez file", numStr);
 	}
 	
 	UseResFile(fRefNum);
@@ -201,7 +203,8 @@ SkeletonFile_AnimHeader_Type	*animHeaderPtr;
 		return;
 	}
 	
-	headerPtr = structpack::UnpackObj<SkeletonFile_Header_Type>(*hand);
+	headerPtr = (SkeletonFile_Header_Type *) *hand;
+	ByteswapStructs(STRUCTFORMAT_SkeletonFile_Header_Type, sizeof(SkeletonFile_Header_Type), 1, headerPtr);
 	version = headerPtr->version;
 	if (version != SKELETON_FILE_VERS_NUM)
 		DoFatalAlert("Skeleton file has wrong version #");
@@ -253,7 +256,8 @@ SkeletonFile_AnimHeader_Type	*animHeaderPtr;
 		if (hand == nil)
 			DoFatalAlert("Error reading Bone resource!");
 		HLock(hand);
-		bonePtr = structpack::UnpackObj<File_BoneDefinitionType>(*hand);
+		bonePtr = (File_BoneDefinitionType *) *hand;
+		ByteswapStructs(STRUCTFORMAT_File_BoneDefinitionType, sizeof(File_BoneDefinitionType), 1, bonePtr);
 
 
 			/* COPY BONE DATA INTO ARRAY */
@@ -280,7 +284,8 @@ SkeletonFile_AnimHeader_Type	*animHeaderPtr;
 		if (hand == nil)
 			DoFatalAlert("Error reading BonP resource!");
 		HLock(hand);
-		indexPtr = structpack::UnpackObj<UInt16>(*hand, skeleton->Bones[i].numPointsAttachedToBone);
+		indexPtr = (UInt16 *) *hand;
+		ByteswapInts(sizeof(UInt16), skeleton->Bones[i].numPointsAttachedToBone, indexPtr);
 			
 
 			/* COPY POINT INDEX ARRAY INTO BONE STRUCT */
@@ -296,7 +301,8 @@ SkeletonFile_AnimHeader_Type	*animHeaderPtr;
 		if (hand == nil)
 			DoFatalAlert("Error reading BonN resource!");
 		HLock(hand);
-		indexPtr = structpack::UnpackObj<UInt16>(*hand, skeleton->Bones[i].numNormalsAttachedToBone);
+		indexPtr = (UInt16 *) *hand;
+		ByteswapInts(sizeof(UInt16), skeleton->Bones[i].numNormalsAttachedToBone, indexPtr);
 			
 			/* COPY NORMAL INDEX ARRAY INTO BONE STRUCT */
 
@@ -324,7 +330,8 @@ SkeletonFile_AnimHeader_Type	*animHeaderPtr;
 		DoFatalAlert("# of points in Reference Model has changed!");
 	else
 	{
-		pointPtr = structpack::UnpackObj<TQ3Point3D>(*hand, skeleton->numDecomposedPoints);
+		pointPtr = (TQ3Point3D *) *hand;
+		ByteswapStructs(STRUCTFORMAT_TQ3Point3D, sizeof(TQ3Point3D), skeleton->numDecomposedPoints, pointPtr);
 
 		for (i = 0; i < skeleton->numDecomposedPoints; i++)
 			skeleton->decomposedPointList[i].boneRelPoint = pointPtr[i];
@@ -345,7 +352,8 @@ SkeletonFile_AnimHeader_Type	*animHeaderPtr;
 		if (hand == nil)
 			DoFatalAlert("Error getting anim header resource");
 		HLock(hand);
-		animHeaderPtr = structpack::UnpackObj<SkeletonFile_AnimHeader_Type>(*hand);
+		animHeaderPtr = (SkeletonFile_AnimHeader_Type *) *hand;
+		ByteswapStructs(STRUCTFORMAT_SkeletonFile_AnimHeader_Type, sizeof(SkeletonFile_AnimHeader_Type), 1, animHeaderPtr);
 
 		skeleton->NumAnimEvents[i] = animHeaderPtr->numAnimEvents;			// copy # anim events in anim	
 		ReleaseResource(hand);
@@ -356,7 +364,8 @@ SkeletonFile_AnimHeader_Type	*animHeaderPtr;
 		hand = GetResource('Evnt',1000+i);
 		if (hand == nil)
 			DoFatalAlert("Error reading anim-event data resource!");
-		animEventPtr = structpack::UnpackObj<AnimEventType>(*hand, skeleton->NumAnimEvents[i]);
+		animEventPtr = (AnimEventType *) *hand;
+		ByteswapStructs(STRUCTFORMAT_AnimEventType, sizeof(AnimEventType), skeleton->NumAnimEvents[i], animEventPtr);
 		for (j=0;  j < skeleton->NumAnimEvents[i]; j++)
 			skeleton->AnimEventsList[i][j] = *animEventPtr++;
 		ReleaseResource(hand);		
@@ -396,7 +405,8 @@ SkeletonFile_AnimHeader_Type	*animHeaderPtr;
 			hand = GetResource('KeyF',1000+(i*100)+j);
 			if (hand == nil)
 				DoFatalAlert("Error reading joint keyframes resource!");
-			keyFramePtr = structpack::UnpackObj<JointKeyframeType>(*hand, numKeyframes);
+			keyFramePtr = (JointKeyframeType *) *hand;
+			ByteswapStructs(STRUCTFORMAT_JointKeyframeType, sizeof(JointKeyframeType), numKeyframes, keyFramePtr);
 			for (k = 0; k < numKeyframes; k++)												// copy this joint's keyframes for this anim
 				skeleton->JointKeyframes[j].keyFrames[i][k] = *keyFramePtr++;
 			ReleaseResource(hand);		
@@ -429,7 +439,7 @@ Str255		s;
 		DoFatalAlert2(errString,"FILE NOT FOUND.");
 	else
 	{
-		NumToString(iErr,s);
+		NumToStringC(iErr,s);
 		DoFatalAlert2(errString,s);
 	}
 }
@@ -692,8 +702,7 @@ Ptr		data;
 	iErr = FSpOpenDF(fsSpec, fsRdPerm, &fRefNum);
 	if (iErr != noErr)
 	{
-		DoAlert("LoadAFile: FSpOpenDF failed!");
-		DoFatalAlert(fsSpec->name);
+		DoFatalAlert2("LoadAFile: FSpOpenDF failed!", fsSpec->cName);
 	}
 
 			/* GET SIZE OF FILE */
@@ -749,7 +758,9 @@ SInt32		*longPtr;
 	
 				/* GET # TEXTURES */
 				
-	gNumTerrainTextureTiles = FromBE(*longPtr++);   											// get # texture tiles
+	SInt32 numTerrainTextureTiles =  *longPtr++;												// get # texture tiles
+	ByteswapInts(sizeof(SInt32), 1, &numTerrainTextureTiles);
+	gNumTerrainTextureTiles = numTerrainTextureTiles;
 	if (gNumTerrainTextureTiles > MAX_TERRAIN_TILES)
 		DoFatalAlert("LoadTerrainTileset: gNumTerrainTextureTiles > MAX_TERRAIN_TILES");
 
@@ -798,9 +809,8 @@ long		dummy1,dummy2;
 	// 30   short   depth
 	// 32   long    offset to texture attributes
 	// 36   long    [unused] offset to tile anim data
-	//                                        0  4  8 12 16 20 24 28 32 36 40
-	int headerLength = structpack::Unpack(">  l  l  l  l  l  l  l hh  l  l", gTerrainPtr);
-	if (headerLength != 40) DoAlert("Unexpected unpacked header length");
+	//             0  4  8 12 16 20 24 28 32 36
+	ByteswapStructs("l  l  l  l  l  l  l hh  l  l", 40, 1, gTerrainPtr);
 
 
 			/*********************/
@@ -823,8 +833,8 @@ long		dummy1,dummy2;
 							gTerrainTileDepth);
 
 	offset = *((SInt32 *)(gTerrainPtr+0));										// get offset to TEXTURE_LAYER
-	shortPtr = structpack::UnpackObj<UInt16>(gTerrainPtr + offset,				// calc ptr to TEXTURE_LAYER
-		gTerrainTileDepth * gTerrainTileWidth);
+	shortPtr = (UInt16 *)(gTerrainPtr + offset);								// calc ptr to TEXTURE_LAYER
+	ByteswapInts(sizeof(UInt16), gTerrainTileDepth * gTerrainTileWidth, shortPtr);
 
 	for (row = 0; row < gTerrainTileDepth; row++)
 	{
@@ -841,8 +851,8 @@ long		dummy1,dummy2;
 	offset = *((SInt32 *)(gTerrainPtr+4));										// get offset to HEIGHTMAP_LAYER
 	if (offset > 0)
 	{
-		shortPtr = structpack::UnpackObj<UInt16>(gTerrainPtr+offset,			// calc ptr to HEIGHTMAP_LAYER
-			gTerrainTileDepth * gTerrainTileWidth);
+		shortPtr = (UInt16 *)(gTerrainPtr + offset);							// calc ptr to HEIGHTMAP_LAYER
+		ByteswapInts(sizeof(UInt16), gTerrainTileDepth * gTerrainTileWidth, shortPtr);
 
 		for (row = 0; row < gTerrainTileDepth; row++)
 		{
@@ -860,8 +870,8 @@ long		dummy1,dummy2;
 	offset = *((SInt32 *)(gTerrainPtr+8));										// get offset to PATH_LAYER
 	if (offset > 0)
 	{
-		shortPtr = structpack::UnpackObj<UInt16>(gTerrainPtr + offset,			// calc ptr to PATH_LAYER
-			gTerrainTileDepth * gTerrainTileWidth);
+		shortPtr = (UInt16 *)(gTerrainPtr + offset);							// calc ptr to PATH_LAYER
+		ByteswapInts(sizeof(UInt16), gTerrainTileDepth * gTerrainTileWidth, shortPtr);
 
 		for (row = 0; row < gTerrainTileDepth; row++)
 		{
@@ -877,8 +887,8 @@ long		dummy1,dummy2;
 	// SOURCE PORT CHEAT... don't know how to get the number of tile attributes otherwise..
 	SInt32 offsetOfNextChunk = *((SInt32*)(gTerrainPtr + 36));
 	int nTileAttributes = (offsetOfNextChunk - offset) / sizeof(TileAttribType);
-	gTileAttributes = structpack::UnpackObj<TileAttribType>(				// calc ptr to TEXTURE_ATTRIBUTES
-		gTerrainPtr + offset, nTileAttributes);
+	gTileAttributes = (TileAttribType *)(gTerrainPtr + offset);				// calc ptr to TEXTURE_ATTRIBUTES
+	ByteswapStructs(STRUCTFORMAT_TileAttribType, sizeof(TileAttribType), nTileAttributes, gTileAttributes);
 
 
 			/* GET HEIGHTMAP_TILES */

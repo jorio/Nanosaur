@@ -1,5 +1,11 @@
 #pragma once
 
+#include <Quesa.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // SOURCE PORT EXTRAS
 
 #define USE_BUGGY_CULLING false
@@ -36,3 +42,7 @@ void DisposeBackdropTexture(void);
 void DoSDLMaintenance(void);
 
 void SetFullscreenMode(void);
+
+#ifdef __cplusplus
+}
+#endif

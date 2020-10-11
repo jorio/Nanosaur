@@ -1,5 +1,10 @@
 #pragma once
 
+#if __cplusplus
+
+#include <string>
+#include <sstream>
+
 #define POMME_DEBUG_MEMORY		false
 #define POMME_DEBUG_SOUND		false
 #define POMME_DEBUG_PICT		false
@@ -38,3 +43,5 @@ void ImplementMe(const char* fn, std::string msg, int severity);
 }
 
 std::ostream& operator<<(std::ostream& s, const Rect& r);
+
+#endif

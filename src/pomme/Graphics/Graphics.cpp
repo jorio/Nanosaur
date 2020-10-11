@@ -58,7 +58,9 @@ static int penY = 0;
 // ---------------------------------------------------------------------------- -
 // Globals
 
+extern "C" {
 SDL_Window* gSDLWindow = nullptr;
+}
 
 // ---------------------------------------------------------------------------- -
 // Initialization
@@ -311,7 +313,7 @@ static void _FillRect(const int left, const int top, const int right, const int 
 		throw std::runtime_error("_FillRect: no port set");
 	}
 
-	fillColor = ToBE(fillColor);
+	fillColor = ByteswapScalar(fillColor);  // convert to big-endian
 
 	UInt32* dst = (UInt32*)curPort->pixels.data.data();
 	dst += left;
@@ -339,7 +341,7 @@ void EraseRect(const struct Rect* r)
 
 void LineTo(short x1, short y1)
 {
-	auto color = ToBE(penFG);
+	auto color = ByteswapScalar(penFG);
 
 	Point off = curPort->port.portRect.topLeft;
 
@@ -370,7 +372,7 @@ void LineTo(short x1, short y1)
 
 void FrameRect(const Rect* r)
 {
-	auto color = ToBE(penFG);
+	auto color = ByteswapScalar(penFG);
 	auto& pm = curPort->pixels;
 	Point off = curPort->port.portRect.topLeft;
 
@@ -474,39 +476,36 @@ void CopyBits(
 // ---------------------------------------------------------------------------- -
 // Text rendering
 
-short TextWidth(const char* textBuf, short firstByte, short byteCount)
+short TextWidthC(const char* cstr)
 {
-	int totalWidth = 0;
-	for (int i = firstByte; i < firstByte + byteCount; i++) {
-		if (i > firstByte) {
-			totalWidth += SysFont::charSpacing;
-		}
-		totalWidth += SysFont::GetGlyph(textBuf[i]).width;
+	int totalWidth = -SysFont::charSpacing;
+	for (; *cstr; cstr++) {
+		totalWidth += SysFont::charSpacing;
+		totalWidth += SysFont::GetGlyph(*cstr).width;
 	}
 	return totalWidth;
 }
 
-void DrawString(ConstStr255Param s)
+void DrawStringC(const char* cstr)
 {
 	_FillRect(
 			penX,
 			penY - SysFont::ascend,
-			penX + TextWidth(s, 1, s[0]),
+			penX + TextWidthC(cstr),
 			penY + SysFont::descend,
 			penBG
 			);
-	
-	for (unsigned int i = 1; i <= (unsigned int)s[0]; i++) {
-		if (i > 1) {
-			penX += SysFont::charSpacing;
-		}
-		DrawChar(s[i]);
+
+	penX -= SysFont::charSpacing;
+	for (; *cstr; cstr++) {
+        penX += SysFont::charSpacing;
+		DrawChar(*cstr);
 	}
 }
 
 void DrawChar(char c)
 {
-	UInt32 fg = FromBE(penFG);
+	UInt32 fg = ByteswapScalar(penFG);
 
 	auto& glyph = SysFont::GetGlyph(c);
 

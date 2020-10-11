@@ -1,20 +1,28 @@
 #include <QD3DMath.h>
 #include <SDL.h>
 #include <SDL_opengl.h>
+
+extern "C" {
 #include "game/sound2.h"
 #include "game/Structs.h"
 #include "game/input.h"
 #include "game/qd3d_support.h"
+#include "game/movie.h" // PlayAMovie
+#include "game/misc.h" // DrawPictureToScreen
+}
+
 #include "PommeInternal.h"
 #include "GamePatches.h"
 #include "Video/Cinepak.h"
 
+extern "C" {
 extern TQ3Matrix4x4 gCameraWorldToViewMatrix;
 extern TQ3Matrix4x4 gCameraViewToFrustumMatrix;
 extern long gNodesDrawn;
 extern SDL_Window* gSDLWindow;
 extern float	gFramesPerSecond;
 extern PrefsType gGamePrefs;
+}
 
 Boolean IsSphereInConeOfVision(TQ3Point3D* coord, float radius, float hither, float yon)
 {
@@ -108,7 +116,7 @@ OSErr DrawPictureToScreen(FSSpec* spec, short x, short y)
 	
 	OSErr error = FSpOpenDF(spec, fsRdPerm, &refNum);
 	if (noErr != error) {
-		TODO2("Couldn't open picture: " << Pascal2C(spec->name));
+		TODO2("Couldn't open picture: " << spec->cName);
 		return error;
 	}
 	

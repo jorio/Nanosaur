@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cstring>
 
 #ifdef _WIN32
 #include <windows.h> // for SysBeep :)
@@ -9,19 +10,6 @@
 
 //-----------------------------------------------------------------------------
 // Our own utils
-
-char* Pascal2C(const char* pstr)
-{
-	static char cstr[256];
-	memcpy(cstr, &pstr[1], pstr[0]);
-	cstr[(unsigned)pstr[0]] = '\0';
-	return cstr;
-}
-
-std::string Pomme::Pascal2Cpp(const char* pstr)
-{
-	return std::string(&pstr[1], pstr[0]);
-}
 
 const char* Pomme::QuitRequest::what() const noexcept
 {
@@ -49,12 +37,9 @@ void FlushEvents(short, short) {
 	TODOMINOR();
 }
 
-void NumToString(long theNum, Str255& theString)
+void NumToStringC(long theNum, Str255 theString)
 {
-	std::stringstream ss;
-	ss << theNum;
-	auto str = ss.str();
-	theString = Str255(str.c_str());
+	snprintf(theString, 256, "%ld", theNum);
 }
 
 //-----------------------------------------------------------------------------

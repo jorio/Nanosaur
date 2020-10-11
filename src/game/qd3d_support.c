@@ -83,7 +83,7 @@ float	gFramesPerSecondFrac = 1/DEFAULT_FPS;
 float	gAdditionalClipping = 0;
 
 short			gFogMode;
-static TQ3FogStyleData			gQD3D_FogStyleData = { };
+static TQ3FogStyleData			gQD3D_FogStyleData;
 
 // Source port addition: this is a Quesa feature, enabled by default,
 // that renders translucent materials more accurately at an angle.
@@ -531,7 +531,7 @@ QD3DCameraDefType 				*cameraDefPtr;
 	}
 	else
 	{
-		TODOFATAL2("offscreen unsupported");
+		DoFatalAlert("CreateCamera: offscreen view unsupported");
 #if 0
 		pane.max.x = setupDefPtr->view.gworld->portRect.right;
 		pane.max.y = setupDefPtr->view.gworld->portRect.bottom;
@@ -644,11 +644,9 @@ TQ3Status	myErr;
 // Changes size of stuff to fit new window size and/or shink factor
 //
 
+#if 0  // Source port removal - unused in game
 void QD3D_ChangeDrawSize(QD3DSetupOutputType *setupInfo)
 {
-#if 1
-	TODO();
-#else
 Rect			r;
 TQ3Area			pane;
 TQ3ViewAngleAspectCameraData	cameraData;
@@ -680,8 +678,8 @@ TQ3Status		status;
 	status = Q3ViewAngleAspectCamera_SetData(setupInfo->cameraObject,&cameraData);			// set new camera data
 	if (status == kQ3Failure)
 		DoFatalAlert("Q3ViewAngleAspectCamera_SetData Failed!");		
-#endif
 }
+#endif
 
 
 /******************* QD3D DRAW SCENE *********************/
@@ -1220,16 +1218,17 @@ TQ3SurfaceShaderObject		shader;
 // OUTPUT: mipmap = new mipmap holding texture image
 //
 
-static void DrawPICTIntoMipmap2(PicHandle pict, long width, long height, TQ3Mipmap* mipmap)
+static void DrawPICTIntoMipmap(PicHandle pict, long width, long height, TQ3Mipmap* mipmap)
 {
+#if 1
 OSErr					myErr;
 short					depth;
 
 	depth = 32;
-	if (width  != (**pict).picFrame.right  - (**pict).picFrame.left) TODO2("unexpected width");
-	if (height != (**pict).picFrame.bottom - (**pict).picFrame.top)  TODO2("unexpected height");
+	if (width  != (**pict).picFrame.right  - (**pict).picFrame.left) DoFatalAlert("DrawPICTIntoMipmap: unexpected width");
+	if (height != (**pict).picFrame.bottom - (**pict).picFrame.top)  DoFatalAlert("DrawPICTIntoMipmap: unexpected height");
 	Ptr pictMapAddr = (**pict).__pomme_pixelsARGB32;
-	auto pictRowBytes = width * (depth / 8);
+	long pictRowBytes = width * (depth / 8);
 
 	/*
 	if (pointToGWorld)
@@ -1257,12 +1256,6 @@ short					depth;
 	mipmap->mipmaps[0].height = height;
 	mipmap->mipmaps[0].rowBytes = pictRowBytes;
 	mipmap->mipmaps[0].offset = 0;
-}
-
-static void DrawPICTIntoMipmap(PicHandle pict,long width, long height, TQ3Mipmap *mipmap)
-{
-#if 1
-	DrawPICTIntoMipmap2(pict, width, height, mipmap);
 #else
 Rect 					rectGW;
 GWorldPtr 				pGWorld;
@@ -1528,8 +1521,8 @@ Str255		s;
 	else
 	if (q3Err != 0)
 	{
-		NumToString(q3Err,s);
-		DoFatalAlert(s);
+		NumToStringC(q3Err,s);
+		DoFatalAlert2("QD3D Error", s);
 	}
 }
 
@@ -1746,7 +1739,14 @@ UInt32		*buffer,*pixelPtr,pixmapRowbytes,size,sizeRead;
 	for (y = 0; y < height; y++)
 	{
 		for (x = 0; x < width; x++)
-			pixelPtr[x] = ToBE(((FromBE(pixelPtr[x]) & 0xff) << 24));			// put Blue into Alpha & leave map black
+		{
+			// put Blue into Alpha & leave map black
+			unsigned char* argb = (unsigned char *)(pixelPtr + x);
+			argb[0] = argb[3];
+			argb[1] = 0;
+			argb[2] = 0;
+			argb[3] = 0;
+		}
 			
 		pixelPtr += pixmapRowbytes;
 	}
@@ -1852,11 +1852,9 @@ void QD3D_SetTextureWrapMode(int mode)
 
 /************************ SET BLENDING MODE ************************/
 
+#if 0 // Source port removal - not required anymore (was used to toggle between interpolate/premultiply)
 void QD3D_SetBlendingMode(int mode)
 {
-#if 1
-	ONCE(TODOMINOR());
-#else
 	if (gATIis431)							// only do this for ATI driver version 4.30 or newer
 	{
 		if (!gRaveDrawContext)
@@ -1864,8 +1862,8 @@ void QD3D_SetBlendingMode(int mode)
 
 		QASetInt(gRaveDrawContext,kQATag_Blend, mode);
 	}
-#endif
 }
+#endif
 
 
 

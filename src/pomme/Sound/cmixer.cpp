@@ -501,14 +501,14 @@ void WavStream::FillBuffer(int16_t* dst, int len)
 		len -= n;
 		if (bigEndian && bitdepth == 16 && channels == 1) {
 			WAV_PROCESS_LOOP({
-				dst[0] = dst[1] = FromBE(data16()[idx]);
+				dst[0] = dst[1] = ByteswapScalar(data16()[idx]);
 				});
 		}
 		else if (bigEndian && bitdepth == 16 && channels == 2) {
 			WAV_PROCESS_LOOP({
 				x = idx * 2;
-				dst[0] = FromBE(data16()[x]);
-				dst[1] = FromBE(data16()[x + 1]);
+				dst[0] = ByteswapScalar(data16()[x]);
+				dst[1] = ByteswapScalar(data16()[x + 1]);
 				});
 		}
 		else if (bitdepth == 16 && channels == 1) {

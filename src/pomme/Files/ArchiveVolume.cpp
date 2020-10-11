@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cstring>
 #include "PommeInternal.h"
 #include "pomme/Utilities/memstream.h"
 #include "Files/ArchiveVolume.h"
@@ -93,7 +94,7 @@ static std::string UppercaseCopy(const std::string& in)
 
 std::string ArchiveVolume::FSSpecToPath(const FSSpec* spec) const
 {
-	return UppercaseCopy(directories[spec->parID] + ":" + Pascal2Cpp(spec->name));
+	return UppercaseCopy(directories[spec->parID] + ":" + spec->cName);
 }
 
 OSErr ArchiveVolume::OpenFork(
@@ -111,7 +112,7 @@ OSErr ArchiveVolume::OpenFork(
 		return wPrErr;  // archives are read-only
 	}
 
-	std::string fullPath = FSSpecToPath(spec); //UppercaseCopy(directories[spec->parID] + ":" + Pascal2Cpp(spec->name));
+	std::string fullPath = FSSpecToPath(spec);
 
 	if (!files.contains(fullPath)) {
 		return fnfErr;
@@ -183,7 +184,7 @@ OSErr ArchiveVolume::FSMakeFSSpec(long dirID, const std::string& fileName, FSSpe
 
 	spec->parID = GetDirectoryID(dirName);
 	spec->vRefNum = volumeID;
-	spec->name = Str255(trimmedFileName.c_str());//fileName.c_str());
+	snprintf(spec->cName, 256, "%s", trimmedFileName.c_str());
 
 	auto pathKey = FSSpecToPath(spec);
 

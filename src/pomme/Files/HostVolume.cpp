@@ -1,5 +1,6 @@
 #include <filesystem>
 #include <iostream>
+#include <cstring>
 
 #include "PommeInternal.h"
 
@@ -72,13 +73,13 @@ std::filesystem::path HostVolume::ToPath(long parID, const std::string& name)
 {
 	std::filesystem::path path(directories[parID]);
 	path += std::filesystem::path::preferred_separator;
-	path += name;//Pascal2Cpp(name);
+	path += name;
 	return path.lexically_normal();
 }
 
 std::filesystem::path HostVolume::ToPath(const FSSpec& spec)
 {
-	return ToPath(spec.parID, Pascal2Cpp(spec.name));
+	return ToPath(spec.parID, spec.cName);
 }
 
 FSSpec HostVolume::ToFSSpec(const std::filesystem::path& fullPath)
@@ -89,7 +90,7 @@ FSSpec HostVolume::ToFSSpec(const std::filesystem::path& fullPath)
 	FSSpec spec;
 	spec.vRefNum = volumeID;
 	spec.parID = GetDirectoryID(parentPath);
-	spec.name = Str255(fullPath.filename().string().c_str());
+	snprintf(spec.cName, 256, "%s", fullPath.filename().string().c_str());
 	return spec;
 }
 

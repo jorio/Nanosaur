@@ -241,7 +241,7 @@ long	i;
 // OUTPUT: -1 == none free found
 //
 
-inline long FindFreeParticle(void)
+static inline long FindFreeParticle(void)
 {
 long	i;
 

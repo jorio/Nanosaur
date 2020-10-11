@@ -404,7 +404,8 @@ short		i;
 				/* CHECK FOR KEY */
 				
 #if 1
-		if (char newKey = GetTypedKey())
+		char newKey;
+		if (newKey = GetTypedKey())
 		{
 			TypeNewKey(newKey);
 #else

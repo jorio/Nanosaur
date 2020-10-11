@@ -1,5 +1,6 @@
 #include "PommeInternal.h"
 #include "Video/Cinepak.h"
+#include <cstring>
 
 // Adapted from ffmpeg
 

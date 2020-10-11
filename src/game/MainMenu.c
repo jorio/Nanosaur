@@ -156,11 +156,11 @@ do_again:
 	{
 		EnableBackdropPillarboxing(true);
 		int w;
-		Str255	s = "Use the Arrow Keys to change the Selection.  Press the Spacebar to make a Selection.";
-		w = TextWidth(&s[1], 0, s[0]);
+		const char*	s = "Use the Arrow Keys to change the Selection.  Press the Spacebar to make a Selection.";
+		w = TextWidthC(s);
 		MoveTo(320-(w/2), 478);
 		ForeColor(whiteColor);
-		DrawString(s);
+		DrawStringC(s);
 	}
 
 

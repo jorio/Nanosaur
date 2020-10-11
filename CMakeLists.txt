@@ -5,7 +5,7 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 #set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_CXX_STANDARD 20)
 
-project(nsaur CXX)
+project(nsaur C CXX)
 
 add_subdirectory(Quesa)
 
@@ -121,7 +121,6 @@ add_executable(nsaur WIN32
         src/pomme/Sound/AIFF.cpp
         src/pomme/Sound/cmixer.cpp
         src/pomme/Sound/cmixer.h
-        src/pomme/Sound/DumpAU.h
         src/pomme/Sound/IMA4.cpp
         src/pomme/Sound/MACE.cpp
         src/pomme/Sound/SoundManager.cpp
@@ -138,10 +137,9 @@ add_executable(nsaur WIN32
         src/pomme/Utilities/BigEndianIStream.cpp
         src/pomme/Utilities/FixedPool.h
         src/pomme/Utilities/GrowablePool.h
-        src/pomme/Utilities/IEEEExtended.c
+        src/pomme/Utilities/IEEEExtended.cpp
         src/pomme/Utilities/IEEEExtended.h
         src/pomme/Memory/Memory.cpp
-        src/pomme/Utilities/PascalStringHack.h
         src/pomme/Graphics/PICT.cpp
         src/pomme/Time/TimeManager.cpp
         src/pomme/Input/SDLInput.cpp
@@ -169,16 +167,11 @@ add_executable(nsaur WIN32
         src/GamePatches.cpp
         src/GamePatches.h
         src/nsaur.cpp
-        src/StructUnpackers.cpp
         src/SettingsScreen.cpp
 )
 
 find_package(SDL2 REQUIRED COMPONENTS main)
 find_package(OpenGL REQUIRED)
-
-# Compile game C files as C++
-file(GLOB_RECURSE ALL_C_FILES "src/*.c")
-set_source_files_properties(${ALL_C_FILES} PROPERTIES LANGUAGE CXX)
 
 target_compile_definitions(Quesa_SDL PUBLIC QUESA_OS_SDL QUESA_APPLY_FOG_COLOR_IN_ALL_PASSES)
 target_compile_definitions(${PROJECT_NAME} PRIVATE SOURCE_PORT_ENHANCEMENTS)

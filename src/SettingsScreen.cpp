@@ -1,16 +1,21 @@
+extern "C" {
 #include <game/Structs.h>
 #include <game/input.h>
 #include <game/file.h>
 #include <game/sound2.h>
 #include <game/qd3d_support.h>
+}
+
 #include <functional>
 #include "GamePatches.h"
 
+extern "C" {
 extern	WindowPtr				gCoverWindow;
 extern	KeyMap					gNewKeys_Real;
 extern	PrefsType				gGamePrefs;
 extern	float			gFramesPerSecond,gFramesPerSecondFrac;
 extern	SDL_Window*				gSDLWindow;
+}
 
 static const RGBColor backgroundColor = {0xA500,0xA500,0xA500};
 static const RGBColor foregroundColor = {0x0000,0x0000,0x0000};
@@ -75,10 +80,10 @@ static void RenderQualityDialog()
 
 	ForeColor(blackColor);
 	{
-		Str255 title = "NANOSAUR SETTINGS";
-		short titleWidth = TextWidth(&title[1], 0, title[0]);
+		const char* title = "NANOSAUR SETTINGS";
+		short titleWidth = TextWidthC(title);
 		MoveTo(320 - (titleWidth / 2), 100);
-		DrawString(title);
+		DrawStringC(title);
 	}
 
 	for (int i = 0; i < settings.size(); i++) {
@@ -96,16 +101,16 @@ static void RenderQualityDialog()
 		RGBForeColor(selectedEntry == i? &selectedForegroundColor1: &foregroundColor);
 
 		MoveTo(xOffset + column1X, y);
-		DrawString(settings[i].label);
+		DrawStringC(settings[i].label);
 
 		unsigned int settingByte = (unsigned int)*setting.ptr;
 		if (settingByte < 0) settingByte = 0;
 		if (settingByte > settings[i].choices.size()) settingByte = 0;
 
 		auto choice = setting.choices[settingByte];
-		short choiceWidth = TextWidth(choice, 0, strlen(choice));
+		short choiceWidth = TextWidthC(choice);
 		MoveTo(column2X - choiceWidth, y);
-		DrawString(choice);
+		DrawStringC(choice);
 	}
 }
 

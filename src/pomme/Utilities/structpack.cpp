@@ -1,22 +1,13 @@
-#include <map>
-
 #include "structpack.h"
+#include <algorithm>
 
-std::map<std::type_index, std::string> structpack::formatDB;
-
-int structpack::Pack(const std::string& format, Ptr buffer)
-{
-	// it's the same thing as unpack -- just swapping bytes.
-	// if we ever have different sizes for input & output (e.g. 32 vs 64 bit pointer placeholders), it'll be different.
-	return Unpack(format, buffer);
-}
-
-int structpack::Unpack(const std::string& format, Ptr buffer)
+static int Unpack(const char* format, char* buffer)
 {
 	int totalBytes = 0;
 	int repeat = 0;
 
-	for (char c : format) {
+	for (const char* c2 = format; *c2; c2++) {
+		char c = *c2;
 		int fieldLength = -1;
 
 		switch (c) {
@@ -63,11 +54,11 @@ int structpack::Unpack(const std::string& format, Ptr buffer)
 			break;
 
 		default:
-			throw std::invalid_argument("unknown packfmt char");
+			throw std::invalid_argument("unknown format char in structpack format");
 		}
 
 		if (totalBytes % fieldLength != 0) {
-			throw std::invalid_argument("WORD ALIGNMENT ERROR IN PACKFMT!!!");
+			throw std::invalid_argument("illegal word alignment in structpack format");
 		}
 
 		if (!repeat)
@@ -92,4 +83,29 @@ int structpack::Unpack(const std::string& format, Ptr buffer)
 	}
 
 	return totalBytes;
+}
+
+int ByteswapStructs(const char* format, int structSize, int structCount, void* buffer)
+{
+	char* byteBuffer = (char*)buffer;
+	int totalBytes = 0;
+	for (int i = 0; i < structCount; i++) {
+		int newSize = Unpack(format, byteBuffer);
+		byteBuffer += newSize;
+		totalBytes += newSize;
+	}
+	if (totalBytes != structSize * structCount) {
+		throw std::invalid_argument("unexpected length after byteswap");
+	}
+	return totalBytes;
+}
+
+int ByteswapInts(int intSize, int intCount, void* buffer)
+{
+	char* byteBuffer = (char*)buffer;
+	for (int i = 0; i < intCount; i++) {
+		std::reverse(byteBuffer, byteBuffer + intSize);
+		byteBuffer += intSize;
+	}
+	return intCount * intSize;
 }
