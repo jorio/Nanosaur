@@ -139,6 +139,10 @@ set(SRC_GLUE
     src/Backdrop.cpp
     src/GamePatches.cpp
     src/GamePatches.h
+    src/GLBackdrop.cpp
+    src/GLBackdrop.h
+    src/GLFunctions.cpp
+    src/GLFunctions.h
     src/SettingsScreen.cpp
     src/qd3d/QD3D.cpp
     src/qd3d/QD3D.h
