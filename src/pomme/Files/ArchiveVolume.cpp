@@ -5,10 +5,6 @@
 #include "Files/ArchiveVolume.h"
 #include "pomme/maconv/stuffit/methods/arsenic.h"
 
-#ifdef _WIN32
-#include <shlobj.h>
-#endif
-
 #define LOG POMME_GENLOG(POMME_DEBUG_FILES, "ARCH")
 
 using namespace Pomme;
