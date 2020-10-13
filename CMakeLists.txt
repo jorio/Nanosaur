@@ -9,6 +9,8 @@ project(nsaur C CXX)
 
 add_subdirectory(Quesa)
 
+add_subdirectory(src/pomme)
+
 # "WIN32" here is equivalent to /SUBSYSTEM:WINDOWS for MSVC
 add_executable(nsaur WIN32
         src/game/3DMath.c
@@ -94,58 +96,7 @@ add_executable(nsaur WIN32
         src/game/weapons.h
         src/game/Windows.c
         src/game/windows_nano.h
-        src/pomme/Pomme.cpp
-        src/pomme/Pomme.h
-        src/pomme/PommeDebug.cpp
-        src/pomme/PommeDebug.h
-        src/pomme/PommeEnums.h
-        src/pomme/PommeInternal.h
-        src/pomme/PommeTypes.h
-        src/pomme/Files/Files.cpp
-        src/pomme/Files/Volume.h
-        src/pomme/Files/HostVolume.cpp
-        src/pomme/Files/HostVolume.h
-        src/pomme/Files/ArchiveVolume.cpp
-        src/pomme/Files/ArchiveVolume.h
-        src/pomme/Files/Resources.cpp
-        src/pomme/maconv/stuffit/methods.h
-        src/pomme/maconv/stuffit/methods/arsenic.cc
-        src/pomme/maconv/stuffit/methods/arsenic.h
-        src/pomme/maconv/stuffit/utils/bwt.cc
-        src/pomme/maconv/stuffit/utils/bwt.h
-        src/pomme/maconv/stuffit/utils/crc.cc
-        src/pomme/maconv/stuffit/utils/crc.h
-        src/pomme/maconv/utils/bit_reader.h
-        src/pomme/maconv/utils/bit_reader.cc
-        src/pomme/maconv/utils/bit_reader.h
-        src/pomme/Sound/AIFF.cpp
-        src/pomme/Sound/cmixer.cpp
-        src/pomme/Sound/cmixer.h
-        src/pomme/Sound/IMA4.cpp
-        src/pomme/Sound/MACE.cpp
-        src/pomme/Sound/SoundManager.cpp
-        src/pomme/Sound/xlaw.cpp
-        src/pomme/Graphics/ARGBPixmap.cpp
-        src/pomme/Graphics/Graphics.cpp
-        src/pomme/Graphics/SysFont.h
-        src/pomme/Graphics/QD3D.cpp
-        src/pomme/Graphics/SystemPalettes.cpp
-        src/pomme/Utilities/memstream.cpp
-        src/pomme/Utilities/memstream.h
-        src/pomme/Utilities/structpack.cpp
-        src/pomme/Utilities/structpack.h
-        src/pomme/Utilities/BigEndianIStream.cpp
-        src/pomme/Utilities/FixedPool.h
-        src/pomme/Utilities/GrowablePool.h
-        src/pomme/Utilities/IEEEExtended.cpp
-        src/pomme/Utilities/IEEEExtended.h
-        src/pomme/Memory/Memory.cpp
-        src/pomme/Graphics/PICT.cpp
-        src/pomme/Time/TimeManager.cpp
-        src/pomme/Input/SDLInput.cpp
-        src/pomme/Video/moov.cpp
-        src/pomme/Video/Cinepak.cpp
-        src/pomme/Video/Cinepak.h
+        src/qd3d/QD3D.cpp
         src/qd3d/QD3D.h
         src/qd3d/QD3DCamera.h
         src/qd3d/QD3DDrawContext.h
@@ -180,11 +131,13 @@ if(NOT MSVC)
     target_compile_options(${PROJECT_NAME} PRIVATE
         -include Pomme.h
         -Wall -Wno-multichar
+        -fexceptions
     )
 else()
     target_compile_options(${PROJECT_NAME} PRIVATE
         /FIPomme.h
-        /EHsc
+        /EHa    # C++ may throw exceptions from extern "C" functions
+        /wd4068
         /W3
     )
     target_compile_definitions(${PROJECT_NAME} PRIVATE WIN32_LEAN_AND_MEAN)
@@ -203,6 +156,7 @@ target_link_libraries(${PROJECT_NAME}
     ${OPENGL_LIBRARIES}
     ${SDL2_LIBRARIES}
     Quesa_SDL
+    pomme
 )
 
 # Copy SDL2 DLLs to output folder on Windows

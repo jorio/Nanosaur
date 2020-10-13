@@ -2,6 +2,9 @@
 #include <SDL.h>
 #include <iostream>
 #include "Files/ArchiveVolume.h"
+#include "GamePatches.h"
+
+#include <Quesa.h>
 
 #ifndef USE_ARCHIVE
 	#define USE_ARCHIVE 1
@@ -42,6 +45,20 @@ int CommonMain(int argc, const char** argv)
 	// Set up globals that the game expects
 	gCoverWindow = Pomme::Graphics::GetScreenPort();
 	gCoverWindowPixPtr = (UInt32*)GetPixBaseAddr(GetGWorldPixMap(gCoverWindow));
+	
+	// Clear window
+	static const RGBColor backgroundColor = {0xA500,0xA500,0xA500};
+	RGBBackColor(&backgroundColor);
+	EraseRect(&gCoverWindow->portRect);
+	ExclusiveOpenGLMode_Begin();
+	RenderBackdropQuad();
+	ExclusiveOpenGLMode_End();
+
+	// Initialize Quesa
+	auto qd3dStatus = Q3Initialize();
+	if (qd3dStatus != kQ3Success) {
+		throw std::runtime_error("Couldn't initialize Quesa.");
+	}
 
 #if USE_ARCHIVE
 	// Mount game archive as data volume

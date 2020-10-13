@@ -21,7 +21,7 @@ this program.  If not, see <https://www.gnu.org/licenses/>.
 
 */
 
-#include "pomme/maconv/stuffit/methods/arsenic.h"
+#include "maconv/stuffit/methods/arsenic.h"
 //#include "commands.h"
 
 #include <memory>

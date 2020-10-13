@@ -1,8 +1,8 @@
-#include <pomme/PommeInternal.h>
-#include <iostream>
-
+#include "PommeInternal.h"
 #include "Video/Cinepak.h"
 #include "Sound/cmixer.h"
+
+#include <iostream>
 
 using namespace Pomme::Video;
 
@@ -23,7 +23,6 @@ struct ChunkInfo
 static void MoovAssert(bool condition, const std::string msg)
 {
 	if (!condition) {
-		std::cout << msg << "\n";
 		throw MoovException(msg);
 	}
 }

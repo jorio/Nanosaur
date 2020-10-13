@@ -21,7 +21,7 @@ this program.  If not, see <https://www.gnu.org/licenses/>.
 
 */
 
-#include "pomme/maconv/stuffit/utils/bwt.h"
+#include "maconv/stuffit/utils/bwt.h"
 
 namespace maconv {
     namespace stuffit {

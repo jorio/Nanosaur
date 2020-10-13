@@ -6,7 +6,7 @@
 #include <string>
 #include <span>
 #include <queue>
-#include "pomme/Sound/cmixer.h"
+#include "Sound/cmixer.h"
 
 namespace Pomme {
 	class StreamPosGuard {

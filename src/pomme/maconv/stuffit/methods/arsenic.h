@@ -23,10 +23,10 @@ this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #pragma once
 
-#include "pomme/maconv/stuffit/methods.h"
-#include "pomme/maconv/stuffit/utils/bwt.h"
-#include "pomme/maconv/stuffit/utils/crc.h"
-#include "pomme/maconv/utils/bit_reader.h"
+#include "maconv/stuffit/methods.h"
+#include "maconv/stuffit/utils/bwt.h"
+#include "maconv/stuffit/utils/crc.h"
+#include "maconv/utils/bit_reader.h"
 
 #include <memory>
 

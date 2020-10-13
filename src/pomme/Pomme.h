@@ -7,7 +7,7 @@
 //-----------------------------------------------------------------------------
 // Structure unpacking
 
-#include "pomme/Utilities/structpack.h"
+#include "Utilities/structpack.h"
 
 //-----------------------------------------------------------------------------
 // PowerPC intrinsics

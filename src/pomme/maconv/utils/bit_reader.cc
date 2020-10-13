@@ -18,7 +18,7 @@ this program.  If not, see <https://www.gnu.org/licenses/>.
 
 */
 
-#include "pomme/maconv/utils/bit_reader.h"
+#include "maconv/utils/bit_reader.h"
 
 #include <algorithm>
 

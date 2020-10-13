@@ -21,7 +21,7 @@ this program.  If not, see <https://www.gnu.org/licenses/>.
 
 */
 
-#include "pomme/maconv/stuffit/utils/crc.h"
+#include "maconv/stuffit/utils/crc.h"
 
 namespace maconv {
 namespace stuffit {

@@ -1,12 +1,10 @@
 #include "Pomme.h"
 #include "PommeInternal.h"
 #include "SysFont.h"
-#include "pomme/Utilities/memstream.h"
+#include "Utilities/memstream.h"
 #include <iostream>
 #include <memory>
 #include <SDL.h>
-#include <Quesa.h>
-#include "GamePatches.h"
 
 #if _WIN32
 	#undef min
@@ -95,20 +93,6 @@ void Pomme::Graphics::Init(const char* windowTitle, int windowWidth, int windowH
 	Rect boundsRect = {0,0,480,640};
 	screenPort = std::make_unique<GrafPortImpl>(boundsRect);
 	curPort = screenPort.get();
-
-	// Clear window
-	static const RGBColor backgroundColor = {0xA500,0xA500,0xA500};
-	RGBBackColor(&backgroundColor);//BackColor(blackColor);
-	EraseRect(&curPort->port.portRect);
-	ExclusiveOpenGLMode_Begin();
-	RenderBackdropQuad();
-	ExclusiveOpenGLMode_End();
-
-	// Initialize Quesa
-	auto qd3dStatus = Q3Initialize();
-	if (qd3dStatus != kQ3Success) {
-		throw std::runtime_error("Couldn't initialize Quesa.");
-	}
 }
 
 void Pomme::Graphics::Shutdown()

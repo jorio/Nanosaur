@@ -4,7 +4,7 @@
 #include <cassert>
 #include <cstring>
 
-#include "pomme/Utilities/memstream.h"
+#include "Utilities/memstream.h"
 #include "PommeInternal.h"
 #include "Sound/cmixer.h"
 

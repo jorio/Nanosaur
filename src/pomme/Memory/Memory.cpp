@@ -3,7 +3,7 @@
 #include <cstring>
 
 #include "PommeInternal.h"
-#include "pomme/Utilities/FixedPool.h"
+#include "Utilities/FixedPool.h"
 
 #define LOG POMME_GENLOG(POMME_DEBUG_MEMORY, "MEMO")
 
