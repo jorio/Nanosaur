@@ -6,9 +6,6 @@
 #include "Files/HostVolume.h"
 #include "Files/ArchiveVolume.h"
 
-#ifdef _WIN32
-#include <shlobj.h>
-#endif
 #include <filesystem>
 #include <iostream>
 #include <sstream>
@@ -140,10 +137,7 @@ OSErr FindFolder(short vRefNum, OSType folderType, Boolean createFolder, short* 
 	case kPreferencesFolderType:
 	{
 #ifdef _WIN32
-		PWSTR wpath;
-		// If we ever want to port to something older than Vista, this won't work.
-		SHGetKnownFolderPath(FOLDERID_RoamingAppData, 0, 0, &wpath);
-		path = std::filesystem::path(wpath);
+		path = Pomme::Platform::Windows::GetPreferencesFolder();
 #elif defined(__APPLE__)
 		const char *home = getenv("HOME");
 		if (!home) {

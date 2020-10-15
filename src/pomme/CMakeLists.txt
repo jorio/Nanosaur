@@ -55,6 +55,8 @@ set(POMME_SRC
     Video/Cinepak.cpp
     Video/Cinepak.h
     Video/moov.cpp
+    $<$<BOOL:${WIN32}>:Platform/Windows/PommeWindows.cpp>
+    $<$<BOOL:${WIN32}>:Platform/Windows/PommeWindows.h>
 )
 
 add_library(pomme ${POMME_SRC})

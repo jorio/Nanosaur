@@ -10,6 +10,10 @@
 #include "PommeTypes.h"
 #include "Sound/cmixer.h"
 
+#if _WIN32
+	#include "Platform/Windows/PommeWindows.h"
+#endif
+
 namespace Pomme {
 	class StreamPosGuard {
 		std::istream& stream;

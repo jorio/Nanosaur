@@ -1,10 +1,6 @@
 #include <iostream>
 #include <cstring>
 
-#ifdef _WIN32
-#include <windows.h> // for SysBeep :)
-#endif
-
 #include "Pomme.h"
 #include "PommeInternal.h"
 
@@ -27,7 +23,7 @@ void ExitToShell()
 void SysBeep(short duration)
 {
 #ifdef _WIN32
-	MessageBeep(0);
+	Pomme::Platform::Windows::SysBeep();
 #else
 	TODOMINOR();
 #endif
