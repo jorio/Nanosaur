@@ -193,7 +193,10 @@ else()
         /wd4068
         /W3
     )
-    target_compile_definitions(${PROJECT_NAME} PRIVATE WIN32_LEAN_AND_MEAN)
+    
+    # On Win32, we need NOGDI and NOUSER to be able to define some Mac functions
+    # whose names are otherwise taken by Windows APIs.
+    target_compile_definitions(${PROJECT_NAME} PRIVATE WIN32_LEAN_AND_MEAN NOGDI NOUSER)
 endif()
 
 target_include_directories(${PROJECT_NAME} PRIVATE
