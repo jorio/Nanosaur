@@ -11,115 +11,168 @@ add_subdirectory(Quesa)
 
 add_subdirectory(src/pomme)
 
-# "WIN32" here is equivalent to /SUBSYSTEM:WINDOWS for MSVC
-add_executable(nsaur WIN32
-        src/game/3DMath.c
-        src/game/3dmath.h
-        src/game/3DMF.c
-        src/game/3dmf.h
-        src/game/Bones.c
-        src/game/bones.h
-        src/game/Camera.c
-        src/game/camera.h
-        src/game/Collision.c
-        src/game/collision.h
-        src/game/Effects.c
-        src/game/effects.h
-        src/game/Enemy.c
-        src/game/enemy.h
-        src/game/Enemy_Ptera.c
-        src/game/Enemy_Rex.c
-        src/game/Enemy_Spitter.c
-        src/game/Enemy_Stego.c
-        src/game/Enemy_TriCer.c
-        src/game/EnvironmentMap.c
-        src/game/environmentmap.h
-        src/game/File.c
-        src/game/file.h
-        src/game/globals.h
-        src/game/HighScores.c
-        src/game/highscores.h
-        src/game/Infobar.c
-        src/game/infobar.h
-        src/game/input.c
-        src/game/input.h
-        src/game/Items.c
-        src/game/items.h
-        src/game/Main.c
-        src/game/main.h
-        src/game/MainMenu.c
-        src/game/mainmenu.h
-        src/game/Misc.c
-        src/game/misc.h
-        src/game/mobjtypes.h
-        src/game/Movie.c
-        src/game/movie.h
-        src/game/MyGuy.c
-        src/game/myguy.h
-        src/game/mytraps.h
-        src/game/Objects.c
-        src/game/objects.h
-        src/game/Objects2.c
-        src/game/objtypes.h
-        src/game/Pickups.c
-        src/game/pickups.h
-        src/game/Player_Control.c
-        src/game/player_control.h
-        src/game/QD3D_Geometry.c
-        src/game/qd3d_geometry.h
-        src/game/qd3d_support.c
-        src/game/qd3d_support.h
-        src/game/SelfRunDemo.c
-        src/game/selfrundemo.h
-        src/game/SkeletonAnim.c
-        src/game/skeletonanim.h
-        src/game/SkeletonJoints.c
-        src/game/skeletonjoints.h
-        src/game/SkeletonObj.c
-        src/game/skeletonobj.h
-        src/game/Sound.c
-        src/game/sound2.h
-        src/game/Sprites.c
-        src/game/sprites.h
-        src/game/Structs.h
-        src/game/terrain.c
-        src/game/terrain.h
-        src/game/Terrain2.c
-        src/game/TimePortal.c
-        src/game/timeportal.h
-        src/game/Title.c
-        src/game/title.h
-        src/game/Traps.c
-        src/game/Triggers.c
-        src/game/triggers.h
-        src/game/Weapons.c
-        src/game/weapons.h
-        src/game/Windows.c
-        src/game/windows_nano.h
-        src/qd3d/QD3D.cpp
-        src/qd3d/QD3D.h
-        src/qd3d/QD3DCamera.h
-        src/qd3d/QD3DDrawContext.h
-        src/qd3d/QD3DErrors.h
-        src/qd3d/QD3DGeometry.h
-        src/qd3d/QD3DGroup.h
-        src/qd3d/QD3DIO.h
-        src/qd3d/QD3DLight.h
-        src/qd3d/QD3DMath.h
-        src/qd3d/QD3DPick.h
-        src/qd3d/QD3DRenderer.h
-        src/qd3d/QD3DSet.h
-        src/qd3d/QD3DShader.h
-        src/qd3d/QD3DStorage.h
-        src/qd3d/QD3DStyle.h
-        src/qd3d/QD3DTransform.h
-        src/qd3d/QD3DView.h
-        src/Backdrop.cpp
-        src/GamePatches.cpp
-        src/GamePatches.h
-        src/nsaur.cpp
-        src/SettingsScreen.cpp
+set(NANO_SRC src/game)
+
+set(NANO_SRC_SYSTEM
+    ${NANO_SRC}/Main.c
+    ${NANO_SRC}/File.c
+    ${NANO_SRC}/Collision.c
+    ${NANO_SRC}/input.c
+    ${NANO_SRC}/Misc.c
+    ${NANO_SRC}/Objects.c
+    ${NANO_SRC}/Objects2.c
+    ${NANO_SRC}/Sprites.c
+    ${NANO_SRC}/Sound.c
+    ${NANO_SRC}/Windows.c
+    ${NANO_SRC}/SelfRunDemo.c
+    ${NANO_SRC}/Movie.c
 )
+
+set(NANO_SRC_TERRAIN
+    ${NANO_SRC}/Terrain.c
+    ${NANO_SRC}/Terrain2.c
+)
+
+set(NANO_SRC_PLAYER
+    ${NANO_SRC}/MyGuy.c
+    ${NANO_SRC}/Player_Control.c
+    ${NANO_SRC}/Weapons.c
+)
+
+set(NANO_SRC_ENEMIES
+    ${NANO_SRC}/Enemy.c
+    ${NANO_SRC}/Enemy_TriCer.c
+    ${NANO_SRC}/Enemy_Stego.c
+    ${NANO_SRC}/Enemy_Rex.c
+    ${NANO_SRC}/Enemy_Ptera.c
+    ${NANO_SRC}/Enemy_Spitter.c
+)
+
+set(NANO_SRC_ITEMS
+    ${NANO_SRC}/Items.c
+    ${NANO_SRC}/TimePortal.c
+    ${NANO_SRC}/Pickups.c
+    ${NANO_SRC}/Effects.c
+    ${NANO_SRC}/Traps.c
+    ${NANO_SRC}/Triggers.c
+)
+
+set(NANO_SRC_SKELETON
+    ${NANO_SRC}/SkeletonObj.c
+    ${NANO_SRC}/SkeletonJoints.c
+    ${NANO_SRC}/SkeletonAnim.c
+    ${NANO_SRC}/Bones.c
+)
+
+set(NANO_SRC_QD3D
+    ${NANO_SRC}/EnvironmentMap.c
+    ${NANO_SRC}/Camera.c
+    ${NANO_SRC}/QD3D_Support.c
+    ${NANO_SRC}/QD3D_Geometry.c
+    ${NANO_SRC}/3DMF.c
+    ${NANO_SRC}/3DMath.c
+)
+
+set(NANO_SRC_SCREENS
+    ${NANO_SRC}/Infobar.c
+    ${NANO_SRC}/Title.c
+    ${NANO_SRC}/MainMenu.c
+    ${NANO_SRC}/HighScores.c
+)
+
+set(NANO_HEADERS
+    ${NANO_SRC}/main.h
+    ${NANO_SRC}/file.h
+    ${NANO_SRC}/collision.h
+    ${NANO_SRC}/input.h
+    ${NANO_SRC}/misc.h
+    ${NANO_SRC}/objects.h
+    ${NANO_SRC}/3dmath.h
+    ${NANO_SRC}/3dmf.h
+    ${NANO_SRC}/bones.h
+    ${NANO_SRC}/camera.h
+    ${NANO_SRC}/effects.h
+    ${NANO_SRC}/enemy.h
+    ${NANO_SRC}/environmentmap.h
+    ${NANO_SRC}/globals.h
+    ${NANO_SRC}/highscores.h
+    ${NANO_SRC}/infobar.h
+    ${NANO_SRC}/items.h
+    ${NANO_SRC}/mainmenu.h
+    ${NANO_SRC}/mobjtypes.h
+    ${NANO_SRC}/movie.h
+    ${NANO_SRC}/myguy.h
+    ${NANO_SRC}/mytraps.h
+    ${NANO_SRC}/objtypes.h
+    ${NANO_SRC}/pickups.h
+    ${NANO_SRC}/player_control.h
+    ${NANO_SRC}/qd3d_geometry.h
+    ${NANO_SRC}/qd3d_support.h
+    ${NANO_SRC}/selfrundemo.h
+    ${NANO_SRC}/skeletonanim.h
+    ${NANO_SRC}/skeletonjoints.h
+    ${NANO_SRC}/skeletonobj.h
+    ${NANO_SRC}/sound2.h
+    ${NANO_SRC}/sprites.h
+    ${NANO_SRC}/Structs.h
+    ${NANO_SRC}/terrain.h
+    ${NANO_SRC}/timeportal.h
+    ${NANO_SRC}/title.h
+    ${NANO_SRC}/triggers.h
+    ${NANO_SRC}/weapons.h
+    ${NANO_SRC}/windows_nano.h
+)
+
+set(SRC_GLUE
+    src/nsaur.cpp
+    src/Backdrop.cpp
+    src/GamePatches.cpp
+    src/GamePatches.h
+    src/SettingsScreen.cpp
+    src/qd3d/QD3D.cpp
+    src/qd3d/QD3D.h
+    src/qd3d/QD3DCamera.h
+    src/qd3d/QD3DDrawContext.h
+    src/qd3d/QD3DErrors.h
+    src/qd3d/QD3DGeometry.h
+    src/qd3d/QD3DGroup.h
+    src/qd3d/QD3DIO.h
+    src/qd3d/QD3DLight.h
+    src/qd3d/QD3DMath.h
+    src/qd3d/QD3DPick.h
+    src/qd3d/QD3DRenderer.h
+    src/qd3d/QD3DSet.h
+    src/qd3d/QD3DShader.h
+    src/qd3d/QD3DStorage.h
+    src/qd3d/QD3DStyle.h
+    src/qd3d/QD3DTransform.h
+    src/qd3d/QD3DView.h
+)
+
+# "WIN32" here is equivalent to /SUBSYSTEM:WINDOWS for MSVC
+add_executable(nsaur
+    ${NANO_HEADERS}
+    ${NANO_SRC_SYSTEM}
+    ${NANO_SRC_TERRAIN}
+    ${NANO_SRC_PLAYER}
+    ${NANO_SRC_ENEMIES}
+    ${NANO_SRC_ITEMS}
+    ${NANO_SRC_SKELETON}
+    ${NANO_SRC_QD3D}
+    ${NANO_SRC_SCREENS}
+    ${SRC_GLUE}
+)
+
+source_group(System     FILES ${NANO_SRC_SYSTEM})
+source_group(Terrain    FILES ${NANO_SRC_TERRAIN})
+source_group(Player     FILES ${NANO_SRC_PLAYER})
+source_group(Enemies    FILES ${NANO_SRC_ENEMIES})
+source_group(Items      FILES ${NANO_SRC_ITEMS})
+source_group(Skeleton   FILES ${NANO_SRC_SKELETON})
+source_group(QD3D       FILES ${NANO_SRC_QD3D})
+source_group(Screens    FILES ${NANO_SRC_SCREENS})
+source_group(Headers    FILES ${NANO_HEADERS})
+source_group(Glue       FILES ${SRC_GLUE})
 
 find_package(SDL2 REQUIRED COMPONENTS main)
 find_package(OpenGL REQUIRED)
