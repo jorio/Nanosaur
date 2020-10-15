@@ -1,9 +1,3 @@
-#include <cassert>
-#include <iostream>
-#include <vector>
-
-#include "PommeInternal.h"
-
 // Adapted from ffmpeg
 
 // ---- Begin ffmpeg copyright notices ----
@@ -36,6 +30,10 @@
  */
 
  // ---- End ffmpeg copyright notices ----
+
+#include "PommeInternal.h"
+
+#include <cassert>
 
 static const int16_t MACEtab1[] = {-13, 8, 76, 222, 222, 76, 8, -13};
 

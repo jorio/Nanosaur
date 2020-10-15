@@ -23,6 +23,7 @@
 **/
 
 #include "Sound/cmixer.h"
+#include "Utilities/structpack.h"
 #include <SDL.h>
 
 #include <vector>

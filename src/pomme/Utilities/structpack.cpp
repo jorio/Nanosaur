@@ -1,5 +1,6 @@
 #include "structpack.h"
 #include <algorithm>
+#include <stdexcept>
 
 static int Unpack(const char* format, char* buffer)
 {

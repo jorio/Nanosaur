@@ -2,14 +2,10 @@
 #include "PommeInternal.h"
 #include "SysFont.h"
 #include "Utilities/memstream.h"
+
 #include <iostream>
 #include <memory>
 #include <SDL.h>
-
-#if _WIN32
-	#undef min
-	#undef max
-#endif
 
 using namespace Pomme;
 using namespace Pomme::Graphics;

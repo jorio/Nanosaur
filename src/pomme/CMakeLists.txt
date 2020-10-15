@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.17)
 set(CMAKE_CXX_STANDARD 20)
 project(pomme CXX)
 
-add_library(pomme
+set(POMME_SRC
     Pomme.cpp
     Pomme.h
     PommeDebug.cpp
@@ -18,6 +18,7 @@ add_library(pomme
     Files/Resources.cpp
     Files/Volume.h
     Graphics/ARGBPixmap.cpp
+    Graphics/Color.cpp
     Graphics/Graphics.cpp
     Graphics/PICT.cpp
     Graphics/SysFont.h
@@ -56,6 +57,8 @@ add_library(pomme
     Video/moov.cpp
 )
 
+add_library(pomme ${POMME_SRC})
+
 find_package(SDL2 REQUIRED)
 
 target_include_directories(${PROJECT_NAME} PRIVATE
@@ -65,12 +68,10 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 
 if(MSVC)
     target_compile_options(pomme PRIVATE
-        /FIPomme.h
         /EHa
     )
 else()
     target_compile_options(pomme PRIVATE
-        -include Pomme.h
         -Wall
         -Wno-multichar
         -fexceptions

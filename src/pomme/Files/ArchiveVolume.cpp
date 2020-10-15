@@ -1,9 +1,11 @@
-#include <iostream>
-#include <cstring>
+#include "Pomme.h"
 #include "PommeInternal.h"
 #include "Utilities/memstream.h"
 #include "Files/ArchiveVolume.h"
 #include "maconv/stuffit/methods/arsenic.h"
+
+#include <iostream>
+#include <cstring>
 
 #define LOG POMME_GENLOG(POMME_DEBUG_FILES, "ARCH")
 

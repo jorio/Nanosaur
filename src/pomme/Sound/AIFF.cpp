@@ -1,4 +1,5 @@
 #include <iostream>
+#include "Pomme.h"
 #include "PommeInternal.h"
 using namespace Pomme;
 

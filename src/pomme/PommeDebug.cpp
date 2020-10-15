@@ -1,7 +1,8 @@
-#include <SDL.h>
-#include <iostream>
-
 #include "PommeInternal.h"
+
+#include <SDL.h>
+#include <sstream>
+#include <iostream>
 
 void ImplementMe(const char* fn, std::string msg, int severity)
 {

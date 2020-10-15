@@ -1,11 +1,12 @@
-#include <list>
+#include "Pomme.h"
 #include "PommeInternal.h"
-#include <fstream>
-#include <iostream> 
-
 #include "PommeTypes.h"
 #include "PommeEnums.h"
 #include "PommeInternal.h"
+
+#include <list>
+#include <fstream>
+#include <iostream>
 
 using namespace Pomme;
 using namespace Pomme::Graphics;
@@ -17,21 +18,6 @@ class PICTException : public std::runtime_error {
 public:
 	PICTException(const char* m) : std::runtime_error(m) {}
 };
-
-//-----------------------------------------------------------------------------
-// Color
-
-Color::Color(UInt8 r_, UInt8 g_, UInt8 b_) :
-	a(0xFF), r(r_), g(g_), b(b_)
-{}
-
-Color::Color(UInt8 r_, UInt8 g_, UInt8 b_, UInt8 a_) :
-	a(a_), r(r_), g(g_), b(b_)
-{}
-
-Color::Color() :
-	a(0xFF), r(0xFF), g(0x00), b(0xFF)
-{}
 
 //-----------------------------------------------------------------------------
 // Rect helpers

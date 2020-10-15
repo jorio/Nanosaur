@@ -3,6 +3,7 @@
 #include "Sound/cmixer.h"
 
 #include <iostream>
+#include <sstream>
 
 using namespace Pomme::Video;
 

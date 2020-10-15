@@ -1,10 +1,9 @@
+#include "Pomme.h"
+#include "PommeInternal.h"
+#include "Files/HostVolume.h"
+
 #include <filesystem>
 #include <iostream>
-#include <cstring>
-
-#include "PommeInternal.h"
-
-#include "Files/HostVolume.h"
 
 #define LOG POMME_GENLOG(POMME_DEBUG_FILES, "HOST")
 

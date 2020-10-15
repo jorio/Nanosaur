@@ -24,6 +24,7 @@ this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <memory>
 #include <string>
+#include <stdexcept>
 
 namespace maconv {
 namespace stuffit {

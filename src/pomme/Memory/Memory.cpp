@@ -2,6 +2,7 @@
 #include <vector>
 #include <cstring>
 
+#include "Pomme.h"
 #include "PommeInternal.h"
 #include "Utilities/FixedPool.h"
 

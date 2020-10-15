@@ -1,7 +1,4 @@
-#include <filesystem>
-#include <iostream>
-#include <sstream>
-
+#include "Pomme.h"
 #include "PommeInternal.h"
 #include "Utilities/GrowablePool.h"
 #include "Utilities/memstream.h"
@@ -12,6 +9,9 @@
 #ifdef _WIN32
 #include <shlobj.h>
 #endif
+#include <filesystem>
+#include <iostream>
+#include <sstream>
 
 using namespace Pomme;
 using namespace Pomme::Files;

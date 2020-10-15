@@ -18,9 +18,11 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
+#include "PommeInternal.h"
+
 #include <vector>
 #include <cassert>
-#include "PommeInternal.h"
+#include <algorithm>
 
 const int8_t ff_adpcm_index_table[16] = {
 	-1, -1, -1, -1, 2, 4, 6, 8,

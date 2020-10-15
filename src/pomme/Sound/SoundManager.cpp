@@ -1,12 +1,13 @@
+#include "Pomme.h"
+#include "PommeInternal.h"
+#include "Utilities/memstream.h"
+#include "Sound/cmixer.h"
+
 #include <thread>
 #include <chrono>
 #include <iostream>
 #include <cassert>
 #include <cstring>
-
-#include "Utilities/memstream.h"
-#include "PommeInternal.h"
-#include "Sound/cmixer.h"
 
 #define LOG POMME_GENLOG(POMME_DEBUG_SOUND, "SOUN")
 #define LOG_NOPREFIX POMME_GENLOG_NOPREFIX(POMME_DEBUG_SOUND)

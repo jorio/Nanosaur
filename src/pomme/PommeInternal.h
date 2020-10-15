@@ -6,6 +6,8 @@
 #include <string>
 #include <span>
 #include <queue>
+
+#include "PommeTypes.h"
 #include "Sound/cmixer.h"
 
 namespace Pomme {

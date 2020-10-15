@@ -1,6 +1,8 @@
+#include "Pomme.h"
+#include "PommeInternal.h"
+
 #include <iostream>
 #include <algorithm>
-#include "PommeInternal.h"
 
 #define LOG POMME_GENLOG(POMME_DEBUG_RESOURCES, "RSRC")
 
