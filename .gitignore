@@ -1,3 +1,4 @@
+# Game data
 /Nanosaur™
 /Nanosaur™.rsrc
 /Nanosaur™ Extreme
@@ -6,20 +7,22 @@
 /._Nanosaur™ Extreme
 /Data/
 /DataExtreme/
+/nanosaur*134.bin
 
+# Libraries
 /Quesa
 /SDL2-*
 
+# Build directories
+/build*
 /cmake-build*/
 
 # Visual Studio
 .vs/
-*.user
 
-# Visual Studio Build results
-[Dd]ebug/
-[Rr]elease/
-x64/
-x86/
+# JetBrains CLion
+/.idea
 
+# macOS metadata
+.DS_Store
 
