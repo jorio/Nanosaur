@@ -2,7 +2,6 @@
 #include "PommeInternal.h"
 #include "Files/HostVolume.h"
 
-#include <filesystem>
 #include <iostream>
 
 #define LOG POMME_GENLOG(POMME_DEBUG_FILES, "HOST")

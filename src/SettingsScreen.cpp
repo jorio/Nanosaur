@@ -7,6 +7,7 @@ extern "C" {
 }
 
 #include <functional>
+#include <vector>
 #include "GamePatches.h"
 
 extern "C" {

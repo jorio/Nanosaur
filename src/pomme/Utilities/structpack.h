@@ -4,6 +4,8 @@
 
 #ifdef __cplusplus
 
+#include <algorithm>
+
 template<typename T> T ByteswapScalar(T x)
 {
 #if TARGET_RT_BIGENDIAN
