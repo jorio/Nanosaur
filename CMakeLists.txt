@@ -7,6 +7,11 @@ set(CMAKE_CXX_STANDARD 20)
 
 project(nsaur C CXX)
 
+if(APPLE)
+    add_compile_options(-mmacosx-version-min=10.11)
+    add_link_options(-mmacosx-version-min=10.11)
+endif()
+
 if(MSVC)
     # This lets us detect that MSVC supports C++20 features via the __cplusplus macro
     # (See: https://docs.microsoft.com/en-us/cpp/build/reference/zc-cplusplus)
@@ -155,8 +160,7 @@ set(SRC_GLUE
     src/qd3d/QD3DView.h
 )
 
-# "WIN32" here is equivalent to /SUBSYSTEM:WINDOWS for MSVC
-add_executable(nsaur
+set(NANO_ALL_SOURCES
     ${NANO_HEADERS}
     ${NANO_SRC_SYSTEM}
     ${NANO_SRC_TERRAIN}
@@ -168,6 +172,15 @@ add_executable(nsaur
     ${NANO_SRC_SCREENS}
     ${SRC_GLUE}
 )
+
+if(WIN32 AND CMAKE_BUILD_TYPE MATCHES Release)
+    # "WIN32" here is equivalent to /SUBSYSTEM:WINDOWS for MSVC
+    add_executable(${PROJECT_NAME} WIN32 ${NANO_ALL_SOURCES})
+elseif(APPLE AND CMAKE_BUILD_TYPE MATCHES Release)
+    add_executable(${PROJECT_NAME} MACOSX_BUNDLE ${NANO_ALL_SOURCES})
+else()
+    add_executable(${PROJECT_NAME} ${NANO_ALL_SOURCES})
+endif()
 
 source_group(System     FILES ${NANO_SRC_SYSTEM})
 source_group(Terrain    FILES ${NANO_SRC_TERRAIN})
