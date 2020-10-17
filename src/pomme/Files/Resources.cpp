@@ -230,11 +230,12 @@ Handle GetResource(ResType theType, short theID) {
 
 		const auto& fork = rezSearchStack[i];
 
-		if (!fork.resourceMap.contains(theType) ||
-			!fork.resourceMap.at(theType).contains(theID))
-		{
+		if (fork.resourceMap.end() == fork.resourceMap.find(theType))
+            continue;
+        
+        auto& resourcesOfType = fork.resourceMap.at(theType);
+        if (resourcesOfType.end() == resourcesOfType.find(theID))
 			continue;
-		}
 		
 		const auto& meta = fork.resourceMap.at(theType).at(theID);
 		auto& forkStream = Pomme::Files::GetStream(rezSearchStack[i].fileRefNum);

@@ -7,6 +7,12 @@ set(CMAKE_CXX_STANDARD 20)
 
 project(nsaur C CXX)
 
+if(MSVC)
+    # This lets us detect that MSVC supports C++20 features via the __cplusplus macro
+    # (See: https://docs.microsoft.com/en-us/cpp/build/reference/zc-cplusplus)
+    add_compile_options(/Zc:__cplusplus)
+endif()
+
 add_subdirectory(Quesa)
 
 add_subdirectory(src/pomme)

@@ -9,13 +9,12 @@
 using namespace Pomme;
 using namespace Pomme::Files;
 
-
 struct HostForkHandle : public ForkHandle
 {
 	std::fstream backingStream;
 
 public:
-	HostForkHandle(ForkType forkType, char perm, std::filesystem::path& path)
+	HostForkHandle(ForkType forkType, char perm, fs::path& path)
 		: ForkHandle(forkType, perm)
 	{
 		std::ios::openmode openmode = std::ios::binary;
@@ -38,15 +37,15 @@ HostVolume::HostVolume(short vRefNum)
 	: Volume(vRefNum)
 {
 	// default directory (ID 0)
-	directories.push_back(std::filesystem::current_path());
+	directories.push_back(fs::current_path());
 }
 
 //-----------------------------------------------------------------------------
 // Public utilities
 
-long HostVolume::GetDirectoryID(const std::filesystem::path& dirPath)
+long HostVolume::GetDirectoryID(const fs::path& dirPath)
 {
-	if (std::filesystem::exists(dirPath) && !std::filesystem::is_directory(dirPath)) {
+	if (fs::exists(dirPath) && !fs::is_directory(dirPath)) {
 		std::cerr << "Warning: GetDirectoryID should only be used on directories! " << dirPath << "\n";
 	}
 
@@ -63,20 +62,15 @@ long HostVolume::GetDirectoryID(const std::filesystem::path& dirPath)
 //-----------------------------------------------------------------------------
 // Internal utilities
 
-std::filesystem::path HostVolume::ToPath(long parID, const std::string& name)
+fs::path HostVolume::ToPath(long parID, const std::string& name)
 {
-	std::filesystem::path path(directories[parID]);
-	path += std::filesystem::path::preferred_separator;
+	fs::path path(directories[parID]);
+	path += fs::path::preferred_separator;
 	path += name;
 	return path.lexically_normal();
 }
 
-std::filesystem::path HostVolume::ToPath(const FSSpec& spec)
-{
-	return ToPath(spec.parID, spec.cName);
-}
-
-FSSpec HostVolume::ToFSSpec(const std::filesystem::path& fullPath)
+FSSpec HostVolume::ToFSSpec(const fs::path& fullPath)
 {
 	auto parentPath = fullPath;
 	parentPath.remove_filename();
@@ -100,7 +94,7 @@ OSErr HostVolume::OpenFork(const FSSpec* spec, ForkType forkType, char permissio
 		return unimpErr;
 	}
 
-	auto path = ToPath(*spec);
+	auto path = ToPath(spec->parID, spec->cName);
 
 	if (forkType == ResourceFork)
 	{
@@ -118,7 +112,7 @@ OSErr HostVolume::OpenFork(const FSSpec* spec, ForkType forkType, char permissio
 		bool foundRF = false;
 		for (auto c : candidates) {
 			auto candidatePath = path / c;
-			if (std::filesystem::exists(candidatePath)) {
+			if (fs::exists(candidatePath)) {
 				path = candidatePath;
 				foundRF = true;
 				break;
@@ -130,7 +124,7 @@ OSErr HostVolume::OpenFork(const FSSpec* spec, ForkType forkType, char permissio
 		}
 	}
 
-	if (!std::filesystem::is_regular_file(path)) {
+	if (!fs::is_regular_file(path)) {
 		return fnfErr;
 	}
 
@@ -178,25 +172,25 @@ static std::string UppercaseCopy(const std::string& in)
 }
 
 static bool CaseInsensitiveAppendToPath(
-	std::filesystem::path& path,
+	fs::path& path,
 	const std::string& element,
 	bool skipFiles = false)
 {
-	std::filesystem::path naiveConcat = path / element;
+	fs::path naiveConcat = path / element;
 
-	if (!std::filesystem::exists(path)) {
+	if (!fs::exists(path)) {
 		path = naiveConcat;
 		return false;
 	}
 
-	if (std::filesystem::exists(naiveConcat)) {
+	if (fs::exists(naiveConcat)) {
 		path = naiveConcat;
 		return true;
 	}
 
 	const std::string ELEMENT = UppercaseCopy(element);
 
-	for (const auto& candidate : std::filesystem::directory_iterator(path)) {
+	for (const auto& candidate : fs::directory_iterator(path)) {
 		if (skipFiles && !candidate.is_directory()) {
 			continue;
 		}
@@ -236,7 +230,7 @@ OSErr HostVolume::FSMakeFSSpec(long dirID, const std::string& fileName, FSSpec* 
 	std::string suffix = fileName;
 
 	// Case-insensitive sanitization
-	bool exists = std::filesystem::exists(path);
+	bool exists = fs::exists(path);
 	std::string::size_type begin = (suffix.at(0) == ':') ? 1 : 0;
 
 	// Iterate on path elements between colons
@@ -271,8 +265,8 @@ OSErr HostVolume::DirCreate(long parentDirID, const std::string& directoryName, 
 {
 	const auto path = ToPath(parentDirID, directoryName);
 
-	if (std::filesystem::exists(path)) {
-		if (std::filesystem::is_directory(path)) {
+	if (fs::exists(path)) {
+		if (fs::is_directory(path)) {
 			LOG << __func__ << ": directory already exists: " << path << "\n";
 			return noErr;
 		}
@@ -283,9 +277,9 @@ OSErr HostVolume::DirCreate(long parentDirID, const std::string& directoryName, 
 	}
 
 	try {
-		std::filesystem::create_directory(path);
+		fs::create_directory(path);
 	}
-	catch (const std::filesystem::filesystem_error& e) {
+	catch (const fs::filesystem_error& e) {
 		std::cerr << __func__ << " threw " << e.what() << "\n";
 		return ioErr;
 	}
@@ -301,7 +295,7 @@ OSErr HostVolume::DirCreate(long parentDirID, const std::string& directoryName, 
 
 OSErr HostVolume::FSpCreate(const FSSpec* spec, OSType creator, OSType fileType, ScriptCode scriptTag)
 {
-	std::ofstream df(ToPath(*spec));
+	std::ofstream df(ToPath(spec->parID, spec->cName));
 	df.close();
 	// TODO: we could write an AppleDouble file to save the creator/filetype.
 	return noErr;
@@ -309,7 +303,7 @@ OSErr HostVolume::FSpCreate(const FSSpec* spec, OSType creator, OSType fileType,
 
 OSErr HostVolume::FSpDelete(const FSSpec* spec)
 {
-	auto path = ToPath(*spec);
+	auto path = ToPath(spec->parID, spec->cName);
 
 	std::cout << "FSpDelete " << path << "\n";
 	/*
@@ -320,7 +314,7 @@ OSErr HostVolume::FSpDelete(const FSSpec* spec)
 	}
 	*/
 
-	if (std::filesystem::remove(path))
+	if (fs::remove(path))
 		return noErr;
 	else
 		return fnfErr;

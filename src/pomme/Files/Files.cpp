@@ -6,9 +6,9 @@
 #include "Files/HostVolume.h"
 #include "Files/ArchiveVolume.h"
 
-#include <filesystem>
 #include <iostream>
 #include <sstream>
+#include "CompilerSupport/filesystem.h"
 
 using namespace Pomme;
 using namespace Pomme::Files;
@@ -131,7 +131,7 @@ OSErr FSpOpenRF(const FSSpec* spec, char permission, short* refNum)
 
 OSErr FindFolder(short vRefNum, OSType folderType, Boolean createFolder, short* foundVRefNum, long* foundDirID)
 {
-	std::filesystem::path path;
+	fs::path path;
 
 	switch (folderType) {
 	case kPreferencesFolderType:
@@ -143,7 +143,7 @@ OSErr FindFolder(short vRefNum, OSType folderType, Boolean createFolder, short* 
 		if (!home) {
 			return fnfErr;
 		}
-		path = std::filesystem::path(home) / "Library" / "Preferences";
+		path = fs::path(home) / "Library" / "Preferences";
 #else
 		const char *home = getenv("XDG_CONFIG_HOME");
 		if (home) {
@@ -166,13 +166,13 @@ OSErr FindFolder(short vRefNum, OSType folderType, Boolean createFolder, short* 
 
 	path = path.lexically_normal();
 
-	bool exists = std::filesystem::exists(path);
+	bool exists = fs::exists(path);
 
-	if (exists && !std::filesystem::is_directory(path)) {
+	if (exists && !fs::is_directory(path)) {
 		return dupFNErr;
 	}
 	if (!exists && createFolder) {
-		std::filesystem::create_directories(path);
+		fs::create_directories(path);
 	}
 
 	*foundVRefNum = 0;//GetVolumeID(path);

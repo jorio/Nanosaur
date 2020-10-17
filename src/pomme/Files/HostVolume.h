@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Files/Volume.h"
+#include "CompilerSupport/filesystem.h"
 
 namespace Pomme::Files
 {
@@ -10,11 +11,11 @@ namespace Pomme::Files
 	 */
 	class HostVolume : public Volume
 	{
-		std::vector<std::filesystem::path> directories;
+		std::vector<fs::path> directories;
 
-		std::filesystem::path ToPath(long parID, const std::string& name);
-		std::filesystem::path ToPath(const FSSpec& spec);
-		FSSpec ToFSSpec(const std::filesystem::path& fullPath);
+		fs::path ToPath(long parID, const std::string& name);
+
+		FSSpec ToFSSpec(const fs::path& fullPath);
 		
 	public:
 		explicit HostVolume(short vRefNum);
@@ -24,7 +25,7 @@ namespace Pomme::Files
 		//-----------------------------------------------------------------------------
 		// Utilities
 
-		long GetDirectoryID(const std::filesystem::path& dirPath);
+		long GetDirectoryID(const fs::path& dirPath);
 
 		//-----------------------------------------------------------------------------
 		// Toolbox API Implementation

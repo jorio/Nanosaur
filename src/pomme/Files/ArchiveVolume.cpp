@@ -112,7 +112,7 @@ OSErr ArchiveVolume::OpenFork(
 
 	std::string fullPath = FSSpecToPath(spec);
 
-	if (!files.contains(fullPath)) {
+    if (files.end() == files.find(fullPath)) {
 		return fnfErr;
 	}
 
@@ -186,7 +186,7 @@ OSErr ArchiveVolume::FSMakeFSSpec(long dirID, const std::string& fileName, FSSpe
 
 	auto pathKey = FSSpecToPath(spec);
 
-	return files.contains(pathKey) || GetDirectoryID(pathKey) != -1
+	return files.end() != files.find(pathKey) || GetDirectoryID(pathKey) != -1
 		? noErr
 		: fnfErr;
 }
