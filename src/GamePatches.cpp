@@ -9,6 +9,7 @@ extern "C" {
 #include "game/qd3d_support.h"
 #include "game/movie.h" // PlayAMovie
 #include "game/misc.h" // DrawPictureToScreen
+#include "game/windows_nano.h" // GAME_VIEW_WIDTH, GAME_VIEW_HEIGHT
 }
 
 #include "PommeInternal.h"
@@ -156,15 +157,9 @@ void PlayAMovie(FSSpec* spec)
 
 	CinepakContext cinepak(movie.width, movie.height);
 
-	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, gGamePrefs.highQualityTextures? "1": "0");
-	
-	auto renderer = SDL_CreateRenderer(gSDLWindow, -1, 0);
-
-	auto texture = SDL_CreateTexture(
-			renderer, SDL_PIXELFORMAT_ABGR8888, SDL_TEXTUREACCESS_STREAMING,
-			movie.width, movie.height);
-
-	SDL_SetRenderTarget(renderer, texture);
+	ExclusiveOpenGLMode_Begin();
+	SetBackdropFit(BACKDROP_FIT);
+	SetBackdropClipRegion(movie.width, movie.height);
 
 	movie.audioStream.Play();
 
@@ -179,49 +174,24 @@ void PlayAMovie(FSSpec* spec)
 			movie.videoFrames.pop();
 		}
 
-		char *pixels = nullptr;
-		int pitch = 0;
-		SDL_LockTexture(texture, nullptr, (void**)&pixels, &pitch);
-		// RGB888 to RGBA8888
+		int pitch = GAME_VIEW_WIDTH;
+
+		UInt32* backdropPix = (UInt32*)GetPixBaseAddr(GetGWorldPixMap(Pomme::Graphics::GetScreenPort()));
+
+		// RGB888 to ARGB8888
 		for (int y = 0; y < movie.height; y++) {
 			const char *in = cinepak.frame_data0 + cinepak.frame_linesize0 * y;
-			char *out = pixels + pitch * y;
+			char *out = (char*)(backdropPix + pitch * y);
 			for (int x = 0; x < movie.width; x++) {
-				*out++ = *in++;
-				*out++ = *in++;
-				*out++ = *in++;
 				*out++ = 0xFF;
+				*out++ = *in++;
+				*out++ = *in++;
+				*out++ = *in++;
 			}
 		}
-		SDL_UnlockTexture(texture);
 
-		SDL_Rect dstrect = {};
-		int windowWidth, windowHeight;
-		SDL_GetWindowSize(gSDLWindow, &windowWidth, &windowHeight);
-		float windowAspectRatio = windowWidth / (float)windowHeight;
-		float sourceAspectRatio = movie.width / (float)movie.height;
-		if (fabs(sourceAspectRatio - windowAspectRatio) < 0.1) {
-			// source and window have nearly the same aspect ratio -- fit
-			dstrect.x = dstrect.y = 0;
-			dstrect.w = windowWidth;
-			dstrect.h = windowHeight;
-		} else if (sourceAspectRatio > windowAspectRatio) {
-			// source is wider than window -- letterbox
-			dstrect.x = 0;
-			dstrect.w = windowWidth;
-			dstrect.h = windowWidth / sourceAspectRatio;
-			dstrect.y = (windowHeight - dstrect.h) / 2;
-		} else {
-			// source is narrower than window -- pillarbox
-			dstrect.y = 0;
-			dstrect.h = windowHeight;
-			dstrect.w = windowHeight * sourceAspectRatio;
-			dstrect.x = (windowWidth - dstrect.w) / 2;
-		}
-		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-		SDL_RenderClear(renderer);
-		SDL_RenderCopy(renderer, texture, nullptr, &dstrect);
-		SDL_RenderPresent(renderer);
+		Pomme_SetPortDirty(true);
+		RenderBackdropQuad();
 		DoSDLMaintenance();
 
 		unsigned int endTicks = SDL_GetTicks();
@@ -245,9 +215,8 @@ void PlayAMovie(FSSpec* spec)
 
 	movie.audioStream.Stop();
 
-	SDL_DestroyTexture(texture);
-
-	SDL_DestroyRenderer(renderer);
+	SetBackdropClipRegion(GAME_VIEW_WIDTH, GAME_VIEW_HEIGHT);
+	ExclusiveOpenGLMode_End();
 }
 
 //-----------------------------------------------------------------------------
