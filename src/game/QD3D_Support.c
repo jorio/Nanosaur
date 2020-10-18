@@ -1249,7 +1249,7 @@ short					depth;
 
 	mipmap->bitOrder = kQ3EndianBig;
 	mipmap->byteOrder = kQ3EndianBig;
-	mipmap->reserved = nil;
+	mipmap->reserved = 0;
 	mipmap->mipmaps[0].width = width;
 	mipmap->mipmaps[0].height = height;
 	mipmap->mipmaps[0].rowBytes = pictRowBytes;
@@ -1371,7 +1371,7 @@ short					depth;
 	
 	mipmap->bitOrder = kQ3EndianBig;
 	mipmap->byteOrder = kQ3EndianBig;
-	mipmap->reserved = nil;
+	mipmap->reserved = 0;
 	mipmap->mipmaps[0].width = width;
 	mipmap->mipmaps[0].height = height;
 	mipmap->mipmaps[0].rowBytes = pictRowBytes;
@@ -1628,7 +1628,7 @@ static void Data16ToMipmap(Ptr data, short width, short height, TQ3Mipmap *mipma
 	mipmap->pixelType = kQ3PixelTypeRGB16;						
 	mipmap->bitOrder = kQ3EndianBig;
 	mipmap->byteOrder = kQ3EndianBig;
-	mipmap->reserved = nil;
+	mipmap->reserved = 0;
 	mipmap->mipmaps[0].width = width;
 	mipmap->mipmaps[0].height = height;
 	mipmap->mipmaps[0].rowBytes = width*2;

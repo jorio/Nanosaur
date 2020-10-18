@@ -434,7 +434,7 @@ static void MoveCrystal(ObjNode *theNode)
 {
 	if (theNode->TerrainItemPtr == nil)			// see if was exploded during DoTrig
 	{
-		QD3D_ExplodeGeometry(theNode, 570.0f, nil, 1, .3);
+		QD3D_ExplodeGeometry(theNode, 570.0f, 0, 1, .3);
 		goto del;
 	}
 		
@@ -467,7 +467,7 @@ static Boolean DoTrig_Crystal(ObjNode *theNode, ObjNode *whoNode, Byte sideBits)
 
 void ExplodeCrystal(ObjNode *theNode)
 {
-	QD3D_ExplodeGeometry(theNode, 570.0f, nil, 1, .3);
+	QD3D_ExplodeGeometry(theNode, 570.0f, 0, 1, .3);
 	PlayEffect(EFFECT_CRYSTAL);
 	theNode->TerrainItemPtr = nil;							// it aint never comin' back
 	DeleteObject(theNode);

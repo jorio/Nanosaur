@@ -205,7 +205,7 @@ ObjNode	*theNode = gPlayerObj;
 
 			/* EXPLODE "OLD" ONE */
 			
-	QD3D_ExplodeGeometry(theNode, 500.0f, nil, 3, .4);		// note: this doesnt delete anything
+	QD3D_ExplodeGeometry(theNode, 500.0f, 0, 3, .4);		// note: this doesnt delete anything
 
 
 			/* MAKE NEW APPEARANCE TIME PORTAL */
@@ -930,7 +930,7 @@ UInt8		sides;
 					
 				if ((hitObj->Group == GLOBAL_MGroupNum_DinoSpit) && (hitObj->Type == GLOBAL_MObjType_DinoSpit))
 				{
-					QD3D_ExplodeGeometry(hitObj, 100, nil, 10, .5);
+					QD3D_ExplodeGeometry(hitObj, 100, 0, 10, .5);
 					DeleteObject(hitObj);
 				}
 			}			

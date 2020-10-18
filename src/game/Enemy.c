@@ -105,9 +105,9 @@ static const int enemyPoints[]=
 	AddToScore(enemyPoints[theEnemy->Kind]);	// get points
 	
 #ifdef  PRO_MODE
-	QD3D_ExplodeGeometry(theEnemy, 570.0f, nil, 1, .4);
+	QD3D_ExplodeGeometry(theEnemy, 570.0f, 0, 1, .4);
 #else	
-	QD3D_ExplodeGeometry(theEnemy, 570.0f, nil, 4, .4);
+	QD3D_ExplodeGeometry(theEnemy, 570.0f, 0, 4, .4);
 #endif
 	
 	DeleteEnemy(theEnemy);

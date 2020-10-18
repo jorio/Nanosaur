@@ -820,9 +820,9 @@ int		i;
 			/* COPY BASE STUFF */
 			
 	*outData = *inData;							// first do a carbon copy
-	outData->numEdges = nil;					// don't copy edge info
+	outData->numEdges = 0;						// don't copy edge info
 	outData->edges = nil;
-	outData->numEdgeAttributeTypes = nil;
+	outData->numEdgeAttributeTypes = 0;
 	outData->edgeAttributeTypes = nil;
 
 
