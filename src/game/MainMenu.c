@@ -154,7 +154,6 @@ do_again:
 
 	if (gGamePrefs.mainMenuHelp)
 	{
-		SetBackdropFit(BACKDROP_PILLARBOX);
 		int w;
 		const char*	s = "Use the Arrow Keys to change the Selection.  Press the Spacebar to make a Selection.";
 		w = TextWidthC(s);
@@ -194,6 +193,11 @@ do_again:
 				
 	do
 	{
+		if (gGamePrefs.mainMenuHelp)
+		{
+			RenderBackdropQuad(BACKDROP_PILLARBOX);
+		}
+
 				/* UPDATE FRAME */
 				
 		GenerateFallingEgg();

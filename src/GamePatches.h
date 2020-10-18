@@ -31,11 +31,9 @@ void ExclusiveOpenGLMode_End(void);
 
 void AllocBackdropTexture(void);
 
-void SetBackdropFit(int fit);
-
 void SetBackdropClipRegion(int width, int height);
 
-void RenderBackdropQuad(void);
+void RenderBackdropQuad(int fit);
 
 void DisposeBackdropTexture(void);
 

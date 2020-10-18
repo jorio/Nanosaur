@@ -538,7 +538,6 @@ void GammaFadeIn(void)
 		if (!gGammaIsOn)
 			DSpContext_FadeGammaIn(MONITORS_TO_FADE,nil);
 #else
-	RenderBackdropQuad();
 	for (int i = 0; i <= 100; i++) {
 		SetWindowGamma(i);
 		SDL_Delay(16);
@@ -564,7 +563,6 @@ Rect	r;
 		if (gGammaIsOn)
 			DSpContext_FadeGammaOut(MONITORS_TO_FADE,nil);
 #else
-	RenderBackdropQuad();
 	for (int i = 100; i >= 1; i--) {
 		SetWindowGamma(i);
 		SDL_Delay(16);

@@ -699,8 +699,6 @@ TQ3ViewStatus			myViewStatus;
 			/* START RENDERING */
 
 			
-	RenderBackdropQuad(); // Source port addition - render GL backdrop quad
-	
 	myStatus = Q3View_StartRendering(setupInfo->viewObject);			
 	if ( myStatus == kQ3Failure )
 	{

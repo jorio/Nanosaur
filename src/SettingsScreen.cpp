@@ -118,9 +118,6 @@ static void RenderQualityDialog()
 void DoQualityDialog()
 {
 	ExclusiveOpenGLMode_Begin();
-	SetBackdropFit(BACKDROP_FIT);
-
-	RenderQualityDialog();
 
 	while(1) {
 		ReadKeyboard();
@@ -139,7 +136,7 @@ void DoQualityDialog()
 
 		QD3D_CalcFramesPerSecond();
 		DoSoundMaintenance();
-		RenderBackdropQuad();
+		RenderBackdropQuad(BACKDROP_FIT);
 		
 		DoSDLMaintenance();
 	}

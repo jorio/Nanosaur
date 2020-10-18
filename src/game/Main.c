@@ -237,8 +237,6 @@ TQ3ColorRGB		c2 = { 1, .9, .6 };
 		viewDef.view.clearColor.b = .75;
 	}
 	
-	SetBackdropFit(BACKDROP_FILL);
-	
 	QD3D_SetupWindow(&viewDef, &gGameViewInfoPtr);
 	QD3D_DrawScene(gGameViewInfoPtr, nil);
 
@@ -348,6 +346,7 @@ FSSpec	spec;
 					
 		DoMyTerrainUpdate();
 		UpdateInfobar();			
+		RenderBackdropQuad(BACKDROP_FILL);
 		QD3D_DrawScene(gGameViewInfoPtr,DrawTerrain);
 		QD3D_CalcFramesPerSecond();
 

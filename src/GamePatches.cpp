@@ -158,7 +158,6 @@ void PlayAMovie(FSSpec* spec)
 	CinepakContext cinepak(movie.width, movie.height);
 
 	ExclusiveOpenGLMode_Begin();
-	SetBackdropFit(BACKDROP_FIT);
 	SetBackdropClipRegion(movie.width, movie.height);
 
 	movie.audioStream.Play();
@@ -191,7 +190,7 @@ void PlayAMovie(FSSpec* spec)
 		}
 
 		Pomme_SetPortDirty(true);
-		RenderBackdropQuad();
+		RenderBackdropQuad(BACKDROP_FIT);
 		DoSDLMaintenance();
 
 		unsigned int endTicks = SDL_GetTicks();

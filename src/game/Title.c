@@ -359,7 +359,6 @@ static void Slideshow(const char** imagePaths)
 	FSSpec spec;
 
 	ExclusiveOpenGLMode_Begin();
-	SetBackdropFit(BACKDROP_FIT);
 
 	for (int i = 0; imagePaths[i]; i++)
 	{
@@ -382,14 +381,18 @@ static void Slideshow(const char** imagePaths)
 			DrawPictureToScreen(&spec, 0, 0);
 		}
 
-		if (i == 0) GammaFadeIn();
+		if (i == 0)
+		{
+			RenderBackdropQuad(BACKDROP_FIT);
+			GammaFadeIn();
+		}
 		ReadKeyboard();
 
 		do
 		{
 			ReadKeyboard();
 			DoSoundMaintenance();
-			RenderBackdropQuad();
+			RenderBackdropQuad(BACKDROP_FIT);
 			QD3D_CalcFramesPerSecond(); // required for DoSDLMaintenance to properly cap the framerate
 			DoSDLMaintenance();
 		} while(!(gNewKeys_Real[0] || gNewKeys_Real[1] ||  gNewKeys_Real[2] || gNewKeys_Real[3]));

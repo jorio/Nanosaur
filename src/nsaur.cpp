@@ -51,7 +51,7 @@ int CommonMain(int argc, const char** argv)
 	RGBBackColor(&backgroundColor);
 	EraseRect(&gCoverWindow->portRect);
 	ExclusiveOpenGLMode_Begin();
-	RenderBackdropQuad();
+	RenderBackdropQuad(BACKDROP_FILL);
 	ExclusiveOpenGLMode_End();
 
 	// Initialize Quesa
