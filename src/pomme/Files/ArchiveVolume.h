@@ -18,7 +18,7 @@ namespace Pomme::Files
 			UInt32 uncompressedLength;
 			UInt32 compressedLength;
 			UInt32 compressionMethod;
-			UInt32 offsetToCompressedData;
+			std::streamoff offsetToCompressedData;
 		};
 
 		struct CompressedFileMetadata
@@ -52,7 +52,7 @@ namespace Pomme::Files
 		/// Recursive if the entry is a directory.
 		UInt32 ReadEntry(
 			std::istream& input,
-			int globalOffset,
+			std::streamoff globalOffset,
 			const std::string& parentPath,
 			bool collapseIfFolder);
 

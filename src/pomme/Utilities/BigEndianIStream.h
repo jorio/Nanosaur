@@ -26,7 +26,7 @@ namespace Pomme
 		BigEndianIStream(std::istream& theStream);
 		void Read(char* dst, int n);
 		void Skip(int n);
-		void Goto(int absoluteOffset);
+		void Goto(std::streamoff absoluteOffset);
 		std::streampos Tell() const;
 		StreamPosGuard GuardPos();
 		std::vector<unsigned char> ReadBytes(int n);
@@ -39,7 +39,7 @@ namespace Pomme
 			char b[sizeof(T)];
 			Read(b, sizeof(T));
 #if !(TARGET_RT_BIGENDIAN)
-			if (sizeof(T) > 1)
+			if constexpr (sizeof(T) > 1)
 			{
 				std::reverse(b, b + sizeof(T));
 			}

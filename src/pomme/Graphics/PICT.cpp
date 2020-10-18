@@ -219,7 +219,7 @@ static ARGBPixmap ReadPICTBits(BigEndianIStream& f, int opcode, const Rect& canv
 	if (frameRect != canvasRect)
 		throw PICTException("frame dims != canvas dims 1");
 
-	int packType;
+	int packType = -1;
 	int pixelSize = -1;
 	int componentCount = -1;
 
@@ -315,8 +315,6 @@ static ARGBPixmap ReadPICTBits(BigEndianIStream& f, int opcode, const Rect& canv
 			throw PICTException("don't know how to unpack this pixel size");
 		}
 	}
-
-	return ARGBPixmap(0,0);
 }
 
 ARGBPixmap Pomme::Graphics::ReadPICT(std::istream& theF, bool skip512)

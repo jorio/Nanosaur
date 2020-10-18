@@ -57,7 +57,7 @@ double Pomme::BigEndianIStream::Read80BitFloat() {
 	return ConvertFromIeeeExtended((unsigned char *)bytes.data());
 }
 
-void Pomme::BigEndianIStream::Goto(int absoluteOffset) {
+void Pomme::BigEndianIStream::Goto(std::streamoff absoluteOffset) {
 	stream.seekg(absoluteOffset, std::ios_base::beg);
 }
 

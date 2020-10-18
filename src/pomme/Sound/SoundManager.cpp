@@ -558,7 +558,7 @@ OSErr GetSoundHeaderOffset(SndListHandle sndHandle, long* offset)
 	//LOG << nCmds << " commands\n";
 	for (; nCmds >= 1; nCmds--) {
 		UInt16 cmd = f.Read<UInt16>();
-		SInt16 param1 = f.Read<SInt16>();
+		f.Skip(2); // SInt16 param1
 		SInt32 param2 = f.Read<SInt32>();
 		cmd &= 0x7FFF; // See IM:S:2-75
 		// When a sound command contained in an 'snd ' resource has associated sound data,

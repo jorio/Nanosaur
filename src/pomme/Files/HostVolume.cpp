@@ -146,7 +146,7 @@ OSErr HostVolume::OpenFork(const FSSpec* spec, ForkType forkType, char permissio
 		for (int i = 0; i < numOfEntries; i++) {
 			auto entryID = f.Read<UInt32>();
 			auto offset = f.Read<UInt32>();
-			auto length = f.Read<UInt32>();
+			f.Skip(4); // length
 			if (entryID == 2) {
 				foundEntryID2 = true;
 				f.Goto(offset);

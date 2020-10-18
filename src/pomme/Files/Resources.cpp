@@ -88,8 +88,8 @@ short FSpOpenResFile(const FSSpec* spec, char permission)
 	// Resource Header
 	UInt32 dataSectionOff = f.Read<UInt32>() + resForkOff;
 	UInt32 mapSectionOff = f.Read<UInt32>() + resForkOff;
-	UInt32 dataSectionLen = f.Read<UInt32>();
-	UInt32 mapSectionLen = f.Read<UInt32>();
+	f.Skip(4); // UInt32 dataSectionLen
+	f.Skip(4); // UInt32 mapSectionLen
 	f.Skip(112 + 128); // system- (112) and app- (128) reserved data
 
 	if (f.Tell() != dataSectionOff)
@@ -99,7 +99,7 @@ short FSpOpenResFile(const FSSpec* spec, char permission)
 
 	// map header
 	f.Skip(16 + 4 + 2); // junk
-	UInt16 fileAttr = f.Read<UInt16>();
+	f.Skip(2); // UInt16 fileAttr
 	UInt32 typeListOff = f.Read<UInt16>() + mapSectionOff;
 	UInt32 resNameListOff = f.Read<UInt16>() + mapSectionOff;
 

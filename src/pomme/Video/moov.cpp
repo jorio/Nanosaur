@@ -163,7 +163,7 @@ static void Parse_mdia_vide(Pomme::BigEndianIStream& f, Movie& movie, UInt32 tim
 				AtomGuard stsd(f, 'stsd');
 				Expect<UInt32>(f, 0, "vide stsd version + flags");
 				Expect<UInt32>(f, 1, "vide stsd number of entries");
-				auto sampleDescriptionSize = f.Read<UInt32>();
+				f.Skip(4); // UInt32 sampleDescriptionSize
 				movie.videoFormat = f.Read<FourCharCode>();
 				f.Skip(6); // reserved
 				f.Skip(2); // data reference index
@@ -186,7 +186,7 @@ static void Parse_mdia_vide(Pomme::BigEndianIStream& f, Movie& movie, UInt32 tim
 				AtomGuard stts(f, 'stts');
 				Expect<UInt32>(f, 0, "stts version + flags");
 				Expect<UInt32>(f, 1, "stts number of entries");
-				auto sampleCount = f.Read<UInt32>();
+				f.Skip(4); // UInt32 sampleCount
 				auto sampleDuration = f.Read<UInt32>();
 				movie.videoFrameRate = (float)timeScale / sampleDuration;
 			}
@@ -232,7 +232,7 @@ static void Parse_mdia_soun(Pomme::BigEndianIStream& f, Movie& movie)
 				AtomGuard stsd(f, 'stsd');
 				Expect<UInt32>(f, 0, "soun stsd version + flags");
 				Expect<UInt32>(f, 1, "soun stsd number of entries");
-				auto sampleDescriptionSize = f.Read<UInt32>();
+				f.Skip(4); // UInt32 sampleDescriptionSize
 				movie.audioFormat = f.Read<FourCharCode>();
 				f.Skip(6); // reserved
 				f.Skip(2); // data reference index
@@ -349,7 +349,7 @@ static void Parse_mdia(Pomme::BigEndianIStream& f, Movie& movie)
 		f.Skip(4); // ctime
 		f.Skip(4); // mtime
 		timeScale = f.Read<UInt32>();
-		auto duration = f.Read<UInt32>();
+		f.Skip(4); // UInt32 duration
 		f.Skip(2); // language
 		f.Skip(2); // quality
 		//std::cout << "mdhd: timeScale: " << timeScale << " units per second; duration: " << duration << " units\n";

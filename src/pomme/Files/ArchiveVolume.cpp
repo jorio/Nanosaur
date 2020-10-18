@@ -88,7 +88,7 @@ static std::string UppercaseCopy(const std::string& in)
 		in.begin(),
 		in.end(),
 		std::back_inserter(out),
-		[](unsigned char c) -> unsigned char { return std::toupper(c); });
+		[](unsigned char c) -> unsigned char { return (unsigned char)std::toupper(c); });
 	return out;
 }
 
@@ -250,7 +250,7 @@ std::vector<char> ArchiveVolume::DecompressFork(ArchiveVolume::CompressedForkMet
 
 UInt32 ArchiveVolume::ReadEntry(
 	std::istream& input,
-	int globalOffset,
+	std::streamoff globalOffset,
 	const std::string& parentPath,
 	bool collapseIfFolder)
 {
@@ -259,20 +259,20 @@ UInt32 ArchiveVolume::ReadEntry(
 	ArchiveAssert(0xA5A5A5A5u == f.Read<UInt32>(), "Bad entry magic number");
 	auto version = f.Read<UInt8>();
 	ArchiveAssert(0 == f.Read<UInt8>(), "Expected 0");
-	auto headerSize = f.Read<UInt16>();
+	f.Skip(2); // headerSize
 	f.Skip(1);
 	auto entryFlags = f.Read<UInt8>();
 	f.Skip(4 + 4); // cdate, mdate
 	f.Skip(4); // offset of previous entry
 	auto offsetOfNextEntry = f.Read<UInt32>();
-	auto offsetOfDirectoryEntry = f.Read<UInt32>(); // parent folder
+	f.Skip(4); // offsetOfDirectoryEntry - parent folder
 	auto nameSize = f.Read<UInt16>();
 	f.Skip(2); // crc-16
 
 	if (entryFlags & 0x40) {
 		// Folder
 		auto offsetOfFirstEntryInFolder = f.Read<UInt32>();
-		auto sizeOfCompleteDirectory = f.Read<UInt32>();
+		f.Skip(4); // sizeOfCompleteDirectory
 		f.Skip(4);
 		auto nFilesInFolder = f.Read<UInt16>();
 		auto folderNameBytes = f.ReadBytes(nameSize);
@@ -296,7 +296,7 @@ UInt32 ArchiveVolume::ReadEntry(
 
 		cfmd.dataFork.uncompressedLength = f.Read<UInt32>();
 		cfmd.dataFork.compressedLength = f.Read<UInt32>();
-		auto dataForkCRC16 = f.Read<UInt16>();
+		f.Skip(2); // dataForkCRC16
 		f.Skip(2);
 		cfmd.dataFork.compressionMethod = f.Read<UInt8>();
 
@@ -323,7 +323,7 @@ UInt32 ArchiveVolume::ReadEntry(
 		if (hasResourceFork) {
 			cfmd.rsrcFork.uncompressedLength = f.Read<UInt32>();
 			cfmd.rsrcFork.compressedLength = f.Read<UInt32>();
-			auto resourceForkCRC16 = f.Read<UInt16>();
+			f.Skip(2); // resourceForkCRC16
 			f.Skip(2);
 			cfmd.rsrcFork.compressionMethod = f.Read<UInt8>();
 			ArchiveAssert(0 == f.Read<UInt8>(), "resource fork password flag?");
@@ -367,7 +367,7 @@ void ArchiveVolume::ReadStuffIt5()
 	f.Skip(2);
 	ArchiveAssert(5 == f.Read<UInt8>(), "Unknown StuffIt version");
 	f.Skip(1); // flags
-	auto totalSize = f.Read<UInt32>();
+	f.Skip(4); // totalSize
 	f.Skip(4);
 	auto nEntriesInRootDirectory = f.Read<UInt16>();
 	auto offsetOfFirstEntryInRootDirectory = f.Read<UInt32>();
