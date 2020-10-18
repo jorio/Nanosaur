@@ -50,6 +50,20 @@ void AllocBackdropTexture()
 	Pomme_SetPortDirty(false);
 }
 
+void ClearBackdrop(UInt32 argb)
+{
+	UInt32 bgra = ByteswapScalar(argb);
+
+	auto backdropPixPtr = GetBackdropPixPtr();
+
+	for (int i = 0; i < GAME_VIEW_WIDTH * GAME_VIEW_HEIGHT; i++)
+	{
+		*(backdropPixPtr++) = bgra;
+	}
+
+	Pomme_SetPortDirty(true);
+}
+
 void DisposeBackdropTexture()
 {
 	if (!ALLOW_BACKDROP_TEXTURE

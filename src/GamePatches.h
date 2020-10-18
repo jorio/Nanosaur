@@ -33,6 +33,8 @@ void AllocBackdropTexture(void);
 
 void SetBackdropClipRegion(int width, int height);
 
+void ClearBackdrop(UInt32 argb);
+
 void RenderBackdropQuad(int fit);
 
 void DisposeBackdropTexture(void);

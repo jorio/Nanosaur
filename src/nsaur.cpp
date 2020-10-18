@@ -47,10 +47,8 @@ int CommonMain(int argc, const char** argv)
 	gCoverWindowPixPtr = (UInt32*)GetPixBaseAddr(GetGWorldPixMap(gCoverWindow));
 	
 	// Clear window
-	static const RGBColor backgroundColor = {0xA500,0xA500,0xA500};
-	RGBBackColor(&backgroundColor);
-	EraseRect(&gCoverWindow->portRect);
 	ExclusiveOpenGLMode_Begin();
+	ClearBackdrop(0xFFA5A5A5);
 	RenderBackdropQuad(BACKDROP_FILL);
 	ExclusiveOpenGLMode_End();
 
