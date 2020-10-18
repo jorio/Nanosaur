@@ -24,6 +24,7 @@
 #include <QD3DMath.h>
 #include <QD3DStorage.h>
 #include <stdlib.h>
+#include <string.h>
 #include "qd3d_geometry.h"
 
 extern	ObjNode		*gThisNodePtr;

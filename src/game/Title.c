@@ -30,6 +30,8 @@
 #include "skeletonanim.h"
 
 #include "GamePatches.h"
+#include <string.h>
+#include <stdlib.h>
 
 extern	float				gFramesPerSecondFrac,gFramesPerSecond;
 extern	TQ3Point3D			gCoord;
