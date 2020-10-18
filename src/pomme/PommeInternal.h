@@ -110,18 +110,18 @@ namespace Pomme {
 		namespace MACE
 		{
 			int GetOutputSize(const int inputByteCount, const int nChannels);
-			void Decode(const int nChannels, const std::span<const char>& input, const std::span<char> output);
+			void Decode(const int nChannels, const std::span<const char> input, const std::span<char> output);
 		}
 		namespace IMA4
 		{
 			int GetInputSize(const int nSamples, const int nChannels);
 			int GetOutputSize(const int inputByteCount, const int nChannels);
-			void Decode(const int nChannels, const std::span<const char>& input, const std::span<char> output);
+			void Decode(const int nChannels, const std::span<const char> input, const std::span<char> output);
 		}
 		namespace ulaw
 		{
 			int GetOutputSize(const int inputByteCount, const int nChannels);
-			void Decode(const int nChannels, const std::span<const char>& input, const std::span<char> output);
+			void Decode(const int nChannels, const std::span<const char> input, const std::span<char> output);
 		}
 	}
 

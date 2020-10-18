@@ -194,7 +194,7 @@ int Pomme::Sound::MACE::GetOutputSize(
 
 void Pomme::Sound::MACE::Decode(
 	const int nChannels,
-	const std::span<const char>& input,
+	const std::span<const char> input,
 	const std::span<char> output)
 {
 	if (input.size() % (nChannels * 2) != 0)

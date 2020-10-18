@@ -149,7 +149,7 @@ int Pomme::Sound::IMA4::GetOutputSize(
 
 void Pomme::Sound::IMA4::Decode(
 	const int nChannels,
-	const std::span<const char>& input,
+	const std::span<const char> input,
 	const std::span<char> output)
 {
 	if (input.size() % 34 != 0)

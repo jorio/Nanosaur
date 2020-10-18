@@ -54,7 +54,7 @@ int Pomme::Sound::ulaw::GetOutputSize(
 
 void Pomme::Sound::ulaw::Decode(
 		const int nChannels,
-		const std::span<const char>& input,
+		const std::span<const char> input,
 		const std::span<char> output)
 {
 	if (2 * input.size() != output.size()) {
