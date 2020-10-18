@@ -510,7 +510,7 @@ float	rot,x,z;
 short	n;
 
 	n = FindClosestPortal();
-	if (1)
+	if (n >= 0)
 	{
 			/* ANGLE TO CURRENT ACTIVE TIME PORTAL */
 			

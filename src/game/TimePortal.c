@@ -372,7 +372,7 @@ short	FindClosestPortal(void)
 {
 int	i;
 float	min = 100000000,d;
-short	close;
+short	close = -1;
 
 	for (i =0; i < gNumTimePortals; i++)
 	{
