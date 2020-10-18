@@ -19,6 +19,23 @@ std::unique_ptr<GLBackdrop> glBackdrop = nullptr;
 static SDL_GLContext exclusiveGLContext = nullptr;
 static bool exclusiveGLContextValid = false;
 
+class PortGuard
+{
+	GrafPtr oldPort;
+
+public:
+	PortGuard()
+	{
+		GetPort(&oldPort);
+		SetPort(Pomme::Graphics::GetScreenPort());
+	}
+
+	~PortGuard()
+	{
+		SetPort(oldPort);
+	}
+};
+
 void SetWindowGamma(int percent)
 {
 	SDL_SetWindowBrightness(gSDLWindow, percent/100.0f);
@@ -42,6 +59,8 @@ void AllocBackdropTexture()
 		return;
 	}
 
+	PortGuard portGuard;
+
 	glBackdrop = std::make_unique<GLBackdrop>(
 		GAME_VIEW_WIDTH,
 		GAME_VIEW_HEIGHT,
@@ -52,6 +71,8 @@ void AllocBackdropTexture()
 
 void ClearBackdrop(UInt32 argb)
 {
+	PortGuard portGuard;
+
 	UInt32 bgra = ByteswapScalar(argb);
 
 	auto backdropPixPtr = GetBackdropPixPtr();
@@ -93,6 +114,8 @@ void RenderBackdropQuad(int fit)
 	{
 		return;
 	}
+
+	PortGuard portGuard;
 	
 	int windowWidth, windowHeight;
 	GLint vp[4];
