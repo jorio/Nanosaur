@@ -1,5 +1,7 @@
 #include "Pomme.h"
-#include "PommeInternal.h"
+#include "PommeTime.h"
+#include "PommeTypes.h"
+#include "PommeDebug.h"
 
 #include <chrono>
 #include <iostream>

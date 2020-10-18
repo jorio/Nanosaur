@@ -1,11 +1,13 @@
 #include "Pomme.h"
-#include "PommeInternal.h"
-#include "Utilities/memstream.h"
 #include "Files/ArchiveVolume.h"
+#include "Utilities/BigEndianIStream.h"
+#include "Utilities/memstream.h"
 #include "maconv/stuffit/methods/arsenic.h"
 
-#include <iostream>
 #include <cstring>
+#include <fstream>
+#include <iostream>
+#include <vector>
 
 #define LOG POMME_GENLOG(POMME_DEBUG_FILES, "ARCH")
 
@@ -57,7 +59,7 @@ static void ArchiveAssert(bool condition, const char* message)
 		throw ArchiveVolumeException(message);
 }
 
-static std::string ProcessEntryName(std::vector<Byte>& nameBytes)
+static std::string ProcessEntryName(std::vector<unsigned char>& nameBytes)
 {
 	std::string name;
 

@@ -31,7 +31,7 @@
 
  // ---- End ffmpeg copyright notices ----
 
-#include "PommeInternal.h"
+#include "PommeSound.h"
 
 #include <cassert>
 

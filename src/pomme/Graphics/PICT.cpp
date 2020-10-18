@@ -1,12 +1,11 @@
 #include "Pomme.h"
-#include "PommeInternal.h"
-#include "PommeTypes.h"
-#include "PommeEnums.h"
-#include "PommeInternal.h"
+#include "PommeGraphics.h"
+#include "Utilities/BigEndianIStream.h"
 
 #include <list>
 #include <fstream>
 #include <iostream>
+#include <vector>
 
 using namespace Pomme;
 using namespace Pomme::Graphics;

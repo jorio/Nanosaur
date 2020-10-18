@@ -1,4 +1,4 @@
-#include "PommeInternal.h"
+#include "Utilities/BigEndianIStream.h"
 #include "Utilities/IEEEExtended.h"
 
 Pomme::StreamPosGuard::StreamPosGuard(std::istream& theStream) :
@@ -31,21 +31,22 @@ void Pomme::BigEndianIStream::Read(char* dst, int n) {
 	}
 }
 
-std::vector<Byte> Pomme::BigEndianIStream::ReadBytes(int n) {
-	std::vector<Byte> buf(n);
+std::vector<unsigned char> Pomme::BigEndianIStream::ReadBytes(int n)
+{
+	std::vector<unsigned char> buf(n);
 	Read(reinterpret_cast<char*>(buf.data()), n);
 	return buf;
 }
 
 std::string Pomme::BigEndianIStream::ReadPascalString() {
-	int length = Read<UInt8>();
+	int length = Read<uint8_t>();
 	auto bytes = ReadBytes(length);
 	bytes.push_back('\0');
 	return std::string((const char*)&bytes.data()[0]);
 }
 
 std::string Pomme::BigEndianIStream::ReadPascalString_FixedLengthRecord(const int maxChars) {
-	int length = Read<UInt8>();
+	int length = Read<uint8_t>();
 	char buf[256];
 	stream.read(buf, maxChars);
 	return std::string(buf, length);
@@ -53,7 +54,7 @@ std::string Pomme::BigEndianIStream::ReadPascalString_FixedLengthRecord(const in
 
 double Pomme::BigEndianIStream::Read80BitFloat() {
 	auto bytes = ReadBytes(10);
-	return ConvertFromIeeeExtended(bytes.data());
+	return ConvertFromIeeeExtended((unsigned char *)bytes.data());
 }
 
 void Pomme::BigEndianIStream::Goto(int absoluteOffset) {

@@ -89,7 +89,7 @@ void ConvertToIeeeExtended(double num, char* bytes)
     bytes[9] = char(loMant);
 }
 
-double ConvertFromIeeeExtended(unsigned char* bytes /* LCN */)
+double ConvertFromIeeeExtended(const unsigned char* bytes /* LCN */)
 {
     double    f;
     int    expon;

@@ -1,7 +1,9 @@
 #include "Pomme.h"
-#include "PommeInternal.h"
-#include "Utilities/memstream.h"
+#include "PommeFiles.h"
 #include "Sound/cmixer.h"
+#include "PommeSound.h"
+#include "Utilities/BigEndianIStream.h"
+#include "Utilities/memstream.h"
 
 #include <thread>
 #include <chrono>

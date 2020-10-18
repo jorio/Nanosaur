@@ -1,6 +1,8 @@
 #pragma once
 
-#define MAX_STRIPS      32
+#include <cstdint>
+
+#define CINEPAK_MAX_STRIPS      32
 
 typedef uint8_t cvid_codebook[12];
 
@@ -25,7 +27,7 @@ struct CinepakContext
 	const unsigned char* data;
 	int size;
 
-	cvid_strip strips[MAX_STRIPS];
+	cvid_strip strips[CINEPAK_MAX_STRIPS];
 	
 public:
 	CinepakContext(int avctx_width, int avctx_height);

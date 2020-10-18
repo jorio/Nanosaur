@@ -1,7 +1,8 @@
 #include "Pomme.h"
-#include "PommeInternal.h"
 #include "Files/HostVolume.h"
+#include "Utilities/BigEndianIStream.h"
 
+#include <fstream>
 #include <iostream>
 
 #define LOG POMME_GENLOG(POMME_DEBUG_FILES, "HOST")

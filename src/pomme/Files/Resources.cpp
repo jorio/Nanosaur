@@ -1,12 +1,15 @@
 #include "Pomme.h"
-#include "PommeInternal.h"
+#include "PommeFiles.h"
+#include "Utilities/BigEndianIStream.h"
 
-#include <iostream>
 #include <algorithm>
+#include <fstream>
+#include <iostream>
 
 #define LOG POMME_GENLOG(POMME_DEBUG_RESOURCES, "RSRC")
 
 using namespace Pomme;
+using namespace Pomme::Files;
 
 //-----------------------------------------------------------------------------
 // State
@@ -36,7 +39,7 @@ static void PrintStack(const char* msg) {
 	LOG << "------------------------------------\n";
 }
 
-static void DumpResource(Pomme::ResourceMetadata& meta)
+static void DumpResource(ResourceMetadata& meta)
 {
 	Handle handle = NewHandle(meta.size);
 	auto& fork = Pomme::Files::GetStream(meta.forkRefNum);
@@ -139,7 +142,7 @@ short FSpOpenResFile(const FSSpec* spec, char permission)
 			f.Goto(resDataOff);
 			SInt32 size = f.Read<SInt32>();
 
-			Pomme::ResourceMetadata resMetadata;
+			ResourceMetadata resMetadata;
 			resMetadata.forkRefNum = slot;
 			resMetadata.type       = resType;
 			resMetadata.id         = resID;

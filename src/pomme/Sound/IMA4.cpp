@@ -18,7 +18,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#include "PommeInternal.h"
+#include "PommeSound.h"
 
 #include <vector>
 #include <cassert>

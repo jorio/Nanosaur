@@ -12,9 +12,15 @@ extern "C" {
 #include "game/windows_nano.h" // GAME_VIEW_WIDTH, GAME_VIEW_HEIGHT
 }
 
-#include "PommeInternal.h"
 #include "GamePatches.h"
-#include "Video/Cinepak.h"
+
+#include "PommeInit.h"
+#include "PommeFiles.h"
+#include "PommeGraphics.h"
+#include "PommeVideo.h"
+#include "pomme/Video/Cinepak.h"
+
+#include <fstream>
 
 extern "C" {
 extern TQ3Matrix4x4 gCameraWorldToViewMatrix;

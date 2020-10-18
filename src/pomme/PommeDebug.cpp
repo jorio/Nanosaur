@@ -1,4 +1,4 @@
-#include "PommeInternal.h"
+#include "PommeDebug.h"
 
 #include <SDL.h>
 #include <sstream>
@@ -37,10 +37,10 @@ void ImplementMe(const char* fn, std::string msg, int severity)
 	}
 }
 
-std::string Pomme::FourCCString(FourCharCode t, char filler)
+std::string Pomme::FourCCString(uint32_t t, char filler)
 {
 	char b[5];
-	*(ResType*)b = t;
+	*(uint32_t*)b = t;
 #if !(TARGET_RT_BIGENDIAN)
 	std::reverse(b, b + 4);
 #endif

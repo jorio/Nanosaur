@@ -1,5 +1,5 @@
 #include "Pomme.h"
-#include "PommeInternal.h"
+#include "PommeGraphics.h"
 #include "SysFont.h"
 #include "Utilities/memstream.h"
 

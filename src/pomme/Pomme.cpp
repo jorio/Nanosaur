@@ -2,7 +2,16 @@
 #include <cstring>
 
 #include "Pomme.h"
-#include "PommeInternal.h"
+#include "PommeInit.h"
+#include "PommeTime.h"
+#include "PommeFiles.h"
+#include "PommeGraphics.h"
+#include "PommeSound.h"
+#include "PommeInput.h"
+
+#if _WIN32
+	#include "Platform/Windows/PommeWindows.h"
+#endif
 
 //-----------------------------------------------------------------------------
 // Our own utils

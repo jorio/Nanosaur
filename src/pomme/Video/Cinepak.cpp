@@ -1,7 +1,3 @@
-#include "PommeInternal.h"
-#include "Video/Cinepak.h"
-#include <cstring>
-
 // Adapted from ffmpeg
 
 // ---- Begin ffmpeg copyright notices ----
@@ -37,6 +33,10 @@
  */
 
 // ---- End ffmpeg copyright notices ----
+
+#include "Video/Cinepak.h"
+#include <cstring>
+#include <fstream>
 
 class CinepakException: public std::runtime_error
 {
@@ -313,7 +313,7 @@ static void cinepak_decode (CinepakContext *s)
 
 	s->data += 10;
 
-	num_strips = std::min(num_strips, MAX_STRIPS);
+	num_strips = std::min(num_strips, CINEPAK_MAX_STRIPS);
 
 //	s->frame->key_frame = 0;
 

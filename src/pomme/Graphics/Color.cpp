@@ -1,4 +1,4 @@
-#include "PommeInternal.h"
+#include "PommeGraphics.h"
 
 using namespace Pomme::Graphics;
 

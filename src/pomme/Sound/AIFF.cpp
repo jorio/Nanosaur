@@ -1,6 +1,7 @@
-#include <iostream>
 #include "Pomme.h"
-#include "PommeInternal.h"
+#include "PommeSound.h"
+#include "Utilities/BigEndianIStream.h"
+#include <iostream>
 using namespace Pomme;
 
 #define LOG POMME_GENLOG(POMME_DEBUG_SOUND, "AIFF")

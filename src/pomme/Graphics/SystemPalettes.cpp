@@ -1,4 +1,4 @@
-#include "PommeInternal.h"
+#include "PommeGraphics.h"
 
 const uint32_t Pomme::Graphics::clut8[256] =
 {

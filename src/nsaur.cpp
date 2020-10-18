@@ -1,10 +1,12 @@
-#include "PommeInternal.h"
-#include <SDL.h>
-#include <iostream>
-#include "Files/ArchiveVolume.h"
+#include "PommeInit.h"
+#include "PommeGraphics.h"
+#include "PommeFiles.h"
+#include "pomme/Files/ArchiveVolume.h"
 #include "GamePatches.h"
 
+#include <iostream>
 #include <Quesa.h>
+#include <SDL.h>
 
 #ifndef USE_ARCHIVE
 	#define USE_ARCHIVE 1

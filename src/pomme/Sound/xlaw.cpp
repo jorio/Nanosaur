@@ -1,4 +1,4 @@
-#include "PommeInternal.h"
+#include "PommeSound.h"
 
 // Conversion tables to obtain 16-bit PCM from 8-bit a-law/mu-law.
 // These tables are valid for *-law input bytes [0...127].

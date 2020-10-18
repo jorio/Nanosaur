@@ -148,14 +148,14 @@ typedef struct PixMap
 {
 	Rect bounds;
 	short pixelSize;
-	Ptr _impl;
+	Ptr _impl;		// Points to ARGBPixmap
 } PixMap;
 typedef PixMap*							PixMapPtr;
 typedef PixMapPtr*						PixMapHandle;
 typedef struct GrafPort
 {
 	Rect portRect;
-	void* _impl;
+	void* _impl;	// Points to GrafPortImpl
 } GrafPort;
 typedef GrafPort*						GrafPtr;
 typedef GrafPtr                         WindowPtr;

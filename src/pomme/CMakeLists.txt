@@ -8,8 +8,14 @@ set(POMME_SRC
     PommeDebug.cpp
     PommeDebug.h
     PommeEnums.h
-    PommeInternal.h
+    PommeFiles.h
+    PommeGraphics.h
+    PommeInit.h
+    PommeInput.h
+    PommeSound.h
+    PommeTime.h
     PommeTypes.h
+    PommeVideo.h
     Files/ArchiveVolume.cpp
     Files/ArchiveVolume.h
     Files/Files.cpp

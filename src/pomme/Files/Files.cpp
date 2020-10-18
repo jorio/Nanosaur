@@ -1,7 +1,8 @@
 #include "Pomme.h"
-#include "PommeInternal.h"
+#include "Utilities/BigEndianIStream.h"
 #include "Utilities/GrowablePool.h"
 #include "Utilities/memstream.h"
+#include "PommeFiles.h"
 #include "Files/Volume.h"
 #include "Files/HostVolume.h"
 #include "Files/ArchiveVolume.h"
@@ -9,6 +10,10 @@
 #include <iostream>
 #include <sstream>
 #include "CompilerSupport/filesystem.h"
+
+#if _WIN32
+	#include "Platform/Windows/PommeWindows.h"
+#endif
 
 using namespace Pomme;
 using namespace Pomme::Files;

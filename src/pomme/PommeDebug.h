@@ -15,6 +15,11 @@
 #define POMME_GENLOG(define, prefix) if (!define) {} else std::cout << "[" << prefix << "] " << __func__ << ":\t"
 #define POMME_GENLOG_NOPREFIX(define) if (!define) {} else std::cout
 
+namespace Pomme
+{
+	std::string FourCCString(uint32_t t, char filler = '?');
+}
+
 //-----------------------------------------------------------------------------
 // My todos
 
@@ -42,6 +47,5 @@ void ImplementMe(const char* fn, std::string msg, int severity);
 	} \
 }
 
-std::ostream& operator<<(std::ostream& s, const Rect& r);
 
 #endif

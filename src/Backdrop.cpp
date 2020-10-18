@@ -1,5 +1,5 @@
 #include <SDL.h>
-#include <PommeInternal.h>
+#include "PommeGraphics.h"
 #include "GamePatches.h"
 #include "GLBackdrop.h"
 
