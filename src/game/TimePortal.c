@@ -46,9 +46,6 @@ static void MoveTimePortalRing(ObjNode *theNode);
 
 #define	MAX_TIME_PORTALS	8
 
-#define	PORTAL_ACTIVE_TIME		(LEVEL_DURATION/gNumTimePortals)		// even spread for level duration
-		
-#define	PORTAL_YOFF			250.0f
 #define	RING_START_SCALE	5.0f
 #define	RING_START_SCALE_EXIT	(5.0 * 1.5)
 

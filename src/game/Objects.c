@@ -424,7 +424,6 @@ ObjNode		*thisNodePtr;
 		}
 			
 					
-next:			
 		thisNodePtr = gNextNode;		// next node
 	}
 	while (thisNodePtr != nil);

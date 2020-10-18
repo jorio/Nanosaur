@@ -798,7 +798,7 @@ short	i;
 static void ScanForTriangles_Recurse(TQ3Object obj)
 {
 TQ3GroupPosition	position;
-TQ3Object   		object,baseGroup;
+TQ3Object   		object;
 TQ3ObjectType		oType;
 TQ3Matrix4x4  		stashMatrix,transform;
 
@@ -831,7 +831,6 @@ TQ3Matrix4x4  		stashMatrix,transform;
 
 	if (Q3Object_IsType(obj,kQ3ShapeTypeGroup))
  	{
- 		baseGroup = obj;
   		stashMatrix = gWorkMatrix;										// push matrix
   		for (Q3Group_GetFirstPosition(obj, &position); position != nil;
   			 Q3Group_GetNextPosition(obj, &position))					// scan all objects in group

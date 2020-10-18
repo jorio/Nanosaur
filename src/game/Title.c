@@ -10,7 +10,6 @@
 /****************************/
 
 #include <QD3D.h>
-#include <QD3DTransform.h>
 #include <QD3DMath.h>
 #include <math.h>
 
@@ -39,7 +38,7 @@ extern	WindowPtr			gCoverWindow;
 extern	NewObjectDefinitionType	gNewObjectDefinition;
 extern	QD3DSetupOutputType		*gGameViewInfoPtr;
 extern	KeyMap gNewKeys_Real;
-extern	Boolean		gSongPlayingFlag,gResetSong,gDisableAnimSounds,gSongPlayingFlag;
+extern	Boolean		gSongPlayingFlag,gResetSong,gDisableAnimSounds;
 extern	FSSpec		gDataSpec;
 extern	PrefsType	gGamePrefs;
 
@@ -79,7 +78,6 @@ void DoTitleScreen(void)
 QD3DSetupInputType		viewDef;
 ObjNode			*dinoObj;
 TQ3Point3D		cameraFrom = { 110, 90, 190.0 };
-TQ3Point3D		cameraFrom2 = { 110, 90, 190.0 };
 
 			/************************/
 			/* DO PANGEA LOGO INTRO */
@@ -334,7 +332,6 @@ FSSpec			spec;
 			/* CLEANUP */
 			/***********/
 			
-abort:	
 	DeleteAllObjects();
 	QD3D_DisposeWindowSetup(&gGameViewInfoPtr);		
 	KillSong();

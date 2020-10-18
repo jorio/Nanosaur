@@ -11,13 +11,9 @@
 
 #include <QD3D.h>
 #include <QD3DGroup.h>
-#include <QD3DLight.h>
-#include <QD3DPick.h>
 #include <QD3DTransform.h>
-#include <QD3DStorage.h>
 #include <QD3DMath.h>
 #include <QD3DGeometry.h>
-#include <QD3DErrors.h>
 #include <QD3DView.h>
 
 #include "globals.h"
@@ -55,7 +51,6 @@ static void ScrollUVs_TriMesh(TQ3Object theTriMesh);
 
 float				gMaxRadius;
 
-TQ3Object			gModelGroup = nil,gTempGroup;
 TQ3Matrix4x4 		gWorkMatrix;
 
 float		gBoomForce,gParticleDecaySpeed;
@@ -109,11 +104,10 @@ float QD3D_CalcObjectRadius(TQ3Object theObject)
 static void CalcRadius_Recurse(TQ3Object obj)
 {
 TQ3GroupPosition	position;
-TQ3Object   		object,baseGroup;
+TQ3Object   		object;
 TQ3ObjectType		oType;
 TQ3TriMeshData		triMeshData;
 long				v;
-//static TQ3Point3D	p000 = {0,0,0};
 TQ3Point3D			tmPoint;
 float				dist;
 TQ3Matrix4x4		transform;
@@ -166,7 +160,6 @@ TQ3Matrix4x4  		stashMatrix;
 
 	if (Q3Object_IsType(obj,kQ3ShapeTypeGroup))
  	{
- 		baseGroup = obj;
   		stashMatrix = gWorkMatrix;										// push matrix
   		for (Q3Group_GetFirstPosition(obj, &position); position != nil;
   			 Q3Group_GetNextPosition(obj, &position))					// scan all objects in group
@@ -303,9 +296,8 @@ TQ3Object theObject;
 static void ExplodeGeometry_Recurse(TQ3Object obj)
 {
 TQ3GroupPosition	position;
-TQ3Object   		object,baseGroup;
+TQ3Object   		object;
 TQ3ObjectType		oType;
-TQ3Point3D			p000 = {0,0,0};
 TQ3Matrix4x4		transform;
 TQ3Matrix4x4  		stashMatrix;
 
@@ -342,7 +334,6 @@ TQ3Matrix4x4  		stashMatrix;
 
 	if (Q3Object_IsType(obj,kQ3ShapeTypeGroup))
  	{
- 		baseGroup = obj;
   		stashMatrix = gWorkMatrix;										// push matrix
   		for (Q3Group_GetFirstPosition(obj, &position); position != nil;
   			 Q3Group_GetNextPosition(obj, &position))					// scan all objects in group
@@ -640,9 +631,8 @@ void QD3D_ScrollUVs(TQ3Object theObject, float du, float dv)
 static void ScrollUVs_Recurse(TQ3Object obj)
 {
 TQ3GroupPosition	position;
-TQ3Object   		object,baseGroup;
+TQ3Object   		object;
 TQ3ObjectType		oType;
-TQ3Point3D			p000 = {0,0,0};
 TQ3Matrix4x4		transform;
 TQ3Matrix4x4  		stashMatrix;
 
@@ -691,7 +681,6 @@ TQ3Matrix4x4  		stashMatrix;
 
 	if (Q3Object_IsType(obj,kQ3ShapeTypeGroup))
  	{
- 		baseGroup = obj;
   		stashMatrix = gWorkMatrix;										// push matrix
   		for (Q3Group_GetFirstPosition(obj, &position); position != nil;
   			 Q3Group_GetNextPosition(obj, &position))					// scan all objects in group
@@ -750,7 +739,7 @@ TQ3SurfaceShaderObject	shader;
 void QD3D_ReplaceGeometryTexture(TQ3Object obj, TQ3SurfaceShaderObject theShader)
 {
 TQ3GroupPosition	position;
-TQ3Object   		object,baseGroup;
+TQ3Object   		object;
 TQ3ObjectType		oType;
 TQ3TriMeshData		triMeshData;
 
@@ -788,7 +777,6 @@ TQ3TriMeshData		triMeshData;
 
 	if (Q3Object_IsType(obj,kQ3ShapeTypeGroup))
  	{
- 		baseGroup = obj;
   		for (Q3Group_GetFirstPosition(obj, &position); position != nil;
   			 Q3Group_GetNextPosition(obj, &position))					// scan all objects in group
  		{

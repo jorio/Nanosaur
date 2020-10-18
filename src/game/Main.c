@@ -48,7 +48,6 @@
 extern	Boolean			gAbortDemoFlag,gRestartSavedGame,gGameIsDemoFlag,gSongPlayingFlag;
 extern	NewObjectDefinitionType	gNewObjectDefinition;
 extern	float			gFramesPerSecond,gFramesPerSecondFrac,gTimeRemaining,gMyHealth,gFuel;
-extern	TQ3Object	gGlowPodGeometry;
 extern	Byte		gMyCharacterType,gDemoMode;
 extern	WindowPtr	gCoverWindow;
 extern	TQ3Point3D	gCoord;
@@ -99,28 +98,8 @@ FSSpec		gDataSpec;
 
 void ToolBoxInit(void)
 {
-long		response;
 OSErr		iErr;
 
- 	MaxApplZone();
-	MoreMasters();	MoreMasters();
-#if 0
-	InitGraf(&qd.thePort);
-	FlushEvents ( everyEvent, REMOVE_ALL_EVENTS);
-	InitFonts();
-	InitWindows();
-	InitDialogs(nil);
-	InitCursor();
-	InitMenus();
-	TEInit();
-#endif
-	
-	CompactMem(maxSize);								// just do this to be clean
-	CompactMemSys(maxSize);
-	PurgeMem(maxSize);	
-	PurgeMemSys(maxSize);	
-
-	
 	gMainAppRezFile = CurResFile();
 	
 
@@ -145,7 +124,6 @@ OSErr		iErr;
 			/* LOAD QD3D & QT */
 			
 	QD3D_Boot();
-	InitQuickTime();
 
 
 			/* INIT SOME OF MY STUFF */
@@ -314,8 +292,6 @@ FSSpec	spec;
 		/* MAIN GAME LOOP */
 		/******************/
 	
-	TurnOnISp();
-	
 	while(true)
 	{
 		fps = gFramesPerSecondFrac;
@@ -403,8 +379,6 @@ FSSpec	spec;
 	}
 
 			/* CLEANUP */
-cleanup:		
-	TurnOffISp();	
 	CleanupLevel();
 
 
@@ -451,9 +425,6 @@ unsigned long	someLong;
 				
 	ToolBoxInit();
  	 		 	 		
-#if 0
-	InitWindowStuff();
-#endif
  	InitInput();
 
 	GetDateTime ((unsigned long *)(&someLong));		// init random seed

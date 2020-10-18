@@ -34,8 +34,6 @@ extern	unsigned long 			gInfobarUpdateBits;
 /*   PROTOTYPES    */
 /*******************/
 
-static Boolean DoTrig_BonusBox(ObjNode *theNode, ObjNode *whoNode, Byte sideBits);
-static void MoveBonusBox(ObjNode *theNode);
 static void MovePowerUp(ObjNode *theNode);
 static Boolean DoTrig_PowerUp(ObjNode *theNode, ObjNode *whoNode, Byte sideBits);
 static void MoveCrystal(ObjNode *theNode);

@@ -60,25 +60,12 @@ static void ReadDataFromSkeletonFile(SkeletonDefType *skeleton, FSSpec *fsSpec);
 #define	SKELETON_FILE_VERS_NUM	0x0110			// v1.1
 
 
-// Source port note: SaveGameType is a leftover from Weekend Warrior and is not used in Nanosaur.
-typedef struct
-{
-	long		score;
-	short		numLevelsRemaining;
-	Byte		levelCompleteFlags[8];
-	Byte		characterType;
-	float		health;
-	TQ3Point3D	shellCoords[8];
-	Byte		spotIndex[8];
-	short		customHeadNum;
-}SaveGameType;
 
 
 /**********************/
 /*     VARIABLES      */
 /**********************/
 
-static	Str255		gBasePathName = "NewGame";
 Ptr		gTileFilePtr = nil;
 
 
@@ -144,7 +131,7 @@ SkeletonDefType	*skeleton;
 	}
 	
 	UseResFile(fRefNum);
-	if (iErr = ResError())
+	if ( (iErr = ResError()) )
 		DoFatalAlert("Error using Rez file!");
 
 			
@@ -504,7 +491,6 @@ long				count;
 	iErr = FSpOpenDF(&file, fsRdWrPerm, &refNum);
 	if (iErr)
 	{
-kill:	
 		FSpDelete(&file);
 		return;
 	}
@@ -517,174 +503,6 @@ kill:
 }
 
 
-/***************************** SAVE GAME ********************************/
-// Source port note: this is a leftover from Weekend Warrior and isn't used in Nanosaur.
-
-void SaveGame(void)
-{
-#if 0
-SaveGameType	**dataHandle;
-Str255		prompt = "Save Game As:";
-Str255		name = "WW Saved Game";
-short		fRefNum;
-int			oldResF;
-FSSpec		*specPtr;
-StandardFileReply	reply;
-long		i;
-
-	oldResF = CurResFile();
-
-					/* DO STANDARD FILE DIALOG */
-					
-	FlushEvents (everyEvent, REMOVE_ALL_EVENTS);	
-	StandardPutFile(prompt,name,&reply);
-	HideCursor();
-	CleanScreenBorder();		
-	if (!reply.sfGood)											// see if cancelled
-		return;
-	specPtr = &reply.sfFile;
-
-			
-			/*************************/	
-			/* CREATE SAVE GAME DATA */
-			/*************************/	
-					
-	dataHandle = (SaveGameType **)AllocHandle(sizeof(SaveGameType));
-	if (dataHandle == nil)
-		DoFatalAlert("SaveGame: AllocHandle failed!");
-
-	(**dataHandle).score = gTotalWinnings;
-	(**dataHandle).numLevelsRemaining = gNumLevelsRemaining;
-	for (i = 0; i < 8; i++)
-	{
-		(**dataHandle).levelCompleteFlags[i] = gShellWasUsed[i];
-		(**dataHandle).shellCoords[i] = gShellCoords[i];
-		(**dataHandle).spotIndex[i] = gSpotShellNum[i];
-	}
-	(**dataHandle).characterType = gMyCharacterType;
-	(**dataHandle).health = 0;
-
-	if (gCustomHeadGeometry[SERVER_PLAYER_NUM] == nil)			// see if remember custom head #
-		(**dataHandle).customHeadNum = -1;
-	else
-		(**dataHandle).customHeadNum = gMyCustomHeadNum;
-
-			/* DELETE ANY EXISTING FILE */
-
-	if (reply.sfReplacing)
-		FSpDelete(&reply.sfFile);
-
-
-				/* CREATE & OPEN THE REZ-FORK */
-			
-	FSpCreateResFile(specPtr,'Pill','Save',nil);
-	if (ResError())
-	{
-		DoAlert("Error creating Save file");
-		DisposeHandle((Handle)dataHandle);
-		return;
-	}
-	fRefNum = FSpOpenResFile(specPtr,fsCurPerm);
-	if (fRefNum == -1)
-	{
-		DoAlert("Error opening Save Rez file");
-		DisposeHandle((Handle)dataHandle);
-		return;
-	}
-				
-	UseResFile(fRefNum);
-	
-				/* WRITE TO FILE */
-
-	AddResource((Handle)dataHandle, 'Save', 1000, "Save Data");
-	WriteResource((Handle)dataHandle);									// force the update
-	ReleaseResource((Handle)dataHandle);								// free the data
-	
-			/* CLOSE REZ FILE */
-			
-	CloseResFile(fRefNum);
-	
-	UseResFile(oldResF);
-#endif	
-}
-
-
-/***************************** LOAD SAVED GAME ********************************/
-// Source port note: this is a leftover from Weekend Warrior and isn't used in Nanosaur.
-
-OSErr LoadSavedGame(void)
-{
-#if 0
-SaveGameType	**dataHandle;
-Str255		prompt = "Select A Saved Game:";
-short		fRefNum;
-int			oldResF;
-FSSpec		*specPtr;
-StandardFileReply	reply;
-long		i;
-SFTypeList	typeList;
-
-	oldResF = CurResFile();
-
-					/* DO STANDARD FILE DIALOG */
-
-	FlushEvents (everyEvent, REMOVE_ALL_EVENTS);	
-
-
-	typeList[0] = 'Save';
-	StandardGetFile(nil,1,typeList,&reply);
-	HideCursor();
-	CleanScreenBorder();		
-	
-	if (!reply.sfGood)													// see if cancelled
-		return(!noErr);
-	specPtr = &reply.sfFile;											// get ptr to FSSPEC
-			
-				/* OPEN THE REZ-FORK */
-			
-	fRefNum = FSpOpenResFile(specPtr,fsRdPerm);
-	if (fRefNum == -1)
-		return(!noErr);
-	UseResFile(fRefNum);
-
-				/* READ FROM FILE */
-
-	dataHandle = (SaveGameType **)GetResource('Save',1000);
-	if (dataHandle == nil)
-	{
-		DoAlert("Error reading save game resource!");
-		return(!noErr);
-	}
-	
-			/**********************/	
-			/* USE SAVE GAME DATA */
-			/**********************/	
-					
-	gTotalWinnings = (**dataHandle).score;
-	gNumLevelsRemaining = (**dataHandle).numLevelsRemaining;
-	for (i = 0; i < 8; i++)
-	{
-		gShellWasUsed[i] = (**dataHandle).levelCompleteFlags[i];
-		gShellCoords[i] = (**dataHandle).shellCoords[i];
-		gSpotShellNum[i] = (**dataHandle).spotIndex[i];
-		
-	}
-	gMyCharacterType = (**dataHandle).characterType;
-		
-	CreateMyCustomHead((**dataHandle).customHeadNum); 				// restore custom head if any
-	
-	ReleaseResource((Handle)dataHandle);
-	
-	
-			/* CLOSE REZ FILE */
-			
-	CloseResFile(fRefNum);
-	UseResFile(oldResF);
-	
-	gRestartSavedGame = true;
-#endif	
-	return(noErr);
-}
 
 
 /********************** LOAD A FILE **************************/

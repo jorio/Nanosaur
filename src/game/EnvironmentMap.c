@@ -148,7 +148,7 @@ static void CalcEnvMap_Recurse(TQ3Object obj)
 {
 TQ3Matrix4x4		transform;
 TQ3GroupPosition	position;
-TQ3Object   		object,baseGroup;
+TQ3Object   		object;
 TQ3Matrix4x4  		stashMatrix;
 
 
@@ -179,7 +179,6 @@ TQ3Matrix4x4  		stashMatrix;
 	else
 	if (Q3Object_IsType(obj,kQ3ShapeTypeGroup))
  	{
- 		baseGroup = obj;
   		stashMatrix = gWorkMatrix;										// push matrix
   		
   		

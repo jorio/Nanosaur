@@ -104,7 +104,6 @@ static	float		gWheelCenterZ;
 
 
 /************************* DO MAIN MENU ****************************/
-void DumpGLPixels(const char*);
 void DoMainMenu(void)
 {
 FSSpec	file;

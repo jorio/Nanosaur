@@ -12,7 +12,6 @@
 #include <QD3D.h>
 #include <QD3DGroup.h>
 #include <QD3DLight.h>
-#include <QD3DTransform.h>
 #include <QD3DStorage.h>
 #include <QD3DMath.h>
 #include <QD3DErrors.h>
@@ -28,7 +27,6 @@
 
 #include "GamePatches.h" // Source port addition - for backdrop quad
 
-extern	WindowPtr			gCoverWindow;
 extern	long		gScreenXOffset,gScreenYOffset;
 extern	Byte		gDemoMode;
 extern	PrefsType	gGamePrefs;
@@ -40,17 +38,11 @@ extern	long		gNodesDrawn;
 /****************************/
 
 static void CreateDrawContext(QD3DViewDefType *viewDefPtr);
-static void CreateDrawContext_Pixmap(QD3DViewDefType *viewDefPtr);
 static void SetStyles(QD3DStyleDefType *styleDefPtr);
 static void CreateCamera(QD3DSetupInputType *setupDefPtr);
 static void CreateLights(QD3DLightDefType *lightDefPtr);
 static void CreateView(QD3DSetupInputType *setupDefPtr);
 static void DrawPICTIntoMipmap(PicHandle pict,long width, long height, TQ3Mipmap *mipmap);
-static void PreTransformGeometry_Recurse(TQ3Object obj, Boolean reverseFaces);
-static void PreTransformAttribute(TQ3AttributeSet theAttribute);
-static void PreTransformMesh(TQ3GeometryObject theMesh);
-static void PreTransformTriMesh(TQ3GeometryObject theMesh);
-static void ReverseMeshVertexOrder(TQ3GeometryObject theMesh);
 static void Data16ToMipmap(Ptr data, short width, short height, TQ3Mipmap *mipmap);
 static void MakeShadowTexture(void);
 static TQ3Area GetAdjustedPane(int windowWidth, int windowHeight, Rect paneClip);
@@ -387,69 +379,6 @@ extern SDL_Window*		gSDLWindow;
 }
 
 
-#if 0
-/**************** CREATE DRAW CONTEXT: PIXMAP *********************/
-
-static void CreateDrawContext_Pixmap(QD3DViewDefType *viewDefPtr)
-{
-TQ3DrawContextData			drawContexData;
-TQ3PixmapDrawContextData	myPixDrawContextData;
-Rect						r;
-TQ3Pixmap					pixmap;
-PixMapHandle 			hPixMap;
-long					width,height;
-GWorldPtr				theGWorld;
-long					pixelSize;
-
-		/* GET GWORLD INFO */
-		
-	theGWorld = viewDefPtr->gworld;
-	r = theGWorld->portRect;
-
-	width = r.right-r.left;
-	height = r.bottom-r.top;
-
-	hPixMap = GetGWorldPixMap(theGWorld);							// calc addr & rowbytes
-	NoPurgePixels(hPixMap);
-	LockPixels(hPixMap);
-		
-	pixelSize = (**hPixMap).pixelSize;
-
-		/* CREATE PIXMAP DATA */
-			
-	pixmap.image		= GetPixBaseAddr(hPixMap);
-	pixmap.width 		= width;
-	pixmap.height		= height;
-	pixmap.rowBytes 	= (**hPixMap).rowBytes & 0x7fff;
-	pixmap.pixelSize 	= pixelSize;
-	if (pixelSize == 16)
-		pixmap.pixelType	= kQ3PixelTypeRGB16;
-	else
-		pixmap.pixelType	= kQ3PixelTypeARGB32;
-	pixmap.bitOrder		= kQ3EndianBig;
-	pixmap.byteOrder	= kQ3EndianBig;
-
-
-			/* FILL IN DRAW CONTEXT DATA */
-
-	drawContexData.clearImageMethod = kQ3ClearMethodWithColor;				// how to clear
-	drawContexData.clearImageColor = viewDefPtr->clearColor;				// color to clear to
-	
-	drawContexData.paneState = kQ3False;									// use bounds?
-	drawContexData.maskState = kQ3False;									// no mask
-	drawContexData.doubleBufferState = kQ3False;								// double buffering
-
-	myPixDrawContextData.drawContextData = drawContexData;					// set PIXMAP specifics
-	myPixDrawContextData.pixmap = pixmap;
-
-
-			/* CREATE DRAW CONTEXT */
-
-	gQD3D_DrawContext = Q3PixmapDrawContext_New(&myPixDrawContextData);
-	if (gQD3D_DrawContext == nil)
-		DoFatalAlert("Q3PixmapDrawContext_New Failed!");
-}
-#endif
 
 
 /**************** SET STYLES ****************/
@@ -639,47 +568,6 @@ TQ3Status	myErr;
 
 
 
-/******************** QD3D CHANGE DRAW SIZE *********************/
-//
-// Changes size of stuff to fit new window size and/or shink factor
-//
-
-#if 0  // Source port removal - unused in game
-void QD3D_ChangeDrawSize(QD3DSetupOutputType *setupInfo)
-{
-Rect			r;
-TQ3Area			pane;
-TQ3ViewAngleAspectCameraData	cameraData;
-TQ3Status		status;
-
-			/* CHANGE DRAW CONTEXT PANE SIZE */
-			
-	if (setupInfo->window == nil)
-		return;
-			
-	r = setupInfo->window->portRect;														// get size of window
-	pane.min.x = setupInfo->paneClip.left;													// set pane size
-	pane.max.x = r.right-setupInfo->paneClip.right;
-	pane.min.y = setupInfo->paneClip.top;
-	pane.max.y = r.bottom-setupInfo->paneClip.bottom;
-
-	status = Q3DrawContext_SetPane(setupInfo->drawContext,&pane);							// update pane in draw context
-	if (status == kQ3Failure)
-		DoFatalAlert("Q3DrawContext_SetPane Failed!");		
-
-				/* CHANGE CAMERA ASPECT RATIO */
-				
-	status = Q3ViewAngleAspectCamera_GetData(setupInfo->cameraObject,&cameraData);			// get camera data
-	if (status == kQ3Failure)
-		DoFatalAlert("Q3ViewAngleAspectCamera_GetData Failed!");		
-
-	
-	cameraData.aspectRatioXToY = (pane.max.x-pane.min.x)/(pane.max.y-pane.min.y);			// set new aspect ratio
-	status = Q3ViewAngleAspectCamera_SetData(setupInfo->cameraObject,&cameraData);			// set new camera data
-	if (status == kQ3Failure)
-		DoFatalAlert("Q3ViewAngleAspectCamera_SetData Failed!");		
-}
-#endif
 
 
 /******************* QD3D DRAW SCENE *********************/
@@ -1219,7 +1107,6 @@ TQ3SurfaceShaderObject		shader;
 static void DrawPICTIntoMipmap(PicHandle pict, long width, long height, TQ3Mipmap* mipmap)
 {
 #if 1
-OSErr					myErr;
 short					depth;
 
 	depth = 32;
@@ -1239,7 +1126,7 @@ short					depth;
 		mipmap->image = Q3MemoryStorage_New((unsigned char*)pictMapAddr, pictRowBytes * height);
 	
 	if (mipmap->image == nil)
-	DoFatalAlert("Q3MemoryStorage_New Failed!");
+		DoFatalAlert("Q3MemoryStorage_New Failed!");
 
 	mipmap->useMipmapping = kQ3False;							// not actually using mipmaps (just 1 srcmap)
 	if (depth == 16)
@@ -1438,7 +1325,6 @@ void	QD3D_CalcFramesPerSecond(void)
 UnsignedWide	wide;
 unsigned long	now;
 static	unsigned long then = 0;
-Str255			s;
 
 			/* HANDLE SPECIAL DEMO MODE STUFF */
 			
@@ -1463,24 +1349,6 @@ Str255			s;
 		gFramesPerSecond = 1000000.0f/(float)(now-then);
 		if (gFramesPerSecond < DEFAULT_FPS)			// (avoid divide by 0's later)
 			gFramesPerSecond = DEFAULT_FPS;
-	
-#if 0
-		if (GetKeyState_Real(KEY_F8))
-		{
-			RGBColor	color;
-				
-			SetPort(gCoverWindow);
-			GetForeColor(&color);
-			FloatToString(gFramesPerSecond,s);		// print # rounded up to nearest integer
-			MoveTo(20,20);
-			ForeColor(greenColor);
-			TextSize(12);
-			TextMode(srcCopy);
-			DrawString(s);
-			DrawChar(' ');
-			RGBForeColor(&color);
-		}
-#endif
 	}
 	else
 		gFramesPerSecond = DEFAULT_FPS;
@@ -1532,34 +1400,6 @@ void QD3D_DoMemoryError(void)
 }
 
 
-/**************** QD3D: COLOR TO QUICKDRAW COLOR ******************/
-//
-// Converts QD3D colors to RGBColors.
-//
-
-void QD3D_ColorToQDColor(TQ3ColorRGB *in, RGBColor *out)
-{
-	out->red = in->r * 0xffff;
-	out->green = in->g * 0xffff;
-	out->blue = in->b * 0xffff;
-
-
-
-}
-
-
-/**************** QD3D: QD COLOR TO QD3D COLOR ******************/
-//
-// Converts QD3D colors to RGBColors.
-//
-
-void QD3D_QDColorToColor(RGBColor *in, TQ3ColorRGB *out)
-{
-	out->r = (float)in->red / (float)0xffff;
-	out->g = (float)in->green / (float)0xffff;
-	out->b = (float)in->blue / (float)0xffff;
-
-}
 
 
 
@@ -1776,24 +1616,6 @@ void QD3D_SetRaveFog(QD3DSetupOutputType *setupInfo, float fogHither, float fogY
 	gQD3D_FogStyleData.density      = 0.5f;  // Ignored for linear fog
 }
 
-
-
-/******************************* DISABLE FOG *********************************/
-
-// Source port change: this function was originally dependent on RAVE extensions for ATI Rage Pro cards.
-void QD3D_DisableFog(void)
-{
-	gQD3D_FogStyleData.state        = kQ3Off;
-}
-
-
-/******************************* REENABLE FOG *********************************/
-
-// Source port change: this function was originally dependent on RAVE extensions for ATI Rage Pro cards.
-void QD3D_ReEnableFog(void)
-{
-	gQD3D_FogStyleData.state        = kQ3Off;
-}
 
 
 /************************ SET TEXTURE FILTER **************************/

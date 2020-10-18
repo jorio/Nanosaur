@@ -31,17 +31,14 @@
 extern	long		gOriginalSystemVolume;
 extern	short		gMainAppRezFile;
 extern	Boolean		gGameOverFlag,gAbortedFlag;
-extern	Boolean		gUsingDSP;
 extern	QD3DSetupOutputType		*gGameViewInfoPtr;
 extern	Boolean		gQD3DInitialized;
-extern  WindowPtr				gCoverWindow;
 extern  PrefsType	gGamePrefs;
 
 /****************************/
 /*    CONSTANTS             */
 /****************************/
 
-#define		ERROR_ALERT_ID		401
 
 /**********************/
 /*     VARIABLES      */
@@ -118,17 +115,9 @@ static	Boolean beenHere = false;
 		
 		StopAllEffectChannels();
 		KillSong();
-//		SetDefaultOutputVolume((gOriginalSystemVolume<<16)|gOriginalSystemVolume); // reset system volume
 
-		TurnOffISp();
-		
 		ShowBugdomAd();
 		
-#if 0
-		CleanupDisplay();								// unloads Draw Sprocket
-		
-		ISpStop();										// unload input sprocket		
-#endif
 		if (gQD3DInitialized)
 			Q3Exit();
 	}
@@ -142,95 +131,6 @@ static	Boolean beenHere = false;
 	ExitToShell();		
 }
 
-/********************** WAIT **********************/
-
-void Wait(long ticks)
-{
-long	start;
-	
-	start = TickCount();
-
-	while (TickCount()-start < ticks); 
-
-}
-
-
-#if 0  // Source port removal - unused in game
-/***************** NUM TO HEX *****************/
-//
-// NumToHex - fixed length, returns a C string
-//
-
-unsigned char *NumToHex(unsigned short n)
-{
-static unsigned char format[] = "0xXXXX";				// Declare format static so we can return a pointer to it.
-static const char *conv = "0123456789ABCDEF";
-short i;
-
-	for (i = 0; i < 4; n >>= 4, ++i)
-			format[5 - i] = conv[n & 0xf];
-	return format;
-}
-
-
-/***************** NUM TO HEX 2 **************/
-//
-// NumToHex2 -- allows variable length, returns a ++PASCAL++ string.
-//
-
-unsigned char *NumToHex2(unsigned long n, short digits)
-{
-static unsigned char format[] = "_$XXXXXXXX";				// Declare format static so we can return a pointer to it
-static const char *conv = "0123456789ABCDEF";
-unsigned long i;
-
-	if (digits > 8 || digits < 0)
-			digits = 8;
-	format[0] = digits + 1;							// adjust length byte of output string
-
-	for (i = 0; i < digits; n >>= 4, ++i)
-			format[(digits + 1) - i] = conv[n & 0xf];
-	return format;
-}
-
-
-/*************** NUM TO DECIMAL *****************/
-//
-// NumToDecimal --  returns a ++PASCAL++ string.
-//
-
-unsigned char *NumToDec(unsigned long n)
-{
-static unsigned char format[] = "_XXXXXXXX";				// Declare format static so we can return a pointer to it
-static const char *conv = "0123456789";
-short		 i,digits;
-unsigned long temp;
-
-	if (n < 10)										// fix digits
-		digits = 1;
-	else if (n < 100)
-		digits = 2;
-	else if (n < 1000)
-		digits = 3;
-	else if (n < 10000)
-		digits = 4;
-	else if (n < 100000)
-		digits = 5;
-	else
-		digits = 6;
-
-	format[0] = digits;								// adjust length byte of output string
-
-	for (i = 0; i < digits; ++i)
-	{
-		temp = n/10;
-		format[digits-i] = conv[n-(temp*10)];
-		n = n/10;
-	}
-	return format;
-}
-
-#endif
 
 
 
@@ -315,48 +215,6 @@ void InitMyRandomSeed(void)
 }
 
 
-/******************* FLOAT TO STRING *******************/
-
-#if 0  // Source port removal
-void FloatToString(float num, Str255 string)
-{
-Str255	sf;
-long	i,f;
-
-	i = num;						// get integer part
-	
-	
-	f = (fabs(num)-fabs((float)i)) * 10000;		// reduce num to fraction only & move decimal --> 5 places	
-
-	if ((i==0) && (num < 0))		// special case if (-), but integer is 0
-	{
-		string[0] = 2;
-		string[1] = '-';
-		string[2] = '0';
-	}
-	else
-		NumToString(i,string);		// make integer into string
-		
-	NumToString(f,sf);				// make fraction into string
-	
-	string[++string[0]] = '.';		// add "." into string
-	
-	if (f >= 1)
-	{
-		if (f < 1000)
-			string[++string[0]] = '0';	// add 1000's zero
-		if (f < 100)
-			string[++string[0]] = '0';	// add 100's zero
-		if (f < 10)
-			string[++string[0]] = '0';	// add 10's zero
-	}
-	
-	for (i = 0; i < sf[0]; i++)
-	{
-		string[++string[0]] = sf[i+1];	// copy fraction into string
-	}
-}
-#endif
 
 /****************** ALLOC HANDLE ********************/
 
@@ -401,30 +259,6 @@ Ptr	pr;
 }
 
 
-/***************** P STRING TO C ************************/
-
-void PStringToC(char *pString, char *cString)
-{
-Byte	pLength,i;
-
-	pLength = pString[0];
-	
-	for (i=0; i < pLength; i++)					// copy string
-		cString[i] = pString[i+1];
-		
-	cString[pLength] = 0x00;					// add null character to end of c string
-}
-
-
-#if 0
-/***************** DRAW C STRING ********************/
-
-void DrawCString(char *string)
-{
-	while(*string != 0x00)
-		DrawChar(*string++);
-}
-#endif
 
 #pragma mark -
 
@@ -461,28 +295,6 @@ long		createdDirID;
 #pragma mark -
 
 
-/******************** REGULATE SPEED ***************/
-
-void RegulateSpeed(short fps)
-{
-short	n;
-static UInt32 oldTick = 0;
-	
-	n = 60 / fps;
-	while ((TickCount() - oldTick) < n);			// wait for n ticks
-	oldTick = TickCount();							// remember current time
-}
-
-
-/************* COPY PSTR **********************/
-
-void CopyPStr(ConstStr255Param	inSourceStr, StringPtr	outDestStr)
-{
-short	dataLen = inSourceStr[0] + 1;
-	
-	BlockMoveData(inSourceStr, outDestStr, dataLen);
-	outDestStr[0] = dataLen - 1;
-}
 
 
 /***************** APPLY FICTION TO DELTAS ********************/
@@ -518,140 +330,6 @@ void ApplyFrictionToDeltas(float f,TQ3Vector3D *d)
 	}
 }
 
-#if 0 // not needed by Nanosaur or reimplemented elsewhere by source port
-
-#pragma mark -
-
-/**************** DRAW PICTURE INTO GWORLD ***********************/
-//
-// Uses Quicktime to load any kind of picture format file and draws
-// it into the GWorld
-//
-//
-// INPUT: myFSSpec = spec of image file
-//
-// OUTPUT:	theGWorld = gworld contining the drawn image.
-//
-
-OSErr DrawPictureIntoGWorld(FSSpec *myFSSpec, GWorldPtr *theGWorld)
-{
-OSErr						iErr;
-GraphicsImportComponent		gi;
-Rect						r;
-ComponentResult				result;
-	
-
-			/* PREP IMPORTER COMPONENT */
-			
-	result = GetGraphicsImporterForFile(myFSSpec, &gi);		// load importer for this image file
-	if (result != noErr)
-	{
-		DoAlert("DrawPictureIntoGWorld: GetGraphicsImporterForFile failed!");
-		return(result);
-	}
-	GraphicsImportGetBoundsRect(gi, &r);					// get dimensions of image
-
-
-			/* UPDATE PICT GWORLD */
-	
-	iErr = NewGWorld(theGWorld, 16, &r, nil, nil, 0);					// try app mem
-	if (iErr)
-	{
-		iErr = NewGWorld(theGWorld, 16, &r, nil, nil, useTempMem);		// try sys mem
-		if (iErr)
-		{
-			DoAlert("DrawPictureIntoGWorld: MakeMyGWorld failed");
-			return(1);
-		}
-	}
-
-
-			/* DRAW INTO THE GWORLD */
-	
-	DoLockPixels(*theGWorld);	
-	GraphicsImportSetGWorld(gi, *theGWorld, nil);				// set the gworld to draw image into
-	result = GraphicsImportDraw(gi);						// draw into gworld
-	CloseComponent(gi);										// cleanup
-	if (result != noErr)
-	{
-		DoAlert("DrawPictureIntoGWorld: GraphicsImportDraw failed!");
-		ShowSystemErr(result);
-		DisposeGWorld (*theGWorld);
-		return(result);
-	}
-	return(noErr);
-}
-
-/**************** DRAW PICTURE TO SCREEN ***********************/
-//
-// Uses Quicktime to load any kind of picture format file and draws
-//
-//
-// INPUT: myFSSpec = spec of image file
-//
-
-OSErr DrawPictureToScreen(FSSpec *myFSSpec, short x, short y)
-{
-OSErr						iErr;
-GraphicsImportComponent		gi;
-Rect						r;
-ComponentResult				result;
-GWorldPtr                   gworld;
-
-
-			/* PREP IMPORTER COMPONENT */
-
-	result = GetGraphicsImporterForFile(myFSSpec, &gi);		// load importer for this image file
-	if (result != noErr)
-	{
-		DoAlert("DrawPictureIntoGWorld: GetGraphicsImporterForFile failed!");
-		return(result);
-	}
-	GraphicsImportGetBoundsRect(gi, &r);					// get dimensions of image
-
-
-			/* UPDATE PICT GWORLD */
-	
-	iErr = NewGWorld(&gworld, 16, &r, nil, nil, 0);				    	// try app mem
-	if (iErr)
-	{
-		iErr = NewGWorld(&gworld, 16, &r, nil, nil, useTempMem);		// try sys mem
-		if (iErr)
-		{
-			DoAlert("DrawPictureIntoGWorld: MakeMyGWorld failed");
-			return(1);
-		}
-	}
-
-
-			/* DRAW INTO THE GWORLD */
-	
-	DoLockPixels(gworld);	
-	GraphicsImportSetGWorld(gi, gworld, nil);				// set the gworld to draw image into
-	result = GraphicsImportDraw(gi);						// draw into gworld
-	CloseComponent(gi);										// cleanup
-	if (result != noErr)
-	{
-		DoAlert("DrawPictureIntoGWorld: GraphicsImportDraw failed!");
-		ShowSystemErr(result);
-		DisposeGWorld (gworld);
-		return(result);
-	}
-	
-	        /* DUMP TO SCREEN */
-	        
-	r.left += x;
-	r.right += x;
-	r.top += y;
-	r.bottom += y;
-    DumpGWorld2(gworld, gCoverWindow, &r);
-	
-	DisposeGWorld(gworld);
-
-	return(noErr);
-}
-
-#endif
 
 
 

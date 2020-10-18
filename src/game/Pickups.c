@@ -31,7 +31,7 @@ extern	TQ3Vector3D		gDelta;
 extern	NewObjectDefinitionType	gNewObjectDefinition;
 extern	CollisionRec	gCollisionList[];
 extern	TQ3Vector3D		gRecentTerrainNormal;
-extern	ObjNode			*gPortalObj,*gMyTimePortal,*gPlayerObj;
+extern	ObjNode			*gMyTimePortal,*gPlayerObj;
 extern	short			gRecoveredEggs[];
 extern	unsigned long 	gInfobarUpdateBits;
 

@@ -35,7 +35,6 @@ extern	void UpdateEnemy(ObjNode *theNode);
 extern	Boolean EnemyGotHurt(ObjNode *theEnemy, ObjNode *theHurter, float damage);
 extern	void InitEnemyManager(void);
 extern	ObjNode *FindClosestEnemy(TQ3Point3D *pt, float *dist);
-extern	void EnemyGotBonked(ObjNode *theEnemy, ObjNode *byWho, float bonkSpeed);
 extern	Boolean MoveEnemy(ObjNode *theNode, float flightHeight);
 
 

@@ -103,7 +103,7 @@ enum
 
 Boolean AddEnemy_Rex(TerrainItemEntryType *itemPtr, long x, long z)
 {
-ObjNode	*newObj,*shadowObj;
+ObjNode	*newObj;
 
 	if (gNumEnemies >= MAX_ENEMIES)					// keep from getting absurd
 		return(false);
@@ -144,7 +144,7 @@ ObjNode	*newObj,*shadowObj;
 
 				/* MAKE SHADOW */
 				
-	shadowObj = AttachShadowToObject(newObj, 2.6, 2.6*2.5);
+	AttachShadowToObject(newObj, 2.6, 2.6*2.5);
 
 	gNumEnemies++;
 	gNumEnemyOfKind[ENEMY_KIND_REX]++;
@@ -180,13 +180,6 @@ static	void(*myMoveTable[])(ObjNode *) =
 
 static void  MoveRex_Standing(ObjNode *theNode)
 {
-float	d;
-
-				/* SEE IF CHASE AGAIN */
-				
-	d = CalcQuickDistance(gCoord.x+theNode->TargetOff.x, gCoord.z+theNode->TargetOff.y, gMyCoord.x, gMyCoord.z);
-//	if ((d < REX_MAX_ATTACK_RANGE) && (d > REX_MIN_ATTACK_RANGE))
-//	if (d < REX_MAX_ATTACK_RANGE)
 		MorphToSkeletonAnim(theNode->Skeleton, REX_ANIM_WALK,5);
 
 				/* DO ENEMY COLLISION */

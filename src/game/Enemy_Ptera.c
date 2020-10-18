@@ -103,7 +103,7 @@ enum
 
 Boolean AddEnemy_Ptera(TerrainItemEntryType *itemPtr, long x, long z)
 {
-ObjNode	*newObj,*shadowObj;
+ObjNode	*newObj;
 
 	if (gNumEnemies >= MAX_ENEMIES)				// keep from getting absurd
 		return(false);
@@ -158,7 +158,7 @@ ObjNode	*newObj,*shadowObj;
 
 					/* MAKE SHADOW */
 					
-	shadowObj = AttachShadowToObject(newObj, 4, 4.5);
+	AttachShadowToObject(newObj, 4, 4.5);
 
 	gNumEnemies++;
 	gNumEnemyOfKind[ENEMY_KIND_PTERA]++;

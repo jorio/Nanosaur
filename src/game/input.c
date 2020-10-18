@@ -21,7 +21,7 @@
 extern	unsigned long gOriginalSystemVolume;
 extern	short		gMainAppRezFile;
 extern	Byte		gDemoMode;
-extern	Boolean		gAbortedFlag,gUsingDSP,gGameOverFlag,gAbortDemoFlag;
+extern	Boolean		gAbortedFlag,gGameOverFlag,gAbortDemoFlag;
 extern	DemoCacheKeyType	*gDemoCachePtr;
 extern	long		gDemoCacheIndex;
 
@@ -290,19 +290,6 @@ void DoKeyConfigDialog(void)
 }
 
 
-/******************** TURN ON ISP *********************/
-
-void TurnOnISp(void)
-{
-	// no-op without inputsprockets
-}
-
-/******************** TURN OFF ISP *********************/
-
-void TurnOffISp(void)
-{
-	// no-op without inputsprockets
-}
 
 
 

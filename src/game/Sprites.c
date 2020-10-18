@@ -80,7 +80,7 @@ short		fRefNum;
 		DoFatalAlert("LoadFramesFile: Error opening Frames Rez file");
 				
 	UseResFile(fRefNum);
-	if (iErr = ResError())
+	if ( (iErr = ResError()) )
 		DoFatalAlert("Error using Rez file!");
 
 			/* EXTRACT INFO FROM FILE */
@@ -91,7 +91,7 @@ short		fRefNum;
 			/* CLOSE REZ FILE */
 			
 	CloseResFile(fRefNum);
-	if (iErr = ResError())
+	if ( (iErr = ResError()) )
 		DoFatalAlert("Error closing Rez file!");
 	
 	UseResFile(gMainAppRezFile);		

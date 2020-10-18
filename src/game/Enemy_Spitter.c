@@ -100,7 +100,7 @@ enum
 
 Boolean AddEnemy_Spitter(TerrainItemEntryType *itemPtr, long x, long z)
 {
-ObjNode	*newObj,*shadowObj;
+ObjNode	*newObj;
 
 	if (gNumEnemies >= MAX_ENEMIES)				// keep from getting absurd
 		return(false);
@@ -143,7 +143,7 @@ ObjNode	*newObj,*shadowObj;
 
 				/* MAKE SHADOW */
 				
-	shadowObj = AttachShadowToObject(newObj, 1.6, 1.6*2.5);
+	AttachShadowToObject(newObj, 1.6, 1.6*2.5);
 
 	gNumEnemies++;
 	gNumEnemyOfKind[ENEMY_KIND_SPITTER]++;

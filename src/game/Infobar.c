@@ -52,7 +52,6 @@ extern	long	gOriginalSystemVolume,gCurrentSystemVolume;
 /*    PROTOTYPES            */
 /****************************/
 
-static void LoadInfobarIcons(void);
 static void PrintNumber(unsigned long num, short numDigits, long x, long y);
 static void ShowTimeRemaining(void);
 static void ShowHealth(void);
@@ -117,8 +116,6 @@ ObjNode			*gCompassObj = nil;
 short			gRecoveredEggs[NUM_EGG_SPECIES];
 
 static GWorldPtr gGPSGWorld = nil,gGPSFullImage = nil;
-static Ptr 		gGPSPixels = nil;
-static UInt32	gGPSRowBytes;
 static TQ3SurfaceShaderObject	gGPSShaderObject = nil;
 static TQ3GeometryObject		gGPSTriMesh = nil;
 static	ObjNode 	*gGPSObj;
@@ -560,13 +557,13 @@ PicHandle			pict;
 GDHandle				oldGD;
 GWorldPtr				oldGW;
 
-static TQ3Param2D				uvs[4] = {0,1,	1,1,	1,0,	0,0};
+static TQ3Param2D				uvs[4] = {{0,1},	{1,1},	{1,0},	{0,0}};
 static TQ3TriMeshAttributeData	vertAttribs = {kQ3AttributeTypeSurfaceUV,&uvs[0],nil};
-static TQ3TriMeshTriangleData	triangles[2] = {0,3,1,  1,3,2};
-static TQ3Point3D				points[4] = {-GPS_DISPLAY_SIZE,GPS_DISPLAY_SIZE,0,
-											GPS_DISPLAY_SIZE,GPS_DISPLAY_SIZE,0,
-											GPS_DISPLAY_SIZE,-GPS_DISPLAY_SIZE,0,
-											-GPS_DISPLAY_SIZE,-GPS_DISPLAY_SIZE,0};
+static TQ3TriMeshTriangleData	triangles[2] = { {{0,3,1}},  {{1,3,2}} };
+static TQ3Point3D				points[4] = { { -GPS_DISPLAY_SIZE,  GPS_DISPLAY_SIZE, 0 },
+											  {  GPS_DISPLAY_SIZE,  GPS_DISPLAY_SIZE, 0 },
+											  {  GPS_DISPLAY_SIZE, -GPS_DISPLAY_SIZE, 0 },
+											  { -GPS_DISPLAY_SIZE, -GPS_DISPLAY_SIZE, 0 } };
 
 			/* NUKE OLD ONE */
 			

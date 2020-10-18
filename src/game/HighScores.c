@@ -343,7 +343,6 @@ got_slot:
 
 static void EnterPlayerName(unsigned long newScore)
 {
-ObjNode		*frameObj;
 TQ3Point3D	camPt = gGameViewInfoPtr->currentCameraCoords;
 float		camWobble = 0;
 short		i;
@@ -364,7 +363,7 @@ short		i;
 	gNewObjectDefinition.moveCall = nil;
 	gNewObjectDefinition.rot = 0;
 	gNewObjectDefinition.scale = 1;
-	frameObj = MakeNewDisplayGroupObject(&gNewObjectDefinition);
+	MakeNewDisplayGroupObject(&gNewObjectDefinition);
 
 
 			/* MAKE CURSOR */
@@ -405,7 +404,7 @@ short		i;
 				
 #if 1
 		char newKey;
-		if (newKey = GetTypedKey())
+		if ( (newKey = GetTypedKey()) )
 		{
 			TypeNewKey(newKey);
 #else
@@ -603,7 +602,6 @@ char	c;
 static void PrepHighScoresShow(void)
 {
 short	slot,place;
-ObjNode	*newObj;
 unsigned long score,digit;
 TQ3Point3D	camPt = {-110,-30,90};
 float		x;
@@ -647,7 +645,7 @@ float		x;
 			gNewObjectDefinition.moveCall = nil;
 			gNewObjectDefinition.rot = 0;
 			gNewObjectDefinition.scale = 1.0;
-			newObj = MakeNewDisplayGroupObject(&gNewObjectDefinition);
+			MakeNewDisplayGroupObject(&gNewObjectDefinition);
 			
 			place++;
 		}

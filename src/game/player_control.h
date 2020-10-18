@@ -41,7 +41,6 @@ enum
 
 extern	void CalcPlayerKeyControls(void);
 extern	void DoPlayerControl(ObjNode *theNode, float slugFactor);
-extern	void SetDefaultKeyboardConfiguration(void);
 extern	void DoPlayerMovement(ObjNode *theNode);
 extern	void DoFrictionAndGravity(ObjNode *theNode, float friction);
 extern	void StopJetPack(ObjNode *theNode);

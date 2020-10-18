@@ -22,19 +22,14 @@
 /* EXTERNALS   */
 /***************/
 
-extern	NewObjectDefinitionType	gNewObjectData;
 extern	long	gTerrainTileWidth,gTerrainTileDepth;
 extern	Ptr		gTerrainPtr;
 extern	long	gTerrainItemDeleteWindow_Near,gTerrainItemDeleteWindow_Far,
 				gTerrainItemDeleteWindow_Left,gTerrainItemDeleteWindow_Right;
 extern	ObjNode		*gThisNodePtr;
-extern	UInt32		gControllerA;
-extern	long		gDX,gDY,gDZ,gX,gY,gZ;
 extern	long		gMyStartX,gMyStartZ;
 extern	long	gNumTerrainTextureTiles;
-extern	long	*gTerrainTexturePtrs;
-extern	long	gNumSuperTilesDeep,gNumSuperTilesWide,gCurrentActiveBuildingID;
-extern	Boolean		gLevelHasHeightMaps[];
+extern	long	gNumSuperTilesDeep,gNumSuperTilesWide;
 extern	long	gTerrainUnitWidth,gTerrainUnitDepth;
 extern	UInt16	**gTerrainHeightMapLayer,**gTerrainPathLayer;
 extern	TQ3Point3D	gCoord,gMyCoord;
@@ -44,8 +39,6 @@ extern	Byte		gMyStartAim;
 /*    PROTOTYPES            */
 /****************************/
 
-static void PreloadAllTiles(void);
-static void RestoreItemList(void);
 
 
 /****************************/

@@ -105,7 +105,6 @@ extern	void QD3D_Boot(void);
 extern	void QD3D_SetupWindow(QD3DSetupInputType *setupDefPtr, QD3DSetupOutputType **outputHandle);
 extern	void QD3D_DisposeWindowSetup(QD3DSetupOutputType **dataHandle);
 extern	void QD3D_UpdateCameraFromTo(QD3DSetupOutputType *setupInfo, TQ3Point3D *from, TQ3Point3D *to);
-extern	void QD3D_ChangeDrawSize(QD3DSetupOutputType *setupInfo);
 extern	void QD3D_DrawScene(QD3DSetupOutputType *setupInfo, void (*drawRoutine)(QD3DSetupOutputType *));
 extern	void QD3D_UpdateCameraFrom(QD3DSetupOutputType *setupInfo, TQ3Point3D *from);
 extern	void QD3D_MoveCameraFromTo(QD3DSetupOutputType *setupInfo, TQ3Vector3D *moveVector, TQ3Vector3D *lookAtVector);
@@ -125,16 +124,12 @@ extern	TQ3GroupPosition QD3D_AddAmbientLight(QD3DSetupOutputType *setupInfo, TQ3
 extern	void QD3D_DoMemoryError(void);
 extern	void QD3D_ShowRecentError(void);
 extern	void QD3D_NewViewDef(QD3DSetupInputType *viewDef, WindowPtr theWindow);
-extern	void QD3D_ColorToQDColor(TQ3ColorRGB *in, RGBColor *out);
-extern	void QD3D_QDColorToColor(RGBColor *in, TQ3ColorRGB *out);
 extern	TQ3SurfaceShaderObject	QD3D_Data16ToTexture_NoMip(Ptr data, short width, short height);
 extern	TQ3StorageObject QD3D_GetMipmapStorageObjectFromAttrib(TQ3AttributeSet attribSet);
 extern	GWorldPtr QD3D_MipmapToGWorld(TQ3Mipmap *mipmap, Rect *r);
 extern	void QD3D_GWorldToMipMap(GWorldPtr pGWorld, TQ3Mipmap *mipmap, Boolean pointToGWorld);
 
 extern	void QD3D_SetRaveFog(QD3DSetupOutputType *setupInfo, float fogHither, float fogYon, TQ3ColorARGB *fogColor, TQ3FogMode fogMode);
-extern	void QD3D_DisableFog(void);
-extern	void QD3D_ReEnableFog(void);
 extern	void QD3D_SetTextureFilter(unsigned long textureMode);
 extern	void QD3D_SetTriangleCacheMode(Boolean isOn);
 extern	void QD3D_SetTextureWrapMode(int mode);

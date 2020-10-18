@@ -38,34 +38,3 @@ extern	float IntersectionOfYAndPlane_Func(float x, float z, TQ3PlaneEquation *p)
 #define IntersectionOfYAndPlane(_x, _z, _p)	(((_p)->constant - (((_p)->normal.x * _x) + ((_p)->normal.z * _z))) / (_p)->normal.y)
 
 
-/***************** ANGLE TO VECTOR ******************/
-//
-// Returns a normalized 2D vector based on a radian angle
-//
-// NOTE: +rotation == counter clockwise!
-//
-
-static inline void AngleToVector(float angle, TQ3Vector2D *theVector)
-{
-	theVector->x = -sin(angle);
-	theVector->y = -cos(angle);
-}
-
-
-
-/******************** FAST RECIPROCAL **************************/
-//
-//   y1 = y0 + y0*(1 - num*y0), where y0 = recip_est(num)
-//
-
-#define FastReciprocal(_num,_out)		\
-{										\
-	float	_y0;						\
-										\
-	_y0 = __fres(_num);					\
-	_out = _y0 * (1 - _num*_y0) + _y0;	\
-}
-
-
-
-

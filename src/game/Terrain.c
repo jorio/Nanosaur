@@ -29,8 +29,7 @@
 
 extern	ObjNode		*gThisNodePtr;
 extern	ObjNode		*gFirstNodePtr;
-extern	ObjNode		*gMyNodePtr,*gMyTerrainObj;
-extern	NewObjectDefinitionType	gNewObjectData;
+extern	ObjNode		*gMyNodePtr;
 extern	TerrainItemEntryType	**gTerrainItemLookupTableX;
 extern	Ptr			gTileFilePtr;
 extern	TQ3Matrix4x4	gCameraWorldToViewMatrix,gCameraViewToFrustumMatrix,gCameraAdjustMatrix;
@@ -50,9 +49,6 @@ static short GetFreeSuperTileMemory(void);
 static inline void ReleaseSuperTileObject(short superTileNum);
 static void CalcNewItemDeleteWindow(void);
 static float	GetTerrainHeightAtRowCol(long row, long col);
-static void MoveASuperTile(void);
-static void SetTileUVCoords_SplitA(UInt16 flipRotBits, TQ3TriMeshData *triMeshData);
-static void SetTileUVCoords_SplitB(UInt16 flipRotBits, TQ3TriMeshData *triMeshData);
 static void CreateSuperTileMemoryList(void);
 static short	BuildTerrainSuperTile(long	startCol, long startRow);
 static Boolean SeeIfSuperTileInConeOfVision(short superTileNum);
@@ -134,39 +130,39 @@ const float gOneOver_TERRAIN_POLYGON_SIZE = (1.0 / TERRAIN_POLYGON_SIZE);
 					/* /  */
 static	Byte			gTileTriangles1_A[SUPERTILE_SIZE][SUPERTILE_SIZE][3] =
 {
-	6,0,1,		7,1,2,		8,2,3,		9,3,4,		10,4,5,
-	12,6,7,		13,7,8,		14,8,9,		15,9,10,	16,10,11,
-	18,12,13,	19,13,14,	20,14,15,	21,15,16,	22,16,17,
-	24,18,19,	25,19,20,	26,20,21,	27,21,22,	28,22,23,
-	30,24,25,	31,25,26,	32,26,27,	33,27,28,	34,28,29
+	{ { 6, 0, 1}, { 7, 1, 2}, { 8, 2, 3}, { 9, 3, 4}, {10, 4, 5} },
+	{ {12, 6, 7}, {13, 7, 8}, {14, 8, 9}, {15, 9,10}, {16,10,11} },
+	{ {18,12,13}, {19,13,14}, {20,14,15}, {21,15,16}, {22,16,17} },
+	{ {24,18,19}, {25,19,20}, {26,20,21}, {27,21,22}, {28,22,23} },
+	{ {30,24,25}, {31,25,26}, {32,26,27}, {33,27,28}, {34,28,29} }
 };
 
 static	Byte			gTileTriangles2_A[SUPERTILE_SIZE][SUPERTILE_SIZE][3] =
 {
-	6,1,7,		7,2,8,		8,3,9,		9,4,10,		10,5,11,
-	12,7,13,	13,8,14,	14,9,15,	15,10,16,	16,11,17,
-	18,13,19,	19,14,20,	20,15,21,	21,16,22,	22,17,23,
-	24,19,25,	25,20,26,	26,21,27,	27,22,28,	28,23,29,
-	30,25,31,	31,26,32,	32,27,33,	33,28,34,	34,29,35
+	{ { 6, 1, 7}, { 7, 2, 8}, { 8, 3, 9}, { 9, 4,10}, {10, 5,11} },
+	{ {12, 7,13}, {13, 8,14}, {14, 9,15}, {15,10,16}, {16,11,17} },
+	{ {18,13,19}, {19,14,20}, {20,15,21}, {21,16,22}, {22,17,23} },
+	{ {24,19,25}, {25,20,26}, {26,21,27}, {27,22,28}, {28,23,29} },
+	{ {30,25,31}, {31,26,32}, {32,27,33}, {33,28,34}, {34,29,35} }
 };
 
 					/* \  */
 static	Byte			gTileTriangles1_B[SUPERTILE_SIZE][SUPERTILE_SIZE][3] =
 {
-	0,7,6,		1,8,7,		2,9,8,		3,10,9,		4,11,10,
-	6,13,12,	7,14,13,	8,15,14,	9,16,15,	10,17,16,
-	12,19,18,	13,20,19,	14,21,20,	15,22,21,	16,23,22,
-	18,25,24,	19,26,25,	20,27,26,	21,28,27,	22,29,28,
-	24,31,30,	25,32,31,	26,33,32,	27,34,33,	28,35,34
+	{ { 0, 7, 6}, { 1, 8, 7}, { 2, 9, 8}, { 3,10, 9}, { 4,11,10} },
+	{ { 6,13,12}, { 7,14,13}, { 8,15,14}, { 9,16,15}, {10,17,16} },
+	{ {12,19,18}, {13,20,19}, {14,21,20}, {15,22,21}, {16,23,22} },
+	{ {18,25,24}, {19,26,25}, {20,27,26}, {21,28,27}, {22,29,28} },
+	{ {24,31,30}, {25,32,31}, {26,33,32}, {27,34,33}, {28,35,34} }
 };
 
 static	Byte			gTileTriangles2_B[SUPERTILE_SIZE][SUPERTILE_SIZE][3] =
 {
-	0,1,7,		1,2,8,		2,3,9,		3,4,10,		4,5,11,
-	6,7,13,		7,8,14,		8,9,15,		9,10,16,	10,11,17,
-	12,13,19,	13,14,20,	14,15,21,	15,16,22,	16,17,23,
-	18,19,25,	19,20,26,	20,21,27,	21,22,28,	22,23,29,
-	24,25,31,	25,26,32,	26,27,33,	27,28,34,	28,29,35
+	{ { 0, 1, 7}, { 1, 2, 8}, { 2, 3, 9}, { 3, 4,10}, { 4, 5,11} },
+	{ { 6, 7,13}, { 7, 8,14}, { 8, 9,15}, { 9,10,16}, {10,11,17} },
+	{ {12,13,19}, {13,14,20}, {14,15,21}, {15,16,22}, {16,17,23} },
+	{ {18,19,25}, {19,20,26}, {20,21,27}, {21,22,28}, {22,23,29} },
+	{ {24,25,31}, {25,26,32}, {26,27,33}, {27,28,34}, {28,29,35} }
 };
 
 
@@ -278,7 +274,7 @@ TQ3TriMeshAttributeData	triangleAttribs,vertAttribs[2];
 TQ3Vector3D				faceNormals[NUM_POLYS_IN_SUPERTILE];
 TQ3Vector3D				vertexNormals[NUM_VERTICES_IN_SUPERTILE];
 TQ3Param2D				uvs[NUM_VERTICES_IN_SUPERTILE];
-TQ3Param2D				uvs2[4] = {0,1,  1,1,   0,0,   1,0};
+TQ3Param2D				uvs2[4] = {{0,1},  {1,1},   {0,0},   {1,0}};
 TQ3AttributeSet			geometryAttribSet;
 
 Ptr						blankTexPtr;
@@ -1319,480 +1315,6 @@ UInt16		*sPtr,*tileDataS;
 
 
 
-/******************** SET TILE UV COORDS: SPLIT / **********************/
-
-static void SetTileUVCoords_SplitA(UInt16 flipRotBits, TQ3TriMeshData *triMeshData)
-{
-Byte		i;
-TQ3Param2D	uv[2][3],*uvPtr;
-TQ3TriMeshAttributeData	*attribs;
-
-			/* EACH TILE HAS 2 POLYGONS WHICH ARE SPLIT */
-
-	for (i = 0; i < 2; i++)
-	{
-					/*******************************/
-					/* SET UV'S FOR BOTH TRIANGLES */
-					/*******************************/
-
-		switch(flipRotBits)         											// set uv's based on flip & rot bits
-		{
-					/* NO FLIP & NO ROT */
-						/* XYFLIP ROT 2 */
-
-			case	0:
-			case	TILE_FLIPXY_MASK | TILE_ROT2:
-					if (i)														// UV's alternate every other triangle/poly
-					{
-						uv[1][0].u = 1.0; 										// upper right
-						uv[1][0].v = 1.0;
-						uv[1][1].u = 0;	  										// lower left
-						uv[1][1].v = 0;
-						uv[1][2].u = 1.0;										// lower right
-						uv[1][2].v = 0;
-					}
-					else
-					{
-						uv[0][0].u = 0;	 										// upper left
-						uv[0][0].v = 1.0;
-						uv[0][1].u = 0;											// lower left
-						uv[0][1].v = 0;
-						uv[0][2].u = 1.0;										// upper right
-						uv[0][2].v = 1.0;
-					}
-					break;
-
-						/* FLIP X */
-					/* FLIPY ROT 2 */
-
-			case	TILE_FLIPX_MASK:
-			case	TILE_FLIPY_MASK | TILE_ROT2:
-					if (i)
-					{
-						uv[1][0].u = 0; 										// upper right
-						uv[1][0].v = 1;
-						uv[1][1].u = 1.0;										// lower left
-						uv[1][1].v = 0;
-						uv[1][2].u = 0;											// lower right
-						uv[1][2].v = 0;
-					}
-					else
-					{
-						uv[0][0].u = 1.0;										// upper right
-						uv[0][0].v = 1;
-						uv[0][1].u = 1.0;										// lower right
-						uv[0][1].v = 0;
-						uv[0][2].u = 0;											// upper left
-						uv[0][2].v = 1;
-					}
-					break;
-
-						/* FLIP Y */
-					/* FLIPX ROT 2 */
-
-			case	TILE_FLIPY_MASK:
-			case	TILE_FLIPX_MASK | TILE_ROT2:
-					if (i)
-					{
-						uv[1][0].u = 1.0; 										// lower right
-						uv[1][0].v = 0;
-						uv[1][1].u = 0;	  										// upper left
-						uv[1][1].v = 1;
-						uv[1][2].u = 1.0;										// upper right
-						uv[1][2].v = 1;
-					}
-					else
-					{
-						uv[0][0].u = 0;											// lower left
-						uv[0][0].v = 0;
-						uv[0][1].u = 0;											// upper right
-						uv[0][1].v = 1;
-						uv[0][2].u = 1.0;										// lower right
-						uv[0][2].v = 0;
-					}
-					break;
-
-
-					/* FLIP XY */
-					/* NO FLIP ROT 2 */
-
-			case	TILE_FLIPXY_MASK:
-			case	TILE_ROT2:
-					if (i)
-					{
-						uv[1][0].u = 0; 										// lower right
-						uv[1][0].v = 0;
-						uv[1][1].u = 1.0; 										// upper right
-						uv[1][1].v = 1;
-						uv[1][2].u = 0;											// upper left
-						uv[1][2].v = 1;
-					}
-					else
-					{
-						uv[0][0].u = 1.0;										// lower right
-						uv[0][0].v = 0;
-						uv[0][1].u = 1.0;										// upper right
-						uv[0][1].v = 1;
-						uv[0][2].u = 0;                  				  		// lower left
-						uv[0][2].v = 0;
-					}
-					break;
-
-
-					/* NO FLIP ROT 1 */
-					/* FLIP XY ROT 3 */
-
-			case	TILE_ROT1:
-			case	TILE_FLIPXY_MASK | TILE_ROT3:
-					if (i)
-					{
-						uv[1][0].u = 0;											// upper left
-						uv[1][0].v = 1;
-						uv[1][1].u = 1.0;										// lower right
-						uv[1][1].v = 0;
-						uv[1][2].u = 1.0;										// upper right
-						uv[1][2].v = 1;
-					}
-					else
-					{
-						uv[0][0].u = 0;                          	// lower left
-						uv[0][0].v = 0;
-						uv[0][1].u = 1.0;							// lower right
-						uv[0][1].v = 0;
-						uv[0][2].u = 0;								// upper left
-						uv[0][2].v = 1;
-					}
-					break;
-
-					/* NO FLIP ROT 3 */
-					/* FLIP XY ROT 1 */
-
-			case	TILE_ROT3:
-			case	TILE_FLIPXY_MASK | TILE_ROT1:
-					if (i)
-					{
-						uv[1][0].u = 1.0;							// lower right
-						uv[1][0].v = 0;
-						uv[1][1].u = 0;								// upper left
-						uv[1][1].v = 1;
-						uv[1][2].u = 0;								// lower left
-						uv[1][2].v = 0;
-					}
-					else
-					{
-						uv[0][0].u = 1.0;							// upper right
-						uv[0][0].v = 1;
-						uv[0][1].u = 0;								// upper left
-						uv[0][1].v = 1;
-						uv[0][2].u = 1.0;							// lower right
-						uv[0][2].v = 0;
-					}
-					break;
-
-					/* FLIP X ROT 1 */
-					/* FLIP Y ROT 3 */
-
-			case	TILE_FLIPX_MASK | TILE_ROT1:
-			case	TILE_FLIPY_MASK | TILE_ROT3:
-					if (i)
-					{
-						uv[1][0].u = 1.0;
-						uv[1][0].v = 1;
-						uv[1][1].u = 0;
-						uv[1][1].v = 0;
-						uv[1][2].u = 0;
-						uv[1][2].v = 1;
-					}
-					else
-					{
-						uv[0][0].u = 1.0;
-						uv[0][0].v = 0;
-						uv[0][1].u = 0;
-						uv[0][1].v = 0;
-						uv[0][2].u = 1.0;
-						uv[0][2].v = 1;
-					}
-					break;
-
-					/* FLIP X ROT 3 */
-					/* FLIP Y ROT 1 */
-
-			case	TILE_FLIPX_MASK | TILE_ROT3:
-			case	TILE_FLIPY_MASK | TILE_ROT1:
-					if (i)
-					{
-						uv[1][0].u = 0;
-						uv[1][0].v = 0;
-						uv[1][1].u = 1.0;
-						uv[1][1].v = 1;
-						uv[1][2].u = 1.0;
-						uv[1][2].v = 0;
-					}
-					else
-					{
-						uv[0][0].u = 0;
-						uv[0][0].v = 1;
-						uv[0][1].u = 1.0;
-						uv[0][1].v = 1;
-						uv[0][2].u = 0;
-						uv[0][2].v = 0;
-					}
-					break;
-		}
-	}
-
-
-			/* UPDATE UV'S IN ATTRIBUTE LIST */
-			
-	attribs = triMeshData->vertexAttributeTypes;						// point to vertex attribute list
-	uvPtr = (TQ3Param2D*)attribs[1].data;											// point to 2nd attribute's data (the uv list)
-
-	for (i = 0; i < 2; i++)
-	{
-		*uvPtr++ = uv[i][0];											// put new uv's into the attribute's list
-		*uvPtr++ = uv[i][1];
-		*uvPtr++ = uv[i][2];
-	}
-
-}
-
-
-/******************** SET TILE UV COORDS: SPLIT B \ **********************/
-
-static void SetTileUVCoords_SplitB(UInt16 flipRotBits, TQ3TriMeshData *triMeshData)
-{
-Byte	i;
-TQ3Param2D	uv[2][3],*uvPtr;
-TQ3TriMeshAttributeData	*attribs;
-
-		/* CHANGE THIS POLYGON'S INFO */
-
-	for (i = 0; i < 2; i++)
-	{
-					/*******************************/
-					/* SET UV'S FOR BOTH TRIANGLES */
-					/*******************************/
-
-		switch(flipRotBits)         							// set uv's based on flip & rot bits
-		{
-					/* NO FLIP & NO ROT */
-					  /* XYFLIP ROT 2 */
-
-			case	0:
-			case	TILE_FLIPXY_MASK | TILE_ROT2:
-					if (i)										// UV's alternate every other triangle/poly
-					{
-						uv[1][0].u = 0;							// upper left
-						uv[1][0].v = 1;
-						uv[1][1].u = 1.0;						// lower right
-						uv[1][1].v = 0;
-						uv[1][2].u = 1.0;						// upper right
-						uv[1][2].v = 1;
-					}
-					else
-					{
-						uv[0][0].u = 0; 						// upper left
-						uv[0][0].v = 1;
-						uv[0][1].u = 0;	  						// lower left
-						uv[0][1].v = 0;
-						uv[0][2].u = 1.0;						// lower right
-						uv[0][2].v = 0;
-					}
-					break;
-
-						/* FLIP X */
-					/* FLIPY ROT 2 */
-
-			case	TILE_FLIPX_MASK:
-			case	TILE_FLIPY_MASK | TILE_ROT2:
-					if (i)														// UV's alternate every other triangle/poly
-					{
-						uv[1][0].u = 1.0;	// upper right
-						uv[1][0].v = 1;
-						uv[1][1].u = 0;						// lower left
-						uv[1][1].v = 0;
-						uv[1][2].u = 0;						// upper left
-						uv[1][2].v = 1;
-					}
-					else
-					{
-						uv[0][0].u = 1.0;	// upper right
-						uv[0][0].v = 1;
-						uv[0][1].u = 1.0; 	// lower right
-						uv[0][1].v = 0;
-						uv[0][2].u = 0;						// lower left
-						uv[0][2].v = 0;
-					}
-					break;
-
-						/* FLIP Y */
-					/* FLIPX ROT 2 */
-
-			case	TILE_FLIPY_MASK:
-			case	TILE_FLIPX_MASK | TILE_ROT2:
-					if (i)
-					{
-						uv[1][0].u = 0; 						// lower left
-						uv[1][0].v = 0;
-						uv[1][1].u = 1.0; 	// upper right
-						uv[1][1].v = 1;
-						uv[1][2].u = 1.0;	// lower right
-						uv[1][2].v = 0;
-					}
-					else
-					{
-						uv[0][0].u = 0; 						// lower left
-						uv[0][0].v = 0;
-						uv[0][1].u = 0;	  					// upper left
-						uv[0][1].v = 1;
-						uv[0][2].u = 1.0;	// upper right
-						uv[0][2].v = 1;
-					}
-					break;
-
-
-					/* FLIP XY */
-					/* NO FLIP ROT 2 */
-
-			case	TILE_FLIPXY_MASK:
-			case	TILE_ROT2:
-					if (i)
-					{
-						uv[1][0].u = 1.0;		// lower right
-						uv[1][0].v = 0;
-						uv[1][1].u = 0;							// upper left
-						uv[1][1].v = 1;
-						uv[1][2].u = 0;							// lower left
-						uv[1][2].v = 0;
-					}
-					else
-					{
-						uv[0][0].u = 1.0;	// lower right
-						uv[0][0].v = 0;
-						uv[0][1].u = 1.0; 	// upper right
-						uv[0][1].v = 1;
-						uv[0][2].u = 0;						// upper left
-						uv[0][2].v = 1;
-					}
-					break;
-
-
-					/* NO FLIP ROT 1 */
-					/* FLIP XY ROT 3 */
-
-			case	TILE_ROT1:
-			case	TILE_FLIPXY_MASK | TILE_ROT3:
-					if (i)
-					{
-						uv[1][0].u = 0;  						// lower left
-						uv[1][0].v = 0;
-						uv[1][1].u = 1.0;      // upper right
-						uv[1][1].v = 1;
-						uv[1][2].u = 0;							// upper left
-						uv[1][2].v = 1;
-					}
-					else
-					{
-						uv[0][0].u = 0;  						// lower left
-						uv[0][0].v = 0;
-						uv[0][1].u = 1.0;      // lower right
-						uv[0][1].v = 0;
-						uv[0][2].u = 1.0;		// upper right
-						uv[0][2].v = 1;
-					}
-					break;
-
-					/* NO FLIP ROT 3 */
-					/* FLIP XY ROT 1 */
-
-			case	TILE_ROT3:
-			case	TILE_FLIPXY_MASK | TILE_ROT1:
-					if (i)
-					{
-						uv[1][0].u = 1.0;		// upper right
-						uv[1][0].v = 1;
-						uv[1][1].u = 0;					  		// lower left
-						uv[1][1].v = 0;
-						uv[1][2].u = 1.0;		// lower right
-						uv[1][2].v = 0;
-					}
-					else
-					{
-						uv[0][0].u = 1.0;  	// upper right
-						uv[0][0].v = 1;
-						uv[0][1].u = 0;							// upper left
-						uv[0][1].v = 1;
-						uv[0][2].u = 0;	  						// lower left
-						uv[0][2].v = 0;
-					}
-					break;
-
-					/* FLIP X ROT 1 */
-					/* FLIP Y ROT 3 */
-
-			case	TILE_FLIPX_MASK | TILE_ROT1:
-			case	TILE_FLIPY_MASK | TILE_ROT3:
-					if (i)
-					{
-						uv[1][0].u = 1.0; 		// lower right
-						uv[1][0].v = 0;
-						uv[1][1].u = 0;							// upper left
-						uv[1][1].v = 1;
-						uv[1][2].u = 1.0;      // upper right
-						uv[1][2].v = 1;
-					}
-					else
-					{
-						uv[0][0].u = 1.0;  	// lower right
-						uv[0][0].v = 0;
-						uv[0][1].u = 0;					     	// lower left
-						uv[0][1].v = 0;
-						uv[0][2].u = 1.0;		// upper left
-						uv[0][2].v = 1;
-					}
-					break;
-
-					/* FLIP X ROT 3 */
-					/* FLIP Y ROT 1 */
-
-			case	TILE_FLIPX_MASK | TILE_ROT3:
-			case	TILE_FLIPY_MASK | TILE_ROT1:
-					if (i)
-					{
-						uv[1][0].u = 0;						 	// upper left
-						uv[1][0].v = 1;
-						uv[1][1].u = 1.0;		// lower right
-						uv[1][1].v = 0;
-						uv[1][2].u = 0;	 						// lower left
-						uv[1][2].v = 0;
-					}
-					else
-					{
-						uv[0][0].u = 0;	 						// upper left
-						uv[0][0].v = 1;
-						uv[0][1].u = 1.0;		// upper right
-						uv[0][1].v = 1;
-						uv[0][2].u = 1.0;		// lower right
-						uv[0][2].v = 0;
-					}
-					break;
-
-		}
-	}
-	
-			/* UPDATE UV'S IN ATTRIBUTE LIST */
-			
-	attribs = triMeshData->vertexAttributeTypes;						// point to vertex attribute list
-	uvPtr = (TQ3Param2D*)attribs[1].data;											// point to 2nd attribute's data (the uv list)
-
-	for (i = 0; i < 2; i++)
-	{
-		*uvPtr++ = uv[i][0];											// put new uv's into the attribute's list
-		*uvPtr++ = uv[i][1];
-		*uvPtr++ = uv[i][2];
-	}
-	
-}
 
 
 #if TWO_MEG_VERSION
@@ -2871,7 +2393,6 @@ next:
 		tileRow += SUPERTILE_SIZE;
 	}
 
-check_items:
 
 			/* ADD ITEMS ON RIGHT */
 

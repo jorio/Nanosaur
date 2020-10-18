@@ -11,9 +11,7 @@
 
 
 #include <QD3D.h>
-#include <QD3DGroup.h>
 #include <QD3DMath.h>
-#include <QD3DTransform.h>
 
 #include "globals.h"
 #include "objects.h"
@@ -31,8 +29,6 @@ extern	Boolean					gCanDoMP;
 /*    PROTOTYPES            */
 /****************************/
 
-static void MakeHierarchialJointGroups(SkeletonObjDataType *skeleton);
-static void MakeJointTransforms(SkeletonObjDataType *skeleton);
 
 
 /****************************/
@@ -40,51 +36,12 @@ static void MakeJointTransforms(SkeletonObjDataType *skeleton);
 /****************************/
 
 
-#define	SIZE_OF_JOINT_NUB	1.0f
 
 
 /*********************/
 /*    VARIABLES      */
 /*********************/
 
-static Byte	gLimbTypeToJointNum_Pillow[] =
-{
-	15,					// SKELETON_TYPE_NANOREX
-	15,					// SKELETON_TYPE_BUTCHER
-	15,					// SKELETON_TYPE_BAGLADY
-	11,					// SKELETON_TYPE_SUPERFAN
-	15,					// SKELETON_TYPE_COWBOY
-	15,					// SKELETON_TYPE_WITCHDOCTOR
-	15,					// SKELETON_TYPE_PUNKGIRL
-	15,					// SKELETON_TYPE_ASTRONAUT
-	15					// SKELETON_TYPE_BART
-};
-
-static Byte	gLimbTypeToJointNum_LeftHand[] =
-{
-	10,					// SKELETON_TYPE_NANOREX
-	10,					// SKELETON_TYPE_BUTCHER
-	10,					// SKELETON_TYPE_BAGLADY
-	10,					// SKELETON_TYPE_SUPERFAN 
-	10,					// SKELETON_TYPE_COWBOY
-	10,					// SKELETON_TYPE_WITCHDOCTOR
-	10,					// SKELETON_TYPE_PUNKGIRL
-	10,					// SKELETON_TYPE_ASTRONAUT
-	10					// SKELETON_TYPE_BART
-};
-
-static Byte	gLimbTypeToJointNum_Head[] =
-{
-	1,					// SKELETON_TYPE_NANOREX
-	1,					// SKELETON_TYPE_BUTCHER
-	1,					// SKELETON_TYPE_BAGLADY
-	1,					// SKELETON_TYPE_SUPERFAN
-	1,					// SKELETON_TYPE_COWBOY
-	1,					// SKELETON_TYPE_WITCHDOCTOR
-	1,					// SKELETON_TYPE_PUNKGIRL
-	1,					// SKELETON_TYPE_ASTRONAUT
-	1					// SKELETON_TYPE_BART
-};
 
 
 
@@ -99,7 +56,7 @@ static Byte	gLimbTypeToJointNum_Head[] =
 void UpdateJointTransforms(SkeletonObjDataType *skeleton,long jointNum)
 {
 TQ3Matrix4x4			matrix1;
-static TQ3Matrix4x4		matrix2 = {0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,1};
+static TQ3Matrix4x4		matrix2 = {{ {0,0,0,0}, {0,0,0,0}, {0,0,0,0}, {0,0,0,1} }};
 TQ3Matrix4x4			*destMatPtr;
 JointKeyframeType		*kfPtr;
 

@@ -2,5 +2,5 @@
 // movie.h
 //
 
-void InitQuickTime(void);
+// Source port reimplementation
 void PlayAMovie(FSSpec *);

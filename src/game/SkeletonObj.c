@@ -12,7 +12,6 @@
 
 
 #include <QD3D.h>
-#include <QD3DGroup.h>
 
 #include "globals.h"
 #include "objects.h"

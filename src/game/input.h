@@ -152,8 +152,6 @@ extern	Boolean Nano_GetKeyState(unsigned short key);
 Boolean GetKeyState_Real(unsigned short key);
 Boolean GetNewKeyState_Real(unsigned short key);
 void DoKeyConfigDialog(void);
-void TurnOnISp(void);
-void TurnOffISp(void);
 
 
 

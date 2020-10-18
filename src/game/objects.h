@@ -19,8 +19,6 @@ enum
 };
 
 
-#define	DEFAULT_GRAVITY		60.0f
-
 //========================================================
 
 extern	void InitObjectManager(void);

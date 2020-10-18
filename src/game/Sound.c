@@ -82,7 +82,6 @@ Boolean				gSongPlayingFlag = false;
 Boolean				gResetSong = false;
 Boolean				gLoopSongFlag = true;
 
-static	short			gStatusBits[MAX_CHANNELS];				// set in maintainsounds (for debugging)
 
 long	gOriginalSystemVolume,gCurrentSystemVolume;
 
@@ -96,30 +95,30 @@ static Ptr				gMusicBuffer = nil;					// buffers to use for streaming play
 		
 static EffectType	gEffectsTable[] =
 {
-	SOUND_BANK_DEFAULT,SOUND_DEFAULT_HEATSEEK,					// EFFECT_HEATSEEK
-	SOUND_BANK_DEFAULT,SOUND_DEFAULT_BLASTER,					// EFFECT_BLASTER
-	SOUND_BANK_DEFAULT,SOUND_DEFAULT_SELECT,					// EFFECT_SELECT
-	SOUND_BANK_DEFAULT,SOUND_DEFAULT_EXPLODE,					// EFFECT_EXPLODE
-	SOUND_BANK_DEFAULT,SOUND_DEFAULT_POWPICKUP,					// EFFECT_POWPICKUP
-	SOUND_BANK_DEFAULT,SOUND_DEFAULT_CRUNCH,					// EFFECT_CRUNCH
-	SOUND_BANK_DEFAULT,SOUND_DEFAULT_ALARM,						// EFFECT_ALARM
-	SOUND_BANK_DEFAULT,SOUND_DEFAULT_ENEMYDIE,					// EFFECT_ENEMYDIE
-	SOUND_BANK_DEFAULT,SOUND_DEFAULT_JETLOOP,					// EFFECT_JETLOOP
-	SOUND_BANK_DEFAULT,SOUND_DEFAULT_JUMP,						// EFFECT_JUMP
-	SOUND_BANK_DEFAULT,SOUND_DEFAULT_ROAR,						// EFFECT_ROAR
-	SOUND_BANK_DEFAULT,SOUND_DEFAULT_FOOTSTEP,					// EFFECT_FOOTSTEP
-	SOUND_BANK_DEFAULT,SOUND_DEFAULT_DILOATTACK,				// EFFECT_DILOATTACK
-	SOUND_BANK_DEFAULT,SOUND_DEFAULT_WINGFLAP,					// EFFECT_WINGFLAP
-	SOUND_BANK_DEFAULT,SOUND_DEFAULT_PORTAL,					// EFFECT_PORTAL
-	SOUND_BANK_DEFAULT,SOUND_DEFAULT_BUBBLES,					// EFFECT_BUBBLES
-	SOUND_BANK_DEFAULT,SOUND_DEFAULT_CRYSTAL,					// EFFECT_CRYSTAL
-	SOUND_BANK_DEFAULT,SOUND_DEFAULT_STEAM,						// EFFECT_STEAM
-	SOUND_BANK_DEFAULT,SOUND_DEFAULT_ROCKSLAM,					// EFFECT_ROCKSLAM
-	SOUND_BANK_DEFAULT,SOUND_DEFAULT_AMBIENT,					// EFFECT_AMBIENT
-	SOUND_BANK_DEFAULT,SOUND_DEFAULT_SHIELD,					// EFFECT_SHIELD
-	SOUND_BANK_DEFAULT,SOUND_DEFAULT_SONIC,						// EFFECT_SONIC
+	{ SOUND_BANK_DEFAULT, SOUND_DEFAULT_HEATSEEK },				// EFFECT_HEATSEEK
+	{ SOUND_BANK_DEFAULT, SOUND_DEFAULT_BLASTER },				// EFFECT_BLASTER
+	{ SOUND_BANK_DEFAULT, SOUND_DEFAULT_SELECT },				// EFFECT_SELECT
+	{ SOUND_BANK_DEFAULT, SOUND_DEFAULT_EXPLODE },				// EFFECT_EXPLODE
+	{ SOUND_BANK_DEFAULT, SOUND_DEFAULT_POWPICKUP },			// EFFECT_POWPICKUP
+	{ SOUND_BANK_DEFAULT, SOUND_DEFAULT_CRUNCH },				// EFFECT_CRUNCH
+	{ SOUND_BANK_DEFAULT, SOUND_DEFAULT_ALARM },				// EFFECT_ALARM
+	{ SOUND_BANK_DEFAULT, SOUND_DEFAULT_ENEMYDIE },				// EFFECT_ENEMYDIE
+	{ SOUND_BANK_DEFAULT, SOUND_DEFAULT_JETLOOP },				// EFFECT_JETLOOP
+	{ SOUND_BANK_DEFAULT, SOUND_DEFAULT_JUMP },					// EFFECT_JUMP
+	{ SOUND_BANK_DEFAULT, SOUND_DEFAULT_ROAR },					// EFFECT_ROAR
+	{ SOUND_BANK_DEFAULT, SOUND_DEFAULT_FOOTSTEP },				// EFFECT_FOOTSTEP
+	{ SOUND_BANK_DEFAULT, SOUND_DEFAULT_DILOATTACK },			// EFFECT_DILOATTACK
+	{ SOUND_BANK_DEFAULT, SOUND_DEFAULT_WINGFLAP },				// EFFECT_WINGFLAP
+	{ SOUND_BANK_DEFAULT, SOUND_DEFAULT_PORTAL },				// EFFECT_PORTAL
+	{ SOUND_BANK_DEFAULT, SOUND_DEFAULT_BUBBLES },				// EFFECT_BUBBLES
+	{ SOUND_BANK_DEFAULT, SOUND_DEFAULT_CRYSTAL },				// EFFECT_CRYSTAL
+	{ SOUND_BANK_DEFAULT, SOUND_DEFAULT_STEAM },				// EFFECT_STEAM
+	{ SOUND_BANK_DEFAULT, SOUND_DEFAULT_ROCKSLAM },				// EFFECT_ROCKSLAM
+	{ SOUND_BANK_DEFAULT, SOUND_DEFAULT_AMBIENT },				// EFFECT_AMBIENT
+	{ SOUND_BANK_DEFAULT, SOUND_DEFAULT_SHIELD },				// EFFECT_SHIELD
+	{ SOUND_BANK_DEFAULT, SOUND_DEFAULT_SONIC },				// EFFECT_SONIC
 
-	SOUND_BANK_MENU,SOUND_MENU_CHANGE							// EFFECT_MENUCHANGE
+	{ SOUND_BANK_MENU, SOUND_MENU_CHANGE }						// EFFECT_MENUCHANGE
 };
 
 short	gAmbientEffect = -1;
@@ -184,7 +183,6 @@ short		i;
 void LoadSoundBank(FSSpec *spec, long bankNum)
 {
 short			srcFile1,numSoundsInBank,i;
-Str255			error = "Couldnt Open Sound Resource File.";
 OSErr			iErr;
 
 	StopAllEffectChannels();
@@ -224,7 +222,7 @@ OSErr			iErr;
 				ShowSystemErr(iErr);
 		}
 		DetachResource((Handle)gSndHandles[bankNum][i]);				// detach resource from rez file & make a normal Handle
-		if ( iErr = ResError() ) 
+		if ( (iErr = ResError()) ) 
 			ShowSystemErr(iErr);
 						
 		HNoPurge((Handle)gSndHandles[bankNum][i]);						// make non-purgeable
@@ -469,8 +467,6 @@ stream_again:
 
 static void SongCompletionProc(SndChannelPtr chan)
 {
-	chan;
-	
 	if (gSongPlayingFlag)
 		gResetSong = true;
 }
@@ -529,7 +525,6 @@ short PlayEffect(short effectNum)
 short PlayEffect_Parms(short effectNum, unsigned char volume, unsigned long freq)
 {
 static	SndCommand 		mySndCmd;
-static 	OSErr			iErr;
 static	SndChannelPtr	chanPtr;
 short					theChan;
 Byte					bankNum,soundNum;
@@ -616,7 +611,6 @@ OSErr	myErr;
 void ChangeChannelFrequency(short channel, long freq)
 {
 static	SndCommand 		mySndCmd;
-static 	OSErr			iErr;
 static	SndChannelPtr	chanPtr;
 
 	if (channel < 0)									// make sure it's valid
@@ -639,7 +633,6 @@ static	SndChannelPtr	chanPtr;
 void ChangeChannelVolume(short channel, short volume)
 {
 static	SndCommand 		mySndCmd;
-static 	OSErr			iErr;
 static	SndChannelPtr	chanPtr;
 
 	if (channel < 0)									// make sure it's valid

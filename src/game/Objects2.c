@@ -11,10 +11,8 @@
 
 #include "globals.h"
 
-#include <QD3DGeometry.h>
 #include <QD3DGroup.h>
 #include "QD3DMath.h"
-#include <QD3DTransform.h>
 
 #include "objects.h"
 #include "misc.h"
@@ -52,7 +50,6 @@ extern	PrefsType	gGamePrefs;
 /*    PROTOTYPES            */
 /****************************/
 
-static void FlushObjectDeleteQueue(void);
 
 
 /****************************/

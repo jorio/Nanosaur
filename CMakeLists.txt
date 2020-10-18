@@ -36,7 +36,6 @@ set(NANO_SRC_SYSTEM
     ${NANO_SRC}/Sound.c
     ${NANO_SRC}/Windows.c
     ${NANO_SRC}/SelfRunDemo.c
-    ${NANO_SRC}/Movie.c
 )
 
 set(NANO_SRC_TERRAIN

@@ -2,8 +2,6 @@
 // infobar.h
 //
 
-#define INFOBAR_HEIGHT	480
-
 #define	MAX_FUEL_CAPACITY	(29-1)
 #define	NUM_EGG_SPECIES		5
 #define LEVEL_DURATION		(60*20)			// n seconds

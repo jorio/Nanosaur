@@ -9,14 +9,11 @@
 /* EXTERNALS   */
 /***************/
 
-#include 	<QD3D.h>
-#include 	<QD3DErrors.h>
 #include	"globals.h"
 #include 	"objects.h"
 #include	"misc.h"
 #include 	"selfrundemo.h"
 #include	"file.h"
-#include 	"player_control.h"
 #include 	"main.h"
 #include "skeletonobj.h"
 #include "input.h"

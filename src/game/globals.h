@@ -7,7 +7,6 @@
 #ifndef MYGLOBALS_H
 #define MYGLOBALS_H
 
-//   #pragma opt_strength_reduction 	off
 
 
 #include <math.h>
@@ -16,29 +15,10 @@
 
 
 
-			/* SOME FLOATING POINT HELPERS */
-			
-#if 0 // Source port removal: Commented out due to collision with some windows macro - unused in nanosaur anyway
-#define INFINITE	1e20
-#endif
-#define EPS 1e-5					// a very small number which is useful for FP compares close to 0
-#define	IS_ZERO(_x)  (fabs(_x) < EPS)
-
-
-#define	MOVE_TO_FRONT		(WindowPtr)-1L
-#define	NIL_STRING			""
 #define	PICT_HEADER_SIZE	512
 #define REMOVE_ALL_EVENTS	 0
 
 #define	GRAVITY_CONSTANT	1400.0f
-
-
-		/* CLOSE ENOUGH TO ZERO */
-		//
-		// If float value is close enough to 0, then make it 0
-		//
-
-#define	CLOSE_ENOUGH_TO_ZERO(theFloat)	if (fabs(theFloat) < EPS) theFloat = 0;
 
 
 		/* 2D ARRAY MACROS */
@@ -58,21 +38,6 @@ int i;														\
 		DisposePtr((Ptr)array[0]);		\
 		DisposePtr((Ptr)array);			\
 		array = nil;
-
-
-/* UNIVERSAL PTR TYPE WHICH CAN READ/WRITE ANYTHING */
-
-typedef union {
-	long 	*L;
-	short 	*S;
-	Ptr 	B;
-} UniversalPtr;
-
-typedef union {
-	long 	**L;
-	short 	**S;
-	Handle 	B;
-} UniversalHandle;
 
 
 
@@ -99,28 +64,6 @@ typedef union {
 #define	CHAR_APOSTROPHE		0x27
 
 
-							// BINARY EQUATES
-							//===================================
-
-#define	b1					0x1L
-#define	b11					0x3L
-#define	b111				0x7L
-#define	b1111				0xfL
-#define	b11111				0x1fL
-#define	b111111				0x3fL
-#define	b1111111			0x7fL
-#define	b11111111			0xffL
-#define	b111111111			0x1ffL
-#define	b1111111111			0x3ffL
-#define	b11111111111		0x7ffL
-#define	b111111111111		0xfffL
-#define	b1111111111111		0x1fffL
-#define	b1111111111100000	0xffe0L
-
-#define	b1100				0xcL
-#define	b1110				0xeL
-#define	b110				0x6L
-															
 							// COLLISION SIDE INFO
 							//=================================
 							

@@ -39,7 +39,6 @@ extern	TQ3Point3D		gCoord;
 extern	TQ3Vector3D		gDelta;
 extern	Byte			gNumPlayers;
 extern	TQ3Vector3D		gRecentTerrainNormal;
-extern	TQ3Matrix4x4	gRecentJointFullMatrix;
 extern	NewObjectDefinitionType	gNewObjectDefinition;
 extern	UInt16			gMyLatestPathTileNum,gMyLatestTileAttribs;
 
@@ -328,9 +327,6 @@ Byte		currentAnim;
 void DoPlayerJetControl(ObjNode *theNode)
 {
 KeyControlType	bits; 
-Byte		currentAnim;
-
-	currentAnim = theNode->Skeleton->AnimNum;
 
 	bits = gMyControlBits;											// get player control bits
 

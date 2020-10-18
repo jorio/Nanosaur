@@ -10,8 +10,6 @@
 /****************************/
 
 #include <QD3D.h>
-#include <QD3DGroup.h>
-#include <QD3DMath.h>
 
 #include "globals.h"
 #include "mobjtypes.h"
@@ -152,14 +150,12 @@ ObjNode	*hitObj;
 				if (EnemyGotHurt(theEnemy,hitObj,hitObj->Damage))		// handle hit (returns true if was deleted)
 					return(true);
 			}
-#if 1			
 				/* SEE IF HIT ME - HURT ME */
 			else
 			if (ctype & CTYPE_PLAYER)
 			{
 				PlayerGotHurt(hitObj,theEnemy->Damage, true, false);
 			}
-#endif			
 		}
 	}
 	
@@ -190,20 +186,6 @@ Boolean EnemyGotHurt(ObjNode *theEnemy, ObjNode *theHurter, float damage)
 	{
 		KillEnemy(theEnemy);
 		return(true);
-	}
-			/* HANDLE STUNNING OF ENEMY */
-	else
-	{
-#if 0	
-		switch(theEnemy->Kind)
-		{
-			case	ENEMY_KIND_PUNCHINGCLOWN:
-					StunPunchingClown(theEnemy);
-					break;
-					
-					
-		}
-#endif		
 	}
 	
 	
@@ -299,18 +281,6 @@ ObjNode	*newObj;
 //	SIDE_BITS_LEFT | SIDE_BITS_RIGHT | SIDE_BITS_FRONT |	// not solid on bottom or top
 //					 SIDE_BITS_BACK;
 	return(newObj);
-}
-
-
-/*************************** ENEMY GOT BONKED ********************************/
-
-void EnemyGotBonked(ObjNode *theEnemy, ObjNode *byWho, float bonkSpeed)
-{
-
-	if (EnemyGotHurt(theEnemy, byWho, 1.0))				// hurt the enemy & see if was killed
-		return;
-
-
 }
 
 

@@ -29,7 +29,6 @@ extern	QD3DSetupOutputType		*gGameViewInfoPtr;
 /****************************/
 
 static TQ3Status MyRead3DMFModel(TQ3FileObject file, TQ3Object *model);
-static Boolean Get3DMFInputFileName(FSSpec *myFSSpec);
 static TQ3FileObject	Create3DMFFileObject(FSSpec *myFSSpec);
 
 /****************************/

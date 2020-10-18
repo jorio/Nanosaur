@@ -68,7 +68,6 @@ static void KillPlayer(ObjNode *theNode);
 static void MovePlayer_Exit(ObjNode *theNode);
 
 static Boolean DoMyKickCollision(ObjNode *theNode);
-static void PlayerGotBonked(ObjNode *myObj, ObjNode *enemyObj);
 static void MoveShield(ObjNode *theNode);
 
 
@@ -82,8 +81,6 @@ static void MoveShield(ObjNode *theNode);
 #define	MY_FOOT_JOINT_NUM	7
 
 #define	MY_KICK_DAMAGE	.3f
-
-#define	MIN_BONK_SPEED	6
 
 #define	SOME_SMALL_DELTA	.1f
 
@@ -120,7 +117,7 @@ Byte		gMyStartAim;
 
 void InitMyGuy(void)
 {
-ObjNode	*newObj,*shadowObj;
+ObjNode	*newObj;
 float	y;
 		
 	gMyLatestPathTileNum = 	gMyLatestTileAttribs = 0;		
@@ -166,7 +163,7 @@ float	y;
 	
 				/* MAKE SHADOW */
 				
-	shadowObj = AttachShadowToObject(newObj, .9, .9*2.5);
+	AttachShadowToObject(newObj, .9, .9*2.5);
 				
 
 			/* MAKE APPEARANCE TIME PORTAL */
@@ -867,13 +864,9 @@ static Boolean DoPlayerCollisionDetect(ObjNode *theNode)
 short	i;
 ObjNode	*hitObj;
 unsigned long	ctype;
-TQ3Point3D		oldCoord;
-float		y,oldDY;
+float		y;
 UInt8		sides;
 
-	oldCoord = gCoord;
-	oldDY = gDelta.y;
-	
 			/* AUTOMATICALLY HANDLE THE GOOD STUFF */
 			
 	if (gPlayerGotKilledFlag)
@@ -999,14 +992,6 @@ UInt32		ctype;
 	}
 	
 	return(n);
-}
-
-
-/********************** PLAYER GOT BONKED ***************************/
-
-static void PlayerGotBonked(ObjNode *myObj, ObjNode *enemyObj)
-{
-	PlayerGotHurt(myObj, enemyObj->Damage,true,false);
 }
 
 
