@@ -154,7 +154,7 @@ do_again:
 
 	if (gGamePrefs.mainMenuHelp)
 	{
-		EnableBackdropPillarboxing(true);
+		SetBackdropFit(BACKDROP_PILLARBOX);
 		int w;
 		const char*	s = "Use the Arrow Keys to change the Selection.  Press the Spacebar to make a Selection.";
 		w = TextWidthC(s);

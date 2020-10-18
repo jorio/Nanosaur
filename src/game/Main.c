@@ -237,7 +237,7 @@ TQ3ColorRGB		c2 = { 1, .9, .6 };
 		viewDef.view.clearColor.b = .75;
 	}
 	
-	EnableBackdropPillarboxing(false);  // Source port addition
+	SetBackdropFit(BACKDROP_FILL);
 	
 	QD3D_SetupWindow(&viewDef, &gGameViewInfoPtr);
 	QD3D_DrawScene(gGameViewInfoPtr, nil);

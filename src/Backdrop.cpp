@@ -15,7 +15,7 @@ extern PrefsType gGamePrefs;
 
 constexpr const bool ALLOW_BACKDROP_TEXTURE = true;
 std::unique_ptr<GLBackdrop> glBackdrop = nullptr;
-static bool backdropPillarbox = false;
+static int backdropFit = BACKDROP_FILL;
 
 static SDL_GLContext exclusiveGLContext = nullptr;
 static bool exclusiveGLContextValid = false;
@@ -62,9 +62,20 @@ void DisposeBackdropTexture()
 	glBackdrop.reset(nullptr);
 }
 
-void EnableBackdropPillarboxing(Boolean pillarbox)
+void SetBackdropFit(int fit)
 {
-	backdropPillarbox = pillarbox;
+	backdropFit = fit;
+}
+
+void SetBackdropClipRegion(int regionWidth, int regionHeight)
+{
+	if (!ALLOW_BACKDROP_TEXTURE
+		|| !IsBackdropAllocated())
+	{
+		return;
+	}
+
+	glBackdrop->SetClipRegion(regionWidth, regionHeight);
 }
 
 void RenderBackdropQuad()
@@ -88,9 +99,9 @@ void RenderBackdropQuad()
 		Pomme_SetPortDirty(false);
 	}
 
-	glBackdrop->UpdateQuad(windowWidth, windowHeight, backdropPillarbox);
+	glBackdrop->UpdateQuad(windowWidth, windowHeight, backdropFit);
 
-	glBackdrop->Render(windowWidth, windowHeight, backdropPillarbox, gGamePrefs.highQualityTextures);
+	glBackdrop->Render(windowWidth, windowHeight, gGamePrefs.highQualityTextures);
 
 	if (exclusiveGLContextValid) { // in exclusive GL mode, force swap buffer
 		SDL_GL_SwapWindow(gSDLWindow);

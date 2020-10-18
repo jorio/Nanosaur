@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Quesa.h>
+#include "GLBackdrop.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -30,7 +31,9 @@ void ExclusiveOpenGLMode_End(void);
 
 void AllocBackdropTexture(void);
 
-void EnableBackdropPillarboxing(Boolean pillarbox);
+void SetBackdropFit(int fit);
+
+void SetBackdropClipRegion(int width, int height);
 
 void RenderBackdropQuad(void);
 

@@ -48,6 +48,9 @@ GLBackdrop::GLBackdrop(
 	this->textureWidth = width;
 	this->textureHeight = height;
 	this->textureData = pixels;
+	this->clipWidth = textureWidth;
+	this->clipHeight = textureHeight;
+	this->needClear = false;
 
 	GLint status;
 
@@ -99,21 +102,39 @@ GLBackdrop::~GLBackdrop()
 }
 
 void GLBackdrop::UpdateQuad(
-	int windowWidth,
-	int windowHeight,
-	bool pillarbox)
+	const int windowWidth,
+	const int windowHeight,
+	int fit)
 {
 	float screenLeft   = 0.0f;
 	float screenRight  = (float)windowWidth;
 	float screenTop    = 0.0f;
 	float screenBottom = (float)windowHeight;
+	needClear = false;
 
 	// Adjust screen coordinates if we want to pillarbox/letterbox the image.
-	if (pillarbox) {
-		const float ratio = (float)windowWidth / windowHeight;
-		const float fourThirds = 4.0f / 3.0f;
-		if (ratio > fourThirds) {
-			float pillarboxedWidth = fourThirds * windowWidth / ratio;
+	if (fit & (BACKDROP_LETTERBOX | BACKDROP_PILLARBOX))
+	{
+		const float targetAspectRatio = (float)windowWidth / windowHeight;
+		const float sourceAspectRatio = (float)clipWidth / clipHeight;
+
+		if (fabs(sourceAspectRatio - targetAspectRatio) < 0.1)
+		{
+			// source and window have nearly the same aspect ratio -- fit (no-op)
+		}
+		else if ((fit & BACKDROP_LETTERBOX) && sourceAspectRatio > targetAspectRatio)
+		{
+			// source is wider than window -- letterbox
+			needClear = true;
+			float letterboxedHeight = windowWidth / sourceAspectRatio;
+			screenTop = (windowHeight - letterboxedHeight) / 2;
+			screenBottom = screenTop + letterboxedHeight;
+		}
+		else if ((fit & BACKDROP_PILLARBOX) && sourceAspectRatio < targetAspectRatio)
+		{
+			// source is narrower than window -- pillarbox
+			needClear = true;
+			float pillarboxedWidth = sourceAspectRatio * windowWidth / targetAspectRatio;
 			screenLeft = (windowWidth / 2.0f) - (pillarboxedWidth / 2.0f);
 			screenRight = screenLeft + pillarboxedWidth;
 		}
@@ -127,9 +148,9 @@ void GLBackdrop::UpdateQuad(
 
 	// Compute texture coordinates.
 	float uLeft     = 0.0f;
-	float uRight    = 1.0f;
+	float uRight    = (float)clipWidth / textureWidth;
 	float vTop      = 0.0f;
-	float vBottom   = 1.0f;
+	float vBottom   = (float)clipHeight / textureHeight;
 
 	vertexBufferData = {
 		// First triangle
@@ -152,7 +173,6 @@ void GLBackdrop::UpdateTexture()
 void GLBackdrop::Render(
 	int windowWidth,
 	int windowHeight,
-	bool pillarbox,
 	bool linearFiltering)
 {
 	gl.UseProgram(program);
@@ -162,7 +182,7 @@ void GLBackdrop::Render(
 
 	glViewport(0, 0, windowWidth, windowHeight);
 
-	if (pillarbox) {
+	if (needClear) {
 		float clearR = textureData[1] / 255.0f;
 		float clearG = textureData[2] / 255.0f;
 		float clearB = textureData[3] / 255.0f;
@@ -185,4 +205,20 @@ void GLBackdrop::Render(
 	gl.BufferData(GL_ARRAY_BUFFER, vertexBufferData.size() * sizeof(float), vertexBufferData.data(), GL_STATIC_DRAW);
 	gl.BindVertexArray(vao);
 	glDrawArrays(GL_TRIANGLES, 0, 6);
+}
+
+void GLBackdrop::SetClipRegion(
+	int clipWidth,
+	int clipHeight)
+{
+	if (clipWidth < 0 || clipHeight < 0) {
+		throw std::invalid_argument("illegal backdrop clip region dimensions");
+	}
+
+	if (clipWidth > textureWidth || clipHeight > textureHeight) {
+		throw std::invalid_argument("backdrop clip region dimensions may not exceed texture size");
+	}
+
+	this->clipWidth = clipWidth;
+	this->clipHeight = clipHeight;
 }
