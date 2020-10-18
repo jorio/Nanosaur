@@ -354,6 +354,7 @@ static void cinepak_decode (CinepakContext *s)
 }
 
 CinepakContext::CinepakContext(int _width, int _height)
+	: strips(CINEPAK_MAX_STRIPS)
 {
 	avctx_width = _width;
 	avctx_height = _height;

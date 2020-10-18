@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <vector>
 
 #define CINEPAK_MAX_STRIPS      32
 
@@ -17,6 +18,8 @@ struct cvid_strip
 
 struct CinepakContext
 {
+	std::vector<cvid_strip> strips;
+
 	int avctx_width;
 	int avctx_height;
 	int width, height;
@@ -26,8 +29,6 @@ struct CinepakContext
 
 	const unsigned char* data;
 	int size;
-
-	cvid_strip strips[CINEPAK_MAX_STRIPS];
 	
 public:
 	CinepakContext(int avctx_width, int avctx_height);
