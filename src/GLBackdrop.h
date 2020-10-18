@@ -5,6 +5,7 @@ enum
 	BACKDROP_FILL = 0,
 	BACKDROP_PILLARBOX = 1,
 	BACKDROP_LETTERBOX = 2,
+	BACKDROP_CLEAR_BLACK = 4,
 	BACKDROP_FIT = BACKDROP_PILLARBOX | BACKDROP_LETTERBOX,
 };
 
@@ -33,7 +34,7 @@ public:
 	~GLBackdrop();
 	void UpdateTexture();
 	void UpdateQuad(int windowWidth, int windowHeight, int fit);
-	void Render(int windowWidth, int windowHeight, bool linearFiltering);
+	void Render(int windowWidth, int windowHeight, bool linearFiltering, bool autoClearColor);
 	void SetClipRegion(int clipWidth, int clipHeight);
 };
 

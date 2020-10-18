@@ -132,7 +132,7 @@ void RenderBackdropQuad(int fit)
 
 	glBackdrop->UpdateQuad(windowWidth, windowHeight, fit);
 
-	glBackdrop->Render(windowWidth, windowHeight, gGamePrefs.highQualityTextures);
+	glBackdrop->Render(windowWidth, windowHeight, gGamePrefs.highQualityTextures, !(fit & BACKDROP_CLEAR_BLACK));
 
 	if (exclusiveGLContextValid) { // in exclusive GL mode, force swap buffer
 		SDL_GL_SwapWindow(gSDLWindow);

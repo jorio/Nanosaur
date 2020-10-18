@@ -159,6 +159,7 @@ void PlayAMovie(FSSpec* spec)
 
 	ExclusiveOpenGLMode_Begin();
 	SetBackdropClipRegion(movie.width, movie.height);
+	ClearBackdrop(0xFF000000);
 
 	movie.audioStream.Play();
 
@@ -190,7 +191,7 @@ void PlayAMovie(FSSpec* spec)
 		}
 
 		Pomme_SetPortDirty(true);
-		RenderBackdropQuad(BACKDROP_FIT);
+		RenderBackdropQuad(BACKDROP_FIT | BACKDROP_CLEAR_BLACK);
 		DoSDLMaintenance();
 
 		unsigned int endTicks = SDL_GetTicks();

@@ -173,7 +173,8 @@ void GLBackdrop::UpdateTexture()
 void GLBackdrop::Render(
 	int windowWidth,
 	int windowHeight,
-	bool linearFiltering)
+	bool linearFiltering,
+	bool autoClearColor)
 {
 	gl.UseProgram(program);
 
@@ -183,10 +184,15 @@ void GLBackdrop::Render(
 	glViewport(0, 0, windowWidth, windowHeight);
 
 	if (needClear) {
-		float clearR = textureData[1] / 255.0f;
-		float clearG = textureData[2] / 255.0f;
-		float clearB = textureData[3] / 255.0f;
-		glClearColor(clearR, clearG, clearB, 1.0);
+		if (autoClearColor) {
+			// Use top-left pixel in backdrop image to determine clear color
+			float clearR = textureData[1] / 255.0f;
+			float clearG = textureData[2] / 255.0f;
+			float clearB = textureData[3] / 255.0f;
+			glClearColor(clearR, clearG, clearB, 1.0f);
+		} else {
+			glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		}
 		glClear(GL_COLOR_BUFFER_BIT);
 	}
 
