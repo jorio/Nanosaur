@@ -415,49 +415,18 @@ static void ProcessSoundCmd(SndChannelPtr chan, const Ptr sndhdr)
 
 		std::cout << "cmpSH: " << Pomme::FourCCString(format) << " " << (sh.cmpSH_nChannels == 1 ? "mono" : "stereo") << ", " << nCompressedChunks << " ck\n";
 
-		switch (format) {
-		case 'ima4':
-		{
-			int nBytesIn = 34 * sh.cmpSH_nChannels * nCompressedChunks;
-			int nBytesOut = Pomme::Sound::IMA4::GetOutputSize(nBytesIn, sh.cmpSH_nChannels);
+		std::unique_ptr<Pomme::Sound::Codec> codec = Pomme::Sound::GetCodec(format);
 
-			auto spanIn = std::span(here, nBytesIn);
-			auto spanOut = impl.source.GetBuffer(nBytesOut);
+		// Decompress
+		int nBytesIn  = sh.cmpSH_nChannels * nCompressedChunks * codec->BytesPerPacket();
+		int nBytesOut = sh.cmpSH_nChannels * nCompressedChunks * codec->SamplesPerPacket() * 2;
 
-			Pomme::Sound::IMA4::Decode(sh.cmpSH_nChannels, spanIn, spanOut);
-			impl.source.Init(sampleRate, 16, sh.cmpSH_nChannels, false, spanOut);
-			break;
-		}
+		auto spanIn = std::span(here, nBytesIn);
+		auto spanOut = impl.source.GetBuffer(nBytesOut);
 
-		case 'MAC3':
-		{
-			int nBytesIn = 2 * sh.cmpSH_nChannels * nCompressedChunks;
-			int nBytesOut = Pomme::Sound::MACE::GetOutputSize(nBytesIn, sh.cmpSH_nChannels);
+		codec->Decode(sh.cmpSH_nChannels, spanIn, spanOut);
+		impl.source.Init(sampleRate, 16, sh.cmpSH_nChannels, false, spanOut);
 
-			auto spanIn = std::span(here, nBytesIn);
-			auto spanOut = impl.source.GetBuffer(nBytesOut);
-
-			Pomme::Sound::MACE::Decode(sh.cmpSH_nChannels, spanIn, spanOut);
-			impl.source.Init(sampleRate, 16, sh.cmpSH_nChannels, false, spanOut);
-			break;
-		}
-
-		case 'ulaw':
-		{
-			int nBytesIn = sh.cmpSH_nChannels * nCompressedChunks;
-			int nBytesOut = 2 * nBytesIn;
-
-			auto spanIn = std::span(here, nBytesIn);
-			auto spanOut = impl.source.GetBuffer(nBytesOut);
-
-			Pomme::Sound::ulaw::Decode(sh.cmpSH_nChannels, spanIn, spanOut);
-			impl.source.Init(sampleRate, 16, sh.cmpSH_nChannels, false, spanOut);
-			break;
-		}
-
-		default:
-			TODOFATAL2("unsupported snd compression format " << Pomme::FourCCString(format));
-		}
 		break;
 	}
 
@@ -690,52 +659,16 @@ Boolean Pomme_DecompressSoundResource(SndListHandle* sndHandlePtr, long* offsetT
 	const char* here = sndhdr + f.Tell();
 
 	int outInitialSize = kSampledSoundCommandListLength + kSampledSoundHeaderLength;
-	SndListHandle outHandle = nil;
-	int nBytesOut = 0;
+
+	std::unique_ptr<Pomme::Sound::Codec> codec = Pomme::Sound::GetCodec(format);
 
 	// Decompress
-	switch (format) {
-	case 'ima4':
-	{
-		const int nBytesIn = 34 * sh.cmpSH_nChannels * nCompressedChunks;
-		nBytesOut = Pomme::Sound::IMA4::GetOutputSize(nBytesIn, sh.cmpSH_nChannels);
-		outHandle = (SndListHandle)NewHandle(outInitialSize + nBytesOut);
-		auto spanIn = std::span(here, nBytesIn);
-		auto spanOut = std::span((char*)*outHandle + outInitialSize, nBytesOut);
-		Pomme::Sound::IMA4::Decode(sh.cmpSH_nChannels, spanIn, spanOut);
-		break;
-	}
-
-	case 'MAC3':
-	case 0:  // Assume MACE-3 by default
-	{
-		int nBytesIn = 2 * sh.cmpSH_nChannels * nCompressedChunks;
-		nBytesOut = Pomme::Sound::MACE::GetOutputSize(nBytesIn, sh.cmpSH_nChannels);
-		outHandle = (SndListHandle)NewHandle(outInitialSize + nBytesOut);
-		auto spanIn = std::span(here, nBytesIn);
-		auto spanOut = std::span((char*)*outHandle + outInitialSize, nBytesOut);
-		Pomme::Sound::MACE::Decode(sh.cmpSH_nChannels, spanIn, spanOut);
-		break;
-	}
-
-	case 'ulaw':
-	{
-		int nBytesIn = sh.cmpSH_nChannels * nCompressedChunks;
-		nBytesOut = 2 * nBytesIn;
-		outHandle = (SndListHandle)NewHandle(outInitialSize + nBytesOut);
-		auto spanIn = std::span(here, nBytesIn);
-		auto spanOut = std::span((char*)*outHandle + outInitialSize, nBytesOut);
-		Pomme::Sound::ulaw::Decode(sh.cmpSH_nChannels, spanIn, spanOut);
-		break;
-	}
-
-	default:
-		// Unsupported sound compression format. Don't try to decompress it.
-		// It'll blow up if the mac program tries to play it back, but perhaps
-		// it never will, so it's not worth throwing an error here.
-		LOG << "Unsupported sound compression format: " << Pomme::FourCCString(format) << "\n";
-		return false;
-	}
+	const int nBytesIn  = sh.cmpSH_nChannels * nCompressedChunks * codec->BytesPerPacket();
+	const int nBytesOut = sh.cmpSH_nChannels * nCompressedChunks * codec->SamplesPerPacket() * 2;
+	SndListHandle outHandle = (SndListHandle)NewHandle(outInitialSize + nBytesOut);
+	auto spanIn = std::span(here, nBytesIn);
+	auto spanOut = std::span((char*)*outHandle + outInitialSize, nBytesOut);
+	codec->Decode(sh.cmpSH_nChannels, spanIn, spanOut);
 
 	// ------------------------------------------------------
 	// Now we have the PCM data.
@@ -795,5 +728,21 @@ void Pomme::Sound::Shutdown()
 	cmixer::ShutdownWithSDL();
 	while (headChan) {
 		SndDisposeChannel(headChan->macChannel, true);
+	}
+}
+
+
+std::unique_ptr<Pomme::Sound::Codec> Pomme::Sound::GetCodec(uint32_t fourCC)
+{
+	switch (fourCC) {
+		case 0: // Assume MACE-3 by default.
+		case 'MAC3':
+			return std::make_unique<Pomme::Sound::MACE>();
+		case 'ima4':
+			return std::make_unique<Pomme::Sound::IMA4>();
+		case 'ulaw':
+			return std::make_unique<Pomme::Sound::ulaw>();
+		default:
+			throw std::runtime_error("Unknown audio codec: " + Pomme::FourCCString(fourCC));
 	}
 }

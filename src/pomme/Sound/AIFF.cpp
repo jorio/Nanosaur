@@ -2,14 +2,6 @@
 #include "PommeSound.h"
 #include "Utilities/BigEndianIStream.h"
 #include <iostream>
-using namespace Pomme;
-
-#define LOG POMME_GENLOG(POMME_DEBUG_SOUND, "AIFF")
-
-class AIFFException: public std::runtime_error {
-public:
-	AIFFException(const char* m) : std::runtime_error(m) {}
-};
 
 struct AIFFCOMM {
 	int numChannels;
@@ -19,17 +11,24 @@ struct AIFFCOMM {
 	OSType compressionType = 'NONE';
 };
 
+static void AIFFAssert(bool condition, const char* message)
+{
+	if (!condition) {
+		throw std::runtime_error(message);
+	}
+}
+
 Pomme::Sound::AudioClip Pomme::Sound::ReadAIFF(std::istream& theF)
 {
 	BigEndianIStream f(theF);
 
-	if ('FORM' != f.Read<OSType>()) throw AIFFException("invalid FORM");
+	AIFFAssert('FORM' == f.Read<OSType>(), "AIFF: invalid FORM");
 	auto formSize = f.Read<SInt32>();
 	auto endOfForm = f.Tell() + std::streampos(formSize);
 	auto formType = f.Read<OSType>();
 	bool isAiffC = formType == 'AIFC';
 
-	if (formType != 'AIFF' && formType != 'AIFC') throw AIFFException("invalid file type");
+	AIFFAssert(formType == 'AIFF' || formType == 'AIFC', "AIFF: not an AIFF or AIFC file");
 
 	AIFFCOMM COMM = {};
 
@@ -44,8 +43,7 @@ Pomme::Sound::AudioClip Pomme::Sound::ReadAIFF(std::istream& theF)
 		case 'FVER':
 		{
 			auto timestamp = f.Read<UInt32>();
-			if (timestamp != 0xA2805140)
-				throw AIFFException("unrecognized FVER");
+			AIFFAssert(timestamp == 0xA2805140, "AIFF: unrecognized FVER");
 			break;
 		}
 
@@ -60,61 +58,36 @@ Pomme::Sound::AudioClip Pomme::Sound::ReadAIFF(std::istream& theF)
 			clip.nChannels			= COMM.numChannels;
 			clip.bitDepth			= COMM.sampleSize;
 			clip.sampleRate			= (int)COMM.sampleRate;
-			//clip.pcmData			= std::vector<char>(COMM.numChannels * COMM.numSampleFrames * COMM.sampleSize / 8);
 
-			std::string compressionName = "Not compressed";
 			if (isAiffC) {
 				COMM.compressionType = f.Read<OSType>();
-				compressionName = f.ReadPascalString();
+				f.ReadPascalString(); // This is a human-friendly compression name. Skip it.
 			}
-			LOG << FourCCString(formType) << ": "
-				<< COMM.sampleSize << "-bit, "
-				<< COMM.sampleRate << " Hz, "
-				<< COMM.numChannels << " chans, "
-				<< COMM.numSampleFrames << " frames, "
-				<< FourCCString(COMM.compressionType) << " \"" << compressionName << "\""
-				<< "\n";
 			break;
 		}
 
 		case 'SSND':
 		{
-			if (f.Read<UInt64>() != 0) throw AIFFException("unexpected offset/blockSize in SSND");
+			AIFFAssert(0 == f.Read<UInt64>(), "AIFF: unexpected offset/blockSize in SSND");
 			// sampled sound data is here
 
 			const int ssndSize = ckSize - 8;
 			auto ssnd = std::vector<char>(ssndSize);
 			f.Read(ssnd.data(), ssndSize);
-			LOG << "SSND bytes " << ssnd.size() << "\n";
 
-			switch (COMM.compressionType) {
-			case 'MAC3':
-				clip.bitDepth = 16;  // force bitdepth to 16 (decoder output)
-				clip.pcmData.resize(MACE::GetOutputSize(ssndSize, COMM.numChannels));
-				MACE::Decode(COMM.numChannels, std::span(ssnd), std::span(clip.pcmData));
-				break;
-
-			case 'ima4':
-				clip.bitDepth = 16;  // force bitdepth to 16 (decoder output)
-				clip.pcmData.resize(IMA4::GetOutputSize(ssndSize, COMM.numChannels));
-				IMA4::Decode(COMM.numChannels, std::span(ssnd), std::span(clip.pcmData));
-				break;
-
-			default:
-				TODO2("unknown compression type " << FourCCString(COMM.compressionType));
-				break;
-			}
-
+			std::unique_ptr<Pomme::Sound::Codec> codec = Pomme::Sound::GetCodec(COMM.compressionType);
+			clip.bitDepth = 16;  // force bitdepth to 16 (decoder output)
+			clip.pcmData.resize(COMM.numSampleFrames * COMM.numChannels * codec->SamplesPerPacket() * 2);
+			codec->Decode(COMM.numChannels, std::span(ssnd), std::span(clip.pcmData));
 			break;
 		}
 
 		default:
-			LOG << "Skipping chunk " << FourCCString(ckID) << "\n";
 			f.Goto(int(endOfChunk));
 			break;
 		}
 
-		if (f.Tell() != endOfChunk) throw AIFFException("end of chunk pos???");
+		AIFFAssert(f.Tell() == endOfChunk, "AIFF: incorrect end-of-chunk position");
 	}
 
 	return clip;

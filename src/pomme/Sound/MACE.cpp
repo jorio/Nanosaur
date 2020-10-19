@@ -184,14 +184,6 @@ static int16_t read_table(ChannelData *chd, uint8_t val, int tab_idx)
 	return current;
 }
 
-int Pomme::Sound::MACE::GetOutputSize(
-	const int inputByteCount,
-	const int nChannels)
-{
-	int nSamples = 3 * inputByteCount / nChannels;
-	return nChannels * nSamples * 2;
-}
-
 void Pomme::Sound::MACE::Decode(
 	const int nChannels,
 	const std::span<const char> input,
@@ -202,7 +194,7 @@ void Pomme::Sound::MACE::Decode(
 
 	int nSamples = 3 * int(input.size()) / nChannels;
 
-	if (output.size() != nSamples * 2)
+	if (output.size() != nSamples * nChannels * 2)
 		throw std::invalid_argument("incorrect output size");
 
 	int16_t* out = reinterpret_cast<int16_t*>(output.data());

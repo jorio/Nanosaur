@@ -269,6 +269,12 @@ static void Parse_mdia_soun(Pomme::BigEndianIStream& f, Movie& movie)
 	// ------------------------------------
 	// EXTRACT AUDIO
 
+	bool isRawPCM = movie.audioFormat == 'twos' || movie.audioFormat == 'swot';
+	std::unique_ptr<Pomme::Sound::Codec> codec = nullptr;
+	if (!isRawPCM) {
+		codec = Pomme::Sound::GetCodec(movie.audioFormat);
+	}
+
 	// Set up position guard for rest of function
 	auto guard = f.GuardPos();
 	
@@ -277,21 +283,13 @@ static void Parse_mdia_soun(Pomme::BigEndianIStream& f, Movie& movie)
 	// We have to deduce it from the audio format.
 	std::vector<int> chunkLengths;
 	UInt32 compressedLength = 0;
+	UInt32 totalSamples = 0;
 
 	for (const auto& chunk : chunkList) {
-		int chunkBytes;
-		switch (movie.audioFormat)
-		{
-		case 'twos':
-		case 'swot':
-			chunkBytes = chunk.samplesPerChunk * movie.audioNChannels * (movie.audioBitDepth / 8);
-			break;
-		case 'ima4':
-			chunkBytes = Pomme::Sound::IMA4::GetInputSize(chunk.samplesPerChunk, movie.audioNChannels);
-			break;
-		default:
-			throw MoovException("Unknown moov audio format: " + Pomme::FourCCString(movie.audioFormat));
-		}
+		totalSamples += chunk.samplesPerChunk;
+		int chunkBytes = isRawPCM
+				? movie.audioNChannels * chunk.samplesPerChunk * (movie.audioBitDepth / 8)
+				: movie.audioNChannels * chunk.samplesPerChunk * codec->BytesPerPacket() / codec->SamplesPerPacket();
 		chunkLengths.push_back(chunkBytes);
 		compressedLength += chunkBytes;
 	}
@@ -308,31 +306,20 @@ static void Parse_mdia_soun(Pomme::BigEndianIStream& f, Movie& movie)
 
 	MoovAssert(out == compressedSoundData.data() + compressedLength, "csd length != total length");
 
-	switch (movie.audioFormat)
-	{
-		case 'twos':
-		case 'swot':
-			movie.audioStream.SetBuffer(std::move(compressedSoundData));
-			movie.audioStream.Init(
+	if (isRawPCM) {
+		movie.audioStream.SetBuffer(std::move(compressedSoundData));
+		movie.audioStream.Init(
 				movie.audioSampleRate,
 				movie.audioBitDepth,
 				movie.audioNChannels,
 				movie.audioFormat == 'twos',
 				movie.audioStream.GetBuffer(compressedLength));
-			break;
-
-		case 'ima4':
-		{
-			auto outBytes = Pomme::Sound::IMA4::GetOutputSize(compressedLength, movie.audioNChannels);
-			auto outSpan = movie.audioStream.GetBuffer(outBytes);
-			auto inSpan = std::span(compressedSoundData.data(), compressedLength);
-			Pomme::Sound::IMA4::Decode(movie.audioNChannels, inSpan, outSpan);
-			movie.audioStream.Init(movie.audioSampleRate, 16, movie.audioNChannels, false, outSpan);
-			break;
-		}
-		
-		default:
-			throw MoovException("Unknown moov audio format: " + Pomme::FourCCString(movie.audioFormat));
+	} else {
+		auto outBytes = 2 * totalSamples * movie.audioNChannels;
+		auto outSpan = movie.audioStream.GetBuffer(outBytes);
+		auto inSpan = std::span(compressedSoundData.data(), compressedLength);
+		codec->Decode(movie.audioNChannels, inSpan, outSpan);
+		movie.audioStream.Init(movie.audioSampleRate, 16, movie.audioNChannels, false, outSpan);
 	}
 }
 

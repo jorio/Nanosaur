@@ -45,13 +45,6 @@ static int16_t ulawToPCM[128] = {
    -56,    -48,    -40,    -32,    -24,    -16,     -8,     -0,
 };
 
-int Pomme::Sound::ulaw::GetOutputSize(
-		const int inputByteCount,
-		const int nChannels)
-{
-	return inputByteCount * 2;
-}
-
 void Pomme::Sound::ulaw::Decode(
 		const int nChannels,
 		const std::span<const char> input,
