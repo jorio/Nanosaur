@@ -572,16 +572,13 @@ OSErr SndStartFilePlay(
 		return unimpErr;
 	}
 
+	auto& impl = GetImpl(chan);
+	impl.Recycle();
+
 	auto& stream = Pomme::Files::GetStream(fRefNum);
 	// Rewind -- the file might've been fully played already and we might just be trying to loop it
 	stream.seekg(0, std::ios::beg);
-	Pomme::Sound::AudioClip clip = Pomme::Sound::ReadAIFF(stream);
-
-	auto& impl = GetImpl(chan);
-
-	impl.Recycle();
-	auto span = impl.source.SetBuffer(std::move(clip.pcmData));
-	impl.source.Init(clip.sampleRate, 16, clip.nChannels, false, span);
+	Pomme::Sound::ReadAIFF(stream, impl.source);
 
 	if (theCompletion) {
 		impl.source.onComplete = [=]() { theCompletion(chan); };

@@ -1,15 +1,6 @@
-#include "Pomme.h"
 #include "PommeSound.h"
 #include "Utilities/BigEndianIStream.h"
-#include <iostream>
-
-struct AIFFCOMM {
-	int numChannels;
-	int numSampleFrames;
-	int sampleSize;
-	double sampleRate;
-	OSType compressionType = 'NONE';
-};
+#include <cstdint>
 
 static void AIFFAssert(bool condition, const char* message)
 {
@@ -18,67 +9,67 @@ static void AIFFAssert(bool condition, const char* message)
 	}
 }
 
-Pomme::Sound::AudioClip Pomme::Sound::ReadAIFF(std::istream& theF)
+void Pomme::Sound::ReadAIFF(std::istream& input, cmixer::WavStream& output)
 {
-	BigEndianIStream f(theF);
+	BigEndianIStream f(input);
 
-	AIFFAssert('FORM' == f.Read<OSType>(), "AIFF: invalid FORM");
-	auto formSize = f.Read<SInt32>();
+	AIFFAssert('FORM' == f.Read<uint32_t>(), "AIFF: invalid FORM");
+	auto formSize = f.Read<uint32_t>();
 	auto endOfForm = f.Tell() + std::streampos(formSize);
-	auto formType = f.Read<OSType>();
-	bool isAiffC = formType == 'AIFC';
-
+	auto formType = f.Read<uint32_t>();
 	AIFFAssert(formType == 'AIFF' || formType == 'AIFC', "AIFF: not an AIFF or AIFC file");
 
-	AIFFCOMM COMM = {};
+	// COMM chunk contents
+	int nChannels  = 0;
+	int nPackets   = 0;
+	int sampleRate = 0;
+	uint32_t compressionType = 'NONE';
 
-	AudioClip clip = {};
+	bool gotCOMM = false;
 
 	while (f.Tell() != endOfForm) {
-		auto ckID = f.Read<OSType>();
-		auto ckSize = f.Read<SInt32>();
+		auto ckID = f.Read<uint32_t>();
+		auto ckSize = f.Read<uint32_t>();
 		std::streampos endOfChunk = f.Tell() + std::streampos(ckSize);
 
 		switch (ckID) {
 		case 'FVER':
 		{
-			auto timestamp = f.Read<UInt32>();
-			AIFFAssert(timestamp == 0xA2805140, "AIFF: unrecognized FVER");
+			auto timestamp = f.Read<uint32_t>();
+			AIFFAssert(timestamp == 0xA2805140u, "AIFF: unrecognized FVER");
 			break;
 		}
 
 		case 'COMM': // common chunk, 2-85
 		{
-			COMM.numChannels		= f.Read<SInt16>();
-			COMM.numSampleFrames	= f.Read<SInt32>();
-			COMM.sampleSize			= f.Read<SInt16>();
-			COMM.sampleRate			= f.Read80BitFloat();
-			COMM.compressionType = 'NONE';
-
-			clip.nChannels			= COMM.numChannels;
-			clip.bitDepth			= COMM.sampleSize;
-			clip.sampleRate			= (int)COMM.sampleRate;
-
-			if (isAiffC) {
-				COMM.compressionType = f.Read<OSType>();
+			nChannels  = f.Read<uint16_t>();
+			nPackets   = f.Read<uint32_t>();
+			f.Skip(2); // sample bit depth (UInt16)
+			sampleRate = (int)f.Read80BitFloat();
+			if (formType == 'AIFC') {
+				compressionType = f.Read<uint32_t>();
 				f.ReadPascalString(); // This is a human-friendly compression name. Skip it.
 			}
+			gotCOMM = true;
 			break;
 		}
 
 		case 'SSND':
 		{
-			AIFFAssert(0 == f.Read<UInt64>(), "AIFF: unexpected offset/blockSize in SSND");
+			AIFFAssert(gotCOMM, "AIFF: reached SSND before COMM");
+			AIFFAssert(0 == f.Read<uint64_t>(), "AIFF: unexpected offset/blockSize in SSND");
 			// sampled sound data is here
 
 			const int ssndSize = ckSize - 8;
 			auto ssnd = std::vector<char>(ssndSize);
 			f.Read(ssnd.data(), ssndSize);
 
-			std::unique_ptr<Pomme::Sound::Codec> codec = Pomme::Sound::GetCodec(COMM.compressionType);
-			clip.bitDepth = 16;  // force bitdepth to 16 (decoder output)
-			clip.pcmData.resize(COMM.numSampleFrames * COMM.numChannels * codec->SamplesPerPacket() * 2);
-			codec->Decode(COMM.numChannels, std::span(ssnd), std::span(clip.pcmData));
+			// TODO: if the compression type is 'NONE' (raw PCM), just init the WavStream without decoding (not needed for Nanosaur though)
+			auto codec   = Pomme::Sound::GetCodec(compressionType);
+			auto spanIn  = std::span(ssnd);
+			auto spanOut = output.GetBuffer(nChannels * nPackets * codec->SamplesPerPacket() * 2);
+			codec->Decode(nChannels, spanIn, spanOut);
+			output.Init(sampleRate, 16, nChannels, false, spanOut);
 			break;
 		}
 
@@ -89,7 +80,5 @@ Pomme::Sound::AudioClip Pomme::Sound::ReadAIFF(std::istream& theF)
 
 		AIFFAssert(f.Tell() == endOfChunk, "AIFF: incorrect end-of-chunk position");
 	}
-
-	return clip;
 }
 

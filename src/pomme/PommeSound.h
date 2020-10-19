@@ -8,17 +8,9 @@
 
 namespace Pomme::Sound
 {
-	struct AudioClip
-	{
-		int nChannels;
-		int bitDepth;
-		int sampleRate;
-		std::vector<char> pcmData;
-	};
-
 	void Init();
 	void Shutdown();
-	AudioClip ReadAIFF(std::istream& f);
+	void ReadAIFF(std::istream& input, cmixer::WavStream& output);
 
 	class Codec
 	{
