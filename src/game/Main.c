@@ -150,6 +150,7 @@ OSErr		iErr;
 	gGamePrefs.interpolationStyle = 1;
 	gGamePrefs.allowGammaFade = false;
 	gGamePrefs.fullscreen = false;
+	gGamePrefs.vsync = true;
 	gGamePrefs.mainMenuHelp = true;
 	gGamePrefs.reserved[0] = false;
 	gGamePrefs.reserved[1] = false;

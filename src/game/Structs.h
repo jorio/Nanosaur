@@ -301,6 +301,7 @@ typedef struct
 	Boolean fullscreen;
 	Boolean mainMenuHelp;
 	Boolean interpolationStyle;
+	Boolean vsync;
 	Boolean	reserved[4];
 }PrefsType;
 

@@ -158,6 +158,8 @@ void ExclusiveOpenGLMode_Begin()
 	exclusiveGLContextValid = true;
 	SDL_GL_MakeCurrent(gSDLWindow, exclusiveGLContext);
 
+	SDL_GL_SetSwapInterval(gGamePrefs.vsync ? 1 : 0);
+
 	AllocBackdropTexture();
 }
 

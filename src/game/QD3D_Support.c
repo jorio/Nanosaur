@@ -85,6 +85,8 @@ static TQ3Boolean gQD3D_AngleAffectsAlpha = kQ3False;
 
 Boolean			gQD3DInitialized = false;
 
+static Boolean gQD3D_FreshDrawContext = false;
+
 
 /******************** QD3D: BOOT ******************************/
 //
@@ -376,6 +378,9 @@ extern SDL_Window*		gSDLWindow;
 	gQD3D_DrawContext = Q3SDLDrawContext_New(&myMacDrawContextData);
 	if (gQD3D_DrawContext == nil)
 		DoFatalAlert("Q3MacDrawContext_New Failed!");
+
+
+	gQD3D_FreshDrawContext = true;
 }
 
 
@@ -594,8 +599,16 @@ TQ3ViewStatus			myViewStatus;
 		QD3D_ShowRecentError();
 	}
 
-	AllocBackdropTexture(); // Source port addition - alloc GL backdrop texture
-	// (must be after StartRendering so we have a valid GL context)
+
+	if (gQD3D_FreshDrawContext)
+	{
+		SDL_GL_SetSwapInterval(gGamePrefs.vsync ? 1 : 0);
+
+		AllocBackdropTexture(); // Source port addition - alloc GL backdrop texture
+		// (must be after StartRendering so we have a valid GL context)
+
+		gQD3D_FreshDrawContext = false;
+	}
 
 			/***************/
 			/* RENDER LOOP */
