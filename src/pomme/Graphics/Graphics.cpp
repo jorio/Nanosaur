@@ -27,6 +27,7 @@ struct GrafPortImpl
 	GrafPort port;
 	ARGBPixmap pixels;
 	bool dirty;
+	Rect dirtyRect;
 	PixMap macpm;
 	PixMap* macpmPtr;
 
@@ -40,6 +41,26 @@ struct GrafPortImpl
 		macpm.pixelSize = 32;
 		macpm._impl = (Ptr)&pixels;
 		macpmPtr = &macpm;
+	}
+
+	void DamageRegion(const Rect& r)
+	{
+		if (!dirty) {
+			dirtyRect = r;
+		} else {
+			// Already dirty, expand existing dirty rect
+			dirtyRect.top    = std::min(dirtyRect.top,    r.top);
+			dirtyRect.left   = std::min(dirtyRect.left,   r.left);
+			dirtyRect.bottom = std::max(dirtyRect.bottom, r.bottom);
+			dirtyRect.right  = std::max(dirtyRect.right,  r.right);
+		}
+		dirty = true;
+	}
+
+	void DamageRegion(int x, int y, int w, int h)
+	{
+		Rect r = { y, x, y+h, x+w };
+		DamageRegion(r);
 	}
 
 	~GrafPortImpl()
@@ -232,17 +253,27 @@ void GetPort(GrafPtr* outPort)
 	*outPort = &curPort->port;
 }
 
-Boolean Pomme_IsPortDirty(void)
+Boolean IsPortDamaged(void)
 {
 	return curPort->dirty;
 }
 
-void Pomme_SetPortDirty(Boolean dirty)
+void GetPortDamageRegion(Rect* r)
 {
-	curPort->dirty = dirty;
+	*r = curPort->dirtyRect;
 }
 
-void Pomme_DumpPortTGA(const char* outPath)
+void ClearPortDamage(void)
+{
+	curPort->dirty = false;
+}
+
+void DamagePortRegion(const Rect* r)
+{
+	curPort->DamageRegion(*r);
+}
+
+void DumpPortTGA(const char* outPath)
 {
 	curPort->pixels.WriteTGA(outPath);
 }
@@ -311,6 +342,7 @@ static void _FillRect(const int left, const int top, const int right, const int 
 	if (!IntersectRects(&curPort->port.portRect, &clippedDstRect)) {
 		return;
 	}
+	curPort->DamageRegion(clippedDstRect);
 
 	fillColor = ByteswapScalar(fillColor);  // convert to big-endian
 
@@ -322,8 +354,6 @@ static void _FillRect(const int left, const int top, const int right, const int 
 		}
 		dst += curPort->pixels.width;
 	}
-
-	curPort->dirty = true;
 }
 
 void PaintRect(const struct Rect* r)
@@ -349,6 +379,7 @@ void LineTo(short x1, short y1)
 	int dy = -std::abs(y1 - y0);
 	int sy = y0 < y1 ? 1 : -1;
 	int err = dx + dy;
+	curPort->DamageRegion(penX, penY, dx, dy);
 	while (1) {
 		curPort->pixels.Plot(x0 - off.h, y0 - off.v, color);
 		if (x0 == x1 && y0 == y1) break;
@@ -364,7 +395,6 @@ void LineTo(short x1, short y1)
 	}
 	penX = x0;
 	penY = y0;
-	curPort->dirty = true;
 }
 
 void FrameRect(const Rect* r)
@@ -378,7 +408,7 @@ void FrameRect(const Rect* r)
 	for (int y = r->top; y < r->bottom; y++) pm.Plot(r->left      - off.h, y             - off.v, color);
 	for (int y = r->top; y < r->bottom; y++) pm.Plot(r->right - 1 - off.h, y             - off.v, color);
 
-	curPort->dirty = true;
+	curPort->DamageRegion(*r);
 }
 
 void Pomme::Graphics::DrawARGBPixmap(int left, int top, ARGBPixmap& pixmap)
@@ -396,6 +426,7 @@ void Pomme::Graphics::DrawARGBPixmap(int left, int top, ARGBPixmap& pixmap)
 	if (!IntersectRects(&curPort->port.portRect, &clippedDstRect)) {
 		return;  // wholly outside bounds
 	}
+	curPort->DamageRegion(clippedDstRect);
 
 	UInt32* src = pixmap.GetPtr(clippedDstRect.left - dstRect.left, clippedDstRect.top - dstRect.top);
 	UInt32* dst = curPort->pixels.GetPtr(clippedDstRect.left, clippedDstRect.top);
@@ -406,8 +437,6 @@ void Pomme::Graphics::DrawARGBPixmap(int left, int top, ARGBPixmap& pixmap)
 		dst += curPort->pixels.width;
 		src += pixmap.width;
 	}
-
-	curPort->dirty = true;
 }
 
 void DrawPicture(PicHandle myPicture, const Rect* dstRect)
@@ -432,7 +461,7 @@ void DrawPicture(PicHandle myPicture, const Rect* dstRect)
 			4 * dstWidth);
 	}
 
-	curPort->dirty = true;
+	curPort->DamageRegion(*dstRect);
 }
 
 void CopyBits(
@@ -516,6 +545,7 @@ void DrawChar(char c)
 	if (!IntersectRects(&curPort->port.portRect, &clippedDstRect)) {
 		return;  // wholly outside bounds
 	}
+	curPort->DamageRegion(clippedDstRect);
 
 	// Glyph boundaries
 	int minCol = clippedDstRect.left - dstRect.left;
@@ -542,8 +572,6 @@ void DrawChar(char c)
 	}
 
 	penX += glyph.width;
-
-	curPort->dirty = true;
 }
 
 // ----------------------------------------------------------------------------

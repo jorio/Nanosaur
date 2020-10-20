@@ -197,7 +197,8 @@ void PlayAMovie(FSSpec* spec)
 			}
 		}
 
-		Pomme_SetPortDirty(true);
+		Rect damage = { 0, 0, movie.height, movie.width };
+		DamagePortRegion(&damage);
 		RenderBackdropQuad(BACKDROP_FIT | BACKDROP_CLEAR_BLACK);
 		DoSDLMaintenance();
 

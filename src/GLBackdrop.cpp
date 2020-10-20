@@ -164,10 +164,12 @@ void GLBackdrop::UpdateQuad(
 	};
 }
 
-void GLBackdrop::UpdateTexture()
+void GLBackdrop::UpdateTexture(int x, int y, int w, int h)
 {
 	glBindTexture(GL_TEXTURE_2D, texture);
-	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, textureWidth, textureHeight, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8, textureData);
+	glPixelStorei(GL_UNPACK_ROW_LENGTH, textureWidth);
+	// Don't use GL_UNPACK_SKIP_ROWS/GL_UNPACK_SKIP_PIXELS because it interferes with Quesa
+	glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, w, h, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8, textureData + (y * textureWidth + x) * 4);
 }
 
 void GLBackdrop::Render(

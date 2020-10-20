@@ -66,7 +66,7 @@ void AllocBackdropTexture()
 		GAME_VIEW_HEIGHT,
 		(unsigned char *)GetBackdropPixPtr());
 	
-	Pomme_SetPortDirty(false);
+	ClearPortDamage();
 }
 
 void ClearBackdrop(UInt32 argb)
@@ -82,7 +82,9 @@ void ClearBackdrop(UInt32 argb)
 		*(backdropPixPtr++) = bgra;
 	}
 
-	Pomme_SetPortDirty(true);
+	GrafPtr port;
+	GetPort(&port);
+	DamagePortRegion(&port->portRect);
 }
 
 void DisposeBackdropTexture()
@@ -125,9 +127,11 @@ void RenderBackdropQuad(int fit)
 
 	glDisable(GL_SCISSOR_TEST);
 
-	if (Pomme_IsPortDirty()) {
-		glBackdrop->UpdateTexture();
-		Pomme_SetPortDirty(false);
+	if (IsPortDamaged()) {
+		Rect damageRect;
+		GetPortDamageRegion(&damageRect);
+		glBackdrop->UpdateTexture(damageRect.left, damageRect.top, damageRect.right - damageRect.left, damageRect.bottom - damageRect.top);
+		ClearPortDamage();
 	}
 
 	glBackdrop->UpdateQuad(windowWidth, windowHeight, fit);

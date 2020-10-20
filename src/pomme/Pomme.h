@@ -171,11 +171,26 @@ void CopyBits(
 //-----------------------------------------------------------------------------
 // QuickDraw 2D extensions
 
-Boolean Pomme_IsPortDirty(void);
+// Returns true if the current port is "damaged".
+// Pomme extension (not part of the original Toolbox API).
+Boolean IsPortDamaged(void);
 
-void Pomme_SetPortDirty(Boolean dirty);
+// Stores current port's damaged region into "r".
+// You should only call this after having checked that IsPortDamaged() is true.
+// Pomme extension (not part of the original Toolbox API).
+void GetPortDamageRegion(Rect* r);
 
-void Pomme_DumpPortTGA(const char* path);
+// Sets current port as undamaged.
+// Pomme extension (not part of the original Toolbox API).
+void ClearPortDamage(void);
+
+// Extends the current port's damage region to include the given rectangle.
+// Pomme extension (not part of the original Toolbox API).
+void DamagePortRegion(const Rect*);
+
+// Writes the current port to a Targa image.
+// Pomme extension (not part of the original Toolbox API).
+void DumpPortTGA(const char* path);
 
 //-----------------------------------------------------------------------------
 // Misc

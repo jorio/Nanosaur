@@ -66,6 +66,8 @@ std::vector<SettingEntry> settings = {
 		{&gGamePrefs.mainMenuHelp       , "Main Menu Help"      },
 };
 
+static bool needFullRender = false;
+
 static void RenderQualityDialog()
 {
 	static float fluc = 0.0;
@@ -75,33 +77,50 @@ static void RenderQualityDialog()
 
 	SetPort(gCoverWindow);
 
-	Rect r = gCoverWindow->portRect;
 	RGBBackColor(&backgroundColor);
-	EraseRect(&r);
+	
+	if (needFullRender) {
+		Rect r = gCoverWindow->portRect;
+		EraseRect(&r);
 
-	ForeColor(blackColor);
-	{
-		const char* title = "NANOSAUR SETTINGS";
-		short titleWidth = TextWidthC(title);
-		MoveTo(320 - (titleWidth / 2), 100);
-		DrawStringC(title);
+		ForeColor(blackColor);
+		{
+			const char* title = "NANOSAUR SETTINGS";
+			short titleWidth = TextWidthC(title);
+			MoveTo(320 - (titleWidth / 2), 100);
+			DrawStringC(title);
+		}
 	}
+
+	Rect rowRect;
+	rowRect.top    = 200;
+	rowRect.bottom = 200 + 16;
+	rowRect.left   = column1X;
+	rowRect.right  = column2X;
 
 	for (size_t i = 0; i < settings.size(); i++) {
 		auto& setting = settings[i];
-		int y = 200 + i * 16;
-		
-		int xOffset = 10.0 * fabs(sin(fluc));
-		if (i != selectedEntry) xOffset = 0;
-		
+
+		rowRect.top    = 200 + i * 16;
+		rowRect.bottom = rowRect.top + 16;
+
+		int xOffset = 0;
+
+		if (i == selectedEntry) {
+			xOffset = 10.0 * fabs(sin(fluc));
+			EraseRect(&rowRect);
+		}
+		else if (!needFullRender) {
+			continue;
+		}
 
 		RGBForeColor(&lineColor);
-		MoveTo(xOffset + column1X, y-1);
-		LineTo(column2X-5, y-1);
+		MoveTo(xOffset + column1X, rowRect.top + 12 - 1);
+		LineTo(column2X-5, rowRect.top + 12 - 1);
 		
 		RGBForeColor(selectedEntry == i? &selectedForegroundColor1: &foregroundColor);
 
-		MoveTo(xOffset + column1X, y);
+		MoveTo(xOffset + column1X, rowRect.top + 12);
 		DrawStringC(settings[i].label);
 
 		unsigned int settingByte = (unsigned int)*setting.ptr;
@@ -110,13 +129,17 @@ static void RenderQualityDialog()
 
 		auto choice = setting.choices[settingByte];
 		short choiceWidth = TextWidthC(choice);
-		MoveTo(column2X - choiceWidth, y);
+		MoveTo(column2X - choiceWidth, rowRect.top + 12);
 		DrawStringC(choice);
 	}
+
+	needFullRender = false;
 }
 
 void DoQualityDialog()
 {
+	needFullRender = true;
+
 	ExclusiveOpenGLMode_Begin();
 
 	while(1) {
@@ -124,8 +147,8 @@ void DoQualityDialog()
 		
 		if (GetNewKeyState(kKey_Pause)) break;
 		
-		if (GetNewKeyState(kKey_Forward))   { selectedEntry--; PlayEffect(EFFECT_SELECT); }
-		if (GetNewKeyState(kKey_Backward))  { selectedEntry++; PlayEffect(EFFECT_SELECT); }
+		if (GetNewKeyState(kKey_Forward))   { selectedEntry--; needFullRender = true; PlayEffect(EFFECT_SELECT); }
+		if (GetNewKeyState(kKey_Backward))  { selectedEntry++; needFullRender = true; PlayEffect(EFFECT_SELECT); }
 		selectedEntry = PositiveModulo(selectedEntry, settings.size());
 		
 		if (GetNewKeyState_Real(KEY_RETURN) || GetNewKeyState(kKey_Attack) || GetNewKeyState(kKey_TurnRight) || GetNewKeyState(kKey_TurnLeft))    {
