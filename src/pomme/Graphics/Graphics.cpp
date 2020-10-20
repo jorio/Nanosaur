@@ -10,6 +10,15 @@
 using namespace Pomme;
 using namespace Pomme::Graphics;
 
+static bool IntersectRects(const Rect* r1, Rect* r2)
+{
+	r2->left   = std::max(r1->left, r2->left);
+	r2->right  = std::min(r1->right, r2->right);
+	r2->top    = std::max(r1->top, r2->top);
+	r2->bottom = std::min(r1->bottom, r2->bottom);
+	return r2->left < r2->right&& r2->top < r2->bottom;
+}
+
 // ---------------------------------------------------------------------------- -
 // Types
 
@@ -293,14 +302,22 @@ static void _FillRect(const int left, const int top, const int right, const int 
 		throw std::runtime_error("_FillRect: no port set");
 	}
 
+	Rect dstRect;
+	dstRect.left   = left;
+	dstRect.top    = top;
+	dstRect.right  = right;
+	dstRect.bottom = bottom;
+	Rect clippedDstRect = dstRect;
+	if (!IntersectRects(&curPort->port.portRect, &clippedDstRect)) {
+		return;
+	}
+
 	fillColor = ByteswapScalar(fillColor);  // convert to big-endian
 
-	UInt32* dst = (UInt32*)curPort->pixels.data.data();
-	dst += left;
-	dst += top * curPort->pixels.width;
+	UInt32* dst = curPort->pixels.GetPtr(clippedDstRect.left, clippedDstRect.top);
 
-	for (int y = top; y < bottom; y++) {
-		for (int x = 0; x < right - left; x++) {
+	for (int y = clippedDstRect.top; y < clippedDstRect.bottom; y++) {
+		for (int x = 0; x < clippedDstRect.right - clippedDstRect.left; x++) {
 			dst[x] = fillColor;
 		}
 		dst += curPort->pixels.width;
@@ -364,31 +381,30 @@ void FrameRect(const Rect* r)
 	curPort->dirty = true;
 }
 
-void Pomme::Graphics::DrawARGBPixmap(int left, int top, ARGBPixmap& p)
+void Pomme::Graphics::DrawARGBPixmap(int left, int top, ARGBPixmap& pixmap)
 {
 	if (!curPort) {
 		throw std::runtime_error("DrawARGBPixmap: no port set");
 	}
 
-	left -= curPort->port.portRect.left;
-	top -= curPort->port.portRect.top;
+	Rect dstRect;
+	dstRect.left   = left;
+	dstRect.top    = top;
+	dstRect.right  = left + pixmap.width;
+	dstRect.bottom = top  + pixmap.height;
+	Rect clippedDstRect = dstRect;
+	if (!IntersectRects(&curPort->port.portRect, &clippedDstRect)) {
+		return;  // wholly outside bounds
+	}
 
-	UInt32* src = (UInt32*)p.data.data();
-	UInt32* dst = (UInt32*)curPort->pixels.data.data();
-	dst += left;
-	dst += top * curPort->pixels.width;
+	UInt32* src = pixmap.GetPtr(clippedDstRect.left - dstRect.left, clippedDstRect.top - dstRect.top);
+	UInt32* dst = curPort->pixels.GetPtr(clippedDstRect.left, clippedDstRect.top);
 
-	int bottom = std::min(curPort->pixels.height, top + p.height);
-	int right = std::min(curPort->pixels.width, top + p.width);
-
-	for (int y = top; y < bottom; y++)
+	for (int y = clippedDstRect.top; y < clippedDstRect.bottom; y++)
 	{
-		for (int x = left; x < right; x++)
-		{
-			dst[x] = src[x - left];
-		}
+		memcpy(dst, src, Width(clippedDstRect) * sizeof(UInt32));
 		dst += curPort->pixels.width;
-		src += p.width;
+		src += pixmap.width;
 	}
 
 	curPort->dirty = true;
@@ -489,22 +505,37 @@ void DrawChar(char c)
 
 	auto& glyph = SysFont::GetGlyph(c);
 
-	auto* dst2 = curPort->pixels.GetPtr(penX - SysFont::leftMargin, penY - SysFont::ascend);
+	// Theoretical coordinates of top-left corner of glyph (may be outside port bounds!)
+	Rect dstRect;
+	dstRect.left   = penX - SysFont::leftMargin;
+	dstRect.top    = penY - SysFont::ascend;
+	dstRect.right  = dstRect.left + SysFont::widthBits;
+	dstRect.bottom = dstRect.top  + SysFont::rows;
 
-	int minCol = std::max(0, -(penX - SysFont::leftMargin));
-	int maxCol = std::min(SysFont::widthBits, curPort->pixels.width - (penX - SysFont::leftMargin));
-	int maxRow = std::min(SysFont::rows, curPort->pixels.height - (penY - SysFont::ascend));
+	Rect clippedDstRect = dstRect;
+	if (!IntersectRects(&curPort->port.portRect, &clippedDstRect)) {
+		return;  // wholly outside bounds
+	}
 
-	for (int glyphRow = 0; glyphRow < maxRow; glyphRow++) {
-		auto rowBits = glyph.bits[glyphRow];
+	// Glyph boundaries
+	int minCol = clippedDstRect.left - dstRect.left;
+	int minRow = clippedDstRect.top  - dstRect.top;
+
+	auto* dst2 = curPort->pixels.GetPtr(clippedDstRect.left, clippedDstRect.top);
+
+	for (int glyphY = minRow; glyphY < minRow+Height(clippedDstRect); glyphY++) {
+		auto rowBits = glyph.bits[glyphY];
 
 		rowBits >>= minCol;
 
-		for (int glyphX = minCol; glyphX < maxCol; glyphX++) {
+		auto* dstRow = dst2;
+
+		for (int glyphX = minCol; glyphX < minCol+Width(clippedDstRect); glyphX++) {
 			if (rowBits & 1) {
-				dst2[glyphX] = fg;
+				*dstRow = fg;
 			}
 			rowBits >>= 1;
+			dstRow++;
 		}
 
 		dst2 += curPort->pixels.width;
