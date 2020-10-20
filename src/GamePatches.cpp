@@ -88,7 +88,8 @@ char GetTypedKey(void)
 
 	ReadKeyboard_Real();
 
-	for (int i = 0; i < sizeof(KCHR_US_LOWER); i++) {
+	for (size_t i = 0; i < sizeof(KCHR_US_LOWER); i++)
+	{
 		if (!GetNewKeyState_Real(i))
 			continue;
 

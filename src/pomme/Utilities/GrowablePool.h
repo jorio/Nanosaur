@@ -47,7 +47,7 @@ public:
 	}
 
 	void Compact() {
-		while (!freeIDs.empty() && freeIDs.back() == pool.size() - 1) {
+		while (!freeIDs.empty() && freeIDs.back() == (TId)pool.size() - 1) {
 			freeIDs.pop_back();
 			pool.pop_back();
 			isInUse.pop_back();

@@ -206,12 +206,12 @@ static void Parse_mdia_vide(Pomme::BigEndianIStream& f, Movie& movie, UInt32 tim
 	// Set up guard 
 	auto guard = f.GuardPos();
 
-	int frameCounter = 0;
+	size_t frameCounter = 0;
 	for (const auto& chunk : chunkList)
 	{
 		f.Goto(chunk.offset);
-		for (int s = 0; s < chunk.samplesPerChunk; s++, frameCounter++) {
-			const int frameSize = frameSizes[frameCounter];
+		for (UInt32 s = 0; s < chunk.samplesPerChunk; s++, frameCounter++) {
+			const size_t frameSize = frameSizes[frameCounter];
 			movie.videoFrames.push(f.ReadBytes(frameSize));
 		}
 	}
@@ -298,7 +298,7 @@ static void Parse_mdia_soun(Pomme::BigEndianIStream& f, Movie& movie)
 	compressedSoundData.reserve(compressedLength);
 	char* out = compressedSoundData.data();
 
-	for (int i = 0; i < chunkList.size(); i++) {
+	for (size_t i = 0; i < chunkList.size(); i++) {
 		f.Goto(chunkList[i].offset);
 		f.Read(out, chunkLengths[i]);
 		out += chunkLengths[i];

@@ -111,7 +111,7 @@ static void DecodeIMA4Chunk(
 			cs.predictor = predictor;
 		}
 
-		if (cs.step_index > 88u)
+		if (cs.step_index > 88)
 			throw std::invalid_argument("step_index[chan]>88!");
 
 		int pos = chan;
@@ -136,8 +136,8 @@ void Pomme::Sound::IMA4::Decode(
 	if (input.size() % 34 != 0)
 		throw std::invalid_argument("odd input buffer size");
 
-	const int nChunks = int(input.size()) / (34 * nChannels);
-	const int nSamples = 64 * nChunks;
+	const size_t nChunks = input.size() / (34 * nChannels);
+	const size_t nSamples = 64 * nChunks;
 
 	if (output.size() != nSamples * nChannels * 2)
 		throw std::invalid_argument("incorrect output size");
@@ -146,7 +146,7 @@ void Pomme::Sound::IMA4::Decode(
 	int16_t* out = reinterpret_cast<int16_t*>(output.data());
 	std::vector<ADPCMChannelStatus> ctx(nChannels);
 
-	for (int chunk = 0; chunk < nChunks; chunk++)
+	for (size_t chunk = 0; chunk < nChunks; chunk++)
 	{
 		DecodeIMA4Chunk(&in, &out, ctx);
 	}

@@ -25,7 +25,7 @@ static const RGBColor lineColor       = {0x8000,0x8000,0x8000};
 static const int column1X = 320-256/2;
 static const int column2X = column1X + 256;
 
-static int selectedEntry = 0;
+static size_t selectedEntry = 0;
 
 static unsigned int PositiveModulo(int value, unsigned int m)
 {
@@ -87,7 +87,7 @@ static void RenderQualityDialog()
 		DrawStringC(title);
 	}
 
-	for (int i = 0; i < settings.size(); i++) {
+	for (size_t i = 0; i < settings.size(); i++) {
 		auto& setting = settings[i];
 		int y = 200 + i * 16;
 		

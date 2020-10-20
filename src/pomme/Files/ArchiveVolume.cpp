@@ -63,7 +63,7 @@ static std::string ProcessEntryName(std::vector<unsigned char>& nameBytes)
 {
 	std::string name;
 
-	for (int i = 0; i < nameBytes.size(); ) {
+	for (size_t i = 0; i < nameBytes.size(); ) {
 		if ((unsigned int)nameBytes[i] == 0xE2 && (unsigned int)nameBytes[i + 1] == 0x84) {
 			i += 2;
 		}

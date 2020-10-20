@@ -192,7 +192,7 @@ void Pomme::Sound::MACE::Decode(
 	if (input.size() % (nChannels * 2) != 0)
 		throw std::invalid_argument("odd input buffer size");
 
-	int nSamples = 3 * int(input.size()) / nChannels;
+	size_t nSamples = 3 * int(input.size()) / nChannels;
 
 	if (output.size() != nSamples * nChannels * 2)
 		throw std::invalid_argument("incorrect output size");
@@ -202,7 +202,7 @@ void Pomme::Sound::MACE::Decode(
 	MACEContext ctx = {};
 
 	for (int chan = 0; chan < nChannels; chan++)
-	for (int j = 0; j < input.size() / (nChannels * 2); j++)
+	for (size_t j = 0; j < input.size() / (nChannels * 2); j++)
 	for (int k = 0; k < 2; k++) {
 		uint8_t pkt = (uint8_t)input[(chan * 2) + (j * nChannels * 2) + k];
 
