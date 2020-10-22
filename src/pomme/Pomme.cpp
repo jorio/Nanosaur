@@ -72,12 +72,10 @@ void Pomme::Init(const char* windowName)
 	Pomme::Graphics::Init(windowName, 640, 480);
 	Pomme::Sound::Init();
 	Pomme::Input::Init();
-	std::cout << "Pomme initialized\n";
 }
 
 void Pomme::Shutdown()
 {
 	Pomme::Sound::Shutdown();
 	Pomme::Graphics::Shutdown();
-	std::cout << "Pomme shut down\n";
 }
