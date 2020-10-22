@@ -56,6 +56,8 @@ set(POMME_SRC
     Utilities/IEEEExtended.h
     Utilities/memstream.cpp
     Utilities/memstream.h
+    Utilities/StringUtils.cpp
+    Utilities/StringUtils.h
     Utilities/structpack.cpp
     Utilities/structpack.h
     Video/Cinepak.cpp

@@ -3,6 +3,7 @@
 #include "PommeFiles.h"
 #include "Files/HostVolume.h"
 #include "Utilities/BigEndianIStream.h"
+#include "Utilities/StringUtils.h"
 
 #include <fstream>
 #include <iostream>
@@ -67,9 +68,7 @@ long HostVolume::GetDirectoryID(const fs::path& dirPath)
 
 fs::path HostVolume::ToPath(long parID, const std::string& name)
 {
-	fs::path path(directories[parID]);
-	path += fs::path::preferred_separator;
-	path += name;
+	fs::path path = directories[parID] / AsU8(name);
 	return path.lexically_normal();
 }
 
@@ -81,7 +80,7 @@ FSSpec HostVolume::ToFSSpec(const fs::path& fullPath)
 	FSSpec spec;
 	spec.vRefNum = volumeID;
 	spec.parID = GetDirectoryID(parentPath);
-	snprintf(spec.cName, 256, "%s", fullPath.filename().string().c_str());
+	snprintf(spec.cName, 256, "%s", (const char*)fullPath.filename().u8string().c_str());
 	return spec;
 }
 
@@ -163,23 +162,12 @@ OSErr HostVolume::OpenFork(const FSSpec* spec, ForkType forkType, char permissio
 	return noErr;
 }
 
-static std::string UppercaseCopy(const std::string& in)
-{
-	std::string out;
-	std::transform(
-		in.begin(),
-		in.end(),
-		std::back_inserter(out),
-		[](unsigned char c) -> unsigned char { return std::toupper(c); });
-	return out;
-}
-
 static bool CaseInsensitiveAppendToPath(
 	fs::path& path,
 	const std::string& element,
 	bool skipFiles = false)
 {
-	fs::path naiveConcat = path / element;
+	fs::path naiveConcat = path / AsU8(element);
 
 	if (!fs::exists(path)) {
 		path = naiveConcat;
@@ -191,14 +179,14 @@ static bool CaseInsensitiveAppendToPath(
 		return true;
 	}
 
-	const std::string ELEMENT = UppercaseCopy(element);
+	const auto ELEMENT = UppercaseCopy(element);
 
 	for (const auto& candidate : fs::directory_iterator(path)) {
 		if (skipFiles && !candidate.is_directory()) {
 			continue;
 		}
 
-		std::string f = candidate.path().filename().string();
+		auto f = FromU8(candidate.path().filename().u8string());
 
 		// It might be an AppleDouble resource fork ("._file" or "file.rsrc")
 		if (candidate.is_regular_file()) {
@@ -211,7 +199,7 @@ static bool CaseInsensitiveAppendToPath(
 		}
 
 		if (ELEMENT == UppercaseCopy(f)) {
-			path /= f;
+			path /= AsU8(f);
 			return true;
 		}
 	}
@@ -230,7 +218,7 @@ OSErr HostVolume::FSMakeFSSpec(long dirID, const std::string& fileName, FSSpec* 
 	}
 
 	auto path = directories[dirID];
-	std::string suffix = fileName;
+	auto suffix = fileName;
 
 	// Case-insensitive sanitization
 	bool exists = fs::exists(path);
@@ -247,7 +235,7 @@ OSErr HostVolume::FSMakeFSSpec(long dirID, const std::string& fileName, FSSpec* 
 			path = path.parent_path();
 		}
 		else {
-			std::string element = suffix.substr(begin, end - begin);
+			auto element = suffix.substr(begin, end - begin);
 			exists = CaseInsensitiveAppendToPath(path, element, !isLeaf);
 		}
 
@@ -307,15 +295,6 @@ OSErr HostVolume::FSpCreate(const FSSpec* spec, OSType creator, OSType fileType,
 OSErr HostVolume::FSpDelete(const FSSpec* spec)
 {
 	auto path = ToPath(spec->parID, spec->cName);
-
-	std::cout << "FSpDelete " << path << "\n";
-	/*
-	std::stringstream ss;
-	ss << "The Mac application wants to delete \"" << path << "\".\nAllow?";
-	if (IDYES != MessageBoxA(nullptr, ss.str().c_str(), "FSpDelete", MB_ICONQUESTION | MB_YESNO)) {
-		return fLckdErr;
-	}
-	*/
 
 	if (fs::remove(path))
 		return noErr;

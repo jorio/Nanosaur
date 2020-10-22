@@ -106,8 +106,8 @@ typedef struct FSSpec
 	long parID;
 
 	// The name of the specified file or directory. In Carbon, this name must be a leaf name; the name cannot contain a semicolon.
-	// WARNING: this is a C string, NOT a pascal string!
-	// Mac application code using "name" (the pascal string) must be adjusted.
+	// WARNING: this is a C string encoded as UTF-8, NOT a pascal string encoded as MacRoman!
+	// Mac application code expecting "name" (the pascal string) must be adjusted.
 	Str255 cName;
 } FSSpec;
 

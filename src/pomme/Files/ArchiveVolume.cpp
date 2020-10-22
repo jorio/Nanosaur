@@ -4,6 +4,7 @@
 #include "Files/ArchiveVolume.h"
 #include "Utilities/BigEndianIStream.h"
 #include "Utilities/memstream.h"
+#include "Utilities/StringUtils.h"
 #include "maconv/stuffit/methods/arsenic.h"
 
 #include <cstring>
@@ -83,17 +84,6 @@ static std::string ProcessEntryName(std::vector<unsigned char>& nameBytes)
 	return name;
 }
 
-static std::string UppercaseCopy(const std::string& in)
-{
-	std::string out;
-	std::transform(
-		in.begin(),
-		in.end(),
-		std::back_inserter(out),
-		[](unsigned char c) -> unsigned char { return (unsigned char)std::toupper(c); });
-	return out;
-}
-
 std::string ArchiveVolume::FSSpecToPath(const FSSpec* spec) const
 {
 	return UppercaseCopy(directories[spec->parID] + ":" + spec->cName);
@@ -114,7 +104,7 @@ OSErr ArchiveVolume::OpenFork(
 		return wPrErr;  // archives are read-only
 	}
 
-	std::string fullPath = FSSpecToPath(spec);
+	auto fullPath = FSSpecToPath(spec);
 
     if (files.end() == files.find(fullPath)) {
 		return fnfErr;
@@ -149,8 +139,8 @@ OSErr ArchiveVolume::FSMakeFSSpec(long dirID, const std::string& fileName, FSSpe
 		throw std::runtime_error("ArchiveVolume::FSMakeFSSpec: directory ID not registered.");
 	}
 
-	auto path = directories[dirID];
-	std::string suffix = UppercaseCopy(fileName);
+	auto macPath = directories[dirID];
+	auto suffix = UppercaseCopy(fileName);
 
 	// Case-insensitive sanitization
 	std::string::size_type begin = (suffix.at(0) == ':') ? 1 : 0;
@@ -163,16 +153,16 @@ OSErr ArchiveVolume::FSMakeFSSpec(long dirID, const std::string& fileName, FSSpe
 		if (isLeaf) end = suffix.length();
 
 		if (end == begin) { // "::" => parent directory
-			auto lastColon = path.rfind(':');
+			auto lastColon = macPath.rfind(':');
 			if (lastColon == std::string::npos) {
-				path = ":";
+				macPath = ":";
 			} else {
-				path = path.substr(0, lastColon);
+				macPath = macPath.substr(0, lastColon);
 			}
 		}
 		else {
-			std::string element = suffix.substr(begin, end - begin);
-			path += ":" + UppercaseCopy(element);
+			auto element = suffix.substr(begin, end - begin);
+			macPath += ":" + UppercaseCopy(element);
 //			exists = CaseInsensitiveAppendToPath(path, element, !isLeaf);
 		}
 
@@ -180,9 +170,9 @@ OSErr ArchiveVolume::FSMakeFSSpec(long dirID, const std::string& fileName, FSSpe
 		begin = end + 1;
 	}
 
-	auto lastColon = path.rfind(':');
-	std::string dirName = path.substr(0, lastColon);
-	std::string trimmedFileName = lastColon==std::string::npos? path: path.substr(lastColon + 1);
+	auto lastColon = macPath.rfind(':');
+	auto dirName = macPath.substr(0, lastColon);
+	auto trimmedFileName = lastColon==std::string::npos? macPath : macPath.substr(lastColon + 1);
 
 	spec->parID = GetDirectoryID(dirName);
 	spec->vRefNum = volumeID;
@@ -278,7 +268,7 @@ UInt32 ArchiveVolume::ReadEntry(
 		f.Skip(4);
 		auto nFilesInFolder = f.Read<UInt16>();
 		auto folderNameBytes = f.ReadBytes(nameSize);
-		std::string folderName = ProcessEntryName(folderNameBytes);
+		auto folderName = ProcessEntryName(folderNameBytes);
 
 		auto pp2 = parentPath;
 		if (!collapseIfFolder)
@@ -375,7 +365,7 @@ void ArchiveVolume::ReadStuffIt5()
 	auto offsetOfFirstEntryInRootDirectory = f.Read<UInt32>();
 	f.Skip(2);
 
-	f.Goto((int)offset + offsetOfFirstEntryInRootDirectory);
+	f.Goto(offset + (std::istream::pos_type)offsetOfFirstEntryInRootDirectory);
 
 	ArchiveAssert(nEntriesInRootDirectory == 1, "cannot collapse root folder because there are more than one root entries");
 
