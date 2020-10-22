@@ -1,4 +1,5 @@
 #include <SDL.h>
+#include "Pomme.h"
 #include "PommeGraphics.h"
 #include "GamePatches.h"
 #include "GLBackdrop.h"

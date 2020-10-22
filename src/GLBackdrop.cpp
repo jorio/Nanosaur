@@ -1,6 +1,8 @@
 #include "GLBackdrop.h"
 #include <cmath>
 #include <cstring>
+#include <cstdio>
+#include <stdexcept>
 
 static void CheckGLError(const char* file, const int line)
 {

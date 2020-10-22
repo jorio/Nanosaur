@@ -1,3 +1,5 @@
+#include "Pomme.h"
+
 extern "C" {
 #include <game/Structs.h>
 #include <game/input.h>

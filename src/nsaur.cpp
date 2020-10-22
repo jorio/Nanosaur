@@ -1,3 +1,4 @@
+#include "Pomme.h"
 #include "PommeInit.h"
 #include "PommeGraphics.h"
 #include "PommeFiles.h"

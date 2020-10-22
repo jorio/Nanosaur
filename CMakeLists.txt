@@ -163,7 +163,7 @@ set(SRC_GLUE
     src/qd3d/QD3DView.h
 )
 
-set(NANO_ALL_SOURCES
+set(NANO_GAME_SOURCES
     ${NANO_HEADERS}
     ${NANO_SRC_SYSTEM}
     ${NANO_SRC_TERRAIN}
@@ -173,6 +173,16 @@ set(NANO_ALL_SOURCES
     ${NANO_SRC_SKELETON}
     ${NANO_SRC_QD3D}
     ${NANO_SRC_SCREENS}
+)
+
+if(NOT MSVC)
+    set_source_files_properties(${NANO_GAME_SOURCES} PROPERTIES COMPILE_FLAGS "-include Pomme.h")
+else()
+    set_source_files_properties(${NANO_GAME_SOURCES} PROPERTIES COMPILE_FLAGS /FIPomme.h)
+endif()
+
+set(NANO_ALL_SOURCES
+    ${NANO_GAME_SOURCES}
     ${SRC_GLUE}
 )
 
@@ -204,13 +214,11 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE SOURCE_PORT_ENHANCEMENTS)
 
 if(NOT MSVC)
     target_compile_options(${PROJECT_NAME} PRIVATE
-        -include Pomme.h
         -Wall -Wno-multichar
         -fexceptions
     )
 else()
     target_compile_options(${PROJECT_NAME} PRIVATE
-        /FIPomme.h
         /EHa    # C++ may throw exceptions from extern "C" functions
         /wd4068
         /W3

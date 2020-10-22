@@ -1,5 +1,6 @@
 #include "GLFunctions.h"
 #include <SDL.h>
+#include <stdexcept>
 
 GLFunctions::GLFunctions()
 {

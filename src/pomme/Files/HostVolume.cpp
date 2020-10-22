@@ -1,4 +1,6 @@
-#include "Pomme.h"
+#include "PommeEnums.h"
+#include "PommeDebug.h"
+#include "PommeFiles.h"
 #include "Files/HostVolume.h"
 #include "Utilities/BigEndianIStream.h"
 

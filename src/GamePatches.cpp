@@ -1,3 +1,4 @@
+#include "Pomme.h"
 #include <QD3DMath.h>
 #include <SDL.h>
 #include <SDL_opengl.h>
