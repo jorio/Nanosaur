@@ -223,8 +223,12 @@ if(NOT MSVC)
 else()
     target_compile_options(${PROJECT_NAME} PRIVATE
         /EHa    # C++ may throw exceptions from extern "C" functions
-        /wd4068
-        /W3
+        /W4
+        /wd4068 # ignore unrecognized pragmas
+        /wd4100 # unreferenced formal parameters
+        /wd4201 # nonstandard extension (nameless struct)
+        /wd4244 # conversion from double to float
+        /wd4305 # truncation from double to float
     )
     
     # On Win32, we need NOGDI and NOUSER to be able to define some Mac functions

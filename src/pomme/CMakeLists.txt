@@ -79,6 +79,11 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 if(MSVC)
     target_compile_options(pomme PRIVATE
         /EHa
+        /W4
+        /wd4100	# unreferenced formal parameter
+        /wd4201 # nonstandard extension
+        /wd4244 # conversion from double to float
+        /wd4458 # declaration of variable hides class member
     )
 else()
     target_compile_options(pomme PRIVATE
