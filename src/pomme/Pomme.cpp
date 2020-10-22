@@ -9,6 +9,8 @@
 #include "PommeSound.h"
 #include "PommeInput.h"
 
+#include "SDL.h"
+
 #if _WIN32
 	#include "Platform/Windows/PommeWindows.h"
 #endif
@@ -50,12 +52,14 @@ void NumToStringC(long theNum, Str255 theString)
 //-----------------------------------------------------------------------------
 // Mouse cursor
 
-void InitCursor() {
-	TODOMINOR();
+void InitCursor()
+{
+	SDL_ShowCursor(1);
 }
 
-void HideCursor() {
-	TODOMINOR();
+void HideCursor()
+{
+	SDL_ShowCursor(0);
 }
 
 //-----------------------------------------------------------------------------
