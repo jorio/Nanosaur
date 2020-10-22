@@ -62,28 +62,6 @@ static void ArchiveAssert(bool condition, const char* message)
 		throw ArchiveVolumeException(message);
 }
 
-static std::string ProcessEntryName(std::vector<unsigned char>& nameBytes)
-{
-	std::string name;
-
-	for (size_t i = 0; i < nameBytes.size(); ) {
-		if ((unsigned int)nameBytes[i] == 0xE2 && (unsigned int)nameBytes[i + 1] == 0x84) {
-			i += 2;
-		}
-		else {
-			if ((unsigned int)nameBytes[i] < 0x20 || (unsigned int)nameBytes[i] > 127) {
-				name += '#';
-			}
-			else {
-				name += (char)nameBytes[i];
-			}
-			i++;
-		}
-	}
-
-	return name;
-}
-
 std::string ArchiveVolume::FSSpecToPath(const FSSpec* spec) const
 {
 	return UppercaseCopy(directories[spec->parID] + ":" + spec->cName);
@@ -245,7 +223,7 @@ std::vector<char> ArchiveVolume::DecompressFork(ArchiveVolume::CompressedForkMet
 UInt32 ArchiveVolume::ReadEntry(
 	std::istream& input,
 	std::streamoff globalOffset,
-	const std::string& parentPath,
+	const std::string& parentPathUTF8,
 	bool collapseIfFolder)
 {
 	BigEndianIStream f(input);
@@ -270,17 +248,17 @@ UInt32 ArchiveVolume::ReadEntry(
 		f.Skip(4);
 		auto nFilesInFolder = f.Read<UInt16>();
 		auto folderNameBytes = f.ReadBytes(nameSize);
-		auto folderName = ProcessEntryName(folderNameBytes);
+		auto folderNameUTF8 = std::string(folderNameBytes.begin(), folderNameBytes.end());
 
-		auto pp2 = parentPath;
+		auto parentPathKey = parentPathUTF8;
 		if (!collapseIfFolder)
-			pp2 += ":" + folderName;
-		pp2 = UppercaseCopy(pp2);
-		directories.push_back(pp2);
+			parentPathKey += ":" + folderNameUTF8;
+		parentPathKey = UppercaseCopy(parentPathKey);
+		directories.push_back(parentPathKey);
 
 		f.Goto(globalOffset + offsetOfFirstEntryInFolder);
 		for (int i = 0; i < nFilesInFolder; i++) {
-			auto nextE = ReadEntry(input, globalOffset, pp2, false);
+			auto nextE = ReadEntry(input, globalOffset, parentPathKey, false);
 			f.Goto(globalOffset + nextE);
 		}
 	}
@@ -298,7 +276,7 @@ UInt32 ArchiveVolume::ReadEntry(
 		f.Skip(passwordDataLength);
 
 		auto fileNameBytes = f.ReadBytes(nameSize);
-		cfmd.name = ProcessEntryName(fileNameBytes);
+		cfmd.nameUTF8 = std::string(fileNameBytes.begin(), fileNameBytes.end());
 
 		auto commentLength = f.Read<UInt8>();
 		f.Skip(commentLength);
@@ -326,7 +304,7 @@ UInt32 ArchiveVolume::ReadEntry(
 		cfmd.rsrcFork.offsetToCompressedData = f.Tell();
 		cfmd.dataFork.offsetToCompressedData = cfmd.rsrcFork.offsetToCompressedData + cfmd.rsrcFork.compressedLength;
 
-		files.emplace(UppercaseCopy(parentPath + ":" + cfmd.name), cfmd);
+		files.emplace(UppercaseCopy(parentPathUTF8 + ":" + cfmd.nameUTF8), cfmd);
 	}
 
 	return offsetOfNextEntry;

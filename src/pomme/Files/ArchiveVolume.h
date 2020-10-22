@@ -24,7 +24,7 @@ namespace Pomme::Files
 
 		struct CompressedFileMetadata
 		{
-			std::string name;
+			std::string nameUTF8;
 			CompressedForkMetadata dataFork;
 			CompressedForkMetadata rsrcFork;
 			UInt32 type, creator;

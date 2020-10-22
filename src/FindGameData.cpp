@@ -11,10 +11,10 @@ static fs::path gDataLocation;
 
 #ifdef PRO_MODE
 	constexpr const char* ARCHIVE_NAME = "nanosaurextreme134.bin";
-	constexpr const char* APP_FILE_INSIDE_ARCHIVE = ":Nanosaur# Extreme";
+	constexpr const char8_t* APP_FILE_INSIDE_ARCHIVE = u8":Nanosaur\u2122 Extreme";
 #else
 	constexpr const char* ARCHIVE_NAME = "nanosaur134.bin";
-	constexpr const char* APP_FILE_INSIDE_ARCHIVE = ":Nanosaur#";
+	constexpr const char8_t* APP_FILE_INSIDE_ARCHIVE = u8":Nanosaur\u2122";
 #endif
 
 constexpr const char* DATA_LOCATION_PREF = "DataLocation";
@@ -155,8 +155,8 @@ static FindGameData_Outcome _FindGameData()
 		short archiveVolumeID = Pomme::Files::MountArchiveAsVolume(gDataLocation);
 		gDataSpec.vRefNum = archiveVolumeID;
 
-		if (noErr != FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, APP_FILE_INSIDE_ARCHIVE, &applicationSpec)) {
-			throw std::runtime_error("Can't find application resource file: " + std::string(APP_FILE_INSIDE_ARCHIVE));
+		if (noErr != FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, (const char*)APP_FILE_INSIDE_ARCHIVE, &applicationSpec)) {
+			throw std::runtime_error("Can't find application resource file");
 		}
 	}
 	else if (isPowerPCExecutable) {
