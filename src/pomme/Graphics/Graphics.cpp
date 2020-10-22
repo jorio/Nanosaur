@@ -503,6 +503,8 @@ void CopyBits(
 
 short TextWidthC(const char* cstr)
 {
+	if (!cstr) return 0;
+
 	int totalWidth = -SysFont::charSpacing;
 	for (; *cstr; cstr++) {
 		totalWidth += SysFont::charSpacing;
@@ -513,6 +515,8 @@ short TextWidthC(const char* cstr)
 
 void DrawStringC(const char* cstr)
 {
+	if (!cstr) return;
+
 	_FillRect(
 			penX,
 			penY - SysFont::ascend,
