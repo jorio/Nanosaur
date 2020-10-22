@@ -30,6 +30,36 @@ extern long gNodesDrawn;
 extern SDL_Window* gSDLWindow;
 extern float	gFramesPerSecond;
 extern PrefsType gGamePrefs;
+extern short	gPrefsFolderVRefNum;
+extern long	gPrefsFolderDirID;
+}
+
+OSErr MakePrefsFSSpec(const char* prefFileName, FSSpec* spec)
+{
+	static Boolean checkedOnce = false;
+	constexpr const char* PREFS_FOLDER = "Nanosaur";
+	
+	if (!checkedOnce)
+	{
+		checkedOnce = true;
+
+		OSErr iErr = FindFolder(
+			kOnSystemDisk,
+			kPreferencesFolderType,
+			kDontCreateFolder,
+			&gPrefsFolderVRefNum,
+			&gPrefsFolderDirID);
+		
+		if (iErr != noErr)
+			DoAlert("Warning: Cannot locate Preferences folder.");
+
+		long createdDirID;
+		DirCreate(gPrefsFolderVRefNum, gPrefsFolderDirID, PREFS_FOLDER, &createdDirID);
+	}
+
+	char name[256];
+	snprintf(name, 256, ":%s:%s", PREFS_FOLDER, prefFileName);
+	return FSMakeFSSpec(gPrefsFolderVRefNum, gPrefsFolderDirID, name, spec);
 }
 
 Boolean IsSphereInConeOfVision(TQ3Point3D* coord, float radius, float hither, float yon)

@@ -12,7 +12,6 @@ extern	unsigned long MyRandomLong(void);
 extern	Handle	AllocHandle(long size);
 extern	Ptr	AllocPtr(long size);
 extern	void InitMyRandomSeed(void);
-extern	void VerifySystem(void);
 extern	void DoFatalAlert2(const char* s1, const char* s2);
 extern	float RandomFloat(void);
 extern	unsigned long MyRandomLong_Alt(void);

@@ -137,6 +137,7 @@ set(NANO_HEADERS
 set(SRC_GLUE
     src/nsaur.cpp
     src/Backdrop.cpp
+    src/FindGameData.cpp
     src/GamePatches.cpp
     src/GamePatches.h
     src/GLBackdrop.cpp
@@ -162,6 +163,7 @@ set(SRC_GLUE
     src/qd3d/QD3DStyle.h
     src/qd3d/QD3DTransform.h
     src/qd3d/QD3DView.h
+    $<$<BOOL:${WIN32}>:src/OpenDialog_Windows.cpp>
 )
 
 set(NANO_GAME_SOURCES

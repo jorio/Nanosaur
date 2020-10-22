@@ -27,6 +27,7 @@
 #include 	"bones.h"
 #include 	"sound2.h"
 #include	"structformats.h"
+#include	"GamePatches.h"
 
 extern	short			gMainAppRezFile;
 extern  TQ3Object		gObjectGroupList[MAX_3DMF_GROUPS][MAX_OBJECTS_IN_GROUP];
@@ -450,7 +451,7 @@ long		count;
 				/* READ FILE */
 				/*************/
 					
-	FSMakeFSSpec(gPrefsFolderVRefNum, gPrefsFolderDirID, ":Nanosaur:Prefs", &file);
+	MakePrefsFSSpec("Prefs", &file);
 	iErr = FSpOpenDF(&file, fsRdPerm, &refNum);	
 	if (iErr)
 		return(iErr);
@@ -480,7 +481,7 @@ long				count;
 						
 				/* CREATE BLANK FILE */
 				
-	FSMakeFSSpec(gPrefsFolderVRefNum, gPrefsFolderDirID, ":Nanosaur:Prefs", &file);
+	MakePrefsFSSpec("Prefs", &file);
 	FSpDelete(&file);															// delete any existing file
 	iErr = FSpCreate(&file, 'NanO', 'Pref', smSystemScript);					// create blank file
 	if (iErr)

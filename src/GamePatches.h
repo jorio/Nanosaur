@@ -42,6 +42,8 @@ void DisposeBackdropTexture(void);
 //-----------------------------------------------------------------------------
 // Misc additions
 
+OSErr MakePrefsFSSpec(const char* prefFileName, FSSpec* spec);
+
 void DoSDLMaintenance(void);
 
 void SetFullscreenMode(void);

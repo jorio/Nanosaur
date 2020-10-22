@@ -222,7 +222,7 @@ long				count;
 
 				/* OPEN FILE */
 					
-	FSMakeFSSpec(gPrefsFolderVRefNum, gPrefsFolderDirID, ":Nanosaur:HighScores", &file);
+	MakePrefsFSSpec("HighScores", &file);
 	iErr = FSpOpenDF(&file, fsRdPerm, &refNum);	
 	if (iErr == fnfErr)
 		ClearHighScores();
@@ -237,8 +237,6 @@ long				count;
 		{
 			FSClose(refNum);			
 			FSpDelete(&file);												// file is corrupt, so delete
-//			DoAlert("LoadHighScores: FSRead failed!");
-//			ShowSystemErr(iErr);
 			return;
 		}
 		FSClose(refNum);			
@@ -257,7 +255,7 @@ long				count;
 
 				/* CREATE BLANK FILE */
 				
-	FSMakeFSSpec(gPrefsFolderVRefNum, gPrefsFolderDirID, ":Nanosaur:HighScores", &file);
+	MakePrefsFSSpec("HighScores", &file);
 	FSpDelete(&file);															// delete any existing file
 	iErr = FSpCreate(&file, 'NanO', 'Skor', smSystemScript);					// create blank file
 	if (iErr)
@@ -266,7 +264,7 @@ long				count;
 
 				/* OPEN FILE */
 					
-	FSMakeFSSpec(gPrefsFolderVRefNum, gPrefsFolderDirID, ":Nanosaur:HighScores", &file);
+	MakePrefsFSSpec("HighScores", &file);
 	iErr = FSpOpenDF(&file, fsRdWrPerm, &refNum);
 	if (iErr)
 	{

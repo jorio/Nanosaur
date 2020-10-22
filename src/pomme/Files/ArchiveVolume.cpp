@@ -122,12 +122,14 @@ OSErr ArchiveVolume::OpenFork(
 //-----------------------------------------------------------------------------
 // Implementation
 
-ArchiveVolume::ArchiveVolume(short vRefNum, const std::string& pathToArchiveOnHost)
+ArchiveVolume::ArchiveVolume(short vRefNum, const fs::path& pathToArchiveOnHost)
 	: Volume(vRefNum)
 {
 	std::ifstream file(pathToArchiveOnHost, std::ios::binary | std::ios::in);
 	if (!file.is_open()) {
-		throw ArchiveVolumeException("Couldn't open \"" + pathToArchiveOnHost + "\".");
+		std::stringstream ss;
+		ss << "Couldn't open \"" << pathToArchiveOnHost << "\".";
+		throw ArchiveVolumeException(ss.str());
 	}
 	backingStream = std::make_unique<std::ifstream>(std::move(file));
 	ReadStuffIt5();

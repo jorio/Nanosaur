@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <map>
+#include "CompilerSupport/filesystem.h"
 
 namespace Pomme::Files
 {
@@ -30,5 +31,6 @@ namespace Pomme::Files
 	bool IsStreamPermissionAllowed(short refNum, char perm);
 	std::iostream& GetStream(short refNum);
 	void CloseStream(short refNum);
-	short MountArchiveAsVolume(const std::string& archivePath);
+	short MountArchiveAsVolume(const fs::path& archivePath);
+	FSSpec HostPathToFSSpec(const fs::path& fullPath);
 }

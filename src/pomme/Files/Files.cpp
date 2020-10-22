@@ -136,6 +136,10 @@ OSErr FSpOpenRF(const FSSpec* spec, char permission, short* refNum)
 
 OSErr FindFolder(short vRefNum, OSType folderType, Boolean createFolder, short* foundVRefNum, long* foundDirID)
 {
+	if (vRefNum != kOnSystemDisk) {
+		throw std::runtime_error("FindFolder only supports kOnSystemDisk");
+	}
+	
 	fs::path path;
 
 	switch (folderType) {
@@ -307,7 +311,7 @@ OSErr SetEOF(short refNum, long logEOF)
 	return unimpErr;
 }
 
-short Pomme::Files::MountArchiveAsVolume(const std::string& archivePath)
+short Pomme::Files::MountArchiveAsVolume(const fs::path& archivePath)
 {
 	if (volumes.size() >= MAX_VOLUMES) {
 		throw std::out_of_range("Too many volumes mounted");
@@ -323,3 +327,7 @@ short Pomme::Files::MountArchiveAsVolume(const std::string& archivePath)
 	return vRefNum;
 }
 
+FSSpec Pomme::Files::HostPathToFSSpec(const fs::path& fullPath)
+{
+	return dynamic_cast<HostVolume*>(volumes[0].get())->ToFSSpec(fullPath);
+}

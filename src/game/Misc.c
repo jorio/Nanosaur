@@ -262,41 +262,6 @@ Ptr	pr;
 
 #pragma mark -
 
-/******************* VERIFY SYSTEM ******************/
-
-void VerifySystem(void)
-{
-OSErr	iErr;
-NumVersion	nVers;
-long		createdDirID;
-
-
-			/* CHECK PREFERENCES FOLDER */
-			
-	iErr = FindFolder(kOnSystemDisk,kPreferencesFolderType,kDontCreateFolder,		// locate the folder
-					&gPrefsFolderVRefNum,&gPrefsFolderDirID);
-	if (iErr != noErr)
-		DoAlert("Warning: Cannot locate Preferences folder.");
-
-	DirCreate(gPrefsFolderVRefNum,gPrefsFolderDirID,"Nanosaur",&createdDirID);		// make PillowF folder in there
-
-
-				/* CHECK SOUND MANAGER 3.1 */
-
-	nVers = SndSoundManagerVersion();
-	if ((nVers.majorRev < 3) ||
-		((nVers.majorRev == 3) && (nVers.minorAndBugRev < 1)))
-		DoFatalAlert("This program requires Sound Manager 3.1 or better to run.");
-		
-
-}
-
-
-#pragma mark -
-
-
-
-
 /***************** APPLY FICTION TO DELTAS ********************/
 
 void ApplyFrictionToDeltas(float f,TQ3Vector3D *d)

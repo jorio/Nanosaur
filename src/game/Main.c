@@ -101,12 +101,6 @@ void ToolBoxInit(void)
 OSErr		iErr;
 
 	gMainAppRezFile = CurResFile();
-	
-
-		
-		/* FIRST VERIFY SYSTEM BEFORE GOING TOO FAR */
-				
-	VerifySystem();
 
 
 			/* MAKE FSSPEC FOR DATA FOLDER */

@@ -3,6 +3,7 @@
 #include "Files/Volume.h"
 #include <map>
 #include <vector>
+#include "CompilerSupport/filesystem.h"
 
 namespace Pomme::Files
 {
@@ -59,7 +60,7 @@ namespace Pomme::Files
 		void ReadStuffIt5();
 		
 	public:
-		explicit ArchiveVolume(short vRefNum, const std::string& pathToArchiveOnHost);
+		explicit ArchiveVolume(short vRefNum, const fs::path& pathToArchiveOnHost);
 
 		virtual ~ArchiveVolume() = default;
 

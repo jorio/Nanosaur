@@ -15,8 +15,6 @@ namespace Pomme::Files
 
 		fs::path ToPath(long parID, const std::string& name);
 
-		FSSpec ToFSSpec(const fs::path& fullPath);
-		
 	public:
 		explicit HostVolume(short vRefNum);
 
@@ -26,6 +24,8 @@ namespace Pomme::Files
 		// Utilities
 
 		long GetDirectoryID(const fs::path& dirPath);
+
+		FSSpec ToFSSpec(const fs::path& fullPath);
 
 		//-----------------------------------------------------------------------------
 		// Toolbox API Implementation
