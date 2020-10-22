@@ -86,6 +86,16 @@ static void RenderQualityDialog()
 		Rect r = gCoverWindow->portRect;
 		EraseRect(&r);
 
+		RGBForeColor(&lineColor);
+		MoveTo(8, 480 - 12 * 3);
+		DrawStringC("Renderer: ");  DrawStringC((const char*)glGetString(GL_RENDERER));
+		MoveTo(8, 480 - 12 * 2);
+		DrawStringC("OpenGL: ");
+		DrawStringC((const char*)glGetString(GL_VERSION));
+		MoveTo(8, 480 - 12 * 1);
+		DrawStringC("GLSL: ");
+		DrawStringC((const char*)glGetString(GL_SHADING_LANGUAGE_VERSION));
+
 		ForeColor(blackColor);
 		{
 			const char* title = "NANOSAUR SETTINGS";
