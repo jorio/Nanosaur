@@ -11,7 +11,7 @@
 
 # Libraries
 /Quesa
-/SDL2-*
+/SDL2*
 
 # Build directories
 /build*

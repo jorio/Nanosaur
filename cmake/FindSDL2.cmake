@@ -9,6 +9,8 @@
 
 include(FindPackageHandleStandardArgs)
 
+set(SDL2_VERSION 2.0.12)
+
 # Check if "main" was specified as a component
 set(_SDL2_use_main FALSE)
 foreach(_SDL2_component ${SDL2_FIND_COMPONENTS})
@@ -20,7 +22,7 @@ foreach(_SDL2_component ${SDL2_FIND_COMPONENTS})
 endforeach()
 
 if(WIN32)
-    find_path(SDL2_ROOT "include/SDL.h" PATHS "${CMAKE_SOURCE_DIR}/SDL2" NO_DEFAULT_PATH)
+    find_path(SDL2_ROOT "include/SDL.h" PATHS "${CMAKE_SOURCE_DIR}/SDL2-${SDL2_VERSION}" NO_DEFAULT_PATH)
     
     if(SDL2_ROOT)
         set(SDL2_INCLUDE_DIRS "${SDL2_ROOT}/include")
