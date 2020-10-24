@@ -159,6 +159,7 @@ set(SRC_GLUE
     src/qd3d/QD3DTransform.h
     src/qd3d/QD3DView.h
     $<$<BOOL:${WIN32}>:src/OpenDialog_Windows.cpp>
+    $<$<BOOL:${APPLE}>:src/OpenDialog_macOS.mm>
 )
 
 set(NANO_GAME_SOURCES
@@ -248,6 +249,8 @@ target_link_libraries(${PROJECT_NAME}
 )
 
 if(APPLE)
+    target_link_options(${PROJECT_NAME} PRIVATE -framework Cocoa)
+
     # Set macOS target version for all subprojects
     set(MACOS_TARGET_VERSION "10.11")
     set_target_properties(${PROJECT_NAME} PROPERTIES XCODE_ATTRIBUTE_MACOSX_DEPLOYMENT_TARGET ${MACOS_TARGET_VERSION})
