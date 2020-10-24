@@ -5,7 +5,13 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 #set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_CXX_STANDARD 20)
 
-project(nsaur C CXX)
+project(Nanosaur C CXX)
+
+set(NANO_TARGET ${PROJECT_NAME})
+
+#------------------------------------------------------------------------------
+# GLOBAL OPTIONS (BEFORE ADDING SUBDIRECTORIES)
+#------------------------------------------------------------------------------
 
 if(MSVC)
     # This lets us detect that MSVC supports C++20 features via the __cplusplus macro
@@ -14,9 +20,19 @@ if(MSVC)
     add_compile_definitions(UNICODE _UNICODE)
 endif()
 
-add_subdirectory(Quesa)
+#------------------------------------------------------------------------------
+# DEPENDENCIES
+#------------------------------------------------------------------------------
 
+add_subdirectory(Quesa)
 add_subdirectory(src/pomme)
+
+find_package(SDL2 REQUIRED COMPONENTS main)
+find_package(OpenGL REQUIRED)
+
+#------------------------------------------------------------------------------
+# GAME SOURCES
+#------------------------------------------------------------------------------
 
 set(NANO_SRC src/game)
 
@@ -174,25 +190,14 @@ set(NANO_GAME_SOURCES
     ${NANO_SRC_SCREENS}
 )
 
-if(NOT MSVC)
-    set_source_files_properties(${NANO_GAME_SOURCES} PROPERTIES COMPILE_FLAGS "-include Pomme.h")
-else()
-    set_source_files_properties(${NANO_GAME_SOURCES} PROPERTIES COMPILE_FLAGS /FIPomme.h)
-endif()
-
 set(NANO_ALL_SOURCES
     ${NANO_GAME_SOURCES}
     ${SRC_GLUE}
 )
 
-if(WIN32 AND CMAKE_BUILD_TYPE MATCHES Release)
-    # "WIN32" here is equivalent to /SUBSYSTEM:WINDOWS for MSVC
-    add_executable(${PROJECT_NAME} WIN32 ${NANO_ALL_SOURCES})
-elseif(APPLE)
-    add_executable(${PROJECT_NAME} MACOSX_BUNDLE ${NANO_ALL_SOURCES})
-else()
-    add_executable(${PROJECT_NAME} ${NANO_ALL_SOURCES})
-endif()
+#------------------------------------------------------------------------------
+# SOURCE GROUPS
+#------------------------------------------------------------------------------
 
 source_group(System     FILES ${NANO_SRC_SYSTEM})
 source_group(Terrain    FILES ${NANO_SRC_TERRAIN})
@@ -205,34 +210,33 @@ source_group(Screens    FILES ${NANO_SRC_SCREENS})
 source_group(Headers    FILES ${NANO_HEADERS})
 source_group(Glue       FILES ${SRC_GLUE})
 
-find_package(SDL2 REQUIRED COMPONENTS main)
-find_package(OpenGL REQUIRED)
-
-target_compile_definitions(Quesa_SDL PUBLIC QUESA_OS_SDL QUESA_APPLY_FOG_COLOR_IN_ALL_PASSES)
-target_compile_definitions(${PROJECT_NAME} PRIVATE SOURCE_PORT_ENHANCEMENTS)
+#------------------------------------------------------------------------------
+# SOURCE FILE PROPERTIES
+#------------------------------------------------------------------------------
 
 if(NOT MSVC)
-    target_compile_options(${PROJECT_NAME} PRIVATE
-        -Wall -Wno-multichar
-        -fexceptions
-    )
+    set_source_files_properties(${NANO_GAME_SOURCES} PROPERTIES COMPILE_FLAGS "-include Pomme.h")
 else()
-    target_compile_options(${PROJECT_NAME} PRIVATE
-        /EHa    # C++ may throw exceptions from extern "C" functions
-        /W4
-        /wd4068 # ignore unrecognized pragmas
-        /wd4100 # unreferenced formal parameters
-        /wd4201 # nonstandard extension (nameless struct)
-        /wd4244 # conversion from double to float
-        /wd4305 # truncation from double to float
-    )
-    
-    # On Win32, we need NOGDI and NOUSER to be able to define some Mac functions
-    # whose names are otherwise taken by Windows APIs.
-    target_compile_definitions(${PROJECT_NAME} PRIVATE WIN32_LEAN_AND_MEAN NOGDI NOUSER)
+    set_source_files_properties(${NANO_GAME_SOURCES} PROPERTIES COMPILE_FLAGS /FIPomme.h)
 endif()
 
-target_include_directories(${PROJECT_NAME} PRIVATE
+#------------------------------------------------------------------------------
+# EXECUTABLE TARGET
+#------------------------------------------------------------------------------
+
+if(WIN32 AND CMAKE_BUILD_TYPE MATCHES Release)
+    # "WIN32" here is equivalent to /SUBSYSTEM:WINDOWS for MSVC
+    add_executable(${NANO_TARGET} WIN32 ${NANO_ALL_SOURCES})
+elseif(APPLE)
+    add_executable(${NANO_TARGET} MACOSX_BUNDLE
+        ${NANO_ALL_SOURCES}
+        ${SDL2_LIBRARIES}
+    )
+else()
+    add_executable(${NANO_TARGET} ${NANO_ALL_SOURCES})
+endif()
+
+target_include_directories(${NANO_TARGET} PRIVATE
     ${SDL2_INCLUDE_DIRS}
     ${OPENGL_INCLUDE_DIRS}
     src
@@ -241,39 +245,87 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     src/qd3d
 )
 
-target_link_libraries(${PROJECT_NAME}
-    ${OPENGL_LIBRARIES}
+target_link_libraries(${NANO_TARGET}
     ${SDL2_LIBRARIES}
+    ${OPENGL_LIBRARIES}
     Quesa_SDL
     pomme
 )
 
+#------------------------------------------------------------------------------
+# DEFINES
+#------------------------------------------------------------------------------
+
+target_compile_definitions(Quesa_SDL PUBLIC
+    QUESA_OS_SDL
+    QUESA_APPLY_FOG_COLOR_IN_ALL_PASSES
+)
+
+target_compile_definitions(${NANO_TARGET} PRIVATE
+    QUESA_OS_SDL
+    SOURCE_PORT_ENHANCEMENTS
+)
+
+if(WIN32)
+    # On Win32, we need NOGDI and NOUSER to be able to define some Mac functions
+    # whose names are otherwise taken by Windows APIs.
+    target_compile_definitions(${NANO_TARGET} PRIVATE WIN32_LEAN_AND_MEAN NOGDI NOUSER)
+endif()
+
+#------------------------------------------------------------------------------
+# COMPILER OPTIONS
+#------------------------------------------------------------------------------
+
+if(NOT MSVC)
+    target_compile_options(${NANO_TARGET} PRIVATE
+        -fexceptions
+        -Wall
+        -Wextra
+        -Wshadow
+        -Wno-multichar
+        -Wno-unknown-pragmas
+        -Wno-unused-parameter
+    )
+else()
+    target_compile_options(${NANO_TARGET} PRIVATE
+        /EHa    # C++ may throw exceptions from extern "C" functions
+        /W4
+        /wd4068 # ignore unrecognized pragmas
+        /wd4100 # unreferenced formal parameters
+        /wd4201 # nonstandard extension (nameless struct)
+        /wd4244 # conversion from double to float
+        /wd4305 # truncation from double to float
+    )
+endif()
+
+#------------------------------------------------------------------------------
+# PLATFORM-SPECIFIC PACKAGING
+#------------------------------------------------------------------------------
+
 if(APPLE)
-    target_link_options(${PROJECT_NAME} PRIVATE -framework Cocoa)
+    # We need Cocoa for the open dialog
+    target_link_options(${NANO_TARGET} PRIVATE -framework Cocoa)
 
     # Set macOS target version for all subprojects
     set(MACOS_TARGET_VERSION "10.11")
-    set_target_properties(${PROJECT_NAME} PROPERTIES XCODE_ATTRIBUTE_MACOSX_DEPLOYMENT_TARGET ${MACOS_TARGET_VERSION})
     set_target_properties(Quesa_SDL       PROPERTIES XCODE_ATTRIBUTE_MACOSX_DEPLOYMENT_TARGET ${MACOS_TARGET_VERSION})
     set_target_properties(pomme           PROPERTIES XCODE_ATTRIBUTE_MACOSX_DEPLOYMENT_TARGET ${MACOS_TARGET_VERSION})
 
-    # We're going to embed frameworks into the app bundle. Set the framework search path to (App bundle)/Contents/Frameworks
-    set_target_properties(${PROJECT_NAME} PROPERTIES XCODE_ATTRIBUTE_LD_RUNPATH_SEARCH_PATHS "@executable_path/../Frameworks")
+    set_target_properties(${NANO_TARGET} PROPERTIES
+        XCODE_ATTRIBUTE_MACOSX_DEPLOYMENT_TARGET ${MACOS_TARGET_VERSION}
 
-    # Copy SDL2.framework to (App bundle)/Contents/Frameworks/SDL2.framework
-    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E remove_directory $<TARGET_FILE_DIR:${PROJECT_NAME}>/../Frameworks
-        COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:${PROJECT_NAME}>/../Frameworks
-        COMMAND cp -aH ${SDL2_LIBRARIES} $<TARGET_FILE_DIR:${PROJECT_NAME}>/../Frameworks/
-        COMMAND ${CMAKE_COMMAND} -E remove $<TARGET_FILE_DIR:${PROJECT_NAME}>/../Frameworks/SDL2.framework/Headers
-        COMMAND ${CMAKE_COMMAND} -E remove_directory $<TARGET_FILE_DIR:${PROJECT_NAME}>/../Frameworks/SDL2.framework/Versions/Current/Headers
+        # Set framework search path to (App bundle)/Contents/Frameworks so the game can use its embedded SDL2.framework
+        XCODE_ATTRIBUTE_LD_RUNPATH_SEARCH_PATHS "@executable_path/../Frameworks"
     )
+
+    # Copy stuff to app bundle contents
+    set_source_files_properties(${SDL2_LIBRARIES} PROPERTIES MACOSX_PACKAGE_LOCATION "Frameworks")
 endif()
 
 # Copy SDL2 DLLs to output folder on Windows
 if(WIN32)
     foreach(DLL ${SDL2_DLLS})
-        add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND
-            ${CMAKE_COMMAND} -E copy_if_different ${DLL} $<TARGET_FILE_DIR:${PROJECT_NAME}>)
+        add_custom_command(TARGET ${NANO_TARGET} POST_BUILD COMMAND
+            ${CMAKE_COMMAND} -E copy_if_different ${DLL} $<TARGET_FILE_DIR:${NANO_TARGET}>)
     endforeach()
 endif()

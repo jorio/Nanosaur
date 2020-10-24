@@ -88,7 +88,10 @@ if(MSVC)
 else()
     target_compile_options(pomme PRIVATE
         -Wall
+        -Wextra
+        -Wshadow
         -Wno-multichar
+        -Wno-unused-parameter
         -fexceptions
     )
 endif()
