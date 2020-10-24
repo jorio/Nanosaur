@@ -198,7 +198,7 @@ static void Parse_mdia_vide(Pomme::BigEndianIStream& f, Movie& movie, UInt32 tim
 		}
 	}
 
-	std::cout << "vide: " << Pomme::FourCCString(movie.videoFormat) << ", " << movie.width << "x" << movie.height << ", " << movie.videoFrameRate << "fps\n";
+//	std::cout << "vide: " << Pomme::FourCCString(movie.videoFormat) << ", " << movie.width << "x" << movie.height << ", " << movie.videoFrameRate << "fps\n";
 
 	// ------------------------------------
 	// EXTRACT VIDEO FRAMES
@@ -264,7 +264,7 @@ static void Parse_mdia_soun(Pomme::BigEndianIStream& f, Movie& movie)
 		}
 	}
 
-	std::cout << "soun: " << Pomme::FourCCString(movie.audioFormat) << ", " << movie.audioNChannels << "ch, " << movie.audioBitDepth << "bit, " << movie.audioSampleRate << "Hz\n";
+//	std::cout << "soun: " << Pomme::FourCCString(movie.audioFormat) << ", " << movie.audioNChannels << "ch, " << movie.audioBitDepth << "bit, " << movie.audioSampleRate << "Hz\n";
 
 	// ------------------------------------
 	// EXTRACT AUDIO
