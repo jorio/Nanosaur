@@ -302,6 +302,7 @@ typedef struct
 	Boolean mainMenuHelp;
 	Boolean interpolationStyle;
 	Boolean vsync;
+	Boolean opaqueWater;
 	Boolean	reserved[4];
 }PrefsType;
 

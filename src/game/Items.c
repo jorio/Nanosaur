@@ -33,6 +33,7 @@ extern	TQ3Object			gObjectGroupList[MAX_3DMF_GROUPS][MAX_OBJECTS_IN_GROUP];
 extern	TQ3BoundingBox 		gObjectGroupBBoxList[MAX_3DMF_GROUPS][MAX_OBJECTS_IN_GROUP];
 extern	unsigned long 		gInfobarUpdateBits;
 extern	short				gAmbientEffect;
+extern	PrefsType			gGamePrefs;
 
 /****************************/
 /*    PROTOTYPES            */
@@ -363,8 +364,11 @@ float	y;
 
 	newObj->TerrainItemPtr = itemPtr;								// keep ptr to item list
 
+	if (!gGamePrefs.opaqueWater)
+	{
 	MakeObjectTransparent(newObj, .8);
 	MakeObjectKeepBackfaces(newObj);								// no bother to remove these
+	}
 
 	newObj->UndulationIndex = 1;
 

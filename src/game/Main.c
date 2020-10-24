@@ -146,6 +146,7 @@ OSErr		iErr;
 	gGamePrefs.fullscreen = false;
 	gGamePrefs.vsync = true;
 	gGamePrefs.mainMenuHelp = true;
+	gGamePrefs.opaqueWater = true; // Source port note: this should be false, but we have perf issues with Quesa+transparent objects for now
 	gGamePrefs.reserved[0] = false;
 	gGamePrefs.reserved[1] = false;
 	gGamePrefs.reserved[2] = false;

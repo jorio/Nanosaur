@@ -66,6 +66,7 @@ std::vector<SettingEntry> settings = {
 		{&gGamePrefs.allowGammaFade     , "Allow Gamma Fade"    },
 		{&gGamePrefs.softerLighting     , "Softer Lighting"     },
 		{&gGamePrefs.interpolationStyle , "Face Shading"      , nullptr, {"Flat", "Per-Pixel"} },
+		{&gGamePrefs.opaqueWater        , "Water Alpha"       , nullptr, {"Translucent", "Opaque"}},
 		{&gGamePrefs.mainMenuHelp       , "Main Menu Help"      },
 };
 
