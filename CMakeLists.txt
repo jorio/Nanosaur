@@ -7,11 +7,6 @@ set(CMAKE_CXX_STANDARD 20)
 
 project(nsaur C CXX)
 
-if(APPLE)
-    add_compile_options(-mmacosx-version-min=10.11)
-    add_link_options(-mmacosx-version-min=10.11)
-endif()
-
 if(MSVC)
     # This lets us detect that MSVC supports C++20 features via the __cplusplus macro
     # (See: https://docs.microsoft.com/en-us/cpp/build/reference/zc-cplusplus)
@@ -192,7 +187,7 @@ set(NANO_ALL_SOURCES
 if(WIN32 AND CMAKE_BUILD_TYPE MATCHES Release)
     # "WIN32" here is equivalent to /SUBSYSTEM:WINDOWS for MSVC
     add_executable(${PROJECT_NAME} WIN32 ${NANO_ALL_SOURCES})
-elseif(APPLE AND CMAKE_BUILD_TYPE MATCHES Release)
+elseif(APPLE)
     add_executable(${PROJECT_NAME} MACOSX_BUNDLE ${NANO_ALL_SOURCES})
 else()
     add_executable(${PROJECT_NAME} ${NANO_ALL_SOURCES})
@@ -251,6 +246,26 @@ target_link_libraries(${PROJECT_NAME}
     Quesa_SDL
     pomme
 )
+
+if(APPLE)
+    # Set macOS target version for all subprojects
+    set(MACOS_TARGET_VERSION "10.11")
+    set_target_properties(${PROJECT_NAME} PROPERTIES XCODE_ATTRIBUTE_MACOSX_DEPLOYMENT_TARGET ${MACOS_TARGET_VERSION})
+    set_target_properties(Quesa_SDL       PROPERTIES XCODE_ATTRIBUTE_MACOSX_DEPLOYMENT_TARGET ${MACOS_TARGET_VERSION})
+    set_target_properties(pomme           PROPERTIES XCODE_ATTRIBUTE_MACOSX_DEPLOYMENT_TARGET ${MACOS_TARGET_VERSION})
+
+    # We're going to embed frameworks into the app bundle. Set the framework search path to (App bundle)/Contents/Frameworks
+    set_target_properties(${PROJECT_NAME} PROPERTIES XCODE_ATTRIBUTE_LD_RUNPATH_SEARCH_PATHS "@executable_path/../Frameworks")
+
+    # Copy SDL2.framework to (App bundle)/Contents/Frameworks/SDL2.framework
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E remove_directory $<TARGET_FILE_DIR:${PROJECT_NAME}>/../Frameworks
+        COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:${PROJECT_NAME}>/../Frameworks
+        COMMAND cp -aH ${SDL2_LIBRARIES} $<TARGET_FILE_DIR:${PROJECT_NAME}>/../Frameworks/
+        COMMAND ${CMAKE_COMMAND} -E remove $<TARGET_FILE_DIR:${PROJECT_NAME}>/../Frameworks/SDL2.framework/Headers
+        COMMAND ${CMAKE_COMMAND} -E remove_directory $<TARGET_FILE_DIR:${PROJECT_NAME}>/../Frameworks/SDL2.framework/Versions/Current/Headers
+    )
+endif()
 
 # Copy SDL2 DLLs to output folder on Windows
 if(WIN32)

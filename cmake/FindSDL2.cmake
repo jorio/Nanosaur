@@ -36,6 +36,16 @@ if(WIN32)
 
     mark_as_advanced(SDL2_ROOT)
     find_package_handle_standard_args(SDL2 DEFAULT_MSG SDL2_INCLUDE_DIRS SDL2_LIBRARIES SDL2_DLLS)
+elseif(APPLE)
+    find_path(SDL2_ROOT "Headers/SDL.h" PATHS "${CMAKE_SOURCE_DIR}/SDL2.framework/Versions/Current" NO_DEFAULT_PATH)
+
+    if(SDL2_ROOT)
+        set(SDL2_INCLUDE_DIRS "${SDL2_ROOT}/Headers")
+        set(SDL2_LIBRARIES "${CMAKE_SOURCE_DIR}/SDL2.framework")
+    endif()
+
+    mark_as_advanced(SDL2_ROOT)
+    find_package_handle_standard_args(SDL2 DEFAULT_MSG SDL2_INCLUDE_DIRS SDL2_LIBRARIES)
 else()
     find_path(SDL2_INCLUDE_DIRS SDL.h PATH_SUFFIXES SDL2)
     find_library(_SDL2_LIB SDL2)
