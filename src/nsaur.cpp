@@ -20,6 +20,8 @@ extern FSSpec gDataSpec;
 void GameMain(void);
 }
 
+fs::path gDataLocation;
+
 bool FindGameData();
 void WriteDataLocationSetting();
 
@@ -37,6 +39,10 @@ int CommonMain(int argc, const char** argv)
 	ClearBackdrop(0xFFA5A5A5);
 	RenderBackdropQuad(BACKDROP_FILL);
 	ExclusiveOpenGLMode_End();
+
+	if (argc > 1) {
+		gDataLocation = argv[1];
+	}
 
 	if (!FindGameData()) {
 		return 1;

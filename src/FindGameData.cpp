@@ -8,7 +8,7 @@
 
 fs::path DoOpenDialog(const char* expectedArchiveName);
 
-static fs::path gDataLocation;
+extern fs::path gDataLocation;
 
 #ifdef PRO_MODE
 	constexpr const char* ARCHIVE_NAME = "nanosaurextreme134.bin";
@@ -78,6 +78,8 @@ void NukeDataLocationSetting()
 
 	MakePrefsFSSpec(DATA_LOCATION_PREF, &spec);
 	FSpDelete(&spec);
+
+	gDataLocation = "";
 }
 
 void WriteDataLocationSetting()
@@ -113,15 +115,25 @@ enum FindGameData_Outcome
 
 static FindGameData_Outcome _FindGameData()
 {
-	gDataLocation = ReadDataLocationSetting();
+	if (gDataLocation.empty())
+	{
+		gDataLocation = ReadDataLocationSetting();
+	}
 
 	if (gDataLocation.empty())
 	{
+#if _WIN32 || __APPLE__
 		DrawLocatePromptScreen();
 		gDataLocation = DoOpenDialog(ARCHIVE_NAME);
 		if (gDataLocation.empty()) {
 			return ABORT;
 		}
+#else
+		char message[1024];
+		snprintf(message, sizeof(message), "Please pass the path to \"%s\"\non the command line.", ARCHIVE_NAME);
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Nanosaur", message, gSDLWindow);
+		return ABORT;
+#endif
 	}
 
 	bool isPowerPCExecutable = false;
@@ -131,7 +143,6 @@ static FindGameData_Outcome _FindGameData()
 		std::ifstream file(gDataLocation, std::ios::binary | std::ios::in);
 		if (!file.is_open()) {
 			SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, "Nanosaur", "Couldn't open game data.", gSDLWindow);
-			NukeDataLocationSetting();
 			return RETRY;
 		}
 
@@ -157,7 +168,8 @@ static FindGameData_Outcome _FindGameData()
 		gDataSpec.vRefNum = archiveVolumeID;
 
 		if (noErr != FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, (const char*)APP_FILE_INSIDE_ARCHIVE, &applicationSpec)) {
-			throw std::runtime_error("Can't find application resource file");
+			SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, "Nanosaur", "Can't find application resource file.", gSDLWindow);
+			return RETRY;
 		}
 	}
 	else if (isPowerPCExecutable) {
@@ -167,7 +179,6 @@ static FindGameData_Outcome _FindGameData()
 	}
 	else {
 		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, "Nanosaur", "File type not recognized.", gSDLWindow);
-		NukeDataLocationSetting();
 		return RETRY;
 	}
 
@@ -181,8 +192,12 @@ static FindGameData_Outcome _FindGameData()
 bool FindGameData()
 {
 	FindGameData_Outcome outcome = RETRY;
-	while (outcome == RETRY) {
+	while (true) {
 		outcome = _FindGameData();
+		if (outcome != RETRY) {
+			break;
+		}
+		NukeDataLocationSetting();
 	}
 	return outcome == OK;
 }
