@@ -84,6 +84,30 @@ FSSpec HostVolume::ToFSSpec(const fs::path& fullPath)
 	return spec;
 }
 
+static void ADFJumpToResourceFork(std::istream& stream)
+{
+	auto f = Pomme::BigEndianIStream(stream);
+
+	if (0x0005160700020000ULL != f.Read<UInt64>()) {
+		throw std::runtime_error("No ADF magic");
+	}
+	f.Skip(16);
+	auto numOfEntries = f.Read<UInt16>();
+
+	for (int i = 0; i < numOfEntries; i++) {
+		auto entryID = f.Read<UInt32>();
+		auto offset = f.Read<UInt32>();
+		f.Skip(4); // length
+		if (entryID == 2) {
+			// Found entry ID 2 (resource fork)
+			f.Goto(offset);
+			return;
+		}
+	}
+
+	throw std::runtime_error("Didn't find entry ID=2 in ADF");
+}
+
 OSErr HostVolume::OpenFork(const FSSpec* spec, ForkType forkType, char permission, std::unique_ptr<ForkHandle>& handle)
 {
 	if (permission == fsCurPerm) {
@@ -97,69 +121,56 @@ OSErr HostVolume::OpenFork(const FSSpec* spec, ForkType forkType, char permissio
 	}
 
 	auto path = ToPath(spec->parID, spec->cName);
-
-	if (forkType == ResourceFork)
+	
+	if (forkType == DataFork)
 	{
-		auto specName = path.filename().string();
-		path.remove_filename();
+		if (!fs::is_regular_file(path)) {
+			return fnfErr;
+		}
+		handle = std::make_unique<HostForkHandle>(DataFork, permission, path);
+		return noErr;
+	}
+	else
+	{
+		// We want to open a resource fork on the host volume.
+		// It is likely stored under one of the following names: ._NAME, NAME.rsrc, or NAME/..namedfork/rsrc
 
-		auto candidates = {
-				"._" + specName,
-				specName + ".rsrc",
+		auto specName = path.filename().u8string();
+
+		struct {
+			u8string filename;
+			bool isAppleDoubleFile;
+		} candidates[] =
+		{
+			// "._NAME": ADF contained in zips created by macOS's built-in archiver
+			{ u8"._" + specName, true },
+
+			// "NAME.rsrc": ADF extracted from StuffIt/CompactPro archives by unar
+			{ specName + u8".rsrc", true },
+
 #if __APPLE__
-				//specName + "/..namedfork/rsrc" // TODO: check that this works in OSX land
+			// "NAME/..namedfork/rsrc": macOS-specific way to access true resource forks (not ADF)
+			{ specName + u8"/..namedfork/rsrc", false },
 #endif
 		};
 
-		bool foundRF = false;
+		path.remove_filename();
+
 		for (auto c : candidates) {
-			auto candidatePath = path / c;
-			if (fs::exists(candidatePath)) {
-				path = candidatePath;
-				foundRF = true;
-				break;
+			auto candidatePath = path / c.filename;
+			if (!fs::is_regular_file(candidatePath)) {
+				continue;
 			}
-		}
-
-		if (!foundRF) {
-			return fnfErr;
-		}
-	}
-
-	if (!fs::is_regular_file(path)) {
-		return fnfErr;
-	}
-
-	handle = std::make_unique<HostForkHandle>(forkType, permission, path);
-
-	if (forkType == ResourceFork)
-	{
-		// ----------------
-		// Detect AppleDouble
-
-		auto f = Pomme::BigEndianIStream(handle->GetStream());
-		if (0x0005160700020000ULL != f.Read<UInt64>()) {
-			throw std::runtime_error("No ADF magic found in " + path.string());
-		}
-		f.Skip(16);
-		auto numOfEntries = f.Read<UInt16>();
-		bool foundEntryID2 = false;
-		for (int i = 0; i < numOfEntries; i++) {
-			auto entryID = f.Read<UInt32>();
-			auto offset = f.Read<UInt32>();
-			f.Skip(4); // length
-			if (entryID == 2) {
-				foundEntryID2 = true;
-				f.Goto(offset);
-				break;
+			path = candidatePath;
+			handle = std::make_unique<HostForkHandle>(ResourceFork, permission, path);
+			if (c.isAppleDoubleFile) {
+				ADFJumpToResourceFork(handle->GetStream());
 			}
-		}
-		if (!foundEntryID2) {
-			throw std::runtime_error("Didn't find entry ID=2 in ADF");
+			return noErr;
 		}
 	}
-
-	return noErr;
+	
+	return fnfErr;
 }
 
 static bool CaseInsensitiveAppendToPath(
