@@ -37,9 +37,11 @@ namespace Pomme::Sound
 		void Decode(const int nChannels, const std::span<const char> input, const std::span<char> output) override;
 	};
 
-	class ulaw: public Codec
+	class xlaw: public Codec
 	{
+		const int16_t* xlawToPCM;
 	public:
+		xlaw(uint32_t codecFourCC);
 		int SamplesPerPacket() override { return 1; }
 		int BytesPerPacket() override { return 1; }
 		void Decode(const int nChannels, const std::span<const char> input, const std::span<char> output) override;

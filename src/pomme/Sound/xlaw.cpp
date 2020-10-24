@@ -7,7 +7,7 @@
 // These tables were generated using alaw2linear() and ulaw2linear()
 // from ffmpeg/libavcodec/pcm_tablegen.h.
 
-static int16_t alawToPCM[128] = {
+static const int16_t alawToPCM[128] = {
  -5504,  -5248,  -6016,  -5760,  -4480,  -4224,  -4992,  -4736,
  -7552,  -7296,  -8064,  -7808,  -6528,  -6272,  -7040,  -6784,
  -2752,  -2624,  -3008,  -2880,  -2240,  -2112,  -2496,  -2368,
@@ -26,7 +26,7 @@ static int16_t alawToPCM[128] = {
   -944,   -912,  -1008,   -976,   -816,   -784,   -880,   -848,
 };
 
-static int16_t ulawToPCM[128] = {
+static const int16_t ulawToPCM[128] = {
 -32124, -31100, -30076, -29052, -28028, -27004, -25980, -24956,
 -23932, -22908, -21884, -20860, -19836, -18812, -17788, -16764,
 -15996, -15484, -14972, -14460, -13948, -13436, -12924, -12412,
@@ -45,7 +45,22 @@ static int16_t ulawToPCM[128] = {
    -56,    -48,    -40,    -32,    -24,    -16,     -8,     -0,
 };
 
-void Pomme::Sound::ulaw::Decode(
+Pomme::Sound::xlaw::xlaw(uint32_t codecFourCC)
+{
+	switch (codecFourCC)
+	{
+	case 'ulaw':
+		xlawToPCM = ulawToPCM;
+		break;
+	case 'alaw':
+		xlawToPCM = alawToPCM;
+		break;
+	default:
+		throw std::runtime_error("unknown xlaw fourCC");
+	}
+}
+
+void Pomme::Sound::xlaw::Decode(
 		const int nChannels,
 		const std::span<const char> input,
 		const std::span<char> output)
@@ -62,9 +77,9 @@ void Pomme::Sound::ulaw::Decode(
 		int8_t b = input[i];  // SIGNED!
 		if (b < 0) {
 			// Mirror table and negate output
-			out16[i] = -ulawToPCM[128 + b];
+			out16[i] = -xlawToPCM[128 + b];
 		} else {
-			out16[i] = ulawToPCM[b];
+			out16[i] = xlawToPCM[b];
 		}
 	}
 }

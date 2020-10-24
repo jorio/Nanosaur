@@ -737,8 +737,9 @@ std::unique_ptr<Pomme::Sound::Codec> Pomme::Sound::GetCodec(uint32_t fourCC)
 			return std::make_unique<Pomme::Sound::MACE>();
 		case 'ima4':
 			return std::make_unique<Pomme::Sound::IMA4>();
+		case 'alaw':
 		case 'ulaw':
-			return std::make_unique<Pomme::Sound::ulaw>();
+			return std::make_unique<Pomme::Sound::xlaw>(fourCC);
 		default:
 			throw std::runtime_error("Unknown audio codec: " + Pomme::FourCCString(fourCC));
 	}
