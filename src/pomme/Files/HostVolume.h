@@ -2,6 +2,7 @@
 
 #include "Files/Volume.h"
 #include "CompilerSupport/filesystem.h"
+#include <vector>
 
 namespace Pomme::Files
 {
