@@ -24,10 +24,10 @@ struct CinepakContext
 	int avctx_height;
 	int width, height;
 
-	char* frame_data0;
+	uint8_t* frame_data0;
 	int frame_linesize0;
 
-	const unsigned char* data;
+	const uint8_t* data;
 	int size;
 	
 public:

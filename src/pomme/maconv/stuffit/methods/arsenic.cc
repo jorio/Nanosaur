@@ -312,7 +312,7 @@ end:
 
 
 // Read the next bytes.
-int32_t ArsenicMethod::ReadBytes(uint8_t *buffer, uint32_t length)
+int32_t ArsenicMethod::ReadBytes(uint8_t *buffer, size_t length)
 {
     if (end_of_blocks) {
         // if (compcrc != ~crc)  // FIX ME

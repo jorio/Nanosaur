@@ -106,7 +106,7 @@ static std::vector<ChunkInfo> Parse_stsc(Pomme::BigEndianIStream& f)
 		Expect<UInt32>(f, 1, "sample description ID");
 
 		// duplicate last chunk
-		for (UInt32 j = chunkInfos.size(); j < firstChunk - 1; j++) {
+		for (size_t j = chunkInfos.size(); j < firstChunk - 1; j++) {
 			auto lastChunk = chunkInfos[chunkInfos.size()-1];
 			chunkInfos.push_back(lastChunk);
 		}

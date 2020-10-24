@@ -24,14 +24,15 @@ Pomme::BigEndianIStream::BigEndianIStream(std::istream& theStream) :
 	stream(theStream) {
 }
 
-void Pomme::BigEndianIStream::Read(char* dst, int n) {
+void Pomme::BigEndianIStream::Read(char* dst, size_t n)
+{
 	stream.read(dst, n);
 	if (stream.eof()) {
 		throw std::out_of_range("Read past end of stream!");
 	}
 }
 
-std::vector<unsigned char> Pomme::BigEndianIStream::ReadBytes(int n)
+std::vector<unsigned char> Pomme::BigEndianIStream::ReadBytes(size_t n)
 {
 	std::vector<unsigned char> buf(n);
 	Read(reinterpret_cast<char*>(buf.data()), n);
@@ -61,7 +62,8 @@ void Pomme::BigEndianIStream::Goto(std::streamoff absoluteOffset) {
 	stream.seekg(absoluteOffset, std::ios_base::beg);
 }
 
-void Pomme::BigEndianIStream::Skip(int n) {
+void Pomme::BigEndianIStream::Skip(size_t n)
+{
 	stream.seekg(n, std::ios_base::cur);
 }
 

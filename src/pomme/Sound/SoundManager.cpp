@@ -22,13 +22,13 @@ static double midiNoteFrequencies[128];
 // Cookie-cutter sound command list.
 // Used to generate 'snd ' resources.
 
-static const char kSampledSoundCommandList[20] = {
+static const uint8_t kSampledSoundCommandList[20] = {
 	0,1,			// format
 	0,1,			// modifier count
 	0,5,			// modifier "sampled synth"
 	0,0,0,0,		// init bits
 	0,1,			// command count
-	(char)0x80,soundCmd,	// command soundCmd (high bit set)
+	0x80,soundCmd,	// command soundCmd (high bit set)
 	0,0,			// param1
 	0,0,0,20,		// param2 (offset)
 	// Sample data follows

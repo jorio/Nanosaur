@@ -99,7 +99,7 @@ void WriteDataLocationSetting()
 	}
 
 	auto u8location = gDataLocation.u8string();
-	length = u8location.size();
+	length = (long)u8location.size();
 	FSWrite(refNum, &length, (const Ptr)u8location.data());
 	FSClose(refNum);
 }

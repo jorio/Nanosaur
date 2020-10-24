@@ -86,11 +86,11 @@ static void DecodeIMA4Chunk(
 	int16_t** output,
 	std::vector<ADPCMChannelStatus>& ctx)
 {
-	const int nChannels = ctx.size();
+	const size_t nChannels = ctx.size();
 	const unsigned char* in = *input;
 	int16_t* out = *output;
 	
-	for (int chan = 0; chan < nChannels; chan++) {
+	for (size_t chan = 0; chan < nChannels; chan++) {
 		ADPCMChannelStatus& cs = ctx[chan];
 
 		// Bits 15-7 are the _top_ 9 bits of the 16-bit initial predictor value
@@ -114,7 +114,7 @@ static void DecodeIMA4Chunk(
 		if (cs.step_index > 88)
 			throw std::invalid_argument("step_index[chan]>88!");
 
-		int pos = chan;
+		size_t pos = chan;
 		for (int m = 0; m < 32; m++) {
 			int byte = (uint8_t)(*in++);
 			out[pos] = adpcm_ima_qt_expand_nibble(&cs, byte & 0x0F, 3);

@@ -97,7 +97,7 @@ struct ArsenicMethod : CompressionMethod {
     int32_t ReadNextByte();
 
     // Read the next bytes.
-    int32_t ReadBytes(uint8_t *data, uint32_t length) override;
+    int32_t ReadBytes(uint8_t *data, size_t length) override;
 
 
     ArithmeticModel initial_model, selector_model, mtf_model[7];

@@ -137,7 +137,7 @@ void cinepak_decode_vectors (
 	uint32_t         flag, mask;
 	uint8_t         *cb0, *cb1, *cb2, *cb3;
 	int             x, y;
-	char            *ip0, *ip1, *ip2, *ip3;
+	uint8_t         *ip0, *ip1, *ip2, *ip3;
 
 	flag = 0;
 	mask = 0;
@@ -361,7 +361,7 @@ CinepakContext::CinepakContext(int _width, int _height)
 	width = (avctx_width + 3) & ~3;
 	height = (avctx_height + 3) & ~3;
 
-	frame_data0 = new char[width * height * 3];
+	frame_data0 = new uint8_t[width * height * 3];
 	frame_linesize0 = width*3;
 	if (!frame_data0)
 		throw CinepakException("couldn't allocate frame");
@@ -395,5 +395,5 @@ void CinepakContext::DumpFrameTGA(const char* outFN)
 	std::ofstream out(outFN, std::ios::out | std::ios::binary);
 	uint16_t TGAhead[] = { 0, 2, 0, 0, 0, 0, (uint16_t)width, (uint16_t)height, 24 };
 	out.write(reinterpret_cast<char*>(&TGAhead), sizeof(TGAhead));
-	out.write(frame_data0, width*height*3);
+	out.write(reinterpret_cast<char*>(frame_data0), width*height*3);
 }

@@ -174,7 +174,7 @@ void UseResFile(short refNum) {
 		return;
 	}
 
-	for (int i = 0; i < rezSearchStack.size(); i++) {
+	for (size_t i = 0; i < rezSearchStack.size(); i++) {
 		if (rezSearchStack[i].fileRefNum == refNum) {
 			lastResError = noErr;
 			rezSearchStackIndex = i;

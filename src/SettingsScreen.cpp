@@ -27,7 +27,7 @@ static const RGBColor lineColor       = {0x8000,0x8000,0x8000};
 static const int column1X = 320-256/2;
 static const int column2X = column1X + 256;
 
-static size_t selectedEntry = 0;
+static int selectedEntry = 0;
 
 static unsigned int PositiveModulo(int value, unsigned int m)
 {
@@ -48,7 +48,7 @@ struct SettingEntry
 	void Cycle(int delta)
 	{
 		unsigned int value = (unsigned int)*ptr;
-		value = PositiveModulo(value + delta, choices.size());
+		value = PositiveModulo(value + delta, (unsigned int)choices.size());
 		*ptr = value;
 		if (callback) {
 			callback();
@@ -113,13 +113,14 @@ static void RenderQualityDialog()
 
 	for (size_t i = 0; i < settings.size(); i++) {
 		auto& setting = settings[i];
+		bool isSelected = (int)i == selectedEntry;
 
-		rowRect.top    = 200 + i * 16;
-		rowRect.bottom = rowRect.top + 16;
+		rowRect.top    = (SInt16)(200 + i * 16);
+		rowRect.bottom = (SInt16)(rowRect.top + 16);
 
 		int xOffset = 0;
 
-		if (i == selectedEntry) {
+		if (isSelected) {
 			xOffset = 10.0 * fabs(sin(fluc));
 			EraseRect(&rowRect);
 		}
@@ -131,7 +132,7 @@ static void RenderQualityDialog()
 		MoveTo(xOffset + column1X, rowRect.top + 12 - 1);
 		LineTo(column2X-5, rowRect.top + 12 - 1);
 		
-		RGBForeColor(selectedEntry == i? &selectedForegroundColor1: &foregroundColor);
+		RGBForeColor(isSelected? &selectedForegroundColor1: &foregroundColor);
 
 		MoveTo(xOffset + column1X, rowRect.top + 12);
 		DrawStringC(settings[i].label);
@@ -162,7 +163,7 @@ void DoQualityDialog()
 		
 		if (GetNewKeyState(kKey_Forward))   { selectedEntry--; needFullRender = true; PlayEffect(EFFECT_SELECT); }
 		if (GetNewKeyState(kKey_Backward))  { selectedEntry++; needFullRender = true; PlayEffect(EFFECT_SELECT); }
-		selectedEntry = PositiveModulo(selectedEntry, settings.size());
+		selectedEntry = PositiveModulo(selectedEntry, (unsigned int)settings.size());
 		
 		if (GetNewKeyState_Real(KEY_RETURN) || GetNewKeyState(kKey_Attack) || GetNewKeyState(kKey_TurnRight) || GetNewKeyState(kKey_TurnLeft))    {
 			settings[selectedEntry].Cycle(GetNewKeyState(kKey_TurnLeft)? -1: 1);

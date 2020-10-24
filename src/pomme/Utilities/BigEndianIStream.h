@@ -24,12 +24,12 @@ namespace Pomme
 
 	public:
 		BigEndianIStream(std::istream& theStream);
-		void Read(char* dst, int n);
-		void Skip(int n);
+		void Read(char* dst, size_t n);
+		void Skip(size_t n);
 		void Goto(std::streamoff absoluteOffset);
 		std::streampos Tell() const;
 		StreamPosGuard GuardPos();
-		std::vector<unsigned char> ReadBytes(int n);
+		std::vector<unsigned char> ReadBytes(size_t n);
 		std::string ReadPascalString();
 		std::string ReadPascalString_FixedLengthRecord(const int maxChars);
 		double Read80BitFloat();

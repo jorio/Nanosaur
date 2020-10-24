@@ -218,8 +218,8 @@ void PlayAMovie(FSSpec* spec)
 
 		// RGB888 to ARGB8888
 		for (int y = 0; y < movie.height; y++) {
-			const char *in = cinepak.frame_data0 + cinepak.frame_linesize0 * y;
-			char *out = (char*)(backdropPix + pitch * y);
+			const uint8_t *in = cinepak.frame_data0 + cinepak.frame_linesize0 * y;
+			uint8_t *out = (uint8_t*)(backdropPix + pitch * y);
 			for (int x = 0; x < movie.width; x++) {
 				*out++ = 0xFF;
 				*out++ = *in++;

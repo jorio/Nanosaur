@@ -317,7 +317,7 @@ short Pomme::Files::MountArchiveAsVolume(const fs::path& archivePath)
 		throw std::out_of_range("Too many volumes mounted");
 	}
 	
-	short vRefNum = volumes.size();
+	short vRefNum = (short)volumes.size();
 	
 	auto archiveVolume = std::make_unique<ArchiveVolume>(vRefNum, archivePath);
 	volumes.push_back(std::move(archiveVolume));
