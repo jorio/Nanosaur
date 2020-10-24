@@ -1,6 +1,7 @@
 ﻿#include "Pomme.h"
 #include "GamePatches.h"
 #include "PommeFiles.h"
+#include "Utilities/StringUtils.h"
 #include <iostream>
 #include <fstream>
 #include <SDL.h>
@@ -11,10 +12,10 @@ static fs::path gDataLocation;
 
 #ifdef PRO_MODE
 	constexpr const char* ARCHIVE_NAME = "nanosaurextreme134.bin";
-	constexpr const char8_t* APP_FILE_INSIDE_ARCHIVE = u8":Nanosaur\u2122 Extreme";
+	constexpr const auto* APP_FILE_INSIDE_ARCHIVE = u8":Nanosaur\u2122 Extreme";
 #else
 	constexpr const char* ARCHIVE_NAME = "nanosaur134.bin";
-	constexpr const char8_t* APP_FILE_INSIDE_ARCHIVE = u8":Nanosaur\u2122";
+	constexpr const auto* APP_FILE_INSIDE_ARCHIVE = u8":Nanosaur\u2122";
 #endif
 
 constexpr const char* DATA_LOCATION_PREF = "DataLocation";
@@ -68,7 +69,7 @@ fs::path ReadDataLocationSetting()
 	FSRead(refNum, &length, buf);
 	FSClose(refNum);
 
-	return std::u8string(buf, buf+length);
+	return u8string(buf, buf+length);
 }
 
 void NukeDataLocationSetting()

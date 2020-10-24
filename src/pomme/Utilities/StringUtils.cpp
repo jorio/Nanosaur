@@ -17,12 +17,12 @@ std::string UppercaseCopy(const std::string& in)
 	return out;
 }
 
-std::u8string AsU8(const std::string s)
+u8string AsU8(const std::string s)
 {
-	return std::u8string(s.begin(), s.end());
+	return u8string(s.begin(), s.end());
 }
 
-std::string FromU8(const std::u8string u8s)
+std::string FromU8(const u8string u8s)
 {
 	return std::string(u8s.begin(), u8s.end());
 }
