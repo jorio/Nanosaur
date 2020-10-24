@@ -78,15 +78,7 @@ typedef const char*                     ConstStr255Param;
 // Point & Rect types
 
 typedef struct Point { SInt16 v, h; } Point;
-
-typedef struct Rect
-{
-	union
-	{
-		struct { SInt16 top, left, bottom, right; };
-		struct { Point topLeft, bottomRight; };
-	};
-} Rect;
+typedef struct Rect { SInt16 top, left, bottom, right; } Rect;
 
 typedef Point* PointPtr;
 typedef Rect* RectPtr;

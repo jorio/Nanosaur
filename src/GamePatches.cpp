@@ -228,7 +228,7 @@ void PlayAMovie(FSSpec* spec)
 			}
 		}
 
-		Rect damage = { 0, 0, movie.height, movie.width };
+		Rect damage = { 0, 0, (SInt16)movie.height, (SInt16)movie.width };
 		DamagePortRegion(&damage);
 		RenderBackdropQuad(BACKDROP_FIT | BACKDROP_CLEAR_BLACK);
 		DoSDLMaintenance();

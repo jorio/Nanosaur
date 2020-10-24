@@ -57,9 +57,9 @@ struct GrafPortImpl
 		dirty = true;
 	}
 
-	void DamageRegion(int x, int y, int w, int h)
+	void DamageRegion(SInt16 x, SInt16 y, SInt16 w, SInt16 h)
 	{
-		Rect r = { y, x, y+h, x+w };
+		Rect r = { y, x, static_cast<SInt16>(y+h), static_cast<SInt16>(x+w) };
 		DamageRegion(r);
 	}
 
@@ -370,7 +370,8 @@ void LineTo(short x1, short y1)
 {
 	auto color = ByteswapScalar(penFG);
 
-	Point off = curPort->port.portRect.topLeft;
+	auto offx = curPort->port.portRect.left;
+	auto offy = curPort->port.portRect.top;
 
 	int x0 = penX;
 	int y0 = penY;
@@ -381,7 +382,7 @@ void LineTo(short x1, short y1)
 	int err = dx + dy;
 	curPort->DamageRegion(penX, penY, dx, dy);
 	while (1) {
-		curPort->pixels.Plot(x0 - off.h, y0 - off.v, color);
+		curPort->pixels.Plot(x0 - offx, y0 - offy, color);
 		if (x0 == x1 && y0 == y1) break;
 		int e2 = 2 * err;
 		if (e2 >= dy) {
@@ -401,12 +402,13 @@ void FrameRect(const Rect* r)
 {
 	auto color = ByteswapScalar(penFG);
 	auto& pm = curPort->pixels;
-	Point off = curPort->port.portRect.topLeft;
+	auto offx = curPort->port.portRect.left;
+	auto offy = curPort->port.portRect.top;
 
-	for (int x = r->left; x < r->right; x++) pm.Plot(x            - off.h, r->top        - off.v, color);
-	for (int x = r->left; x < r->right; x++) pm.Plot(x            - off.h, r->bottom - 1 - off.v, color);
-	for (int y = r->top; y < r->bottom; y++) pm.Plot(r->left      - off.h, y             - off.v, color);
-	for (int y = r->top; y < r->bottom; y++) pm.Plot(r->right - 1 - off.h, y             - off.v, color);
+	for (int x = r->left; x < r->right; x++) pm.Plot(x            - offx, r->top        - offy, color);
+	for (int x = r->left; x < r->right; x++) pm.Plot(x            - offx, r->bottom - 1 - offy, color);
+	for (int y = r->top; y < r->bottom; y++) pm.Plot(r->left      - offx, y             - offy, color);
+	for (int y = r->top; y < r->bottom; y++) pm.Plot(r->right - 1 - offx, y             - offy, color);
 
 	curPort->DamageRegion(*r);
 }
