@@ -23,10 +23,18 @@ static int rezSearchStackIndex = 0;
 //-----------------------------------------------------------------------------
 // Internal
 
+static void ResourceAssert(bool condition, const char* message)
+{
+	if (!condition) {
+		throw std::runtime_error(message);
+	}
+}
+
 static ResourceFork& GetCurRF() {
 	return rezSearchStack[rezSearchStackIndex];
 }
 
+#if 0
 static void PrintStack(const char* msg) {
 	LOG << "------ RESOURCE SEARCH STACK " << msg << " -------\n";
 	for (int i = int(rezSearchStack.size() - 1); i >= 0; i--) {
@@ -55,6 +63,7 @@ static void DumpResource(ResourceMetadata& meta)
 
 	DisposeHandle(handle);
 }
+#endif
 
 //-----------------------------------------------------------------------------
 // Resource file management
@@ -92,8 +101,7 @@ short FSpOpenResFile(const FSSpec* spec, char permission)
 	f.Skip(4); // UInt32 mapSectionLen
 	f.Skip(112 + 128); // system- (112) and app- (128) reserved data
 
-	if (f.Tell() != dataSectionOff)
-		TODOFATAL2("unexpected data offset");
+	ResourceAssert(f.Tell() == dataSectionOff, "FSpOpenResFile: Unexpected data offset");
 
 	f.Goto(mapSectionOff);
 
@@ -128,8 +136,8 @@ short FSpOpenResFile(const FSSpec* spec, char permission)
 			Byte   resFlags = (resPackedAttr & 0xFF000000) >> 24;
 			UInt32 resDataOff = (resPackedAttr & 0x00FFFFFF) + dataSectionOff;
 
-			if (resFlags & 1) // compressed
-				TODOFATAL2("we don't support compressed resources yet");
+			// Check compressed flag
+			ResourceAssert(!(resFlags & 1), "FSpOpenResFile: Compressed resources not supported yet");
 
 			// Fetch name
 			std::string name;
@@ -154,7 +162,7 @@ short FSpOpenResFile(const FSSpec* spec, char permission)
 		}
 	}
 
-	PrintStack("FSPOPENRESFILE");
+	//PrintStack(__func__);
 
 	return slot;
 }
@@ -164,21 +172,14 @@ void UseResFile(short refNum) {
 
 	lastResError = unimpErr;
 
-	if (refNum == 0)
-		TODOFATAL2("using the System file's resource fork is not implemented");
-	if (refNum <= 0)
-		TODOFATAL2("illegal refNum " << refNum);
-
-	if (!Pomme::Files::IsStreamOpen(refNum)) {
-		std::cerr << "can't UseResFile on this refNum " << refNum << "\n";
-		return;
-	}
+	ResourceAssert(refNum != 0, "UseResFile: Using the System file's resource fork is not implemented.");
+	ResourceAssert(refNum >= 0, "UseResFile: Illegal refNum");
+	ResourceAssert(IsStreamOpen(refNum), "UseResFile: Resource stream not open");
 
 	for (size_t i = 0; i < rezSearchStack.size(); i++) {
 		if (rezSearchStack[i].fileRefNum == refNum) {
 			lastResError = noErr;
 			rezSearchStackIndex = i;
-			PrintStack("AFTER USERESFILE");
 			return;
 		}
 	}
@@ -191,13 +192,12 @@ short CurResFile() {
 	return GetCurRF().fileRefNum;
 }
 
-void CloseResFile(short refNum) {
-	if (refNum == 0)
-		TODOFATAL2("closing the System file's resource fork is not implemented");
-	if (refNum <= 0)
-		TODOFATAL2("illegal refNum " << refNum);
-	if (!Pomme::Files::IsStreamOpen(refNum))
-		TODOFATAL2("already closed res file " << refNum);
+void CloseResFile(short refNum)
+{
+	ResourceAssert(refNum != 0, "CloseResFile: Closing the System file's resource fork is not implemented.");
+	ResourceAssert(refNum >= 0, "CloseResFile: Illegal refNum");
+	ResourceAssert(IsStreamOpen(refNum), "CloseResFile: Resource stream not open");
+
 	//UpdateResFile(refNum); // MMT:1-110
 	Pomme::Files::CloseStream(refNum);
 
@@ -210,8 +210,6 @@ void CloseResFile(short refNum) {
 	}
 
 	rezSearchStackIndex = std::min(rezSearchStackIndex, (int)rezSearchStack.size()-1);
-
-	PrintStack("CLOSERESFILE");
 }
 
 short Count1Resources(ResType theType) {
@@ -229,8 +227,6 @@ Handle GetResource(ResType theType, short theID) {
 	lastResError = noErr;
 
 	for (int i = rezSearchStackIndex; i >= 0; i--) {
-		PrintStack("GetResource");
-
 		const auto& fork = rezSearchStack[i];
 
 		if (fork.resourceMap.end() == fork.resourceMap.find(theType))
@@ -245,11 +241,9 @@ Handle GetResource(ResType theType, short theID) {
 		Handle handle = NewHandle(meta.size);
 		forkStream.seekg(meta.dataOffset, std::ios::beg);
 		forkStream.read(*handle, meta.size);
-		LOG << FourCCString(theType) << " " << theID << ": " << meta.size << "\n";
 		return handle;
 	}
 
-	std::cerr << "Couldn't get resource " << FourCCString(theType) << " #" << theID << "\n";
 	lastResError = resNotFound;
 	return nil;
 }
