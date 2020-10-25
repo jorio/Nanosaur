@@ -29,7 +29,7 @@ extern "C"
 void DrawLocatePromptScreen()
 {
 	ExclusiveOpenGLMode_Begin();
-	
+
 	ClearBackdrop(0xFF000000);
 	BackColor(blackColor);
 	MoveTo(96, 96);
@@ -46,7 +46,7 @@ void DrawLocatePromptScreen()
 	ForeColor(whiteColor);
 	DrawStringC("\" Classic app inside the game's disk image.");
 	RenderBackdropQuad(BACKDROP_FILL);
-	
+
 	ExclusiveOpenGLMode_End();
 }
 
@@ -55,7 +55,7 @@ fs::path ReadDataLocationSetting()
 	FSSpec spec;
 	short refNum;
 	long length;
-	
+
 	MakePrefsFSSpec(DATA_LOCATION_PREF, &spec);
 
 	if (noErr != FSpOpenDF(&spec, fsRdPerm, &refNum)
@@ -63,13 +63,13 @@ fs::path ReadDataLocationSetting()
 	{
 		return "";
 	}
-	
+
 	char buf[2048];
-	length = std::min((long)sizeof(buf), length);
+	length = std::min((long) sizeof(buf), length);
 	FSRead(refNum, &length, buf);
 	FSClose(refNum);
 
-	return u8string(buf, buf+length);
+	return u8string(buf, buf + length);
 }
 
 void NukeDataLocationSetting()
@@ -87,22 +87,24 @@ void WriteDataLocationSetting()
 	FSSpec spec;
 	short refNum;
 	long length;
-	
+
 	MakePrefsFSSpec(DATA_LOCATION_PREF, &spec);
 	FSpDelete(&spec);
 
-	if (noErr != FSpCreate(&spec, 'NanO', 'path', smSystemScript)) {
+	if (noErr != FSpCreate(&spec, 'NanO', 'path', smSystemScript))
+	{
 		return;
 	}
-	
-	if (noErr != FSpOpenDF(&spec, fsWrPerm, &refNum)) {
+
+	if (noErr != FSpOpenDF(&spec, fsWrPerm, &refNum))
+	{
 		FSpDelete(&spec);
 		return;
 	}
 
 	auto u8location = gDataLocation.u8string();
-	length = (long)u8location.size();
-	FSWrite(refNum, &length, (const Ptr)u8location.data());
+	length = (long) u8location.size();
+	FSWrite(refNum, &length, (const Ptr) u8location.data());
 	FSClose(refNum);
 }
 
@@ -141,7 +143,8 @@ static FindGameData_Outcome _FindGameData()
 
 	{
 		std::ifstream file(gDataLocation, std::ios::binary | std::ios::in);
-		if (!file.is_open()) {
+		if (!file.is_open())
+		{
 			SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, "Nanosaur", "Couldn't open game data.", gSDLWindow);
 			return RETRY;
 		}
@@ -152,7 +155,8 @@ static FindGameData_Outcome _FindGameData()
 		magic[12] = '\0';
 		isPowerPCExecutable = 0 == strncmp("Joy!peffpwpc", magic, 12);
 
-		if (!isPowerPCExecutable) {
+		if (!isPowerPCExecutable)
+		{
 			file.seekg(0x80, std::ios::beg);
 			file.read(magic, 16);
 			magic[16] = '\0';
@@ -162,22 +166,26 @@ static FindGameData_Outcome _FindGameData()
 
 	FSSpec applicationSpec = {};
 
-	if (isStuffItArchive) {
+	if (isStuffItArchive)
+	{
 		// Mount game archive as data volume
 		short archiveVolumeID = Pomme::Files::MountArchiveAsVolume(gDataLocation);
 		gDataSpec.vRefNum = archiveVolumeID;
 
-		if (noErr != FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, (const char*)APP_FILE_INSIDE_ARCHIVE, &applicationSpec)) {
+		if (noErr != FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, (const char*) APP_FILE_INSIDE_ARCHIVE, &applicationSpec))
+		{
 			SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, "Nanosaur", "Can't find application resource file.", gSDLWindow);
 			return RETRY;
 		}
 	}
-	else if (isPowerPCExecutable) {
+	else if (isPowerPCExecutable)
+	{
 		applicationSpec = Pomme::Files::HostPathToFSSpec(gDataLocation);
 		gDataSpec.vRefNum = applicationSpec.vRefNum;
 		gDataSpec.parID = applicationSpec.parID;
 	}
-	else {
+	else
+	{
 		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, "Nanosaur", "File type not recognized.", gSDLWindow);
 		return RETRY;
 	}
@@ -192,9 +200,11 @@ static FindGameData_Outcome _FindGameData()
 bool FindGameData()
 {
 	FindGameData_Outcome outcome = RETRY;
-	while (true) {
+	while (true)
+	{
 		outcome = _FindGameData();
-		if (outcome != RETRY) {
+		if (outcome != RETRY)
+		{
 			break;
 		}
 		NukeDataLocationSetting();

@@ -39,12 +39,12 @@ public:
 
 void SetWindowGamma(int percent)
 {
-	SDL_SetWindowBrightness(gSDLWindow, percent/100.0f);
+	SDL_SetWindowBrightness(gSDLWindow, percent / 100.0f);
 }
 
 static UInt32* GetBackdropPixPtr()
 {
-	return (UInt32*)GetPixBaseAddr(GetGWorldPixMap(Pomme::Graphics::GetScreenPort()));
+	return (UInt32*) GetPixBaseAddr(GetGWorldPixMap(Pomme::Graphics::GetScreenPort()));
 }
 
 static bool IsBackdropAllocated()
@@ -65,8 +65,8 @@ void AllocBackdropTexture()
 	glBackdrop = std::make_unique<GLBackdrop>(
 		GAME_VIEW_WIDTH,
 		GAME_VIEW_HEIGHT,
-		(unsigned char *)GetBackdropPixPtr());
-	
+		(unsigned char*) GetBackdropPixPtr());
+
 	ClearPortDamage();
 }
 
@@ -119,7 +119,7 @@ void RenderBackdropQuad(int fit)
 	}
 
 	PortGuard portGuard;
-	
+
 	int windowWidth, windowHeight;
 	GLint vp[4];
 
@@ -128,7 +128,8 @@ void RenderBackdropQuad(int fit)
 
 	glDisable(GL_SCISSOR_TEST);
 
-	if (IsPortDamaged()) {
+	if (IsPortDamaged())
+	{
 		Rect damageRect;
 		GetPortDamageRegion(&damageRect);
 		glBackdrop->UpdateTexture(damageRect.left, damageRect.top, damageRect.right - damageRect.left, damageRect.bottom - damageRect.top);
@@ -139,12 +140,13 @@ void RenderBackdropQuad(int fit)
 
 	glBackdrop->Render(windowWidth, windowHeight, gGamePrefs.highQualityTextures, !(fit & BACKDROP_CLEAR_BLACK));
 
-	if (exclusiveGLContextValid) { // in exclusive GL mode, force swap buffer
+	if (exclusiveGLContextValid) // in exclusive GL mode, force swap buffer
+	{
 		SDL_GL_SwapWindow(gSDLWindow);
 	}
 
 	glEnable(GL_SCISSOR_TEST);
-	glViewport(vp[0], vp[1], (GLsizei)vp[2], (GLsizei)vp[3]);
+	glViewport(vp[0], vp[1], (GLsizei) vp[2], (GLsizei) vp[3]);
 }
 
 void ExclusiveOpenGLMode_Begin()

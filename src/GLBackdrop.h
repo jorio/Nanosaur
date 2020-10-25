@@ -31,10 +31,15 @@ class GLBackdrop
 
 public:
 	GLBackdrop(int width, int height, unsigned char* pixels);
+
 	~GLBackdrop();
+
 	void UpdateTexture(int damageX, int damageY, int damageWidth, int damageHeight);
+
 	void UpdateQuad(int windowWidth, int windowHeight, int fit);
+
 	void Render(int windowWidth, int windowHeight, bool linearFiltering, bool autoClearColor);
+
 	void SetClipRegion(int clipWidth, int clipHeight);
 };
 

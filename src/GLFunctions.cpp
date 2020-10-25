@@ -30,7 +30,8 @@ GLFunctions::GLFunctions()
 	success &= nullptr != (UseProgram               = (PFNGLUSEPROGRAMPROC)              SDL_GL_GetProcAddress("glUseProgram"             ));
 	success &= nullptr != (VertexAttribPointer      = (PFNGLVERTEXATTRIBPOINTERPROC)     SDL_GL_GetProcAddress("glVertexAttribPointer"    ));
 
-	if (!success) {
+	if (!success)
+	{
 		throw std::runtime_error("Backdrop: SDL_GL_GetProcAddress failed.");
 	}
 }

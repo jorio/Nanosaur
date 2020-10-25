@@ -23,6 +23,7 @@ void GameMain(void);
 fs::path gDataLocation;
 
 bool FindGameData();
+
 void WriteDataLocationSetting();
 
 int CommonMain(int argc, const char** argv)
@@ -32,19 +33,21 @@ int CommonMain(int argc, const char** argv)
 
 	// Set up globals that the game expects
 	gCoverWindow = Pomme::Graphics::GetScreenPort();
-	gCoverWindowPixPtr = (UInt32*)GetPixBaseAddr(GetGWorldPixMap(gCoverWindow));
-	
+	gCoverWindowPixPtr = (UInt32*) GetPixBaseAddr(GetGWorldPixMap(gCoverWindow));
+
 	// Clear window
 	ExclusiveOpenGLMode_Begin();
 	ClearBackdrop(0xFFA5A5A5);
 	RenderBackdropQuad(BACKDROP_FILL);
 	ExclusiveOpenGLMode_End();
 
-	if (argc > 1) {
+	if (argc > 1)
+	{
 		gDataLocation = argv[1];
 	}
 
-	if (!FindGameData()) {
+	if (!FindGameData())
+	{
 		return 1;
 	}
 
@@ -52,14 +55,18 @@ int CommonMain(int argc, const char** argv)
 
 	// Initialize Quesa
 	auto qd3dStatus = Q3Initialize();
-	if (qd3dStatus != kQ3Success) {
+	if (qd3dStatus != kQ3Success)
+	{
 		throw std::runtime_error("Couldn't initialize Quesa.");
 	}
 
 	// Start the game
-	try {
+	try
+	{
 		GameMain();
-	} catch (Pomme::QuitRequest&) {
+	}
+	catch (Pomme::QuitRequest&)
+	{
 		// no-op, the game may throw this exception to shut us down cleanly
 	}
 
@@ -75,13 +82,16 @@ int main(int argc, char** argv)
 {
 	std::string uncaught;
 
-	try {
+	try
+	{
 		return CommonMain(argc, const_cast<const char**>(argv));
 	}
-	catch (std::exception& ex) {
+	catch (std::exception& ex)
+	{
 		uncaught = ex.what();
 	}
-	catch (...) {
+	catch (...)
+	{
 		uncaught = "unknown";
 	}
 

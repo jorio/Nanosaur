@@ -8,7 +8,8 @@ static void CheckGLError(const char* file, const int line)
 {
 	static char buf[256];
 	auto error = glGetError();
-	if (error != 0) {
+	if (error != 0)
+	{
 		snprintf(buf, 256, "OpenGL Error %d in %s:%d", error, file, line);
 		throw std::runtime_error(buf);
 	}
@@ -59,14 +60,14 @@ GLBackdrop::GLBackdrop(
 	GLuint backdropVS = gl.CreateShader(GL_VERTEX_SHADER);
 	GLuint backdropFS = gl.CreateShader(GL_FRAGMENT_SHADER);
 
-	const GLint vsLength = (GLint)strlen(kBackdropVertexShaderSource);
-	gl.ShaderSource(backdropVS, 1, (const GLchar **)&kBackdropVertexShaderSource, &vsLength);
+	const GLint vsLength = (GLint) strlen(kBackdropVertexShaderSource);
+	gl.ShaderSource(backdropVS, 1, (const GLchar**) &kBackdropVertexShaderSource, &vsLength);
 	gl.CompileShader(backdropVS);
 	gl.GetShaderiv(backdropVS, GL_COMPILE_STATUS, &status);
 	if (status == GL_FALSE) throw std::runtime_error("vertex shader compilation failed");
 
-	const GLint fsLength = (GLint)strlen(kBackdropFragmentShaderSource);
-	gl.ShaderSource(backdropFS, 1, (const GLchar **)&kBackdropFragmentShaderSource, &fsLength);
+	const GLint fsLength = (GLint) strlen(kBackdropFragmentShaderSource);
+	gl.ShaderSource(backdropFS, 1, (const GLchar**) &kBackdropFragmentShaderSource, &fsLength);
 	gl.CompileShader(backdropFS);
 	gl.GetShaderiv(backdropFS, GL_COMPILE_STATUS, &status);
 	if (status == GL_FALSE) throw std::runtime_error("fragment shader compilation failed");
@@ -75,7 +76,7 @@ GLBackdrop::GLBackdrop(
 	gl.AttachShader(program, backdropVS);
 	gl.AttachShader(program, backdropFS);
 	gl.BindAttribLocation(program, kAttribIdVertexPos, "vertexPos");
-    gl.BindAttribLocation(program, kAttribIdTexCoord,  "texCoord");
+	gl.BindAttribLocation(program, kAttribIdTexCoord, "texCoord");
 	gl.LinkProgram(program);
 	CHECK_GL_ERROR();
 
@@ -87,7 +88,7 @@ GLBackdrop::GLBackdrop(
 
 	gl.GenVertexArrays(1, &vao);
 	gl.GenBuffers(1, &vbo);
-    CHECK_GL_ERROR();
+	CHECK_GL_ERROR();
 
 	glGenTextures(1, &texture);
 	glBindTexture(GL_TEXTURE_2D, texture);
@@ -117,8 +118,8 @@ void GLBackdrop::UpdateQuad(
 	// Adjust screen coordinates if we want to pillarbox/letterbox the image.
 	if (fit & (BACKDROP_LETTERBOX | BACKDROP_PILLARBOX))
 	{
-		const float targetAspectRatio = (float)windowWidth / windowHeight;
-		const float sourceAspectRatio = (float)clipWidth / clipHeight;
+		const float targetAspectRatio = (float) windowWidth / windowHeight;
+		const float sourceAspectRatio = (float) clipWidth / clipHeight;
 
 		if (fabs(sourceAspectRatio - targetAspectRatio) < 0.1)
 		{
@@ -187,14 +188,18 @@ void GLBackdrop::Render(
 
 	glViewport(0, 0, windowWidth, windowHeight);
 
-	if (needClear) {
-		if (autoClearColor) {
+	if (needClear)
+	{
+		if (autoClearColor)
+		{
 			// Use top-left pixel in backdrop image to determine clear color
 			float clearR = textureData[1] / 255.0f;
 			float clearG = textureData[2] / 255.0f;
 			float clearB = textureData[3] / 255.0f;
 			glClearColor(clearR, clearG, clearB, 1.0f);
-		} else {
+		}
+		else
+		{
 			glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		}
 		glClear(GL_COLOR_BUFFER_BIT);
@@ -210,7 +215,7 @@ void GLBackdrop::Render(
 	gl.EnableVertexAttribArray(kAttribIdVertexPos);
 	gl.EnableVertexAttribArray(kAttribIdTexCoord);
 	gl.VertexAttribPointer(kAttribIdVertexPos, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, 0);
-	gl.VertexAttribPointer(kAttribIdTexCoord,  2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, (void*)(sizeof(float) * 2));
+	gl.VertexAttribPointer(kAttribIdTexCoord, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, (void*) (sizeof(float) * 2));
 
 	gl.BufferData(GL_ARRAY_BUFFER, vertexBufferData.size() * sizeof(float), vertexBufferData.data(), GL_STATIC_DRAW);
 	gl.BindVertexArray(vao);
@@ -221,11 +226,13 @@ void GLBackdrop::SetClipRegion(
 	int clipWidth,
 	int clipHeight)
 {
-	if (clipWidth < 0 || clipHeight < 0) {
+	if (clipWidth < 0 || clipHeight < 0)
+	{
 		throw std::invalid_argument("illegal backdrop clip region dimensions");
 	}
 
-	if (clipWidth > textureWidth || clipHeight > textureHeight) {
+	if (clipWidth > textureWidth || clipHeight > textureHeight)
+	{
 		throw std::invalid_argument("backdrop clip region dimensions may not exceed texture size");
 	}
 

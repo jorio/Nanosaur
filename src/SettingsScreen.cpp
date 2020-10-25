@@ -31,8 +31,9 @@ static int selectedEntry = 0;
 
 static unsigned int PositiveModulo(int value, unsigned int m)
 {
-	int mod = value % (int)m;
-	if (mod < 0) {
+	int mod = value % (int) m;
+	if (mod < 0)
+	{
 		mod += m;
 	}
 	return mod;
@@ -40,17 +41,18 @@ static unsigned int PositiveModulo(int value, unsigned int m)
 
 struct SettingEntry
 {
-	Byte*       ptr;
+	Byte* ptr;
 	const char* label;
 	std::function<void()> callback = nullptr;
 	std::vector<const char*> choices = {"NO", "YES"};
-	
+
 	void Cycle(int delta)
 	{
-		unsigned int value = (unsigned int)*ptr;
-		value = PositiveModulo(value + delta, (unsigned int)choices.size());
+		unsigned int value = (unsigned int) *ptr;
+		value = PositiveModulo(value + delta, (unsigned int) choices.size());
 		*ptr = value;
-		if (callback) {
+		if (callback)
+		{
 			callback();
 		}
 	}
@@ -82,8 +84,9 @@ static void RenderQualityDialog()
 	SetPort(gCoverWindow);
 
 	RGBBackColor(&backgroundColor);
-	
-	if (needFullRender) {
+
+	if (needFullRender)
+	{
 		Rect r = gCoverWindow->portRect;
 		EraseRect(&r);
 
@@ -112,33 +115,36 @@ static void RenderQualityDialog()
 	rowRect.left   = column1X;
 	rowRect.right  = column2X;
 
-	for (size_t i = 0; i < settings.size(); i++) {
+	for (size_t i = 0; i < settings.size(); i++)
+	{
 		auto& setting = settings[i];
-		bool isSelected = (int)i == selectedEntry;
+		bool isSelected = (int) i == selectedEntry;
 
 		rowRect.top    = (SInt16)(200 + i * 16);
 		rowRect.bottom = (SInt16)(rowRect.top + 16);
 
 		int xOffset = 0;
 
-		if (isSelected) {
+		if (isSelected)
+		{
 			xOffset = 10.0 * fabs(sin(fluc));
 			EraseRect(&rowRect);
 		}
-		else if (!needFullRender) {
+		else if (!needFullRender)
+		{
 			continue;
 		}
 
 		RGBForeColor(&lineColor);
 		MoveTo(xOffset + column1X, rowRect.top + 12 - 1);
-		LineTo(column2X-5, rowRect.top + 12 - 1);
-		
-		RGBForeColor(isSelected? &selectedForegroundColor1: &foregroundColor);
+		LineTo(column2X - 5, rowRect.top + 12 - 1);
+
+		RGBForeColor(isSelected ? &selectedForegroundColor1 : &foregroundColor);
 
 		MoveTo(xOffset + column1X, rowRect.top + 12);
 		DrawStringC(settings[i].label);
 
-		unsigned int settingByte = (unsigned int)*setting.ptr;
+		unsigned int settingByte = (unsigned int) *setting.ptr;
 		if (settingByte < 0) settingByte = 0;
 		if (settingByte > settings[i].choices.size()) settingByte = 0;
 
@@ -157,17 +163,19 @@ void DoQualityDialog()
 
 	ExclusiveOpenGLMode_Begin();
 
-	while(1) {
+	while (1)
+	{
 		ReadKeyboard();
-		
+
 		if (GetNewKeyState(kKey_Pause)) break;
 		
 		if (GetNewKeyState(kKey_Forward))   { selectedEntry--; needFullRender = true; PlayEffect(EFFECT_SELECT); }
 		if (GetNewKeyState(kKey_Backward))  { selectedEntry++; needFullRender = true; PlayEffect(EFFECT_SELECT); }
 		selectedEntry = PositiveModulo(selectedEntry, (unsigned int)settings.size());
-		
-		if (GetNewKeyState_Real(KEY_RETURN) || GetNewKeyState(kKey_Attack) || GetNewKeyState(kKey_TurnRight) || GetNewKeyState(kKey_TurnLeft))    {
-			settings[selectedEntry].Cycle(GetNewKeyState(kKey_TurnLeft)? -1: 1);
+
+		if (GetNewKeyState_Real(KEY_RETURN) || GetNewKeyState(kKey_Attack) || GetNewKeyState(kKey_TurnRight) || GetNewKeyState(kKey_TurnLeft))
+		{
+			settings[selectedEntry].Cycle(GetNewKeyState(kKey_TurnLeft) ? -1 : 1);
 			PlayEffect(EFFECT_BLASTER);
 		}
 		RenderQualityDialog();
@@ -175,7 +183,7 @@ void DoQualityDialog()
 		QD3D_CalcFramesPerSecond();
 		DoSoundMaintenance();
 		RenderBackdropQuad(BACKDROP_FIT);
-		
+
 		DoSDLMaintenance();
 	}
 

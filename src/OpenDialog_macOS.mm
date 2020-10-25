@@ -14,9 +14,10 @@ fs::path DoOpenDialog(const char* expectedArchiveName)
 	[openDlg setMessage:[NSString stringWithFormat:@"Please locate either “%s”,\nor the “Nanosaur™” Classic app from the game‘s disk image.", expectedArchiveName]];
 	[openDlg setCanChooseDirectories:FALSE];
 	[openDlg setAllowsMultipleSelection:FALSE];
-	[openDlg setDirectoryURL:[NSURL URLWithString:[NSString stringWithUTF8String:expectedArchiveName ] ] ];
+	[openDlg setDirectoryURL:[NSURL URLWithString:[NSString stringWithUTF8String:expectedArchiveName]]];
 
-	if ([openDlg runModal] == NSModalResponseOK) {
+	if ([openDlg runModal] == NSModalResponseOK)
+	{
 		NSString* selectedFileName = [[openDlg URL] path];
 		return u8string([selectedFileName UTF8String]);
 	}

@@ -9,34 +9,34 @@
 
 extern "C"
 {
-	extern SDL_Window* gSDLWindow;
+extern SDL_Window* gSDLWindow;
 }
 
 fs::path DoOpenDialog(const char* expectedArchiveName)
 {
-    const int fileLength = 2048;
-    const int promptLength = 512;
-	
-    OPENFILENAME ofn = {};
-    TCHAR file[fileLength];
-    mbstowcs(file, expectedArchiveName, fileLength);
+	const int fileLength = 2048;
+	const int promptLength = 512;
 
-    TCHAR prompt[promptLength];
-    _snwprintf_s(prompt, promptLength, L"Where is \"%s\"?", file);
+	OPENFILENAME ofn = {};
+	TCHAR file[fileLength];
+	mbstowcs(file, expectedArchiveName, fileLength);
 
-    SDL_SysWMinfo wmInfo;
-    SDL_VERSION(&wmInfo.version);
-    SDL_GetWindowWMInfo(gSDLWindow, &wmInfo);
+	TCHAR prompt[promptLength];
+	_snwprintf_s(prompt, promptLength, L"Where is \"%s\"?", file);
 
-    ofn.lStructSize = sizeof(ofn);
-    ofn.hwndOwner = wmInfo.info.win.window;
-    ofn.lpstrFile = file;
-    ofn.nMaxFile = fileLength;
-    ofn.lpstrTitle = prompt;
-    ofn.lpstrFileTitle = nullptr;
-    ofn.nMaxFileTitle = 0;
-    ofn.lpstrInitialDir = nullptr;
-    ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+	SDL_SysWMinfo wmInfo;
+	SDL_VERSION(&wmInfo.version);
+	SDL_GetWindowWMInfo(gSDLWindow, &wmInfo);
 
-    return GetOpenFileName(&ofn) ? fs::path(ofn.lpstrFile) : fs::path("");
+	ofn.lStructSize = sizeof(ofn);
+	ofn.hwndOwner = wmInfo.info.win.window;
+	ofn.lpstrFile = file;
+	ofn.nMaxFile = fileLength;
+	ofn.lpstrTitle = prompt;
+	ofn.lpstrFileTitle = nullptr;
+	ofn.nMaxFileTitle = 0;
+	ofn.lpstrInitialDir = nullptr;
+	ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+
+	return GetOpenFileName(&ofn) ? fs::path(ofn.lpstrFile) : fs::path("");
 }

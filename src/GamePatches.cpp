@@ -28,17 +28,17 @@ extern TQ3Matrix4x4 gCameraWorldToViewMatrix;
 extern TQ3Matrix4x4 gCameraViewToFrustumMatrix;
 extern long gNodesDrawn;
 extern SDL_Window* gSDLWindow;
-extern float	gFramesPerSecond;
+extern float gFramesPerSecond;
 extern PrefsType gGamePrefs;
-extern short	gPrefsFolderVRefNum;
-extern long	gPrefsFolderDirID;
+extern short gPrefsFolderVRefNum;
+extern long gPrefsFolderDirID;
 }
 
 OSErr MakePrefsFSSpec(const char* prefFileName, FSSpec* spec)
 {
 	static Boolean checkedOnce = false;
 	constexpr const char* PREFS_FOLDER = "Nanosaur";
-	
+
 	if (!checkedOnce)
 	{
 		checkedOnce = true;
@@ -49,7 +49,7 @@ OSErr MakePrefsFSSpec(const char* prefFileName, FSSpec* spec)
 			kDontCreateFolder,
 			&gPrefsFolderVRefNum,
 			&gPrefsFolderDirID);
-		
+
 		if (iErr != noErr)
 			DoAlert("Warning: Cannot locate Preferences folder.");
 
@@ -152,23 +152,24 @@ char GetTypedKey(void)
 OSErr DrawPictureToScreen(FSSpec* spec, short x, short y)
 {
 	short refNum;
-	
+
 	OSErr error = FSpOpenDF(spec, fsRdPerm, &refNum);
-	if (noErr != error) {
+	if (noErr != error)
+	{
 		TODO2("Couldn't open picture: " << spec->cName);
 		return error;
 	}
-	
+
 	auto& stream = Pomme::Files::GetStream(refNum);
 	auto pict = Pomme::Graphics::ReadPICT(stream, true);
 	FSClose(refNum);
-	
+
 	GrafPtr oldPort;
 	GetPort(&oldPort);
 	SetPort(Pomme::Graphics::GetScreenPort());
 	Pomme::Graphics::DrawARGBPixmap(x, y, pict);
 	SetPort(oldPort);
-	
+
 	return noErr;
 }
 
@@ -203,24 +204,27 @@ void PlayAMovie(FSSpec* spec)
 
 	bool movieAbortedByUser = false;
 
-	while (!movieAbortedByUser && !movie.videoFrames.empty()) {
+	while (!movieAbortedByUser && !movie.videoFrames.empty())
+	{
 		unsigned int startTicks = SDL_GetTicks();
 
 		{
-			const auto &frame = movie.videoFrames.front();
+			const auto& frame = movie.videoFrames.front();
 			cinepak.DecodeFrame(frame.data(), frame.size());
 			movie.videoFrames.pop();
 		}
 
 		int pitch = GAME_VIEW_WIDTH;
 
-		UInt32* backdropPix = (UInt32*)GetPixBaseAddr(GetGWorldPixMap(Pomme::Graphics::GetScreenPort()));
+		UInt32* backdropPix = (UInt32*) GetPixBaseAddr(GetGWorldPixMap(Pomme::Graphics::GetScreenPort()));
 
 		// RGB888 to ARGB8888
-		for (int y = 0; y < movie.height; y++) {
-			const uint8_t *in = cinepak.frame_data0 + cinepak.frame_linesize0 * y;
-			uint8_t *out = (uint8_t*)(backdropPix + pitch * y);
-			for (int x = 0; x < movie.width; x++) {
+		for (int y = 0; y < movie.height; y++)
+		{
+			const uint8_t* in = cinepak.frame_data0 + cinepak.frame_linesize0 * y;
+			uint8_t* out = (uint8_t*) (backdropPix + pitch * y);
+			for (int x = 0; x < movie.width; x++)
+			{
 				*out++ = 0xFF;
 				*out++ = *in++;
 				*out++ = *in++;
@@ -228,7 +232,7 @@ void PlayAMovie(FSSpec* spec)
 			}
 		}
 
-		Rect damage = { 0, 0, (SInt16)movie.height, (SInt16)movie.width };
+		Rect damage = {0, 0, (SInt16) movie.height, (SInt16) movie.width};
 		DamagePortRegion(&damage);
 		RenderBackdropQuad(BACKDROP_FIT | BACKDROP_CLEAR_BLACK);
 		DoSDLMaintenance();
@@ -268,19 +272,20 @@ void DumpGLPixels(const char* outFN)
 	SDL_GetWindowSize(gSDLWindow, &width, &height);
 	auto buf = std::vector<char>(width * height * 3);
 	glReadPixels(0, 0, width, height, GL_BGR, GL_UNSIGNED_BYTE, buf.data());
-	
+
 	std::ofstream out(outFN, std::ios::out | std::ios::binary);
-	uint16_t TGAhead[] = { 0, 2, 0, 0, 0, 0, (uint16_t)width, (uint16_t)height, 24 };
+	uint16_t TGAhead[] = {0, 2, 0, 0, 0, 0, (uint16_t) width, (uint16_t) height, 24};
 	out.write(reinterpret_cast<char*>(&TGAhead), sizeof(TGAhead));
 	out.write(buf.data(), buf.size());
-	
+
 	printf("Screenshot saved to %s\n", outFN);
 }
 
 //-----------------------------------------------------------------------------
 // SDL maintenance
 
-static struct {
+static struct
+{
 	UInt32 lastUpdateAt = 0;
 	const UInt32 updateInterval = 250;
 	UInt32 frameAccumulator = 0;
@@ -292,14 +297,17 @@ void DoSDLMaintenance()
 	static int holdFramerateCap = 0;
 
 	// Cap frame rate.
-	if (gFramesPerSecond > 200 || holdFramerateCap > 0) {
+	if (gFramesPerSecond > 200 || holdFramerateCap > 0)
+	{
 		SDL_Delay(5);
 		// Keep framerate cap for a while to avoid jitter in game physics
 		holdFramerateCap = 10;
-	} else {
+	}
+	else
+	{
 		holdFramerateCap--;
 	}
-	
+
 #if _DEBUG
 	UInt32 now = SDL_GetTicks();
 	UInt32 ticksElapsed = now - debugText.lastUpdateAt;
@@ -313,20 +321,24 @@ void DoSDLMaintenance()
 	debugText.frameAccumulator++;
 #endif
 
-	if (GetNewKeyState(kKey_ToggleFullscreen)) {
-		gGamePrefs.fullscreen = gGamePrefs.fullscreen? 0: 1;
+	if (GetNewKeyState(kKey_ToggleFullscreen))
+	{
+		gGamePrefs.fullscreen = gGamePrefs.fullscreen ? 0 : 1;
 		SetFullscreenMode();
 	}
 
 	SDL_Event event;
-	while (SDL_PollEvent(&event)) {
-		switch (event.type) {
+	while (SDL_PollEvent(&event))
+	{
+		switch (event.type)
+		{
 		case SDL_QUIT:
 			throw Pomme::QuitRequest();
 			break;
 
 		case SDL_WINDOWEVENT:
-			switch (event.window.event) {
+			switch (event.window.event)
+			{
 			case SDL_WINDOWEVENT_CLOSE:
 				throw Pomme::QuitRequest();
 				break;
