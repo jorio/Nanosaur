@@ -40,7 +40,8 @@ void SysBeep(short duration)
 #endif
 }
 
-void FlushEvents(short, short) {
+void FlushEvents(short, short)
+{
 	TODOMINOR();
 }
 

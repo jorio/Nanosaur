@@ -16,7 +16,7 @@ static bool IntersectRects(const Rect* r1, Rect* r2)
 	r2->right  = std::min(r1->right, r2->right);
 	r2->top    = std::max(r1->top, r2->top);
 	r2->bottom = std::min(r1->bottom, r2->bottom);
-	return r2->left < r2->right&& r2->top < r2->bottom;
+	return r2->left < r2->right && r2->top < r2->bottom;
 }
 
 // ---------------------------------------------------------------------------- -
@@ -39,15 +39,18 @@ struct GrafPortImpl
 		macpm = {};
 		macpm.bounds = boundsRect;
 		macpm.pixelSize = 32;
-		macpm._impl = (Ptr)&pixels;
+		macpm._impl = (Ptr) &pixels;
 		macpmPtr = &macpm;
 	}
 
 	void DamageRegion(const Rect& r)
 	{
-		if (!dirty) {
+		if (!dirty)
+		{
 			dirtyRect = r;
-		} else {
+		}
+		else
+		{
 			// Already dirty, expand existing dirty rect
 			dirtyRect.top    = std::min(dirtyRect.top,    r.top);
 			dirtyRect.left   = std::min(dirtyRect.left,   r.left);
@@ -59,7 +62,7 @@ struct GrafPortImpl
 
 	void DamageRegion(SInt16 x, SInt16 y, SInt16 w, SInt16 h)
 	{
-		Rect r = { y, x, static_cast<SInt16>(y+h), static_cast<SInt16>(x+w) };
+		Rect r = {y, x, static_cast<SInt16>(y + h), static_cast<SInt16>(x + w)};
 		DamageRegion(r);
 	}
 
@@ -96,7 +99,8 @@ CGrafPtr Pomme::Graphics::GetScreenPort(void)
 
 void Pomme::Graphics::Init(const char* windowTitle, int windowWidth, int windowHeight)
 {
-	if (0 != SDL_Init(SDL_INIT_VIDEO)) {
+	if (0 != SDL_Init(SDL_INIT_VIDEO))
+	{
 		throw std::runtime_error("Couldn't initialize SDL video subsystem.");
 	}
 
@@ -112,11 +116,12 @@ void Pomme::Graphics::Init(const char* windowTitle, int windowWidth, int windowH
 		windowHeight,
 		SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_SHOWN);
 
-	if (!gSDLWindow) {
+	if (!gSDLWindow)
+	{
 		throw std::runtime_error("Couldn't create SDL window.");
 	}
 
-	Rect boundsRect = {0,0,480,640};
+	Rect boundsRect = {0, 0, 480, 640};
 	screenPort = std::make_unique<GrafPortImpl>(boundsRect);
 	curPort = screenPort.get();
 }
@@ -159,12 +164,12 @@ PicHandle GetPicture(short PICTresourceID)
 
 	// Tack the data onto the end of the Picture struct,
 	// so that DisposeHandle frees both the Picture and the data.
-	PicHandle ph = (PicHandle)NewHandle(int(sizeof(Picture) + pm.data.size()));
+	PicHandle ph = (PicHandle) NewHandle(int(sizeof(Picture) + pm.data.size()));
 
 	Picture& pic = **ph;
-	Ptr pixels = (Ptr)*ph + sizeof(Picture);
+	Ptr pixels = (Ptr) *ph + sizeof(Picture);
 
-	pic.picFrame = Rect{ 0, 0, (SInt16)pm.height, (SInt16)pm.width };
+	pic.picFrame = Rect{0, 0, (SInt16) pm.height, (SInt16) pm.width};
 	pic.picSize = -1;
 	pic.__pomme_pixelsARGB32 = pixels;
 
@@ -189,12 +194,12 @@ void SetRect(Rect* r, short left, short top, short right, short bottom)
 
 static inline GrafPortImpl& GetImpl(GWorldPtr offscreenGWorld)
 {
-	return *(GrafPortImpl*)offscreenGWorld->_impl;
+	return *(GrafPortImpl*) offscreenGWorld->_impl;
 }
 
 static inline ARGBPixmap& GetImpl(PixMapPtr pixMap)
 {
-	return *(ARGBPixmap*)pixMap->_impl;
+	return *(ARGBPixmap*) pixMap->_impl;
 }
 
 OSErr NewGWorld(GWorldPtr* offscreenGWorld, short pixelDepth, const Rect* boundsRect, void* junk1, void* junk2, long junk3)
@@ -227,7 +232,7 @@ PixMapHandle GetGWorldPixMap(GWorldPtr offscreenGWorld)
 
 Ptr GetPixBaseAddr(PixMapHandle pm)
 {
-	return (Ptr)GetImpl(*pm).data.data();
+	return (Ptr) GetImpl(*pm).data.data();
 }
 
 Boolean LockPixels(PixMapHandle pm)
@@ -329,7 +334,8 @@ void RGBForeColor(const RGBColor* color)
 
 static void _FillRect(const int left, const int top, const int right, const int bottom, UInt32 fillColor)
 {
-	if (!curPort) {
+	if (!curPort)
+	{
 		throw std::runtime_error("_FillRect: no port set");
 	}
 
@@ -339,7 +345,8 @@ static void _FillRect(const int left, const int top, const int right, const int 
 	dstRect.right  = right;
 	dstRect.bottom = bottom;
 	Rect clippedDstRect = dstRect;
-	if (!IntersectRects(&curPort->port.portRect, &clippedDstRect)) {
+	if (!IntersectRects(&curPort->port.portRect, &clippedDstRect))
+	{
 		return;
 	}
 	curPort->DamageRegion(clippedDstRect);
@@ -348,8 +355,10 @@ static void _FillRect(const int left, const int top, const int right, const int 
 
 	UInt32* dst = curPort->pixels.GetPtr(clippedDstRect.left, clippedDstRect.top);
 
-	for (int y = clippedDstRect.top; y < clippedDstRect.bottom; y++) {
-		for (int x = 0; x < clippedDstRect.right - clippedDstRect.left; x++) {
+	for (int y = clippedDstRect.top; y < clippedDstRect.bottom; y++)
+	{
+		for (int x = 0; x < clippedDstRect.right - clippedDstRect.left; x++)
+		{
 			dst[x] = fillColor;
 		}
 		dst += curPort->pixels.width;
@@ -381,15 +390,18 @@ void LineTo(short x1, short y1)
 	int sy = y0 < y1 ? 1 : -1;
 	int err = dx + dy;
 	curPort->DamageRegion(penX, penY, dx, dy);
-	while (1) {
+	while (1)
+	{
 		curPort->pixels.Plot(x0 - offx, y0 - offy, color);
 		if (x0 == x1 && y0 == y1) break;
 		int e2 = 2 * err;
-		if (e2 >= dy) {
+		if (e2 >= dy)
+		{
 			err += dy;
 			x0 += sx;
 		}
-		if (e2 <= dx) {
+		if (e2 <= dx)
+		{
 			err += dx;
 			y0 += sy;
 		}
@@ -415,7 +427,8 @@ void FrameRect(const Rect* r)
 
 void Pomme::Graphics::DrawARGBPixmap(int left, int top, ARGBPixmap& pixmap)
 {
-	if (!curPort) {
+	if (!curPort)
+	{
 		throw std::runtime_error("DrawARGBPixmap: no port set");
 	}
 
@@ -425,7 +438,8 @@ void Pomme::Graphics::DrawARGBPixmap(int left, int top, ARGBPixmap& pixmap)
 	dstRect.right  = left + pixmap.width;
 	dstRect.bottom = top  + pixmap.height;
 	Rect clippedDstRect = dstRect;
-	if (!IntersectRects(&curPort->port.portRect, &clippedDstRect)) {
+	if (!IntersectRects(&curPort->port.portRect, &clippedDstRect))
+	{
 		return;  // wholly outside bounds
 	}
 	curPort->DamageRegion(clippedDstRect);
@@ -445,7 +459,7 @@ void DrawPicture(PicHandle myPicture, const Rect* dstRect)
 {
 	auto& pic = **myPicture;
 
-	UInt32* srcPixels = (UInt32*)pic.__pomme_pixelsARGB32;
+	UInt32* srcPixels = (UInt32*) pic.__pomme_pixelsARGB32;
 
 	int dstWidth = Width(*dstRect);
 	int dstHeight = Height(*dstRect);
@@ -475,7 +489,7 @@ void CopyBits(
 	void* maskRgn
 )
 {
-	auto& srcPM = GetImpl((PixMapPtr)srcBits);
+	auto& srcPM = GetImpl((PixMapPtr) srcBits);
 	auto& dstPM = GetImpl(dstBits);
 
 	const auto& srcBounds = srcBits->bounds;
@@ -490,7 +504,6 @@ void CopyBits(
 		TODOFATAL2("can only copy between rects of same dimensions");
 	
 	for (int y = 0; y < srcRectHeight; y++)
-	//for (int x = 0; x < srcRectWidth; x++)
 	{
 		memcpy(
 			dstPM.GetPtr(dstRect->left - dstBounds.left, dstRect->top - dstBounds.top + y),
@@ -508,7 +521,8 @@ short TextWidthC(const char* cstr)
 	if (!cstr) return 0;
 
 	int totalWidth = -SysFont::charSpacing;
-	for (; *cstr; cstr++) {
+	for (; *cstr; cstr++)
+	{
 		totalWidth += SysFont::charSpacing;
 		totalWidth += SysFont::GetGlyph(*cstr).width;
 	}
@@ -520,16 +534,17 @@ void DrawStringC(const char* cstr)
 	if (!cstr) return;
 
 	_FillRect(
-			penX,
-			penY - SysFont::ascend,
-			penX + TextWidthC(cstr),
-			penY + SysFont::descend,
-			penBG
-			);
+		penX,
+		penY - SysFont::ascend,
+		penX + TextWidthC(cstr),
+		penY + SysFont::descend,
+		penBG
+	);
 
 	penX -= SysFont::charSpacing;
-	for (; *cstr; cstr++) {
-        penX += SysFont::charSpacing;
+	for (; *cstr; cstr++)
+	{
+		penX += SysFont::charSpacing;
 		DrawChar(*cstr);
 	}
 }
@@ -548,7 +563,8 @@ void DrawChar(char c)
 	dstRect.bottom = dstRect.top  + SysFont::rows;
 
 	Rect clippedDstRect = dstRect;
-	if (!IntersectRects(&curPort->port.portRect, &clippedDstRect)) {
+	if (!IntersectRects(&curPort->port.portRect, &clippedDstRect))
+	{
 		return;  // wholly outside bounds
 	}
 	curPort->DamageRegion(clippedDstRect);
@@ -559,15 +575,18 @@ void DrawChar(char c)
 
 	auto* dst2 = curPort->pixels.GetPtr(clippedDstRect.left, clippedDstRect.top);
 
-	for (int glyphY = minRow; glyphY < minRow+Height(clippedDstRect); glyphY++) {
+	for (int glyphY = minRow; glyphY < minRow + Height(clippedDstRect); glyphY++)
+	{
 		auto rowBits = glyph.bits[glyphY];
 
 		rowBits >>= minCol;
 
 		auto* dstRow = dst2;
 
-		for (int glyphX = minCol; glyphX < minCol+Width(clippedDstRect); glyphX++) {
-			if (rowBits & 1) {
+		for (int glyphX = minCol; glyphX < minCol + Width(clippedDstRect); glyphX++)
+		{
+			if (rowBits & 1)
+			{
 				*dstRow = fg;
 			}
 			rowBits >>= 1;
@@ -586,7 +605,8 @@ void DrawChar(char c)
 void Pomme::Graphics::SetWindowIconFromIcl8Resource(short icl8ID)
 {
 	Handle macIcon = GetResource('icl8', icl8ID);
-	if (1024 != GetHandleSize(macIcon)) {
+	if (1024 != GetHandleSize(macIcon))
+	{
 		throw std::invalid_argument("icl8 resource has incorrect size");
 	}
 
@@ -594,10 +614,12 @@ void Pomme::Graphics::SetWindowIconFromIcl8Resource(short icl8ID)
 	const int height = 32;
 
 	SDL_Surface* icon = SDL_CreateRGBSurface(0, width, height, 32, 0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000);
-	for (int y = 0; y < height; y++) {
-		uint32_t *out = (uint32_t*)((char*) icon->pixels + icon->pitch * y);
-		for (int x = 0; x < width; x++) {
-			unsigned char pixel = (*macIcon)[y*width + x];
+	for (int y = 0; y < height; y++)
+	{
+		uint32_t* out = (uint32_t*) ((char*) icon->pixels + icon->pitch * y);
+		for (int x = 0; x < width; x++)
+		{
+			unsigned char pixel = (*macIcon)[y * width + x];
 			*out++ = pixel == 0 ? 0 : Pomme::Graphics::clut8[pixel];
 		}
 	}

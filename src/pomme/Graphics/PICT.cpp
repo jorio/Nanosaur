@@ -13,15 +13,18 @@ using namespace Pomme::Graphics;
 #define LOG POMME_GENLOG(POMME_DEBUG_PICT, "PICT")
 #define LOG_NOPREFIX POMME_GENLOG_NOPREFIX(POMME_DEBUG_PICT)
 
-class PICTException : public std::runtime_error {
+class PICTException : public std::runtime_error
+{
 public:
-	PICTException(const char* m) : std::runtime_error(m) {}
+	PICTException(const char* m) : std::runtime_error(m)
+	{}
 };
 
 //-----------------------------------------------------------------------------
 // Rect helpers
 
-Rect ReadRect(BigEndianIStream& f) {
+Rect ReadRect(BigEndianIStream& f)
+{
 	Rect r;
 	r.top    = f.Read<SInt16>();
 	r.left   = f.Read<SInt16>();
@@ -30,7 +33,8 @@ Rect ReadRect(BigEndianIStream& f) {
 	return r;
 }
 
-bool operator==(const Rect& r1, const Rect& r2) {
+bool operator==(const Rect& r1, const Rect& r2)
+{
 	return
 		r1.top == r2.top &&
 		r1.left == r2.left &&
@@ -38,7 +42,8 @@ bool operator==(const Rect& r1, const Rect& r2) {
 		r1.right == r2.right;
 }
 
-bool operator!=(const Rect& r1, const Rect& r2) {
+bool operator!=(const Rect& r1, const Rect& r2)
+{
 	return
 		r1.top != r2.top ||
 		r1.left != r2.left ||
@@ -46,7 +51,8 @@ bool operator!=(const Rect& r1, const Rect& r2) {
 		r1.right != r2.right;
 }
 
-std::ostream& operator<<(std::ostream& s, const Rect& r) {
+std::ostream& operator<<(std::ostream& s, const Rect& r)
+{
 	return s << "T" << r.top << "L" << r.left << "B" << r.bottom << "R" << r.right;
 }
 
@@ -56,9 +62,10 @@ std::ostream& operator<<(std::ostream& s, const Rect& r) {
 void Pomme::Graphics::DumpTGA(const char* path, short width, short height, const char* argbData)
 {
 	std::ofstream tga(path);
-	short tgaHdr[] = { 0,2,0,0,0,0,(short)width,(short)height,0x2020 };
-	tga.write((const char*)tgaHdr, sizeof(tgaHdr));
-	for (int i = 0; i < 4 * width * height; i += 4) {
+	short tgaHdr[] = {0, 2, 0, 0, 0, 0, (short) width, (short) height, 0x2020};
+	tga.write((const char*) tgaHdr, sizeof(tgaHdr));
+	for (int i = 0; i < 4 * width * height; i += 4)
+	{
 		tga.put(argbData[i + 3]); //b
 		tga.put(argbData[i + 2]); //g
 		tga.put(argbData[i + 1]); //r
@@ -71,38 +78,52 @@ void Pomme::Graphics::DumpTGA(const char* path, short width, short height, const
 //-----------------------------------------------------------------------------
 // PackBits
 
-template<typename T> static std::vector<T> UnpackBits(BigEndianIStream& f, UInt16 rowbytes, int packedLength)
+template<typename T>
+static std::vector<T> UnpackBits(BigEndianIStream& f, UInt16 rowbytes, int packedLength)
 {
 	//LOG << "UnpackBits rowbytes=" << rowbytes << " packedlength=" << packedLength << "\n";
 
 	std::vector<T> unpacked;
 
-	if (rowbytes < 8) {
+	if (rowbytes < 8)
+	{
 		// Bits aren't compressed
 		LOG << "Bits aren't compressed\n";
 		for (int j = 0; j < packedLength; j += sizeof(T))
+		{
 			unpacked.push_back(f.Read<T>());
+		}
 		return unpacked;
 	}
 
-	for (int j = 0; j < packedLength; ) {
+	for (int j = 0; j < packedLength;)
+	{
 		Byte FlagCounter = f.Read<Byte>();
 
-		if (FlagCounter == 0x80) {
+		if (FlagCounter == 0x80)
+		{
 			// special case: repeat value of 0. Apple says ignore.
 			j++;
-		} else if (FlagCounter & 0x80) {
+		}
+		else if (FlagCounter & 0x80)
+		{
 			// Packed data.
 			int len = ((FlagCounter ^ 0xFF) & 0xFF) + 2;
 			auto item = f.Read<T>();
 			for (int k = 0; k < len; k++)
+			{
 				unpacked.push_back(item);
+			}
 			j += 1 + sizeof(T);
-		} else {
+		}
+		else
+		{
 			// Unpacked data
 			int len = (FlagCounter & 0xFF) + 1;
 			for (int k = 0; k < len; k++)
+			{
 				unpacked.push_back(f.Read<T>());
+			}
 			j += 1 + len * sizeof(T);
 		}
 	}
@@ -113,19 +134,22 @@ template<typename T> static std::vector<T> UnpackBits(BigEndianIStream& f, UInt1
 //-----------------------------------------------------------------------------
 // Unpack PICT pixmap formats
 
-template<typename T> static std::vector<T> UnpackAllRows(BigEndianIStream& f, int w, int h, UInt16 rowbytes, std::size_t expectedItemCount)
+template<typename T>
+static std::vector<T> UnpackAllRows(BigEndianIStream& f, int w, int h, UInt16 rowbytes, std::size_t expectedItemCount)
 {
 	LOG << "UnpackBits<" << typeid(T).name() << ">";
-	
+
 	std::vector<T> data;
 	data.reserve(expectedItemCount);
-	for (int y = 0; y < h; y++) {
+	for (int y = 0; y < h; y++)
+	{
 		int packedRowBytes = rowbytes > 250 ? f.Read<UInt16>() : f.Read<UInt8>();
 		std::vector<T> rowPixels = UnpackBits<T>(f, rowbytes, packedRowBytes);
 		data.insert(data.end(), rowPixels.begin(), rowPixels.end());
 	}
-	
-	if (expectedItemCount != data.size()) {
+
+	if (expectedItemCount != data.size())
+	{
 		throw PICTException("UnpackAllRows: unexpected item count");
 	}
 
@@ -140,8 +164,10 @@ static ARGBPixmap Unpack0(BigEndianIStream& f, int w, int h, const std::vector<C
 	ARGBPixmap dst(w, h);
 	dst.data.clear();
 	LOG << "indexed to RGBA";
-	for (uint8_t px : unpacked) {
-		if (px >= palette.size()) {
+	for (uint8_t px : unpacked)
+	{
+		if (px >= palette.size())
+		{
 			throw PICTException("Unpack0: illegal color index in pixmap");
 		}
 		Color c = palette[px];
@@ -157,12 +183,13 @@ static ARGBPixmap Unpack0(BigEndianIStream& f, int w, int h, const std::vector<C
 // Unpack pixel type 4 (16 bits, chunky)
 static ARGBPixmap Unpack3(BigEndianIStream& f, int w, int h, UInt16 rowbytes)
 {
-	auto unpacked = UnpackAllRows<UInt16>(f, w, h, rowbytes, w*h);
+	auto unpacked = UnpackAllRows<UInt16>(f, w, h, rowbytes, w * h);
 	ARGBPixmap dst(w, h);
 	dst.data.clear();
 	dst.data.reserve(unpacked.size() * 4);
 	LOG << "Chunky16 to RGBA";
-	for (UInt16 px : unpacked) {
+	for (UInt16 px : unpacked)
+	{
 		dst.data.push_back(0xFF); // a
 		dst.data.push_back(((px >> 10) & 0x1F) << 3); // r
 		dst.data.push_back(((px >>  5) & 0x1F) << 3); // g
@@ -175,21 +202,26 @@ static ARGBPixmap Unpack3(BigEndianIStream& f, int w, int h, UInt16 rowbytes)
 // Unpack pixel type 4 (24 or 32 bits, planar)
 static ARGBPixmap Unpack4(BigEndianIStream& f, int w, int h, UInt16 rowbytes, int numPlanes)
 {
-	auto unpacked = UnpackAllRows<Byte>(f, w, h, rowbytes, numPlanes*w*h);
+	auto unpacked = UnpackAllRows<Byte>(f, w, h, rowbytes, numPlanes * w * h);
 	ARGBPixmap dst(w, h);
 	dst.data.clear();
 	LOG << "Planar" << numPlanes*8 << " to RGBA";
-	for (int y = 0; y < h; y++) {
-		if (numPlanes == 3) {
-			for (int x = 0; x < w; x++) {
+	for (int y = 0; y < h; y++)
+	{
+		if (numPlanes == 3)
+		{
+			for (int x = 0; x < w; x++)
+			{
 				dst.data.push_back(0xFF);
 				dst.data.push_back(unpacked[y*w*3 + x + w*0]); // red
 				dst.data.push_back(unpacked[y*w*3 + x + w*1]); // grn
 				dst.data.push_back(unpacked[y*w*3 + x + w*2]); // blu
 			}
 		}
-		else {
-			for (int x = 0; x < w; x++) {
+		else
+		{
+			for (int x = 0; x < w; x++)
+			{
 				dst.data.push_back(unpacked[y*w*3 + x + w*0]); // alpha
 				dst.data.push_back(unpacked[y*w*3 + x + w*1]); // red
 				dst.data.push_back(unpacked[y*w*3 + x + w*2]); // grn
@@ -209,7 +241,7 @@ static ARGBPixmap ReadPICTBits(BigEndianIStream& f, int opcode, const Rect& canv
 	bool directBitsOpcode = opcode == 0x009A || opcode == 0x009B;
 
 	//printf("@@@ ReadPictBits %04x ", opcode); LOG << "canvasRect: " << canvasRect << "\n";
-	
+
 	if (directBitsOpcode) f.Skip(4); //skip junk
 	int rowbytes = f.Read<SInt16>();
 	//LOG << "**** rowbytes = " << rowbytes << "\n";
@@ -223,7 +255,6 @@ static ARGBPixmap ReadPICTBits(BigEndianIStream& f, int opcode, const Rect& canv
 	int pixelSize = -1;
 	int componentCount = -1;
 
-	if (directBitsOpcode || (rowbytes & 0x8000) != 0) {
 		SInt16 pixmapVersion	= f.Read<SInt16>();
 		packType			    = f.Read<SInt16>();
 		SInt32 packSize			= f.Read<SInt32>();
@@ -235,6 +266,8 @@ static ARGBPixmap ReadPICTBits(BigEndianIStream& f, int opcode, const Rect& canv
 		SInt16 componentSize	= f.Read<SInt16>();
 		SInt32 planeBytes		= f.Read<SInt32>();
 		SInt32 table			= f.Read<SInt32>();
+	if (directBitsOpcode || (rowbytes & 0x8000) != 0)
+	{
 		f.Skip(4);
 
 		LOG << "----PICT PIXMAP----"
@@ -256,7 +289,8 @@ static ARGBPixmap ReadPICTBits(BigEndianIStream& f, int opcode, const Rect& canv
 	}
 
 	auto palette = std::vector<Color>();
-	if (!directBitsOpcode) {
+	if (!directBitsOpcode)
+	{
 		f.Skip(4);
 		UInt16 flags = f.Read<UInt16>();
 		int nColors = 1 + f.Read<UInt16>();
@@ -266,13 +300,17 @@ static ARGBPixmap ReadPICTBits(BigEndianIStream& f, int opcode, const Rect& canv
 
 		palette.resize(nColors);
 
-		for (int i = 0; i < nColors; i++) {
+		for (int i = 0; i < nColors; i++)
+		{
 			int index;
-			if (flags & 0x8000) {
+			if (flags & 0x8000)
+			{
 				// ignore junk index (usually just set to 0)
 				f.Skip(2);
 				index = i;
-			} else {
+			}
+			else
+			{
 				index = f.Read<UInt16>();
 				if (index >= nColors)
 					throw PICTException("illegal color index in palette definition");
@@ -291,17 +329,22 @@ static ARGBPixmap ReadPICTBits(BigEndianIStream& f, int opcode, const Rect& canv
 	if (srcRect != canvasRect) throw PICTException("unsupported src/dst rects that aren't the same as the canvas rect");
 	f.Skip(2);
 
-	if (opcode == 0x0091 || opcode == 0x0099 || opcode == 0x009b) {
+	if (opcode == 0x0091 || opcode == 0x0099 || opcode == 0x009b)
+	{
 		throw PICTException("unimplemented opcode");
 	}
 
-	if (!directBitsOpcode && (rowbytes & 0x8000) == 0) {
+	if (!directBitsOpcode && (rowbytes & 0x8000) == 0)
+	{
 		throw PICTException("negative rowbytes");
-	} else {
+	}
+	else
+	{
 		int cw = Width(canvasRect);
 		int ch = Height(canvasRect);
-		
-		switch (packType) {
+
+		switch (packType)
+		{
 		case 0: // 8-bit indexed color, packed bytewise
 			return Unpack0(f, cw, ch, palette);
 
@@ -330,7 +373,8 @@ ARGBPixmap Pomme::Graphics::ReadPICT(std::istream& theF, bool skip512)
 	f.Skip(2); // Version 1 picture size. Meaningless for "modern" picts that can easily exceed 65,535 bytes.
 
 	Rect canvasRect = ReadRect(f);
-	if (Width(canvasRect) < 0 || Height(canvasRect) < 0) {
+	if (Width(canvasRect) < 0 || Height(canvasRect) < 0)
+	{
 		LOG << "canvas rect: " << canvasRect << "\n";
 		throw PICTException("invalid width/height");
 	}
@@ -345,23 +389,26 @@ ARGBPixmap Pomme::Graphics::ReadPICT(std::istream& theF, bool skip512)
 	ARGBPixmap pm(0, 0);
 	bool readPixmap = false;
 
-	while (true) {
+	while (true)
+	{
 		int opcode;
 
 		// Align position to short
 		f.Skip((f.Tell() - startOff) % 2);
-		
+
 		opcode = f.Read<SInt16>();
 
 		//printf("~~~~~ OPCODE %04X ~~~~~\n", opcode);
 
 		// Skip reserved opcodes
-		if (opcode >= 0x0100 && opcode <= 0x7FFF) {
+		if (opcode >= 0x0100 && opcode <= 0x7FFF)
+		{
 			f.Skip((opcode >> 7) & 0xFF);
 			continue;
 		}
 
-		switch (opcode) {
+		switch (opcode)
+		{
 		case 0x0C00:
 			f.Skip(12);
 			break;
@@ -384,7 +431,8 @@ ARGBPixmap Pomme::Graphics::ReadPICT(std::istream& theF, bool skip512)
 			Rect frameRect = ReadRect(f);
 			//LOG << "CLIP:" << frameRect << "\n";
 			if (frameRect.left < 0 || frameRect.top < 0) throw PICTException("illegal frame rect");
-			if (frameRect != canvasRect) {
+			if (frameRect != canvasRect)
+			{
 				std::cerr << "Warning: clip rect " << frameRect << " isn't the same as the canvas rect " << canvasRect << ", using clip rect\n";
 				canvasRect = frameRect;
 			}

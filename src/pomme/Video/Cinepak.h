@@ -29,11 +29,14 @@ struct CinepakContext
 
 	const uint8_t* data;
 	int size;
-	
+
 public:
 	CinepakContext(int avctx_width, int avctx_height);
+
 	~CinepakContext();
+
 	void DecodeFrame(const uint8_t* packet_data, const int packet_size);
+
 	void DumpFrameTGA(const char* outFN);
 };
 

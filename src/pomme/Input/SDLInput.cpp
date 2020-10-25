@@ -157,11 +157,12 @@ void GetKeys(KeyMap km)
 
 	SDL_PumpEvents();
 	int numkeys = 0;
-	const UInt8* keystate =  SDL_GetKeyboardState(&numkeys);
+	const UInt8* keystate = SDL_GetKeyboardState(&numkeys);
 
-	numkeys = std::min((int)sizeof(scancodeLookupTable), numkeys);
+	numkeys = std::min((int) sizeof(scancodeLookupTable), numkeys);
 
-	for (int sdlScancode = 0; sdlScancode < numkeys; sdlScancode++) {
+	for (int sdlScancode = 0; sdlScancode < numkeys; sdlScancode++)
+	{
 		if (!keystate[sdlScancode])
 			continue;
 		int vk = scancodeLookupTable[sdlScancode];

@@ -6,10 +6,12 @@
 
 void ImplementMe(const char* fn, std::string msg, int severity)
 {
-	if (severity >= 0) {
+	if (severity >= 0)
+	{
 		std::stringstream ss;
 		ss << "[TODO] \x1b[1m" << fn << "\x1b[22m";
-		if (!msg.empty()) {
+		if (!msg.empty())
+		{
 			ss << ": ";
 			//for (int i = strlen(fn); i < 32; i++) ss << '.';
 			ss << msg;
@@ -18,7 +20,8 @@ void ImplementMe(const char* fn, std::string msg, int severity)
 		std::cerr << (severity > 0 ? "\x1b[31m" : "\x1b[33m") << str << "\x1b[0m\n";
 	}
 
-	if (severity >= 2) {
+	if (severity >= 2)
+	{
 		std::stringstream ss;
 		ss << fn << "()";
 		if (!msg.empty()) ss << "\n" << msg;
@@ -32,7 +35,8 @@ void ImplementMe(const char* fn, std::string msg, int severity)
 		SDL_ShowSimpleMessageBox(mbflags, "Source port TODO", str.c_str(), nullptr);
 	}
 
-	if (severity >= 2) {
+	if (severity >= 2)
+	{
 		abort();
 	}
 }
@@ -40,12 +44,13 @@ void ImplementMe(const char* fn, std::string msg, int severity)
 std::string Pomme::FourCCString(uint32_t t, char filler)
 {
 	char b[5];
-	*(uint32_t*)b = t;
+	*(uint32_t*) b = t;
 #if !(TARGET_RT_BIGENDIAN)
 	std::reverse(b, b + 4);
 #endif
 	// replace non-ascii with '?'
-	for (int i = 0; i < 4; i++) {
+	for (int i = 0; i < 4; i++)
+	{
 		char c = b[i];
 		if (c < ' ' || c > '~') b[i] = filler;
 	}

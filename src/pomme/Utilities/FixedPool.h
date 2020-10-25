@@ -3,7 +3,8 @@
 namespace Pomme {
 
 template<typename TObj, typename TId, int MAX>
-class FixedPool {
+class FixedPool
+{
 	// fixed size array so that pointers to the elements don't move around in memory
 	// (unlike how a vector might move around elements on resize)
 	TObj pool[MAX];
@@ -11,7 +12,8 @@ class FixedPool {
 	int inUse, inUsePeak;
 
 public:
-	FixedPool() {
+	FixedPool()
+	{
 		inUse = 0;
 		inUsePeak = 0;
 		freeIDs.reserve(MAX);
@@ -19,7 +21,8 @@ public:
 			freeIDs.push_back(i);
 	}
 
-	TObj* Alloc() {
+	TObj* Alloc()
+	{
 		if (freeIDs.empty())
 			throw std::length_error("pool exhausted");
 		TId id = freeIDs.back();
@@ -30,7 +33,8 @@ public:
 		return &pool[id];
 	}
 
-	void Dispose(TObj* obj) {
+	void Dispose(TObj* obj)
+	{
 		intptr_t id = obj - &pool[0];
 		if (id < 0 || id >= MAX)
 			throw std::invalid_argument("obj isn't stored in pool");

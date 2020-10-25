@@ -11,9 +11,9 @@ std::string UppercaseCopy(const std::string& in)
 		in.end(),
 		std::back_inserter(out),
 		[](unsigned char c) -> unsigned char
-	{
-		return (c >= 'a' && c <= 'z') ? ('A' + c - 'a') : c;
-	});
+		{
+			return (c >= 'a' && c <= 'z') ? ('A' + c - 'a') : c;
+		});
 	return out;
 }
 

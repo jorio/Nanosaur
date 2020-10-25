@@ -12,7 +12,7 @@ membuf::membuf(char* p, size_t n)
 }
 
 membuf::membuf(std::vector<char>& vector)
-	:membuf(vector.data(), vector.size())
+	: membuf(vector.data(), vector.size())
 {
 }
 
@@ -20,28 +20,36 @@ std::streambuf::pos_type membuf::seekoff(off_type off, std::ios_base::seekdir di
 {
 	pos_type ret = 0;
 
-	if ((which & std::ios_base::in) > 0) {
-		if (dir == std::ios_base::cur) {
-			gbump((int32_t)off);
+	if ((which & std::ios_base::in) > 0)
+	{
+		if (dir == std::ios_base::cur)
+		{
+			gbump((int32_t) off);
 		}
-		else if (dir == std::ios_base::end) {
+		else if (dir == std::ios_base::end)
+		{
 			setg(begin, end + off, end);
 		}
-		else if (dir == std::ios_base::beg) {
+		else if (dir == std::ios_base::beg)
+		{
 			setg(begin, begin + off, end);
 		}
 
 		ret = gptr() - eback();
 	}
 
-	if ((which & std::ios_base::out) > 0) {
-		if (dir == std::ios_base::cur) {
-			pbump((int32_t)off);
+	if ((which & std::ios_base::out) > 0)
+	{
+		if (dir == std::ios_base::cur)
+		{
+			pbump((int32_t) off);
 		}
-		else if (dir == std::ios_base::end) {
+		else if (dir == std::ios_base::end)
+		{
 			setp(begin, end + off);
 		}
-		else if (dir == std::ios_base::beg) {
+		else if (dir == std::ios_base::beg)
+		{
 			setp(begin, begin + off);
 		}
 

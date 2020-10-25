@@ -11,6 +11,7 @@ class membuf : public std::basic_streambuf<char>
 
 public:
 	membuf(char* p, size_t n);
+
 	explicit membuf(std::vector<char>&);
 
 	virtual ~membuf() override = default;
@@ -20,10 +21,14 @@ public:
 	virtual pos_type seekpos(std::streampos pos, std::ios_base::openmode mode) override;
 };
 
-class memstream : membuf, public std::iostream
+class memstream
+	: membuf
+	, public std::iostream
 {
 public:
 	memstream(char* p, size_t n);
+
 	explicit memstream(std::vector<char>& data);
+
 	virtual ~memstream() = default;
 };

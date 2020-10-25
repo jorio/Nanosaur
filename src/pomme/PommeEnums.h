@@ -3,7 +3,8 @@
 //-----------------------------------------------------------------------------
 // Filesystem permission char
 
-enum EFSPermissions {
+enum EFSPermissions
+{
     fsCurPerm = 0,
     fsRdPerm = 1,
     fsWrPerm = 2,
@@ -13,7 +14,8 @@ enum EFSPermissions {
 //-----------------------------------------------------------------------------
 // Folder types
 
-enum {
+enum
+{
     kSystemFolderType                   = 'macs',
     kDesktopFolderType                  = 'desk',
     kSystemDesktopFolderType            = 'sdsk',
@@ -49,7 +51,8 @@ enum {
 //-----------------------------------------------------------------------------
 // Error codes (OSErr)
 
-enum EErrors {
+enum EErrors
+{
     noErr           = 0,
 
     unimpErr        = -4, // unimplemented core routine
@@ -150,7 +153,8 @@ enum EErrors {
 //-----------------------------------------------------------------------------
 // Script Manager enums
 
-enum EScriptManager {
+enum EScriptManager
+{
     smSystemScript = -1,
     smCurrentScript = -2,
     smAllScripts = -3
@@ -158,38 +162,44 @@ enum EScriptManager {
 
 //-----------------------------------------------------------------------------
 
-enum EEvents {
+enum EEvents
+{
     everyEvent = ~0
 };
 
 //-----------------------------------------------------------------------------
 // Memory enums
 
-enum EMemory {
+enum EMemory
+{
     maxSize = 0x7FFFFFF0 // the largest block possible
 };
 
 //-----------------------------------------------------------------------------
 // Resource types
 
-enum EResTypes {
+enum EResTypes
+{
     rAliasType = 'alis',
 };
 
 //-----------------------------------------------------------------------------
 // Sound Manager enums
 
-enum ESndPitch {
+enum ESndPitch
+{
     kMiddleC = 60L,
 };
 
-enum ESndSynth {
+enum ESndSynth
+{
     squareWaveSynth = 1,
     waveTableSynth = 3,
     sampledSynth = 5
 };
 
-enum ESndInit {
+enum ESndInit
+{
     initChanLeft = 0x0002,    // left stereo channel
     initChanRight = 0x0003,    // right stereo channel
     initMono = 0x0080,    // monophonic channel
@@ -201,7 +211,8 @@ enum ESndInit {
 };
 
 // Sound commands
-enum ESndCmds {
+enum ESndCmds
+{
     nullCmd = 0,
     initCmd = 1,
     freeCmd = 2,
@@ -248,7 +259,8 @@ enum ESndCmds {
 //-----------------------------------------------------------------------------
 // Keyboard enums
 
-enum {
+enum
+{
     // key positions on US keyboard
     kVK_ANSI_A                    = 0x00,
     kVK_ANSI_S                    = 0x01,
@@ -318,7 +330,8 @@ enum {
 };
 
 // keycodes for keys that are independent of keyboard layout
-enum {
+enum
+{
     kVK_Return                    = 0x24,
     kVK_Tab                       = 0x30,
     kVK_Space                     = 0x31,
@@ -371,7 +384,8 @@ enum {
 //-----------------------------------------------------------------------------
 // QD2D
 
-enum {
+enum
+{
     whiteColor      = 30,
     blackColor      = 33,
     yellowColor     = 69,

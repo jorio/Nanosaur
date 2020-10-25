@@ -26,11 +26,18 @@ namespace Pomme::Files
 	};
 
 	void Init();
+
 	bool IsRefNumLegal(short refNum);
+
 	bool IsStreamOpen(short refNum);
+
 	bool IsStreamPermissionAllowed(short refNum, char perm);
+
 	std::iostream& GetStream(short refNum);
+
 	void CloseStream(short refNum);
+
 	short MountArchiveAsVolume(const fs::path& archivePath);
+
 	FSSpec HostPathToFSSpec(const fs::path& fullPath);
 }

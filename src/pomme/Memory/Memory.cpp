@@ -14,7 +14,8 @@ static const int  HANDLE_MAGIC_LENGTH = 8;
 static const char HANDLE_MAGIC[HANDLE_MAGIC_LENGTH]      = "LIVEhdl";
 static const char HANDLE_MAGIC_DEAD[HANDLE_MAGIC_LENGTH] = "DEADhdl";
 
-struct BlockDescriptor {
+struct BlockDescriptor
+{
 	Ptr buf;
 	char magic[HANDLE_MAGIC_LENGTH];
 	Size size;
@@ -25,7 +26,7 @@ static Pomme::FixedPool<BlockDescriptor, UInt16, 1000> blocks;
 
 static BlockDescriptor* HandleToBlock(Handle h)
 {
-	auto bd = (BlockDescriptor*)h;
+	auto bd = (BlockDescriptor*) h;
 	if (0 != memcmp(bd->magic, HANDLE_MAGIC, HANDLE_MAGIC_LENGTH))
 		throw std::runtime_error("corrupted handle");
 	return bd;
@@ -43,36 +44,41 @@ Handle NewHandle(Size s)
 	memcpy(block->magic, HANDLE_MAGIC, HANDLE_MAGIC_LENGTH);
 	block->size = s;
 
-	if ((Ptr)&block->buf != (Ptr)block)
+	if ((Ptr) &block->buf != (Ptr) block)
 		throw std::runtime_error("buffer address mismatches block address");
 
-	LOG << (void*)block->buf << ", size " << s << "\n";
+	LOG << (void*) block->buf << ", size " << s << "\n";
 
 	return &block->buf;
 }
 
-Handle NewHandleClear(Size s) {
+Handle NewHandleClear(Size s)
+{
 	Handle h = NewHandle(s);
 	memset(*h, 0, s);
 	return h;
 }
 
-Handle TempNewHandle(Size s, OSErr* err) {
+Handle TempNewHandle(Size s, OSErr* err)
+{
 	Handle h = NewHandle(s);
 	*err = noErr;
 	return h;
 }
 
-Size GetHandleSize(Handle h) {
+Size GetHandleSize(Handle h)
+{
 	return HandleToBlock(h)->size;
 }
 
-void SetHandleSize(Handle handle, Size byteCount) {
+void SetHandleSize(Handle handle, Size byteCount)
+{
 	TODOFATAL();
 }
 
-void DisposeHandle(Handle h) {
-	LOG << (void*)*h << "\n";
+void DisposeHandle(Handle h)
+{
+	LOG << (void*) *h << "\n";
 	BlockDescriptor* b = HandleToBlock(h);
 	delete[] b->buf;
 	b->buf = 0;
@@ -84,28 +90,33 @@ void DisposeHandle(Handle h) {
 //-----------------------------------------------------------------------------
 // Memory: Ptr
 
-Ptr NewPtr(Size byteCount) {
+Ptr NewPtr(Size byteCount)
+{
 	if (byteCount < 0) throw std::invalid_argument("trying to NewPtr negative size");
 	return new char[byteCount];
 }
 
-Ptr NewPtrSys(Size byteCount) {
+Ptr NewPtrSys(Size byteCount)
+{
 	if (byteCount < 0) throw std::invalid_argument("trying to NewPtrSys negative size");
 	return new char[byteCount];
 }
 
-void DisposePtr(Ptr p) {
+void DisposePtr(Ptr p)
+{
 	delete[] p;
 }
 
 //-----------------------------------------------------------------------------
 // Memory: BlockMove
 
-void BlockMove(const void* srcPtr, void* destPtr, Size byteCount) {
+void BlockMove(const void* srcPtr, void* destPtr, Size byteCount)
+{
 	memcpy(destPtr, srcPtr, byteCount);
 }
 
-void BlockMoveData(const void* srcPtr, void* destPtr, Size byteCount) {
+void BlockMoveData(const void* srcPtr, void* destPtr, Size byteCount)
+{
 	TODOFATAL();
 }
 

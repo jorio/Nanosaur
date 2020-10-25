@@ -39,7 +39,8 @@ bool Pomme::Files::IsRefNumLegal(short refNum)
 
 std::iostream& Pomme::Files::GetStream(short refNum)
 {
-	if (!IsRefNumLegal(refNum)) {
+	if (!IsRefNumLegal(refNum))
+	{
 		throw std::runtime_error("illegal refNum");
 	}
 	return openFiles[refNum]->GetStream();
@@ -47,7 +48,8 @@ std::iostream& Pomme::Files::GetStream(short refNum)
 
 void Pomme::Files::CloseStream(short refNum)
 {
-	if (!IsRefNumLegal(refNum)) {
+	if (!IsRefNumLegal(refNum))
+	{
 		throw std::runtime_error("illegal refNum");
 	}
 	openFiles[refNum].reset(nullptr);
@@ -57,7 +59,8 @@ void Pomme::Files::CloseStream(short refNum)
 
 bool Pomme::Files::IsStreamOpen(short refNum)
 {
-	if (!IsRefNumLegal(refNum)) {
+	if (!IsRefNumLegal(refNum))
+	{
 		throw std::runtime_error("illegal refNum");
 	}
 	return openFiles[refNum].get() != nullptr;
@@ -66,7 +69,8 @@ bool Pomme::Files::IsStreamOpen(short refNum)
 
 bool Pomme::Files::IsStreamPermissionAllowed(short refNum, char perm)
 {
-	if (!IsRefNumLegal(refNum)) {
+	if (!IsRefNumLegal(refNum))
+	{
 		throw std::runtime_error("illegal refNum");
 	}
 	return (perm & openFiles[refNum]->permission) == perm;
@@ -81,7 +85,8 @@ void Pomme::Files::Init()
 	volumes.push_back(std::move(hostVolume));
 
 	short systemRefNum = openFiles.Alloc();
-	if (systemRefNum != 0) {
+	if (systemRefNum != 0)
+	{
 		throw std::logic_error("expecting 0 for system refnum");
 	}
 }
@@ -91,14 +96,14 @@ void Pomme::Files::Init()
 
 bool IsVolumeLegal(short vRefNum)
 {
-	return vRefNum >= 0 && (unsigned short)vRefNum < volumes.size();
+	return vRefNum >= 0 && (unsigned short) vRefNum < volumes.size();
 }
 
 OSErr FSMakeFSSpec(short vRefNum, long dirID, const char* cstrFileName, FSSpec* spec)
 {
 	if (!IsVolumeLegal(vRefNum))
 		return nsvErr;
-	
+
 	return volumes.at(vRefNum)->FSMakeFSSpec(dirID, cstrFileName, spec);
 }
 
@@ -111,14 +116,18 @@ static OSErr OpenFork(const FSSpec* spec, ForkType forkType, char permission, sh
 	short newRefNum = openFiles.Alloc();
 	auto& handlePtr = openFiles[newRefNum];
 	OSErr rc = volumes.at(spec->vRefNum)->OpenFork(spec, forkType, permission, handlePtr);
-	if (rc != noErr) {
+	if (rc != noErr)
+	{
 		openFiles.Dispose(newRefNum);
 		newRefNum = -1;
 		LOG << "Failed to open " << spec->cName << "\n";
-	} else {
+	}
+	else
+	{
 		LOG << "Stream #" << newRefNum << " opened: " << spec->cName << ", " << (forkType == DataFork ? "data" : "rsrc") << "\n";
 	}
-	if (refNum) {
+	if (refNum)
+	{
 		*refNum = newRefNum;
 	}
 	return rc;
@@ -136,13 +145,15 @@ OSErr FSpOpenRF(const FSSpec* spec, char permission, short* refNum)
 
 OSErr FindFolder(short vRefNum, OSType folderType, Boolean createFolder, short* foundVRefNum, long* foundDirID)
 {
-	if (vRefNum != kOnSystemDisk) {
+	if (vRefNum != kOnSystemDisk)
+	{
 		throw std::runtime_error("FindFolder only supports kOnSystemDisk");
 	}
-	
+
 	fs::path path;
 
-	switch (folderType) {
+	switch (folderType)
+	{
 	case kPreferencesFolderType:
 	{
 #ifdef _WIN32
@@ -154,12 +165,16 @@ OSErr FindFolder(short vRefNum, OSType folderType, Boolean createFolder, short* 
 		}
 		path = fs::path(home) / "Library" / "Preferences";
 #else
-		const char *home = getenv("XDG_CONFIG_HOME");
-		if (home) {
+		const char* home = getenv("XDG_CONFIG_HOME");
+		if (home)
+		{
 			path = std::filesystem::path(home);
-		} else {
+		}
+		else
+		{
 			home = getenv("HOME");
-			if (!home) {
+			if (!home)
+			{
 				return fnfErr;
 			}
 			path = std::filesystem::path(home) / ".config";
@@ -177,10 +192,12 @@ OSErr FindFolder(short vRefNum, OSType folderType, Boolean createFolder, short* 
 
 	bool exists = fs::exists(path);
 
-	if (exists && !fs::is_directory(path)) {
+	if (exists && !fs::is_directory(path))
+	{
 		return dupFNErr;
 	}
-	if (!exists && createFolder) {
+	if (!exists && createFolder)
+	{
 		fs::create_directories(path);
 	}
 
@@ -217,7 +234,8 @@ OSErr ResolveAlias(const FSSpec* spec, AliasHandle alias, FSSpec* target, Boolea
 	int aliasSize = GetHandleSize(alias);
 
 	// the target FN is at offset 50, and the target FN is a Str63, so 50+64
-	if (aliasSize < 50+64) {
+	if (aliasSize < 50 + 64)
+	{
 		std::cerr << "unexpected size of alias: " << aliasSize << "\n";
 		return unimpErr;
 	}
@@ -227,18 +245,21 @@ OSErr ResolveAlias(const FSSpec* spec, AliasHandle alias, FSSpec* target, Boolea
 
 	f.Skip(4); // application signature
 
-	if (f.Read<UInt16>() != aliasSize) {
+	if (f.Read<UInt16>() != aliasSize)
+	{
 		std::cerr << "unexpected size field in alias\n";
 		return unimpErr;
 	}
 
-	if (f.Read<UInt16>() != 2) {
+	if (f.Read<UInt16>() != 2)
+	{
 		std::cerr << "unexpected alias version number\n";
 		return unimpErr;
 	}
 
 	auto kind = f.Read<UInt16>();
-	if (kind > 2) {
+	if (kind > 2)
+	{
 		std::cerr << "unsupported alias kind " << kind << "\n";
 		return unimpErr;
 	}
@@ -263,7 +284,7 @@ OSErr FSRead(short refNum, long* count, Ptr buffPtr)
 
 	auto& f = GetStream(refNum);
 	f.read(buffPtr, *count);
-	*count = (long)f.gcount();
+	*count = (long) f.gcount();
 	if (f.eof()) return eofErr;
 
 	return noErr;
@@ -300,7 +321,7 @@ OSErr GetEOF(short refNum, long* logEOF)
 	auto& f = GetStream(refNum);
 	StreamPosGuard guard(f);
 	f.seekg(0, std::ios::end);
-	*logEOF = (long)f.tellg();
+	*logEOF = (long) f.tellg();
 
 	return noErr;
 }
@@ -313,17 +334,18 @@ OSErr SetEOF(short refNum, long logEOF)
 
 short Pomme::Files::MountArchiveAsVolume(const fs::path& archivePath)
 {
-	if (volumes.size() >= MAX_VOLUMES) {
+	if (volumes.size() >= MAX_VOLUMES)
+	{
 		throw std::out_of_range("Too many volumes mounted");
 	}
-	
-	short vRefNum = (short)volumes.size();
-	
+
+	short vRefNum = (short) volumes.size();
+
 	auto archiveVolume = std::make_unique<ArchiveVolume>(vRefNum, archivePath);
 	volumes.push_back(std::move(archiveVolume));
-	
+
 	LOG << "Archive \"" << archivePath << "\" mounted as volume " << vRefNum << ".\n";
-	
+
 	return vRefNum;
 }
 

@@ -38,10 +38,11 @@
 #include <cstring>
 #include <fstream>
 
-class CinepakException: public std::runtime_error
+class CinepakException : public std::runtime_error
 {
 public:
-	CinepakException(const char* m) : std::runtime_error(m) {}
+	CinepakException(const char* m) : std::runtime_error(m)
+	{}
 };
 
 static uint8_t av_clip_uint8(int x)

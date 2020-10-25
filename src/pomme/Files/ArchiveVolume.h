@@ -48,7 +48,7 @@ namespace Pomme::Files
 
 		/// Decompress a fork from the archive.
 		std::vector<char> DecompressFork(CompressedForkMetadata& forkInfo);
-		
+
 		/// Read StuffIt directory or file entry.
 		/// Recursive if the entry is a directory.
 		UInt32 ReadEntry(
@@ -58,7 +58,7 @@ namespace Pomme::Files
 			bool collapseIfFolder);
 
 		void ReadStuffIt5();
-		
+
 	public:
 		explicit ArchiveVolume(short vRefNum, const fs::path& pathToArchiveOnHost);
 

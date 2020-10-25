@@ -4,7 +4,8 @@
 
 namespace Pomme::Files
 {
-	enum ForkType {
+	enum ForkType
+	{
 		DataFork,
 		ResourceFork
 	};
@@ -20,10 +21,10 @@ namespace Pomme::Files
 			: forkType(_forkType)
 			, permission(_permission)
 		{}
-		
+
 	public:
 		virtual std::iostream& GetStream() = 0;
-		
+
 		virtual ~ForkHandle() = default;
 	};
 
@@ -41,12 +42,12 @@ namespace Pomme::Files
 		{}
 
 		virtual ~Volume() = default;
-		
+
 		//-----------------------------------------------------------------------------
 		// Toolbox API Implementation
 
 		virtual OSErr FSMakeFSSpec(long dirID, const std::string& suffix, FSSpec* spec) = 0;
-		
+
 		virtual OSErr OpenFork(const FSSpec* spec, ForkType forkType, char permission, std::unique_ptr<ForkHandle>& handle) = 0;
 
 		virtual OSErr FSpCreate(const FSSpec* spec, OSType creator, OSType fileType, ScriptCode scriptTag) = 0;

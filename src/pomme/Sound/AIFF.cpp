@@ -4,7 +4,8 @@
 
 static void AIFFAssert(bool condition, const char* message)
 {
-	if (!condition) {
+	if (!condition)
+	{
 		throw std::runtime_error(message);
 	}
 }
@@ -27,12 +28,14 @@ void Pomme::Sound::ReadAIFF(std::istream& input, cmixer::WavStream& output)
 
 	bool gotCOMM = false;
 
-	while (f.Tell() != endOfForm) {
+	while (f.Tell() != endOfForm)
+	{
 		auto ckID = f.Read<uint32_t>();
 		auto ckSize = f.Read<uint32_t>();
 		std::streampos endOfChunk = f.Tell() + std::streampos(ckSize);
 
-		switch (ckID) {
+		switch (ckID)
+		{
 		case 'FVER':
 		{
 			auto timestamp = f.Read<uint32_t>();
@@ -46,7 +49,8 @@ void Pomme::Sound::ReadAIFF(std::istream& input, cmixer::WavStream& output)
 			nPackets   = f.Read<uint32_t>();
 			f.Skip(2); // sample bit depth (UInt16)
 			sampleRate = (int)f.Read80BitFloat();
-			if (formType == 'AIFC') {
+			if (formType == 'AIFC')
+			{
 				compressionType = f.Read<uint32_t>();
 				f.ReadPascalString(); // This is a human-friendly compression name. Skip it.
 			}

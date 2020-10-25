@@ -25,12 +25,14 @@ static int rezSearchStackIndex = 0;
 
 static void ResourceAssert(bool condition, const char* message)
 {
-	if (!condition) {
+	if (!condition)
+	{
 		throw std::runtime_error(message);
 	}
 }
 
-static ResourceFork& GetCurRF() {
+static ResourceFork& GetCurRF()
+{
 	return rezSearchStack[rezSearchStackIndex];
 }
 
@@ -68,7 +70,8 @@ static void DumpResource(ResourceMetadata& meta)
 //-----------------------------------------------------------------------------
 // Resource file management
 
-OSErr ResError(void) {
+OSErr ResError(void)
+{
 	return lastResError;
 }
 
@@ -78,7 +81,8 @@ short FSpOpenResFile(const FSSpec* spec, char permission)
 
 	lastResError = FSpOpenRF(spec, permission, &slot);
 
-	if (noErr != lastResError) {
+	if (noErr != lastResError)
+	{
 		return -1;
 	}
 
@@ -113,7 +117,8 @@ short FSpOpenResFile(const FSSpec* spec, char permission)
 
 	// all resource types
 	int nResTypes = 1 + f.Read<UInt16>();
-	for (int i = 0; i < nResTypes; i++) {
+	for (int i = 0; i < nResTypes; i++)
+	{
 		OSType resType = f.Read<OSType>();
 		int    resCount = f.Read<UInt16>() + 1;
 		UInt32 resRefListOff = f.Read<UInt16>() + typeListOff;
@@ -123,7 +128,8 @@ short FSpOpenResFile(const FSSpec* spec, char permission)
 
 		f.Goto(resRefListOff);
 
-		for (int j = 0; j < resCount; j++) {
+		for (int j = 0; j < resCount; j++)
+		{
 			SInt16 resID = f.Read<UInt16>();
 			UInt16 resNameRelativeOff = f.Read<UInt16>();
 			UInt32 resPackedAttr = f.Read<UInt32>();
@@ -141,7 +147,8 @@ short FSpOpenResFile(const FSSpec* spec, char permission)
 
 			// Fetch name
 			std::string name;
-			if (resNameRelativeOff != 0xFFFF) {
+			if (resNameRelativeOff != 0xFFFF)
+			{
 				f.Goto(resNameListOff + resNameRelativeOff);
 				name = f.ReadPascalString();
 			}
@@ -167,7 +174,8 @@ short FSpOpenResFile(const FSSpec* spec, char permission)
 	return slot;
 }
 
-void UseResFile(short refNum) {
+void UseResFile(short refNum)
+{
 	// See MoreMacintoshToolbox:1-69
 
 	lastResError = unimpErr;
@@ -176,8 +184,10 @@ void UseResFile(short refNum) {
 	ResourceAssert(refNum >= 0, "UseResFile: Illegal refNum");
 	ResourceAssert(IsStreamOpen(refNum), "UseResFile: Resource stream not open");
 
-	for (size_t i = 0; i < rezSearchStack.size(); i++) {
-		if (rezSearchStack[i].fileRefNum == refNum) {
+	for (size_t i = 0; i < rezSearchStack.size(); i++)
+	{
+		if (rezSearchStack[i].fileRefNum == refNum)
+		{
 			lastResError = noErr;
 			rezSearchStackIndex = i;
 			return;
@@ -188,7 +198,8 @@ void UseResFile(short refNum) {
 	lastResError = rfNumErr;
 }
 
-short CurResFile() {
+short CurResFile()
+{
 	return GetCurRF().fileRefNum;
 }
 
@@ -202,40 +213,46 @@ void CloseResFile(short refNum)
 	Pomme::Files::CloseStream(refNum);
 
 	auto it = rezSearchStack.begin();
-	while (it != rezSearchStack.end()) {
+	while (it != rezSearchStack.end())
+	{
 		if (it->fileRefNum == refNum)
 			it = rezSearchStack.erase(it);
 		else
 			it++;
 	}
 
-	rezSearchStackIndex = std::min(rezSearchStackIndex, (int)rezSearchStack.size()-1);
+	rezSearchStackIndex = std::min(rezSearchStackIndex, (int) rezSearchStack.size() - 1);
 }
 
-short Count1Resources(ResType theType) {
+short Count1Resources(ResType theType)
+{
 	lastResError = noErr;
 
-	try {
-		return (short)GetCurRF().resourceMap.at(theType).size();
+	try
+	{
+		return (short) GetCurRF().resourceMap.at(theType).size();
 	}
-	catch (std::out_of_range&) {
+	catch (std::out_of_range&)
+	{
 		return 0;
 	}
 }
 
-Handle GetResource(ResType theType, short theID) {
+Handle GetResource(ResType theType, short theID)
+{
 	lastResError = noErr;
 
-	for (int i = rezSearchStackIndex; i >= 0; i--) {
+	for (int i = rezSearchStackIndex; i >= 0; i--)
+	{
 		const auto& fork = rezSearchStack[i];
 
 		if (fork.resourceMap.end() == fork.resourceMap.find(theType))
-            continue;
-        
-        auto& resourcesOfType = fork.resourceMap.at(theType);
-        if (resourcesOfType.end() == resourcesOfType.find(theID))
 			continue;
-		
+
+		auto& resourcesOfType = fork.resourceMap.at(theType);
+		if (resourcesOfType.end() == resourcesOfType.find(theID))
+			continue;
+
 		const auto& meta = fork.resourceMap.at(theType).at(theID);
 		auto& forkStream = Pomme::Files::GetStream(rezSearchStack[i].fileRefNum);
 		Handle handle = NewHandle(meta.size);
@@ -248,33 +265,40 @@ Handle GetResource(ResType theType, short theID) {
 	return nil;
 }
 
-void ReleaseResource(Handle theResource) {
+void ReleaseResource(Handle theResource)
+{
 	DisposeHandle(theResource);
 }
 
-void RemoveResource(Handle theResource) {
+void RemoveResource(Handle theResource)
+{
 	DisposeHandle(theResource);
 	TODO();
 }
 
-void AddResource(Handle theData, ResType theType, short theID, const char* name) {
+void AddResource(Handle theData, ResType theType, short theID, const char* name)
+{
 	TODO();
 }
 
-void WriteResource(Handle theResource) {
+void WriteResource(Handle theResource)
+{
 	TODO();
 }
 
-void DetachResource(Handle theResource) {
+void DetachResource(Handle theResource)
+{
 	lastResError = noErr;
 	ONCE(TODOMINOR());
 }
 
-long GetResourceSizeOnDisk(Handle theResource) {
+long GetResourceSizeOnDisk(Handle theResource)
+{
 	TODO();
 	return -1;
 }
 
-long SizeResource(Handle theResource) {
+long SizeResource(Handle theResource)
+{
 	return GetResourceSizeOnDisk(theResource);
 }

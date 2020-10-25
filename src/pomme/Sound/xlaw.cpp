@@ -61,24 +61,29 @@ Pomme::Sound::xlaw::xlaw(uint32_t codecFourCC)
 }
 
 void Pomme::Sound::xlaw::Decode(
-		const int nChannels,
-		const std::span<const char> input,
-		const std::span<char> output)
+	const int nChannels,
+	const std::span<const char> input,
+	const std::span<char> output)
 {
-	if (2 * input.size() != output.size()) {
+	if (2 * input.size() != output.size())
+	{
 		throw std::runtime_error("ulaw: incorrect input/output buffer sizes");
 	}
 
 	const std::span<int16_t> out16(
-			reinterpret_cast<int16_t*>(output.data()),
-			input.size());
+		reinterpret_cast<int16_t*>(output.data()),
+		input.size());
 
-	for (size_t i = 0; i < input.size(); i++) {
+	for (size_t i = 0; i < input.size(); i++)
+	{
 		int8_t b = input[i];  // SIGNED!
-		if (b < 0) {
+		if (b < 0)
+		{
 			// Mirror table and negate output
 			out16[i] = -xlawToPCM[128 + b];
-		} else {
+		}
+		else
+		{
 			out16[i] = xlawToPCM[b];
 		}
 	}

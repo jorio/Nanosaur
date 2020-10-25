@@ -53,7 +53,8 @@ long ArchiveVolume::GetDirectoryID(const std::string& dirPath)
 class ArchiveVolumeException : public std::runtime_error
 {
 public:
-	ArchiveVolumeException(std::string m) : std::runtime_error(m) {}
+	ArchiveVolumeException(std::string m) : std::runtime_error(m)
+	{}
 };
 
 static void ArchiveAssert(bool condition, const char* message)
@@ -73,18 +74,21 @@ OSErr ArchiveVolume::OpenFork(
 	char permission,
 	std::unique_ptr<ForkHandle>& handle)
 {
-	if (permission == fsCurPerm) {
+	if (permission == fsCurPerm)
+	{
 		TODO2("fsCurPerm not implemented yet");
 		return unimpErr;
 	}
 
-	if (permission & fsWrPerm) {
+	if (permission & fsWrPerm)
+	{
 		return wPrErr;  // archives are read-only
 	}
 
 	auto fullPath = FSSpecToPath(spec);
 
-    if (files.end() == files.find(fullPath)) {
+	if (files.end() == files.find(fullPath))
+	{
 		return fnfErr;
 	}
 
@@ -104,7 +108,8 @@ ArchiveVolume::ArchiveVolume(short vRefNum, const fs::path& pathToArchiveOnHost)
 	: Volume(vRefNum)
 {
 	std::ifstream file(pathToArchiveOnHost, std::ios::binary | std::ios::in);
-	if (!file.is_open()) {
+	if (!file.is_open())
+	{
 		std::stringstream ss;
 		ss << "Couldn't open \"" << pathToArchiveOnHost << "\".";
 		throw ArchiveVolumeException(ss.str());
@@ -115,7 +120,8 @@ ArchiveVolume::ArchiveVolume(short vRefNum, const fs::path& pathToArchiveOnHost)
 
 OSErr ArchiveVolume::FSMakeFSSpec(long dirID, const std::string& fileName, FSSpec* spec)
 {
-	if (dirID < 0 || (unsigned long)dirID >= directories.size()) {
+	if (dirID < 0 || (unsigned long) dirID >= directories.size())
+	{
 		throw std::runtime_error("ArchiveVolume::FSMakeFSSpec: directory ID not registered.");
 	}
 
@@ -126,21 +132,27 @@ OSErr ArchiveVolume::FSMakeFSSpec(long dirID, const std::string& fileName, FSSpe
 	std::string::size_type begin = (suffix.at(0) == ':') ? 1 : 0;
 
 	// Iterate on path elements between colons
-	while (begin < suffix.length()) {
+	while (begin < suffix.length())
+	{
 		auto end = suffix.find(":", begin);
 
 		bool isLeaf = end == std::string::npos; // no ':' found => end of path
 		if (isLeaf) end = suffix.length();
 
-		if (end == begin) { // "::" => parent directory
+		if (end == begin)  // "::" => parent directory
+		{
 			auto lastColon = macPath.rfind(':');
-			if (lastColon == std::string::npos) {
+			if (lastColon == std::string::npos)
+			{
 				macPath = ":";
-			} else {
+			}
+			else
+			{
 				macPath = macPath.substr(0, lastColon);
 			}
 		}
-		else {
+		else
+		{
 			auto element = suffix.substr(begin, end - begin);
 			macPath += ":" + UppercaseCopy(element);
 //			exists = CaseInsensitiveAppendToPath(path, element, !isLeaf);
@@ -152,7 +164,7 @@ OSErr ArchiveVolume::FSMakeFSSpec(long dirID, const std::string& fileName, FSSpe
 
 	auto lastColon = macPath.rfind(':');
 	auto dirName = macPath.substr(0, lastColon);
-	auto trimmedFileName = lastColon==std::string::npos? macPath : macPath.substr(lastColon + 1);
+	auto trimmedFileName = lastColon == std::string::npos ? macPath : macPath.substr(lastColon + 1);
 
 	spec->parID = GetDirectoryID(dirName);
 	spec->vRefNum = volumeID;
@@ -241,7 +253,8 @@ UInt32 ArchiveVolume::ReadEntry(
 	auto nameSize = f.Read<UInt16>();
 	f.Skip(2); // crc-16
 
-	if (entryFlags & 0x40) {
+	if (entryFlags & 0x40)
+	{
 		// Folder
 		auto offsetOfFirstEntryInFolder = f.Read<UInt32>();
 		f.Skip(4); // sizeOfCompleteDirectory
@@ -257,12 +270,14 @@ UInt32 ArchiveVolume::ReadEntry(
 		directories.push_back(parentPathKey);
 
 		f.Goto(globalOffset + offsetOfFirstEntryInFolder);
-		for (int i = 0; i < nFilesInFolder; i++) {
+		for (int i = 0; i < nFilesInFolder; i++)
+		{
 			auto nextE = ReadEntry(input, globalOffset, parentPathKey, false);
 			f.Goto(globalOffset + nextE);
 		}
 	}
-	else {
+	else
+	{
 		CompressedFileMetadata cfmd = {};
 //		cfmd.parent = parent;
 
@@ -292,7 +307,8 @@ UInt32 ArchiveVolume::ReadEntry(
 
 		cfmd.rsrcFork = {};
 
-		if (hasResourceFork) {
+		if (hasResourceFork)
+		{
 			cfmd.rsrcFork.uncompressedLength = f.Read<UInt32>();
 			cfmd.rsrcFork.compressedLength = f.Read<UInt32>();
 			f.Skip(2); // resourceForkCRC16
@@ -325,13 +341,15 @@ void ArchiveVolume::ReadStuffIt5()
 	bool foundMagic = ReadStuffItMagic(*backingStream);
 
 	// It might be a SIT wrapped inside MacBinary
-	if (!foundMagic) {
+	if (!foundMagic)
+	{
 		offset += 128;
 		backingStream->seekg(offset, std::ios::beg);
 		foundMagic = ReadStuffItMagic(*backingStream);
 	}
 
-	if (!foundMagic) {
+	if (!foundMagic)
+	{
 		throw ArchiveVolumeException("Didn't find StuffIt magic string");
 	}
 
@@ -345,7 +363,7 @@ void ArchiveVolume::ReadStuffIt5()
 	auto offsetOfFirstEntryInRootDirectory = f.Read<UInt32>();
 	f.Skip(2);
 
-	f.Goto(offset + (std::istream::pos_type)offsetOfFirstEntryInRootDirectory);
+	f.Goto(offset + (std::istream::pos_type) offsetOfFirstEntryInRootDirectory);
 
 	ArchiveAssert(nEntriesInRootDirectory == 1, "cannot collapse root folder because there are more than one root entries");
 

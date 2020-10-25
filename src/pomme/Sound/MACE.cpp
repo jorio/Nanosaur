@@ -29,7 +29,7 @@
  * libavcodec api, context stuff, interlaced stereo out).
  */
 
- // ---- End ffmpeg copyright notices ----
+// ---- End ffmpeg copyright notices ----
 
 #include "PommeSound.h"
 
@@ -141,8 +141,11 @@ static const int16_t MACEtab4[][2] = {
 	{ 14576,  32767}, { 15226,  32767}, { 15906,  32767}, { 16615,  32767}
 };
 
-static const struct {
-	const int16_t *tab1; const int16_t *tab2; int stride;
+static const struct
+{
+	const int16_t *tab1;
+	const int16_t *tab2;
+	int stride;
 } tabs[] = {
 	{MACEtab1, &MACEtab2[0][0], 4},
 	{MACEtab3, &MACEtab4[0][0], 2},
@@ -151,11 +154,13 @@ static const struct {
 
 #define QT_8S_2_16S(x) (((x) & 0xFF00) | (((x) >> 8) & 0xFF))
 
-struct ChannelData {
+struct ChannelData
+{
 	int16_t index, factor, prev2, previous, level;
 };
 
-struct MACEContext {
+struct MACEContext
+{
 	ChannelData chd[2];
 };
 
@@ -169,7 +174,7 @@ static inline int16_t mace_broken_clip_int16(int n)
 		return n;
 }
 
-static int16_t read_table(ChannelData *chd, uint8_t val, int tab_idx)
+static int16_t read_table(ChannelData* chd, uint8_t val, int tab_idx)
 {
 	int16_t current;
 
@@ -203,12 +208,14 @@ void Pomme::Sound::MACE::Decode(
 
 	for (int chan = 0; chan < nChannels; chan++)
 	for (size_t j = 0; j < input.size() / (nChannels * 2); j++)
-	for (int k = 0; k < 2; k++) {
+	for (int k = 0; k < 2; k++)
+	{
 		uint8_t pkt = (uint8_t)input[(chan * 2) + (j * nChannels * 2) + k];
 
 		int val2[3] = { pkt & 7, (pkt >> 3) & 3, pkt >> 5 };
 
-		for (int l = 0; l < 3; l++) {
+		for (int l = 0; l < 3; l++)
+		{
 			int16_t current = read_table(&ctx.chd[chan], (uint8_t)val2[l], l);
 			current = mace_broken_clip_int16(current + ctx.chd[chan].level);
 			ctx.chd[chan].level = current - (current >> 3);

@@ -96,7 +96,7 @@ public:
 	Byte playbackNote = kMiddleC;
 	double pitchMult = 1;
 	bool temporaryPause = false;
-	
+
 	ChannelImpl(SndChannelPtr _macChannel, bool transferMacChannelOwnership)
 		: macChannel(_macChannel)
 		, macChannelStructAllocatedByPomme(transferMacChannelOwnership)
@@ -106,18 +106,19 @@ public:
 		, playbackNote(kMiddleC)
 		, pitchMult(1.0)
 	{
-		macChannel->firstMod = (Ptr)this;
-		
+		macChannel->firstMod = (Ptr) this;
+
 		Link();  // Link chan into our list of managed chans
 	}
-	
+
 	~ChannelImpl()
 	{
 		Unlink();
 
 		macChannel->firstMod = nullptr;
 
-		if (macChannelStructAllocatedByPomme) {
+		if (macChannelStructAllocatedByPomme)
+		{
 			delete macChannel;
 		}
 	}
@@ -133,7 +134,8 @@ public:
 
 	void ApplyPitch()
 	{
-		if (!source.active) {
+		if (!source.active)
+		{
 			return;
 		}
 		double baseFreq = midiNoteFrequencies[baseNote];
@@ -145,29 +147,31 @@ public:
 	{
 		return prev;
 	}
-	
+
 	ChannelImpl* GetNext() const
 	{
 		return next;
 	}
-	
+
 	void SetPrev(ChannelImpl* newPrev)
 	{
 		prev = newPrev;
 	}
-	
+
 	void SetNext(ChannelImpl* newNext)
 	{
 		next = newNext;
 		macChannel->nextChan = newNext ? newNext->macChannel : nullptr;
 	}
-	
+
 	void Link()
 	{
-		if (!headChan) {
+		if (!headChan)
+		{
 			SetNext(nullptr);
 		}
-		else {
+		else
+		{
 			assert(nullptr == headChan->GetPrev());
 			headChan->SetPrev(this);
 			SetNext(headChan);
@@ -181,15 +185,18 @@ public:
 
 	void Unlink()
 	{
-		if (headChan == this) {
+		if (headChan == this)
+		{
 			headChan = GetNext();
 		}
 
-		if (nullptr != GetPrev()) {
+		if (nullptr != GetPrev())
+		{
 			GetPrev()->SetNext(GetNext());
 		}
 
-		if (nullptr != GetNext()) {
+		if (nullptr != GetNext())
+		{
 			GetNext()->SetPrev(GetPrev());
 		}
 
@@ -205,7 +212,7 @@ public:
 
 static inline ChannelImpl& GetImpl(SndChannelPtr chan)
 {
-	return *(ChannelImpl*)chan->firstMod;
+	return *(ChannelImpl*) chan->firstMod;
 }
 
 //-----------------------------------------------------------------------------
@@ -217,7 +224,7 @@ static inline ChannelImpl& GetImpl(SndChannelPtr chan)
 // convention for that note is "A4".
 static std::string GetMidiNoteName(int i)
 {
-	static const char* gamme[12] = { "A","A#","B","C","C#","D","D#","E","F","F#","G","G#" };
+	static const char* gamme[12] = {"A", "A#", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#"};
 
 	int octave = 1 + (i + 3) / 12;
 	int semitonesFromA = (i + 3) % 12;
@@ -233,9 +240,12 @@ static void InitMidiFrequencyTable()
 	double gamme[12];
 	gamme[0] = 1.0;
 	for (int i = 1; i < 12; i++)
+	{
 		gamme[i] = gamme[i - 1] * 1.059630943592952646;
+	}
 
-	for (int i = 0; i < 128; i++) {
+	for (int i = 0; i < 128; i++)
+	{
 		int octave = 1 + (i + 3) / 12; // A440 and middle C are in octave 7
 		int semitone = (i + 3) % 12; // halfsteps up from A in current octave
 		if (octave < 7)
@@ -251,7 +261,7 @@ static void InitMidiFrequencyTable()
 
 OSErr GetDefaultOutputVolume(long* stereoLevel)
 {
-	unsigned short g = (unsigned short)(cmixer::GetMasterGain() * 256.0);
+	unsigned short g = (unsigned short) (cmixer::GetMasterGain() * 256.0);
 	*stereoLevel = (g << 16) | g;
 	return noErr;
 }
@@ -271,17 +281,19 @@ OSErr SetDefaultOutputVolume(long stereoLevel)
 // IM:S:2-127
 OSErr SndNewChannel(SndChannelPtr* macChanPtr, short synth, long init, SndCallBackProcPtr userRoutine)
 {
-	if (synth != sampledSynth) {
+	if (synth != sampledSynth)
+	{
 		TODO2("unimplemented synth type " << sampledSynth);
 		return unimpErr;
 	}
 
 	//---------------------------
 	// Allocate Mac channel record if needed
-	
+
 	bool transferMacChannelOwnership = false;
 
-	if (!*macChanPtr) {
+	if (!*macChanPtr)
+	{
 		*macChanPtr = new SndChannel;
 		(**macChanPtr) = {};
 		transferMacChannelOwnership = true;
@@ -289,7 +301,7 @@ OSErr SndNewChannel(SndChannelPtr* macChanPtr, short synth, long init, SndCallBa
 
 	//---------------------------
 	// Set up
-	
+
 	(**macChanPtr).callBack = userRoutine;
 	new ChannelImpl(*macChanPtr, transferMacChannelOwnership);
 
@@ -304,7 +316,8 @@ OSErr SndNewChannel(SndChannelPtr* macChanPtr, short synth, long init, SndCallBa
 // IM:S:2-129
 OSErr SndDisposeChannel(SndChannelPtr macChanPtr, Boolean quietNow)
 {
-	if (!quietNow) {
+	if (!quietNow)
+	{
 		TODO2("SndDisposeChannel: quietNow == false is not implemented");
 	}
 	delete &GetImpl(macChanPtr);
@@ -336,14 +349,15 @@ static void ProcessSoundCmd(SndChannelPtr chan, const Ptr sndhdr)
 	impl.Recycle();
 
 	// PACKED RECORD
-	memstream headerInput(sndhdr, kSampledSoundHeaderLength+42);
+	memstream headerInput(sndhdr, kSampledSoundHeaderLength + 42);
 	Pomme::BigEndianIStream f(headerInput);
 
 	SampledSoundHeader sh;
 	f.Read(reinterpret_cast<char*>(&sh), kSampledSoundHeaderLength);
 	ByteswapStructs(kSampledSoundHeaderPackFormat, kSampledSoundHeaderLength, 1, reinterpret_cast<char*>(&sh));
 
-	if (sh.zero != 0) {
+	if (sh.zero != 0)
+	{
 		// The first field can be a pointer to the sampled-sound data.
 		// In practice it's always gonna be 0.
 		TODOFATAL2("expected 0 at the beginning of an snd");
@@ -354,7 +368,8 @@ static void ProcessSoundCmd(SndChannelPtr chan, const Ptr sndhdr)
 
 	LOG << sampleRate << "Hz, " << GetMidiNoteName(sh.baseFrequency) << ", loop " << sh.loopStart << "->" << sh.loopEnd << ", ";
 
-	switch (sh.encoding) {
+	switch (sh.encoding)
+	{
 	case 0x00: // stdSH - standard sound header - IM:S:2-104
 	{
 		// noncompressed sample data (8-bit mono) from this point on
@@ -402,14 +417,15 @@ static void ProcessSoundCmd(SndChannelPtr chan, const Ptr sndhdr)
 		OSType format = f.Read<OSType>();
 		f.Skip(20);
 
-		if (format == 0) {
+		if (format == 0)
+		{
 			// Assume MACE-3. It should've been set in the init options in the snd pre-header,
 			// but Nanosaur doesn't actually init the sound channels for MACE-3. So I guess the Mac
 			// assumes by default that any unspecified compression is MACE-3.
 			// If it wasn't MACE-3, it would've been caught by GetSoundHeaderOffset.
 			format = 'MAC3';
 		}
-		
+
 		// compressed sample data from this point on
 		char* here = sndhdr + f.Tell();
 
@@ -434,13 +450,16 @@ static void ProcessSoundCmd(SndChannelPtr chan, const Ptr sndhdr)
 		TODOFATAL2("unsupported snd header encoding " << (int)sh.encoding);
 	}
 
-	if (sh.loopEnd - sh.loopStart <= 1) {
+	if (sh.loopEnd - sh.loopStart <= 1)
+	{
 		// don't loop
 	}
-	else if (sh.loopStart == 0) {
+	else if (sh.loopStart == 0)
+	{
 		impl.source.SetLoop(true);
 	}
-	else {
+	else
+	{
 		TODO2("looping on a portion of the snd isn't supported yet");
 		impl.source.SetLoop(true);
 	}
@@ -455,7 +474,8 @@ OSErr SndDoImmediate(SndChannelPtr chan, const SndCommand* cmd)
 	auto& impl = GetImpl(chan);
 
 	// Discard the high bit of the command (it indicates whether an 'snd ' resource has associated data).
-	switch (cmd->cmd & 0x7FFF) {
+	switch (cmd->cmd & 0x7FFF)
+	{
 	case nullCmd:
 		break;
 
@@ -511,7 +531,7 @@ static void Expect(const T a, const T b, const char* msg)
 // IM:S:2-58 "MyGetSoundHeaderOffset"
 OSErr GetSoundHeaderOffset(SndListHandle sndHandle, long* offset)
 {
-	memstream sndStream((Ptr)*sndHandle, GetHandleSize((Handle)sndHandle));
+	memstream sndStream((Ptr) *sndHandle, GetHandleSize((Handle) sndHandle));
 	Pomme::BigEndianIStream f(sndStream);
 
 	// Skip everything before sound commands
@@ -525,7 +545,8 @@ OSErr GetSoundHeaderOffset(SndListHandle sndHandle, long* offset)
 
 	SInt16 nCmds = f.Read<SInt16>();
 	//LOG << nCmds << " commands\n";
-	for (; nCmds >= 1; nCmds--) {
+	for (; nCmds >= 1; nCmds--)
+	{
 		UInt16 cmd = f.Read<UInt16>();
 		f.Skip(2); // SInt16 param1
 		SInt32 param2 = f.Read<SInt32>();
@@ -535,12 +556,13 @@ OSErr GetSoundHeaderOffset(SndListHandle sndHandle, long* offset)
 		// command from a pointer to a location in RAM to an offset value that specifies the offset
 		// in bytes from the resource's beginning to the location of the associated sound data (such
 		// as a sampled sound header). 
-		if (cmd == bufferCmd || cmd == soundCmd) {
+		if (cmd == bufferCmd || cmd == soundCmd)
+		{
 			*offset = param2;
 			return noErr;
 		}
 	}
-	
+
 	LOG << "didn't find offset in snd resource\n";
 	return badFormat;
 }
@@ -555,19 +577,22 @@ OSErr SndStartFilePlay(
 	FilePlayCompletionUPP				theCompletion,
 	Boolean								async)
 {
-	if (resNum != 0) {
+	if (resNum != 0)
+	{
 		TODO2("playing snd resource not implemented yet, resource " << resNum);
 		return unimpErr;
 	}
 
-	if (!chan) {
+	if (!chan)
+	{
 		if (async) // async requires passing in a channel
 			return badChannel;
 		TODO2("nullptr chan for sync play, check IM:S:1-37");
 		return unimpErr;
 	}
 
-	if (theSelection) {
+	if (theSelection)
+	{
 		TODO2("audio selection record not implemented");
 		return unimpErr;
 	}
@@ -580,15 +605,18 @@ OSErr SndStartFilePlay(
 	stream.seekg(0, std::ios::beg);
 	Pomme::Sound::ReadAIFF(stream, impl.source);
 
-	if (theCompletion) {
+	if (theCompletion)
+	{
 		impl.source.onComplete = [=]() { theCompletion(chan); };
 	}
 
 	impl.temporaryPause = false;
 	impl.source.Play();
 
-	if (!async) {
-		while (impl.source.GetState() != cmixer::CM_STATE_STOPPED) {
+	if (!async)
+	{
+		while (impl.source.GetState() != cmixer::CM_STATE_STOPPED)
+		{
 			std::this_thread::sleep_for(std::chrono::milliseconds(100));
 		}
 		theCompletion(chan);
@@ -631,7 +659,7 @@ NumVersion SndSoundManagerVersion()
 Boolean Pomme_DecompressSoundResource(SndListHandle* sndHandlePtr, long* offsetToHeader)
 {
 	// Prep the BE reader on the header.
-	Ptr sndhdr = (Ptr)(**sndHandlePtr) + *offsetToHeader;
+	Ptr sndhdr = (Ptr) (**sndHandlePtr) + *offsetToHeader;
 	memstream headerInput(sndhdr, kSampledSoundHeaderLength + 42);
 	Pomme::BigEndianIStream f(headerInput);
 
@@ -641,7 +669,8 @@ Boolean Pomme_DecompressSoundResource(SndListHandle* sndHandlePtr, long* offsetT
 	ByteswapStructs(kSampledSoundHeaderPackFormat, kSampledSoundHeaderLength, 1, reinterpret_cast<char*>(&sh));
 
 	// We only handle cmpSH (compressed) 'snd ' resources.
-	if (sh.encoding != cmpSH) {
+	if (sh.encoding != cmpSH)
+	{
 		return false;
 	}
 
@@ -662,15 +691,15 @@ Boolean Pomme_DecompressSoundResource(SndListHandle* sndHandlePtr, long* offsetT
 	// Decompress
 	const int nBytesIn  = sh.cmpSH_nChannels * nCompressedChunks * codec->BytesPerPacket();
 	const int nBytesOut = sh.cmpSH_nChannels * nCompressedChunks * codec->SamplesPerPacket() * 2;
-	SndListHandle outHandle = (SndListHandle)NewHandle(outInitialSize + nBytesOut);
+	SndListHandle outHandle = (SndListHandle) NewHandle(outInitialSize + nBytesOut);
 	auto spanIn = std::span(here, nBytesIn);
-	auto spanOut = std::span((char*)*outHandle + outInitialSize, nBytesOut);
+	auto spanOut = std::span((char*) *outHandle + outInitialSize, nBytesOut);
 	codec->Decode(sh.cmpSH_nChannels, spanIn, spanOut);
 
 	// ------------------------------------------------------
 	// Now we have the PCM data.
 	// Put the output 'snd ' resource together.
-	
+
 	SampledSoundHeader shOut = sh;
 	shOut.zero = 0;
 	shOut.encoding = sh.cmpSH_nChannels == 2 ? nativeSH_stereo16 : nativeSH_mono16;
@@ -678,16 +707,17 @@ Boolean Pomme_DecompressSoundResource(SndListHandle* sndHandlePtr, long* offsetT
 	ByteswapStructs(kSampledSoundHeaderPackFormat, kSampledSoundHeaderLength, 1, reinterpret_cast<char*>(&shOut));
 
 	memcpy(*outHandle, kSampledSoundCommandList, kSampledSoundCommandListLength);
-	memcpy((char*)*outHandle + kSampledSoundCommandListLength, &shOut, kSampledSoundHeaderLength);
+	memcpy((char*) *outHandle + kSampledSoundCommandListLength, &shOut, kSampledSoundHeaderLength);
 
 	// Nuke compressed sound handle, replace it with the decopmressed one we've just created
-	DisposeHandle((Handle)*sndHandlePtr);
+	DisposeHandle((Handle) *sndHandlePtr);
 	*sndHandlePtr = outHandle;
 	*offsetToHeader = kSampledSoundCommandListLength;
 
 	long offsetCheck = 0;
 	OSErr err = GetSoundHeaderOffset(outHandle, &offsetCheck);
-	if (err != noErr || offsetCheck != kSampledSoundCommandListLength) {
+	if (err != noErr || offsetCheck != kSampledSoundCommandListLength)
+	{
 		throw std::runtime_error("Incorrect decompressed sound header offset");
 	}
 
@@ -699,12 +729,16 @@ Boolean Pomme_DecompressSoundResource(SndListHandle* sndHandlePtr, long* offsetT
 
 void Pomme_PauseLoopingChannels(Boolean pause)
 {
-	for (auto* chan = headChan; chan; chan = chan->GetNext()) {
+	for (auto* chan = headChan; chan; chan = chan->GetNext())
+	{
 		auto& source = chan->source;
-		if (pause && source.state == cmixer::CM_STATE_PLAYING && !chan->temporaryPause) {
+		if (pause && source.state == cmixer::CM_STATE_PLAYING && !chan->temporaryPause)
+		{
 			source.Pause();
 			chan->temporaryPause = true;
-		} else if (!pause && source.state == cmixer::CM_STATE_PAUSED && chan->temporaryPause) {
+		}
+		else if (!pause && source.state == cmixer::CM_STATE_PAUSED && chan->temporaryPause)
+		{
 			source.Play();
 			chan->temporaryPause = false;
 		}
@@ -723,7 +757,8 @@ void Pomme::Sound::Init()
 void Pomme::Sound::Shutdown()
 {
 	cmixer::ShutdownWithSDL();
-	while (headChan) {
+	while (headChan)
+	{
 		SndDisposeChannel(headChan->macChannel, true);
 	}
 }
@@ -731,16 +766,17 @@ void Pomme::Sound::Shutdown()
 
 std::unique_ptr<Pomme::Sound::Codec> Pomme::Sound::GetCodec(uint32_t fourCC)
 {
-	switch (fourCC) {
-		case 0: // Assume MACE-3 by default.
-		case 'MAC3':
-			return std::make_unique<Pomme::Sound::MACE>();
-		case 'ima4':
-			return std::make_unique<Pomme::Sound::IMA4>();
-		case 'alaw':
-		case 'ulaw':
-			return std::make_unique<Pomme::Sound::xlaw>(fourCC);
-		default:
-			throw std::runtime_error("Unknown audio codec: " + Pomme::FourCCString(fourCC));
+	switch (fourCC)
+	{
+	case 0: // Assume MACE-3 by default.
+	case 'MAC3':
+		return std::make_unique<Pomme::Sound::MACE>();
+	case 'ima4':
+		return std::make_unique<Pomme::Sound::IMA4>();
+	case 'alaw':
+	case 'ulaw':
+		return std::make_unique<Pomme::Sound::xlaw>(fourCC);
+	default:
+		throw std::runtime_error("Unknown audio codec: " + Pomme::FourCCString(fourCC));
 	}
 }

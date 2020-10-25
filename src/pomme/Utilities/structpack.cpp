@@ -7,11 +7,13 @@ static int Unpack(const char* format, char* buffer)
 	int totalBytes = 0;
 	int repeat = 0;
 
-	for (const char* c2 = format; *c2; c2++) {
+	for (const char* c2 = format; *c2; c2++)
+	{
 		char c = *c2;
 		int fieldLength = -1;
 
-		switch (c) {
+		switch (c)
+		{
 		case '>': // big endian indicator (for compat with python's struct) - OK just ignore
 			continue;
 
@@ -58,7 +60,8 @@ static int Unpack(const char* format, char* buffer)
 			throw std::invalid_argument("unknown format char in structpack format");
 		}
 
-		if (totalBytes % fieldLength != 0) {
+		if (totalBytes % fieldLength != 0)
+		{
 			throw std::invalid_argument("illegal word alignment in structpack format");
 		}
 
@@ -67,14 +70,18 @@ static int Unpack(const char* format, char* buffer)
 
 		bool doSwap = fieldLength > 1;
 
-		if (buffer) {
-			if (doSwap) {
-				for (int i = 0; i < repeat; i++) {
+		if (buffer)
+		{
+			if (doSwap)
+			{
+				for (int i = 0; i < repeat; i++)
+				{
 					std::reverse(buffer, buffer + fieldLength);
 					buffer += fieldLength;
 				}
 			}
-			else {
+			else
+			{
 				buffer += repeat * fieldLength;
 			}
 		}
@@ -88,14 +95,16 @@ static int Unpack(const char* format, char* buffer)
 
 int ByteswapStructs(const char* format, int structSize, int structCount, void* buffer)
 {
-	char* byteBuffer = (char*)buffer;
+	char* byteBuffer = (char*) buffer;
 	int totalBytes = 0;
-	for (int i = 0; i < structCount; i++) {
+	for (int i = 0; i < structCount; i++)
+	{
 		int newSize = Unpack(format, byteBuffer);
 		byteBuffer += newSize;
 		totalBytes += newSize;
 	}
-	if (totalBytes != structSize * structCount) {
+	if (totalBytes != structSize * structCount)
+	{
 		throw std::invalid_argument("unexpected length after byteswap");
 	}
 	return totalBytes;
@@ -103,8 +112,9 @@ int ByteswapStructs(const char* format, int structSize, int structCount, void* b
 
 int ByteswapInts(int intSize, int intCount, void* buffer)
 {
-	char* byteBuffer = (char*)buffer;
-	for (int i = 0; i < intCount; i++) {
+	char* byteBuffer = (char*) buffer;
+	for (int i = 0; i < intCount; i++)
+	{
 		std::reverse(byteBuffer, byteBuffer + intSize);
 		byteBuffer += intSize;
 	}

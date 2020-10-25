@@ -24,7 +24,7 @@ public:
 		std::ios::openmode openmode = std::ios::binary;
 		if (permission & fsWrPerm) openmode |= std::ios::out;
 		if (permission & fsRdPerm) openmode |= std::ios::in;
-		
+
 		backingStream = std::fstream(path, openmode);
 	}
 
@@ -49,18 +49,20 @@ HostVolume::HostVolume(short vRefNum)
 
 long HostVolume::GetDirectoryID(const fs::path& dirPath)
 {
-	if (fs::exists(dirPath) && !fs::is_directory(dirPath)) {
+	if (fs::exists(dirPath) && !fs::is_directory(dirPath))
+	{
 		std::cerr << "Warning: GetDirectoryID should only be used on directories! " << dirPath << "\n";
 	}
 
 	auto it = std::find(directories.begin(), directories.end(), dirPath);
-	if (it != directories.end()) {
+	if (it != directories.end())
+	{
 		return std::distance(directories.begin(), it);
 	}
 
 	directories.emplace_back(dirPath);
 	LOG << "directory " << directories.size() - 1 << ": " << dirPath << "\n";
-	return (long)directories.size() - 1;
+	return (long) directories.size() - 1;
 }
 
 //-----------------------------------------------------------------------------
@@ -80,7 +82,7 @@ FSSpec HostVolume::ToFSSpec(const fs::path& fullPath)
 	FSSpec spec;
 	spec.vRefNum = volumeID;
 	spec.parID = GetDirectoryID(parentPath);
-	snprintf(spec.cName, 256, "%s", (const char*)fullPath.filename().u8string().c_str());
+	snprintf(spec.cName, 256, "%s", (const char*) fullPath.filename().u8string().c_str());
 	return spec;
 }
 
@@ -88,17 +90,20 @@ static void ADFJumpToResourceFork(std::istream& stream)
 {
 	auto f = Pomme::BigEndianIStream(stream);
 
-	if (0x0005160700020000ULL != f.Read<UInt64>()) {
+	if (0x0005160700020000ULL != f.Read<UInt64>())
+	{
 		throw std::runtime_error("No ADF magic");
 	}
 	f.Skip(16);
 	auto numOfEntries = f.Read<UInt16>();
 
-	for (int i = 0; i < numOfEntries; i++) {
+	for (int i = 0; i < numOfEntries; i++)
+	{
 		auto entryID = f.Read<UInt32>();
 		auto offset = f.Read<UInt32>();
 		f.Skip(4); // length
-		if (entryID == 2) {
+		if (entryID == 2)
+		{
 			// Found entry ID 2 (resource fork)
 			f.Goto(offset);
 			return;
@@ -110,21 +115,24 @@ static void ADFJumpToResourceFork(std::istream& stream)
 
 OSErr HostVolume::OpenFork(const FSSpec* spec, ForkType forkType, char permission, std::unique_ptr<ForkHandle>& handle)
 {
-	if (permission == fsCurPerm) {
+	if (permission == fsCurPerm)
+	{
 		TODO2("fsCurPerm not implemented yet");
 		return unimpErr;
 	}
 
-	if ((permission & fsWrPerm) && forkType != ForkType::DataFork) {
+	if ((permission & fsWrPerm) && forkType != ForkType::DataFork)
+	{
 		TODO2("opening resource fork for writing isn't implemented yet");
 		return unimpErr;
 	}
 
 	auto path = ToPath(spec->parID, spec->cName);
-	
+
 	if (forkType == DataFork)
 	{
-		if (!fs::is_regular_file(path)) {
+		if (!fs::is_regular_file(path))
+		{
 			return fnfErr;
 		}
 		handle = std::make_unique<HostForkHandle>(DataFork, permission, path);
@@ -137,7 +145,8 @@ OSErr HostVolume::OpenFork(const FSSpec* spec, ForkType forkType, char permissio
 
 		auto specName = path.filename().u8string();
 
-		struct {
+		struct
+		{
 			u8string filename;
 			bool isAppleDoubleFile;
 		} candidates[] =
@@ -156,20 +165,23 @@ OSErr HostVolume::OpenFork(const FSSpec* spec, ForkType forkType, char permissio
 
 		path.remove_filename();
 
-		for (auto c : candidates) {
+		for (auto c : candidates)
+		{
 			auto candidatePath = path / c.filename;
-			if (!fs::is_regular_file(candidatePath)) {
+			if (!fs::is_regular_file(candidatePath))
+			{
 				continue;
 			}
 			path = candidatePath;
 			handle = std::make_unique<HostForkHandle>(ResourceFork, permission, path);
-			if (c.isAppleDoubleFile) {
+			if (c.isAppleDoubleFile)
+			{
 				ADFJumpToResourceFork(handle->GetStream());
 			}
 			return noErr;
 		}
 	}
-	
+
 	return fnfErr;
 }
 
@@ -180,36 +192,44 @@ static bool CaseInsensitiveAppendToPath(
 {
 	fs::path naiveConcat = path / AsU8(element);
 
-	if (!fs::exists(path)) {
+	if (!fs::exists(path))
+	{
 		path = naiveConcat;
 		return false;
 	}
 
-	if (fs::exists(naiveConcat)) {
+	if (fs::exists(naiveConcat))
+	{
 		path = naiveConcat;
 		return true;
 	}
 
 	const auto ELEMENT = UppercaseCopy(element);
 
-	for (const auto& candidate : fs::directory_iterator(path)) {
-		if (skipFiles && !candidate.is_directory()) {
+	for (const auto& candidate : fs::directory_iterator(path))
+	{
+		if (skipFiles && !candidate.is_directory())
+		{
 			continue;
 		}
 
 		auto f = FromU8(candidate.path().filename().u8string());
 
 		// It might be an AppleDouble resource fork ("._file" or "file.rsrc")
-		if (candidate.is_regular_file()) {
-			if (f.starts_with("._")) {
+		if (candidate.is_regular_file())
+		{
+			if (f.starts_with("._"))
+			{
 				f = f.substr(2);
 			}
-			else if (f.ends_with(".rsrc")) {
+			else if (f.ends_with(".rsrc"))
+			{
 				f = f.substr(0, f.length() - 5);
 			}
 		}
 
-		if (ELEMENT == UppercaseCopy(f)) {
+		if (ELEMENT == UppercaseCopy(f))
+		{
 			path /= AsU8(f);
 			return true;
 		}
@@ -224,7 +244,8 @@ static bool CaseInsensitiveAppendToPath(
 
 OSErr HostVolume::FSMakeFSSpec(long dirID, const std::string& fileName, FSSpec* spec)
 {
-	if (dirID < 0 || (unsigned long)dirID >= directories.size()) {
+	if (dirID < 0 || (unsigned long) dirID >= directories.size())
+	{
 		throw std::runtime_error("HostVolume::FSMakeFSSpec: directory ID not registered.");
 	}
 
@@ -236,16 +257,19 @@ OSErr HostVolume::FSMakeFSSpec(long dirID, const std::string& fileName, FSSpec* 
 	std::string::size_type begin = (suffix.at(0) == ':') ? 1 : 0;
 
 	// Iterate on path elements between colons
-	while (begin < suffix.length()) {
+	while (begin < suffix.length())
+	{
 		auto end = suffix.find(":", begin);
 
 		bool isLeaf = end == std::string::npos; // no ':' found => end of path
 		if (isLeaf) end = suffix.length();
 
-		if (end == begin) { // "::" => parent directory
+		if (end == begin) // "::" => parent directory
+		{
 			path = path.parent_path();
 		}
-		else {
+		else
+		{
 			auto element = suffix.substr(begin, end - begin);
 			exists = CaseInsensitiveAppendToPath(path, element, !isLeaf);
 		}
@@ -267,21 +291,26 @@ OSErr HostVolume::DirCreate(long parentDirID, const std::string& directoryName, 
 {
 	const auto path = ToPath(parentDirID, directoryName);
 
-	if (fs::exists(path)) {
-		if (fs::is_directory(path)) {
+	if (fs::exists(path))
+	{
+		if (fs::is_directory(path))
+		{
 			LOG << __func__ << ": directory already exists: " << path << "\n";
 			return noErr;
 		}
-		else {
+		else
+		{
 			std::cerr << __func__ << ": a file with the same name already exists: " << path << "\n";
 			return bdNamErr;
 		}
 	}
 
-	try {
+	try
+	{
 		fs::create_directory(path);
 	}
-	catch (const fs::filesystem_error& e) {
+	catch (const fs::filesystem_error& e)
+	{
 		std::cerr << __func__ << " threw " << e.what() << "\n";
 		return ioErr;
 	}

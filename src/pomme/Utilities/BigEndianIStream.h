@@ -14,7 +14,9 @@ namespace Pomme
 
 	public:
 		StreamPosGuard(std::istream& f);
+
 		~StreamPosGuard();
+
 		void Cancel();
 	};
 
@@ -24,17 +26,27 @@ namespace Pomme
 
 	public:
 		BigEndianIStream(std::istream& theStream);
+
 		void Read(char* dst, size_t n);
+
 		void Skip(size_t n);
+
 		void Goto(std::streamoff absoluteOffset);
+
 		std::streampos Tell() const;
+
 		StreamPosGuard GuardPos();
+
 		std::vector<unsigned char> ReadBytes(size_t n);
+
 		std::string ReadPascalString();
+
 		std::string ReadPascalString_FixedLengthRecord(const int maxChars);
+
 		double Read80BitFloat();
 
-		template<typename T> T Read()
+		template<typename T>
+		T Read()
 		{
 			char b[sizeof(T)];
 			Read(b, sizeof(T));
@@ -44,7 +56,7 @@ namespace Pomme
 				std::reverse(b, b + sizeof(T));
 			}
 #endif
-			return *(T*)b;
+			return *(T*) b;
 		}
 	};
 }

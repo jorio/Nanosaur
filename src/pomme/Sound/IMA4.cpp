@@ -41,7 +41,8 @@ const int16_t ff_adpcm_step_table[89] = {
 	15289, 16818, 18500, 20350, 22385, 24623, 27086, 29794, 32767
 };
 
-struct ADPCMChannelStatus {
+struct ADPCMChannelStatus
+{
 	int predictor;
 	int16_t step_index;
 	int step;
@@ -89,24 +90,27 @@ static void DecodeIMA4Chunk(
 	const size_t nChannels = ctx.size();
 	const unsigned char* in = *input;
 	int16_t* out = *output;
-	
-	for (size_t chan = 0; chan < nChannels; chan++) {
+
+	for (size_t chan = 0; chan < nChannels; chan++)
+	{
 		ADPCMChannelStatus& cs = ctx[chan];
 
 		// Bits 15-7 are the _top_ 9 bits of the 16-bit initial predictor value
 		int predictor = sign_extend((in[0] << 8) | in[1], 16);
 		int step_index = predictor & 0x7F;
 		predictor &= ~0x7F;
-		
+
 		in += 2;
 
-		if (cs.step_index == step_index) {
+		if (cs.step_index == step_index)
+		{
 			int diff = predictor - cs.predictor;
 			if (diff < 0x00) diff = -diff;
 			if (diff > 0x7f) goto update;
 		}
-		else {
-		update:
+		else
+		{
+update:
 			cs.step_index = step_index;
 			cs.predictor = predictor;
 		}
@@ -115,8 +119,9 @@ static void DecodeIMA4Chunk(
 			throw std::invalid_argument("step_index[chan]>88!");
 
 		size_t pos = chan;
-		for (int m = 0; m < 32; m++) {
-			int byte = (uint8_t)(*in++);
+		for (int m = 0; m < 32; m++)
+		{
+			int byte = (uint8_t) (*in++);
 			out[pos] = adpcm_ima_qt_expand_nibble(&cs, byte & 0x0F, 3);
 			pos += nChannels;
 			out[pos] = adpcm_ima_qt_expand_nibble(&cs, byte >> 4, 3);

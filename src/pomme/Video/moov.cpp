@@ -9,9 +9,11 @@
 
 using namespace Pomme::Video;
 
-class MoovException: public std::runtime_error {
+class MoovException : public std::runtime_error
+{
 public:
-	MoovException(const std::string m) : std::runtime_error(m) {}
+	MoovException(const std::string m) : std::runtime_error(m)
+	{}
 };
 
 //-----------------------------------------------------------------------------
@@ -25,7 +27,8 @@ struct ChunkInfo
 
 static void MoovAssert(bool condition, const std::string msg)
 {
-	if (!condition) {
+	if (!condition)
+	{
 		throw MoovException(msg);
 	}
 }
@@ -34,7 +37,8 @@ template<typename T>
 static void Expect(Pomme::BigEndianIStream& f, const T value, const std::string msg)
 {
 	T found = f.Read<T>();
-	if (value != found) {
+	if (value != found)
+	{
 		std::stringstream ss;
 		ss << "moov parser: " << msg << ": incorrect value: expected " << value << ", found " << found;
 		throw MoovException(ss.str());
@@ -46,7 +50,7 @@ struct AtomGuard
 	Pomme::BigEndianIStream& f;
 	FourCharCode fourCC;
 	std::streampos end;
-	
+
 	AtomGuard(Pomme::BigEndianIStream& f, FourCharCode requiredAtomType)
 		: f(f)
 		, fourCC(requiredAtomType)
@@ -54,9 +58,9 @@ struct AtomGuard
 		auto start = f.Tell();
 		auto atomSize = f.Read<UInt32>();
 		Expect<FourCharCode>(f, requiredAtomType, "expected atom");
-		end = start + (std::streampos)atomSize;
+		end = start + (std::streampos) atomSize;
 	}
-	
+
 	~AtomGuard()
 	{
 		if (f.Tell() != end)
@@ -81,8 +85,9 @@ static void SkipAtomIfPresent(Pomme::BigEndianIStream& f, const FourCharCode fou
 	auto atomSize = f.Read<UInt32>();
 	auto atomType = f.Read<FourCharCode>();
 
-	if (atomType == fourCCToSkip) {
-		f.Skip(atomSize-8);
+	if (atomType == fourCCToSkip)
+	{
+		f.Skip(atomSize - 8);
 		posGuard.Cancel();
 	}
 }
@@ -97,7 +102,8 @@ static std::vector<ChunkInfo> Parse_stsc(Pomme::BigEndianIStream& f)
 	AtomGuard stsc(f, 'stsc');
 	Expect<UInt32>(f, 0, "bad stsc version + flags");
 	const auto numberOfEntries = f.Read<UInt32>();
-	for (UInt32 i = 0; i < numberOfEntries; i++) {
+	for (UInt32 i = 0; i < numberOfEntries; i++)
+	{
 		ChunkInfo ci = {};
 		ci.offset = 0xFFFFFFFF;
 
@@ -106,8 +112,9 @@ static std::vector<ChunkInfo> Parse_stsc(Pomme::BigEndianIStream& f)
 		Expect<UInt32>(f, 1, "sample description ID");
 
 		// duplicate last chunk
-		for (size_t j = chunkInfos.size(); j < firstChunk - 1; j++) {
-			auto lastChunk = chunkInfos[chunkInfos.size()-1];
+		for (size_t j = chunkInfos.size(); j < firstChunk - 1; j++)
+		{
+			auto lastChunk = chunkInfos[chunkInfos.size() - 1];
 			chunkInfos.push_back(lastChunk);
 		}
 
@@ -125,11 +132,15 @@ static std::vector<UInt32> Parse_stsz(Pomme::BigEndianIStream& f)
 	Expect<UInt32>(f, 0, "stsz version + flags");
 	auto globalSampleSize = f.Read<UInt32>();
 	auto numberOfEntries = f.Read<UInt32>();
-	if (globalSampleSize == 0) {
-		for (UInt32 i = 0; i < numberOfEntries; i++) {
+	if (globalSampleSize == 0)
+	{
+		for (UInt32 i = 0; i < numberOfEntries; i++)
+		{
 			sampleSizes.push_back(f.Read<UInt32>());
 		}
-	} else {
+	}
+	else
+	{
 		sampleSizes.push_back(globalSampleSize);
 	}
 	return sampleSizes;
@@ -141,7 +152,8 @@ static void Parse_stco(Pomme::BigEndianIStream& f, std::vector<ChunkInfo>& chunk
 	AtomGuard stco(f, 'stco');
 	Expect<UInt32>(f, 0, "stco version + flags");
 	auto numberOfEntries = f.Read<UInt32>();
-	for (UInt32 i = 0; i < numberOfEntries; i++) {
+	for (UInt32 i = 0; i < numberOfEntries; i++)
+	{
 		auto chunkOffset = f.Read<UInt32>();
 		chunkList.at(i).offset = chunkOffset;
 	}
@@ -151,7 +163,7 @@ static void Parse_mdia_vide(Pomme::BigEndianIStream& f, Movie& movie, UInt32 tim
 {
 	std::vector<ChunkInfo> chunkList;
 	std::vector<UInt32> frameSizes;
-	
+
 	{
 		AtomGuard minf(f, 'minf');
 		RequireAtomAndSkip(f, 'vmhd');
@@ -188,7 +200,7 @@ static void Parse_mdia_vide(Pomme::BigEndianIStream& f, Movie& movie, UInt32 tim
 				Expect<UInt32>(f, 1, "stts number of entries");
 				f.Skip(4); // UInt32 sampleCount
 				auto sampleDuration = f.Read<UInt32>();
-				movie.videoFrameRate = (float)timeScale / sampleDuration;
+				movie.videoFrameRate = (float) timeScale / sampleDuration;
 			}
 			SkipAtomIfPresent(f, 'stss');
 			chunkList = Parse_stsc(f);
@@ -210,7 +222,8 @@ static void Parse_mdia_vide(Pomme::BigEndianIStream& f, Movie& movie, UInt32 tim
 	for (const auto& chunk : chunkList)
 	{
 		f.Goto(chunk.offset);
-		for (UInt32 s = 0; s < chunk.samplesPerChunk; s++, frameCounter++) {
+		for (UInt32 s = 0; s < chunk.samplesPerChunk; s++, frameCounter++)
+		{
 			const size_t frameSize = frameSizes[frameCounter];
 			movie.videoFrames.push(f.ReadBytes(frameSize));
 		}
@@ -271,13 +284,14 @@ static void Parse_mdia_soun(Pomme::BigEndianIStream& f, Movie& movie)
 
 	bool isRawPCM = movie.audioFormat == 'twos' || movie.audioFormat == 'swot';
 	std::unique_ptr<Pomme::Sound::Codec> codec = nullptr;
-	if (!isRawPCM) {
+	if (!isRawPCM)
+	{
 		codec = Pomme::Sound::GetCodec(movie.audioFormat);
 	}
 
 	// Set up position guard for rest of function
 	auto guard = f.GuardPos();
-	
+
 	// Unfortunately, Nanosaur's movies use version 0 of the 'stsd' atom for sound tracks.
 	// This means that the "bytes per packet" count is not encoded into the file. (QTFF-2001, pp. 100-101)
 	// We have to deduce it from the audio format.
@@ -285,7 +299,8 @@ static void Parse_mdia_soun(Pomme::BigEndianIStream& f, Movie& movie)
 	UInt32 compressedLength = 0;
 	UInt32 totalSamples = 0;
 
-	for (const auto& chunk : chunkList) {
+	for (const auto& chunk : chunkList)
+	{
 		totalSamples += chunk.samplesPerChunk;
 		int chunkBytes = isRawPCM
 				? movie.audioNChannels * chunk.samplesPerChunk * (movie.audioBitDepth / 8)
@@ -293,12 +308,13 @@ static void Parse_mdia_soun(Pomme::BigEndianIStream& f, Movie& movie)
 		chunkLengths.push_back(chunkBytes);
 		compressedLength += chunkBytes;
 	}
-	
+
 	std::vector<char> compressedSoundData;
 	compressedSoundData.reserve(compressedLength);
 	char* out = compressedSoundData.data();
 
-	for (size_t i = 0; i < chunkList.size(); i++) {
+	for (size_t i = 0; i < chunkList.size(); i++)
+	{
 		f.Goto(chunkList[i].offset);
 		f.Read(out, chunkLengths[i]);
 		out += chunkLengths[i];
@@ -306,15 +322,18 @@ static void Parse_mdia_soun(Pomme::BigEndianIStream& f, Movie& movie)
 
 	MoovAssert(out == compressedSoundData.data() + compressedLength, "csd length != total length");
 
-	if (isRawPCM) {
+	if (isRawPCM)
+	{
 		movie.audioStream.SetBuffer(std::move(compressedSoundData));
 		movie.audioStream.Init(
-				movie.audioSampleRate,
-				movie.audioBitDepth,
-				movie.audioNChannels,
-				movie.audioFormat == 'twos',
-				movie.audioStream.GetBuffer(compressedLength));
-	} else {
+			movie.audioSampleRate,
+			movie.audioBitDepth,
+			movie.audioNChannels,
+			movie.audioFormat == 'twos',
+			movie.audioStream.GetBuffer(compressedLength));
+	}
+	else
+	{
 		auto outBytes = 2 * totalSamples * movie.audioNChannels;
 		auto outSpan = movie.audioStream.GetBuffer(outBytes);
 		auto inSpan = std::span(compressedSoundData.data(), compressedLength);
@@ -326,7 +345,7 @@ static void Parse_mdia_soun(Pomme::BigEndianIStream& f, Movie& movie)
 static void Parse_mdia(Pomme::BigEndianIStream& f, Movie& movie)
 {
 	AtomGuard mdia(f, 'mdia');
-	
+
 	FourCharCode componentType;
 	UInt32 timeScale;
 
@@ -349,14 +368,17 @@ static void Parse_mdia(Pomme::BigEndianIStream& f, Movie& movie)
 		componentType = f.Read<FourCharCode>();
 		f.Goto(hdlr.end);
 	}
-	
-	if ('vide' == componentType) {
+
+	if ('vide' == componentType)
+	{
 		Parse_mdia_vide(f, movie, timeScale);
 	}
-	else if ('soun' == componentType) {
+	else if ('soun' == componentType)
+	{
 		Parse_mdia_soun(f, movie);
 	}
-	else {
+	else
+	{
 		throw MoovException("hdlr component type should be either vide or soun");
 	}
 }
@@ -367,14 +389,18 @@ static void Parse_trak(Pomme::BigEndianIStream& f, Movie& movie)
 
 	RequireAtomAndSkip(f, 'tkhd');
 
-	while (f.Tell() < trak.end) {
+	while (f.Tell() < trak.end)
+	{
 		auto start = f.Tell();
 		auto atomSize = f.Read<UInt32>();
 		auto atomType = f.Read<FourCharCode>();
 		f.Goto(start);
-		if (atomType != 'mdia') {
+		if (atomType != 'mdia')
+		{
 			f.Skip(atomSize);
-		} else {
+		}
+		else
+		{
 			Parse_mdia(f, movie);
 		}
 	}

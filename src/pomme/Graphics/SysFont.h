@@ -1,4 +1,5 @@
-namespace Pomme::SysFont {
+namespace Pomme::SysFont
+{
 	static const int firstCodepoint = 32;
 	static const int lastCodepoint = 126;
 	static const int charSpacing = 2;
@@ -8,7 +9,8 @@ namespace Pomme::SysFont {
 	static const int descend = 2;
 	static const int widthBits = 16;
 
-	static const struct Glyph {
+	static const struct Glyph
+	{
 		short width;
 		unsigned short bits[14];
 	} glyphs[95] = {

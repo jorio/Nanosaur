@@ -9,5 +9,7 @@
 #endif
 
 std::string UppercaseCopy(const std::string&);
+
 u8string AsU8(const std::string);
+
 std::string FromU8(const u8string);
