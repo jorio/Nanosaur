@@ -1,4 +1,5 @@
 ﻿#include "Pomme.h"
+#include "FindGameData.h"
 #include "GamePatches.h"
 #include "PommeFiles.h"
 #include "Utilities/StringUtils.h"
@@ -8,22 +9,13 @@
 
 fs::path DoOpenDialog(const char* expectedArchiveName);
 
-extern fs::path gDataLocation;
-
-#ifdef PRO_MODE
-	constexpr const char* ARCHIVE_NAME = "nanosaurextreme134.bin";
-	constexpr const auto* APP_FILE_INSIDE_ARCHIVE = u8":Nanosaur\u2122 Extreme";
-#else
-	constexpr const char* ARCHIVE_NAME = "nanosaur134.bin";
-	constexpr const auto* APP_FILE_INSIDE_ARCHIVE = u8":Nanosaur\u2122";
-#endif
+static fs::path gDataLocation;
 
 constexpr const char* DATA_LOCATION_PREF = "DataLocation";
 
 extern "C"
 {
 	extern SDL_Window* gSDLWindow;
-	extern FSSpec gDataSpec;
 }
 
 void DrawLocatePromptScreen()
@@ -82,6 +74,14 @@ void NukeDataLocationSetting()
 	gDataLocation = "";
 }
 
+void SetGameDataPathFromArgs(int argc, const char** argv)
+{
+	if (argc > 1)
+	{
+		gDataLocation = argv[1];
+	}
+}
+
 void WriteDataLocationSetting()
 {
 	FSSpec spec;
@@ -115,7 +115,7 @@ enum FindGameData_Outcome
 	ABORT
 };
 
-static FindGameData_Outcome _FindGameData()
+static FindGameData_Outcome _FindGameData(FSSpec* dataSpec)
 {
 	if (gDataLocation.empty())
 	{
@@ -170,9 +170,9 @@ static FindGameData_Outcome _FindGameData()
 	{
 		// Mount game archive as data volume
 		short archiveVolumeID = Pomme::Files::MountArchiveAsVolume(gDataLocation);
-		gDataSpec.vRefNum = archiveVolumeID;
+		dataSpec->vRefNum = archiveVolumeID;
 
-		if (noErr != FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, (const char*) APP_FILE_INSIDE_ARCHIVE, &applicationSpec))
+		if (noErr != FSMakeFSSpec(dataSpec->vRefNum, dataSpec->parID, (const char*) APP_FILE_INSIDE_ARCHIVE, &applicationSpec))
 		{
 			SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, "Nanosaur", "Can't find application resource file.", gSDLWindow);
 			return RETRY;
@@ -181,8 +181,8 @@ static FindGameData_Outcome _FindGameData()
 	else if (isPowerPCExecutable)
 	{
 		applicationSpec = Pomme::Files::HostPathToFSSpec(gDataLocation);
-		gDataSpec.vRefNum = applicationSpec.vRefNum;
-		gDataSpec.parID = applicationSpec.parID;
+		dataSpec->vRefNum = applicationSpec.vRefNum;
+		dataSpec->parID = applicationSpec.parID;
 	}
 	else
 	{
@@ -197,12 +197,12 @@ static FindGameData_Outcome _FindGameData()
 	return OK;
 }
 
-bool FindGameData()
+bool FindGameData(FSSpec* dataSpec)
 {
 	FindGameData_Outcome outcome = RETRY;
 	while (true)
 	{
-		outcome = _FindGameData();
+		outcome = _FindGameData(dataSpec);
 		if (outcome != RETRY)
 		{
 			break;

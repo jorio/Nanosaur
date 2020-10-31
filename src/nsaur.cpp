@@ -4,6 +4,7 @@
 #include "PommeFiles.h"
 #include "pomme/Files/ArchiveVolume.h"
 #include "GamePatches.h"
+#include "FindGameData.h"
 
 #include <iostream>
 #include <Quesa.h>
@@ -20,12 +21,6 @@ extern FSSpec gDataSpec;
 void GameMain(void);
 }
 
-fs::path gDataLocation;
-
-bool FindGameData();
-
-void WriteDataLocationSetting();
-
 int CommonMain(int argc, const char** argv)
 {
 	// Start our "machine"
@@ -41,12 +36,8 @@ int CommonMain(int argc, const char** argv)
 	RenderBackdropQuad(BACKDROP_FILL);
 	ExclusiveOpenGLMode_End();
 
-	if (argc > 1)
-	{
-		gDataLocation = argv[1];
-	}
-
-	if (!FindGameData())
+	SetGameDataPathFromArgs(argc, argv);
+	if (!FindGameData(&gDataSpec))
 	{
 		return 1;
 	}
