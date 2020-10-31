@@ -8,6 +8,7 @@ set(CMAKE_CXX_STANDARD 20)
 project(Nanosaur C CXX)
 
 set(NANO_TARGET ${PROJECT_NAME})
+set(NANO_ICNS cmake/Nanosaur.icns)
 
 #------------------------------------------------------------------------------
 # GLOBAL OPTIONS (BEFORE ADDING SUBDIRECTORIES)
@@ -230,6 +231,7 @@ if(WIN32 AND CMAKE_BUILD_TYPE MATCHES Release)
 elseif(APPLE)
     add_executable(${NANO_TARGET} MACOSX_BUNDLE
         ${NANO_ALL_SOURCES}
+        ${NANO_ICNS}
         ${SDL2_LIBRARIES}
     )
 else()
@@ -316,9 +318,14 @@ if(APPLE)
 
         # Set framework search path to (App bundle)/Contents/Frameworks so the game can use its embedded SDL2.framework
         XCODE_ATTRIBUTE_LD_RUNPATH_SEARCH_PATHS "@executable_path/../Frameworks"
+
+        RESOURCE ${NANO_ICNS}
+        MACOSX_BUNDLE_ICON_FILE Nanosaur.icns
+        MACOSX_BUNDLE_COPYRIGHT "© 1998 Pangea Software, Inc."
     )
 
     # Copy stuff to app bundle contents
+    set_source_files_properties(${NANO_ICNS} PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
     set_source_files_properties(${SDL2_LIBRARIES} PROPERTIES MACOSX_PACKAGE_LOCATION "Frameworks")
 endif()
 
