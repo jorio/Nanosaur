@@ -5,7 +5,7 @@ extern/SDL*
 src/Headers/version.h
 
 # Build directories
-/build*
+/build*/
 /cmake-build*/
 
 # IDEs
