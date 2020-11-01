@@ -36,6 +36,9 @@ int CommonMain(int argc, const char** argv)
 	RenderBackdropQuad(BACKDROP_FILL);
 	ExclusiveOpenGLMode_End();
 
+#if EMBED_DATA
+	FindEmbeddedGameData(&gDataSpec);
+#else
 	SetGameDataPathFromArgs(argc, argv);
 	if (!FindGameData(&gDataSpec))
 	{
@@ -43,6 +46,7 @@ int CommonMain(int argc, const char** argv)
 	}
 
 	Pomme::Graphics::SetWindowIconFromIcl8Resource(128);
+#endif
 
 	// Initialize Quesa
 	auto qd3dStatus = Q3Initialize();
@@ -61,7 +65,9 @@ int CommonMain(int argc, const char** argv)
 		// no-op, the game may throw this exception to shut us down cleanly
 	}
 
+#if !(EMBED_DATA)
 	WriteDataLocationSetting();
+#endif
 
 	// Clean up
 	Pomme::Shutdown();

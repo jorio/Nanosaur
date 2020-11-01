@@ -10,6 +10,10 @@ project(Nanosaur C CXX)
 set(NANO_TARGET ${PROJECT_NAME})
 set(NANO_ICNS cmake/Nanosaur.icns)
 
+if(APPLE)
+    set(EMBED_DATA true)
+endif()
+
 #------------------------------------------------------------------------------
 # GLOBAL OPTIONS (BEFORE ADDING SUBDIRECTORIES)
 #------------------------------------------------------------------------------
@@ -149,7 +153,6 @@ set(NANO_HEADERS
 set(SRC_GLUE
     src/nsaur.cpp
     src/Backdrop.cpp
-    src/FindGameData.cpp
     src/GamePatches.cpp
     src/GamePatches.h
     src/GLBackdrop.cpp
@@ -175,9 +178,21 @@ set(SRC_GLUE
     src/qd3d/QD3DStyle.h
     src/qd3d/QD3DTransform.h
     src/qd3d/QD3DView.h
-    $<$<BOOL:${WIN32}>:src/OpenDialog_Windows.cpp>
-    $<$<BOOL:${APPLE}>:src/OpenDialog_macOS.mm>
 )
+
+if(EMBED_DATA)
+    list(APPEND SRC_GLUE
+        src/FindEmbeddedGameData.cpp
+        src/FindGameData.h
+    )
+else()
+    list(APPEND SRC_GLUE
+        src/FindGameData.cpp
+        src/FindGameData.h
+        $<$<BOOL:${WIN32}>:src/OpenDialog_Windows.cpp>
+        $<$<BOOL:${APPLE}>:src/OpenDialog_macOS.mm>
+    )
+endif()
 
 set(NANO_GAME_SOURCES
     ${NANO_HEADERS}
@@ -266,6 +281,7 @@ target_compile_definitions(Quesa_SDL PUBLIC
 target_compile_definitions(${NANO_TARGET} PRIVATE
     QUESA_OS_SDL
     SOURCE_PORT_ENHANCEMENTS
+    $<$<BOOL:${EMBED_DATA}>:EMBED_DATA>
 )
 
 if(WIN32)
@@ -327,6 +343,13 @@ if(APPLE)
     # Copy stuff to app bundle contents
     set_source_files_properties(${NANO_ICNS} PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
     set_source_files_properties(${SDL2_LIBRARIES} PROPERTIES MACOSX_PACKAGE_LOCATION "Frameworks")
+
+    # Copy assets to app bundle
+    if(EMBED_DATA)
+        add_custom_command(TARGET ${NANO_TARGET} POST_BUILD COMMAND
+            ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/assets $<TARGET_FILE_DIR:${PROJECT_NAME}>/../Resources
+        )
+    endif()
 endif()
 
 # Copy SDL2 DLLs to output folder on Windows
