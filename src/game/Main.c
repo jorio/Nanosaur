@@ -137,6 +137,8 @@ OSErr		iErr;
 	
 			/* INIT PREFERENCES */
 			
+	memset(&gGamePrefs, 0, sizeof(gGamePrefs));
+	snprintf(gGamePrefs.magic, sizeof(gGamePrefs.magic), "%s", PREFS_MAGIC);
 	gGamePrefs.highQualityTextures = true;			// set the defaults
 	gGamePrefs.canDoFog = true;
 	gGamePrefs.shadows = true;
@@ -147,10 +149,6 @@ OSErr		iErr;
 	gGamePrefs.vsync = true;
 	gGamePrefs.mainMenuHelp = true;
 	gGamePrefs.opaqueWater = true; // Source port note: this should be false, but we have perf issues with Quesa+transparent objects for now
-	gGamePrefs.reserved[0] = false;
-	gGamePrefs.reserved[1] = false;
-	gGamePrefs.reserved[2] = false;
-	gGamePrefs.reserved[3] = false;
 				
 	LoadPrefs(&gGamePrefs);							// attempt to read from prefs file
 	SetFullscreenMode();

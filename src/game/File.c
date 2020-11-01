@@ -446,6 +446,7 @@ OSErr		iErr;
 short		refNum;
 FSSpec		file;
 long		count;
+PrefsType	prefs;
 				
 				/*************/
 				/* READ FILE */
@@ -456,15 +457,18 @@ long		count;
 	if (iErr)
 		return(iErr);
 
+	
 	count = sizeof(PrefsType);
-	iErr = FSRead(refNum, &count,  (Ptr)prefBlock);		// read data from file
-	if (iErr)
+	iErr = FSRead(refNum, &count,  (Ptr)&prefs);		// read data from file
+	FSClose(refNum);
+	if (iErr
+		|| count < (long)sizeof(PrefsType)
+		|| 0 != strncmp(PREFS_MAGIC, prefs.magic, sizeof(prefs.magic)))
 	{
-		FSClose(refNum);			
 		return(iErr);
 	}
 	
-	FSClose(refNum);			
+	*prefBlock = prefs;
 	
 	return(noErr);
 }

@@ -292,6 +292,7 @@ typedef struct
 		
 typedef struct
 {
+	char magic[32];
 	Boolean	highQualityTextures;
 	Boolean	canDoFog;
 	Boolean	shadows;
@@ -306,6 +307,7 @@ typedef struct
 	Boolean	reserved[4];
 }PrefsType;
 
+#define PREFS_MAGIC "Nanosaur Prefs v1"
 
 #endif
 
