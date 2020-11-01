@@ -1,3 +1,7 @@
+# External libraries
+extern/SDL*
+extern/Quesa*
+
 # Game data
 /Nanosaur™
 /Nanosaur™.rsrc
@@ -8,10 +12,6 @@
 /Data/
 /DataExtreme/
 /nanosaur*134.bin
-
-# Libraries
-/Quesa
-/SDL2*
 
 # Build directories
 /build*

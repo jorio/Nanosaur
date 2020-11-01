@@ -29,7 +29,7 @@ endif()
 # DEPENDENCIES
 #------------------------------------------------------------------------------
 
-add_subdirectory(Quesa)
+add_subdirectory(extern/Quesa)
 add_subdirectory(src/pomme)
 
 find_package(SDL2 REQUIRED COMPONENTS main)
