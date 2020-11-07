@@ -114,7 +114,7 @@ void Pomme::Graphics::Init(const char* windowTitle, int windowWidth, int windowH
 		SDL_WINDOWPOS_UNDEFINED,
 		windowWidth,
 		windowHeight,
-		SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_SHOWN);
+		SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_SHOWN);
 
 	if (!gSDLWindow)
 	{

@@ -351,9 +351,9 @@ if(APPLE)
         )
     endif()
 
-    add_custom_command(TARGET ${NANO_TARGET} POST_BUILD COMMAND
-        plutil -replace NSHighResolutionCapable -bool true $<TARGET_FILE_DIR:${PROJECT_NAME}>/../Info.plist
-    )
+    #add_custom_command(TARGET ${NANO_TARGET} POST_BUILD COMMAND
+    #    plutil -replace NSHighResolutionCapable -bool true $<TARGET_FILE_DIR:${PROJECT_NAME}>/../Info.plist
+    #)
 endif()
 
 # Copy SDL2 DLLs to output folder on Windows
