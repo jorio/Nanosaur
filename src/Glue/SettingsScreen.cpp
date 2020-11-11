@@ -11,6 +11,7 @@ extern "C" {
 #include <functional>
 #include <vector>
 #include "GamePatches.h"
+#include "version.h"
 
 extern "C" {
 extern	WindowPtr				gCoverWindow;
@@ -87,14 +88,18 @@ static void RenderQualityDialog()
 		EraseRect(&r);
 
 		RGBForeColor2(0x808080);
-		MoveTo(8, 480 - 12 * 3);
+		MoveTo(8, 480 - 12 - 16 * 3);
 		DrawStringC("Renderer: ");  DrawStringC((const char*)glGetString(GL_RENDERER));
-		MoveTo(8, 480 - 12 * 2);
+		MoveTo(8, 480 - 12 - 16 * 2);
 		DrawStringC("OpenGL: ");
 		DrawStringC((const char*)glGetString(GL_VERSION));
-		MoveTo(8, 480 - 12 * 1);
+		MoveTo(8, 480 - 12 - 16 * 1);
 		DrawStringC("GLSL: ");
 		DrawStringC((const char*)glGetString(GL_SHADING_LANGUAGE_VERSION));
+
+		MoveTo(8, 480 - 12 - 16 * 0);
+		RGBForeColor2(0x404040);
+		DrawStringC("Game version: "); DrawStringC(PROJECT_VERSION);
 
 		ForeColor(blackColor);
 		{

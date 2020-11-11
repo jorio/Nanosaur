@@ -29,6 +29,7 @@
 #include "skeletonanim.h"
 
 #include "GamePatches.h"
+#include "version.h"
 #include <string.h>
 #include <stdlib.h>
 
@@ -433,7 +434,15 @@ static void Slideshow(const struct SlideshowEntry* slides)
 // OEM non-charity version
 //
 
-static void ShowCharity_SourcePortOverlay(void)
+static void ShowCharity_SourcePortVersionOverlay(void)
+{
+    RGBBackColor2(0xA5A5A5);
+    RGBForeColor2(0x000000);
+    MoveTo(8, 16);
+    DrawStringC(PROJECT_VERSION);
+}
+
+static void ShowCharity_SourcePortCreditOverlay(void)
 {
 	RGBBackColor2(0xA5A5A5);
 	MoveTo(8, 480-8-14-14);
@@ -455,8 +464,8 @@ void ShowCharity(void)
 #endif
 
 	const struct SlideshowEntry slides[] = {
-			{ SLIDESHOW_FILE, firstImage, 0, NULL },
-			{ SLIDESHOW_FILE, ":images:Boot2.pict", 0, ShowCharity_SourcePortOverlay },
+			{ SLIDESHOW_FILE, firstImage, 0, ShowCharity_SourcePortVersionOverlay },
+			{ SLIDESHOW_FILE, ":images:Boot2.pict", 0, ShowCharity_SourcePortCreditOverlay },
 			{ SLIDESHOW_STOP, NULL, 0, NULL },
 	};
 	Slideshow(slides);

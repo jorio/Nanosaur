@@ -5,7 +5,10 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 #set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_CXX_STANDARD 20)
 
-project(Nanosaur C CXX)
+project(Nanosaur
+    VERSION 1.4.0
+    LANGUAGES C CXX
+)
 
 set(GAME_TARGET ${PROJECT_NAME})
 set(GAME_ICNS cmake/Nanosaur.icns)
@@ -35,7 +38,10 @@ find_package(OpenGL REQUIRED)
 # GAME SOURCES
 #------------------------------------------------------------------------------
 
-set(GAME_SRCDIR src)
+set(GAME_SRCDIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
+
+# Write header file containing version info
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/version.h.in ${GAME_SRCDIR}/Headers/version.h)
 
 set(GAME_CORE_SOURCES
     ${GAME_SRCDIR}/System/Main.c
@@ -121,6 +127,7 @@ set(GAME_CORE_HEADERS
     ${GAME_SRCDIR}/Headers/timeportal.h
     ${GAME_SRCDIR}/Headers/title.h
     ${GAME_SRCDIR}/Headers/triggers.h
+    ${GAME_SRCDIR}/Headers/version.h
     ${GAME_SRCDIR}/Headers/weapons.h
     ${GAME_SRCDIR}/Headers/windows_nano.h
 )
@@ -275,6 +282,7 @@ if(APPLE)
 
         RESOURCE ${GAME_ICNS}
         MACOSX_BUNDLE_ICON_FILE Nanosaur.icns
+        MACOSX_BUNDLE_SHORT_VERSION_STRING "${PROJECT_VERSION}"
         MACOSX_BUNDLE_COPYRIGHT "© 1998 Pangea Software, Inc."
     )
 

@@ -1,6 +1,9 @@
 # External libraries
 extern/SDL*
 
+# Automatically-generated headers
+src/Headers/version.h
+
 # Build directories
 /build*
 /cmake-build*/

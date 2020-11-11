@@ -3,6 +3,7 @@
 #include "PommeFiles.h"
 #include "PommeGraphics.h"
 #include "GamePatches.h"
+#include "version.h"
 
 #include <Quesa.h>
 #include <SDL.h>
@@ -58,10 +59,17 @@ static void FindGameData()
 	UseResFile(resFileRefNum);
 }
 
+static const char* GetWindowTitle()
+{
+    static char windowTitle[256];
+    snprintf(windowTitle, sizeof(windowTitle), "Nanosaur %s", PROJECT_VERSION);
+    return windowTitle;
+}
+
 int CommonMain(int argc, const char** argv)
 {
 	// Start our "machine"
-	Pomme::Init("Nanosaur");
+	Pomme::Init(GetWindowTitle());
 
 	// Set up globals that the game expects
 	gCoverWindow = Pomme::Graphics::GetScreenPort();
