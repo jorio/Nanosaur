@@ -1,11 +1,11 @@
 #include "Pomme.h"
 
 extern "C" {
-#include <game/Structs.h>
-#include <game/input.h>
-#include <game/file.h>
-#include <game/sound2.h>
-#include <game/qd3d_support.h>
+#include "structs.h"
+#include "input.h"
+#include "file.h"
+#include "sound2.h"
+#include "qd3d_support.h"
 }
 
 #include <functional>

@@ -4,13 +4,13 @@
 #include <SDL_opengl.h>
 
 extern "C" {
-#include "game/sound2.h"
-#include "game/Structs.h"
-#include "game/input.h"
-#include "game/qd3d_support.h"
-#include "game/movie.h" // PlayAMovie
-#include "game/misc.h" // DrawPictureToScreen
-#include "game/windows_nano.h" // GAME_VIEW_WIDTH, GAME_VIEW_HEIGHT
+#include "sound2.h"
+#include "structs.h"
+#include "input.h"
+#include "qd3d_support.h"
+#include "movie.h" // PlayAMovie
+#include "misc.h" // DrawPictureToScreen
+#include "windows_nano.h" // GAME_VIEW_WIDTH, GAME_VIEW_HEIGHT
 }
 
 #include "GamePatches.h"
@@ -19,7 +19,7 @@ extern "C" {
 #include "PommeFiles.h"
 #include "PommeGraphics.h"
 #include "PommeVideo.h"
-#include "pomme/Video/Cinepak.h"
+#include "Video/Cinepak.h"
 
 #include <fstream>
 

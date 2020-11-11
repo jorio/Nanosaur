@@ -144,7 +144,7 @@ enum
 };
 
 
-#include "Structs.h"
+#include "structs.h"
 
 #endif
 

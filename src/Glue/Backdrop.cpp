@@ -7,8 +7,8 @@
 #include <memory>
 
 extern "C" {
-#include "game/Structs.h"
-#include "game/windows_nano.h"
+#include "structs.h"
+#include "windows_nano.h"
 
 extern SDL_Window* gSDLWindow;
 extern PrefsType gGamePrefs;
