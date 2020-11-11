@@ -410,7 +410,15 @@ static void Slideshow(const char** imagePaths)
 
 void ShowCharity(void)
 {
-	const char *images[] = {":images:Boot1.pict", ":images:Boot2.pict", 0};
+	const char *images[] = {
+#ifdef PRO_MODE
+			":images:Boot1Pro.pict",
+#else
+			":images:Boot1.pict",
+#endif
+			":images:Boot2.pict",
+			0
+	};
 	Slideshow(images);
 }
 
