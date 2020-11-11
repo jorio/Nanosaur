@@ -2,17 +2,6 @@
 extern/SDL*
 extern/Quesa*
 
-# Game data
-/Nanosaur™
-/Nanosaur™.rsrc
-/Nanosaur™ Extreme
-/Nanosaur™ Extreme.rsrc
-/._Nanosaur™
-/._Nanosaur™ Extreme
-/Data/
-/DataExtreme/
-/nanosaur*134.bin
-
 # Build directories
 /build*
 /cmake-build*/
