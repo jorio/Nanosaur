@@ -6,10 +6,9 @@ extern/Quesa*
 /build*
 /cmake-build*/
 
-# Visual Studio
+# IDEs
 .vs/
-
-# JetBrains CLion
+/.vscode
 /.idea
 
 # macOS metadata
