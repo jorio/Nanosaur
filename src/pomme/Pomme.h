@@ -134,6 +134,12 @@ void RGBBackColor(const RGBColor* color);
 
 void RGBForeColor(const RGBColor* color);
 
+// Pomme extension (not part of the original Toolbox API).
+void RGBBackColor2(UInt32 color);
+
+// Pomme extension (not part of the original Toolbox API).
+void RGBForeColor2(UInt32 color);
+
 void PaintRect(const Rect* r);
 
 void EraseRect(const Rect* r);

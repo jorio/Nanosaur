@@ -20,10 +20,6 @@ extern	float			gFramesPerSecond,gFramesPerSecondFrac;
 extern	SDL_Window*				gSDLWindow;
 }
 
-static const RGBColor backgroundColor = {0xA500,0xA500,0xA500};
-static const RGBColor foregroundColor = {0x0000,0x0000,0x0000};
-static const RGBColor selectedForegroundColor1 = {0x1000,0x8000,0x2000};
-static const RGBColor lineColor       = {0x8000,0x8000,0x8000};
 static const int column1X = 320-256/2;
 static const int column2X = column1X + 256;
 
@@ -83,14 +79,14 @@ static void RenderQualityDialog()
 
 	SetPort(gCoverWindow);
 
-	RGBBackColor(&backgroundColor);
+	RGBBackColor2(0xA5A5A5);
 
 	if (needFullRender)
 	{
 		Rect r = gCoverWindow->portRect;
 		EraseRect(&r);
 
-		RGBForeColor(&lineColor);
+		RGBForeColor2(0x808080);
 		MoveTo(8, 480 - 12 * 3);
 		DrawStringC("Renderer: ");  DrawStringC((const char*)glGetString(GL_RENDERER));
 		MoveTo(8, 480 - 12 * 2);
@@ -135,11 +131,11 @@ static void RenderQualityDialog()
 			continue;
 		}
 
-		RGBForeColor(&lineColor);
+		RGBForeColor2(0x808080);
 		MoveTo(xOffset + column1X, rowRect.top + 12 - 1);
 		LineTo(column2X - 5, rowRect.top + 12 - 1);
 
-		RGBForeColor(isSelected ? &selectedForegroundColor1 : &foregroundColor);
+		RGBForeColor2(isSelected ? 0x108020 : 0x000000);
 
 		MoveTo(xOffset + column1X, rowRect.top + 12);
 		DrawStringC(settings[i].label);

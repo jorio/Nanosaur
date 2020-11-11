@@ -329,6 +329,16 @@ void RGBForeColor(const RGBColor* color)
 		;
 }
 
+void RGBBackColor2(const UInt32 color)
+{
+	penBG = 0xFF000000 | (color & 0x00FFFFFF);
+}
+
+void RGBForeColor2(const UInt32 color)
+{
+	penFG = 0xFF000000 | (color & 0x00FFFFFF);
+}
+
 // ---------------------------------------------------------------------------- -
 // Paint
 
