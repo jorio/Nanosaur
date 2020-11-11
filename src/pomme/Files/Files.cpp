@@ -5,7 +5,6 @@
 #include "PommeFiles.h"
 #include "Files/Volume.h"
 #include "Files/HostVolume.h"
-#include "Files/ArchiveVolume.h"
 
 #include <iostream>
 #include <sstream>
@@ -330,23 +329,6 @@ OSErr SetEOF(short refNum, long logEOF)
 {
 	TODO();
 	return unimpErr;
-}
-
-short Pomme::Files::MountArchiveAsVolume(const fs::path& archivePath)
-{
-	if (volumes.size() >= MAX_VOLUMES)
-	{
-		throw std::out_of_range("Too many volumes mounted");
-	}
-
-	short vRefNum = (short) volumes.size();
-
-	auto archiveVolume = std::make_unique<ArchiveVolume>(vRefNum, archivePath);
-	volumes.push_back(std::move(archiveVolume));
-
-	LOG << "Archive \"" << archivePath << "\" mounted as volume " << vRefNum << ".\n";
-
-	return vRefNum;
 }
 
 FSSpec Pomme::Files::HostPathToFSSpec(const fs::path& fullPath)

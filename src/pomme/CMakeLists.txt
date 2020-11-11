@@ -16,8 +16,6 @@ set(POMME_SRC
     PommeTime.h
     PommeTypes.h
     PommeVideo.h
-    Files/ArchiveVolume.cpp
-    Files/ArchiveVolume.h
     Files/Files.cpp
     Files/HostVolume.cpp
     Files/HostVolume.h
@@ -30,16 +28,6 @@ set(POMME_SRC
     Graphics/SysFont.h
     Graphics/SystemPalettes.cpp
     Input/SDLInput.cpp
-    maconv/stuffit/methods.h
-    maconv/stuffit/methods/arsenic.cc
-    maconv/stuffit/methods/arsenic.h
-    maconv/stuffit/utils/bwt.cc
-    maconv/stuffit/utils/bwt.h
-    maconv/stuffit/utils/crc.cc
-    maconv/stuffit/utils/crc.h
-    maconv/utils/bit_reader.cc
-    maconv/utils/bit_reader.h
-    maconv/utils/bit_reader.h
     Memory/Memory.cpp
     Sound/AIFF.cpp
     Sound/cmixer.cpp

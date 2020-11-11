@@ -37,7 +37,5 @@ namespace Pomme::Files
 
 	void CloseStream(short refNum);
 
-	short MountArchiveAsVolume(const fs::path& archivePath);
-
 	FSSpec HostPathToFSSpec(const fs::path& fullPath);
 }
