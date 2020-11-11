@@ -353,31 +353,56 @@ static void MovePangeaLogoPart(ObjNode *theNode)
 
 /*************** SLIDESHOW (source port refactor) **********************/
 
-static void Slideshow(const char** imagePaths)
+enum SlideshowEntryOpcode
+{
+	SLIDESHOW_STOP,
+	SLIDESHOW_FILE,
+	SLIDESHOW_RESOURCE
+};
+
+struct SlideshowEntry
+{
+	int opcode;
+	const char* imagePath;
+	short pictResource;
+	void (*postDrawCallback)(void);
+};
+
+static void Slideshow(const struct SlideshowEntry* slides)
 {
 	FSSpec spec;
 
 	ExclusiveOpenGLMode_Begin();
 
-	for (int i = 0; imagePaths[i]; i++)
+	for (int i = 0; slides[i].opcode != SLIDESHOW_STOP; i++)
 	{
-		// If the "file name" starts with "PICT#", load a PICT resource instead of a file.
-		if (0 == strncmp(imagePaths[i], "PICT#", 5))
+		const struct SlideshowEntry* slide = &slides[i];
+
+		if (slide->opcode == SLIDESHOW_RESOURCE)
 		{
-			int pictResourceID = atoi(&imagePaths[i][5]);
-			PicHandle picHandle = GetPicture(pictResourceID);
+			PicHandle picHandle = GetPicture(slide->pictResource);
 			if (!picHandle)
 				continue;
 			DrawPicture(picHandle, &(**picHandle).picFrame);
 			ReleaseResource((Handle)picHandle);
 		}
-		else
+		else if (slide->opcode == SLIDESHOW_FILE)
 		{
 			OSErr result;
-			result = FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, imagePaths[i], &spec);
+			result = FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, slide->imagePath, &spec);
 			if (result != noErr)
 				continue;
 			DrawPictureToScreen(&spec, 0, 0);
+		}
+		else
+		{
+			DoAlert("unsupported slideshow opcode");
+			continue;
+		}
+
+		if (slide->postDrawCallback)
+		{
+			slide->postDrawCallback();
 		}
 
 		if (i == 0)
@@ -408,18 +433,33 @@ static void Slideshow(const char** imagePaths)
 // OEM non-charity version
 //
 
+static void ShowCharity_SourcePortOverlay(void)
+{
+	RGBBackColor2(0xA5A5A5);
+	MoveTo(8, 480-8-14-14);
+	RGBForeColor2(0xA50808);
+	DrawStringC("SOURCE PORT:");
+	ForeColor(blackColor);
+	MoveTo(8, 480-8-14);
+	DrawStringC("Iliyas Jorio (2020)");
+	MoveTo(8, 480-8);
+	DrawStringC("https://github.com/jorio/nanosaur");
+}
+
 void ShowCharity(void)
 {
-	const char *images[] = {
 #ifdef PRO_MODE
-			":images:Boot1Pro.pict",
+	const char* firstImage = ":images:Boot1Pro.pict";
 #else
-			":images:Boot1.pict",
+	const char* firstImage = ":images:Boot1.pict";
 #endif
-			":images:Boot2.pict",
-			0
+
+	const struct SlideshowEntry slides[] = {
+			{ SLIDESHOW_FILE, firstImage, 0, NULL },
+			{ SLIDESHOW_FILE, ":images:Boot2.pict", 0, ShowCharity_SourcePortOverlay },
+			{ SLIDESHOW_STOP, NULL, 0, NULL },
 	};
-	Slideshow(images);
+	Slideshow(slides);
 }
 
 
@@ -427,8 +467,12 @@ void ShowCharity(void)
 
 void ShowHelp(void)
 {
-	const char *images[] = {":images:Help1.pict", ":images:Help2.pict", 0};
-	Slideshow(images);
+	const struct SlideshowEntry slides[] = {
+			{ SLIDESHOW_FILE, ":images:Help1.pict", 0, NULL },
+			{ SLIDESHOW_FILE, ":images:Help2.pict", 0, NULL },
+			{ SLIDESHOW_STOP, NULL, 0, NULL },
+	};
+	Slideshow(slides);
 }
 
 
@@ -437,6 +481,9 @@ void ShowHelp(void)
 
 void ShowBugdomAd(void)
 {
-	const char* images[] = { "PICT#130", 0 };
-	Slideshow(images);
+	const struct SlideshowEntry slides[] = {
+			{ SLIDESHOW_RESOURCE, NULL, 130, NULL },
+			{ SLIDESHOW_STOP, NULL, 0, NULL },
+	};
+	Slideshow(slides);
 }
