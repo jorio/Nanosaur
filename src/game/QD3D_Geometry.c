@@ -803,7 +803,7 @@ TQ3TriMeshData		triMeshData;
 void QD3D_DuplicateTriMeshData(TQ3TriMeshData *inData, TQ3TriMeshData *outData)
 {
 UInt32	numPoints,numVertexAttributeTypes;
-int		i;
+UInt32	i;
 
 			/* COPY BASE STUFF */
 			

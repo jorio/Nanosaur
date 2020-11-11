@@ -282,6 +282,7 @@ do_again:
 						
 		case	3:							// quit
 				CleanQuit();
+				return;
 
 
 		case	4:							// high scores

@@ -314,7 +314,7 @@ SkeletonFile_AnimHeader_Type	*animHeaderPtr;
 		DoFatalAlert("Error reading RelP resource!");
 	HLock(hand);
 	
-	if ((GetHandleSize(hand) / sizeof(TQ3Point3D)) != skeleton->numDecomposedPoints)
+	if ((GetHandleSize(hand) / (Size)sizeof(TQ3Point3D)) != skeleton->numDecomposedPoints)
 		DoFatalAlert("# of points in Reference Model has changed!");
 	else
 	{

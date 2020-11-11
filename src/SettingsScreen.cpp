@@ -141,8 +141,10 @@ static void RenderQualityDialog()
 		DrawStringC(settings[i].label);
 
 		unsigned int settingByte = (unsigned int) *setting.ptr;
-		if (settingByte < 0) settingByte = 0;
-		if (settingByte > settings[i].choices.size()) settingByte = 0;
+		if (settingByte > settings[i].choices.size())
+		{
+			settingByte = 0;
+		}
 
 		auto choice = setting.choices[settingByte];
 		short choiceWidth = TextWidthC(choice);

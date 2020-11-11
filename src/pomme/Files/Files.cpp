@@ -209,21 +209,21 @@ OSErr DirCreate(short vRefNum, long parentDirID, const char* cstrDirectoryName, 
 {
 	return IsVolumeLegal(vRefNum)
 		? volumes.at(vRefNum)->DirCreate(parentDirID, cstrDirectoryName, createdDirID)
-		: nsvErr;
+		: (OSErr)nsvErr;
 }
 
 OSErr FSpCreate(const FSSpec* spec, OSType creator, OSType fileType, ScriptCode scriptTag)
 {
 	return IsVolumeLegal(spec->vRefNum)
 		? volumes.at(spec->vRefNum)->FSpCreate(spec, creator, fileType, scriptTag)
-		: nsvErr;
+		: (OSErr)nsvErr;
 }
 
 OSErr FSpDelete(const FSSpec* spec)
 {
 	return IsVolumeLegal(spec->vRefNum)
 		? volumes.at(spec->vRefNum)->FSpDelete(spec)
-		: nsvErr;
+		: (OSErr)nsvErr;
 }
 
 OSErr ResolveAlias(const FSSpec* spec, AliasHandle alias, FSSpec* target, Boolean* wasChanged)

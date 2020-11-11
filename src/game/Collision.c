@@ -852,7 +852,8 @@ TQ3Matrix4x4  		stashMatrix,transform;
 static void GetTrianglesFromTriMesh(TQ3Object obj)
 {
 TQ3TriMeshData		triMeshData;
-short				v,t,i0,i1,i2;
+TQ3Uns32			v,t;
+short				i0,i1,i2;
 TQ3Point3D			*points;
 float				nX,nY,nZ,x,y,z;
 TQ3PlaneEquation 	*plane;

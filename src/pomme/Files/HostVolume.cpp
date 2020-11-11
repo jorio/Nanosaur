@@ -18,8 +18,8 @@ struct HostForkHandle : public ForkHandle
 	std::fstream backingStream;
 
 public:
-	HostForkHandle(ForkType forkType, char perm, fs::path& path)
-		: ForkHandle(forkType, perm)
+	HostForkHandle(ForkType theForkType, char perm, fs::path& path)
+		: ForkHandle(theForkType, perm)
 	{
 		std::ios::openmode openmode = std::ios::binary;
 		if (permission & fsWrPerm) openmode |= std::ios::out;

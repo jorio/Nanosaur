@@ -285,7 +285,8 @@ short	i;
 
 static void PrintNumber(unsigned long num, short numDigits, long x, long y)
 {
-unsigned long digit,i;
+unsigned long digit;
+short i;
 
 	for (i = 0; i < numDigits; i++)
 	{

@@ -51,8 +51,8 @@ struct AtomGuard
 	FourCharCode fourCC;
 	std::streampos end;
 
-	AtomGuard(Pomme::BigEndianIStream& f, FourCharCode requiredAtomType)
-		: f(f)
+	AtomGuard(Pomme::BigEndianIStream& inputStream, FourCharCode requiredAtomType)
+		: f(inputStream)
 		, fourCC(requiredAtomType)
 	{
 		auto start = f.Tell();

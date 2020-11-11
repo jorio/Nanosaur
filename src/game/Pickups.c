@@ -426,7 +426,7 @@ ObjNode				*pickedObj;
 void DropItem(ObjNode *theNode)
 {
 ObjNode	*itemObj;
-const static TQ3Point3D	inPoint = {0,0,0};
+static const TQ3Point3D	inPoint = {0,0,0};
 
 	if (!theNode)
 		return;

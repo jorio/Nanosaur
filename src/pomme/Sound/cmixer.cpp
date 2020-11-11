@@ -235,10 +235,10 @@ void Source::Clear()
 	onComplete	= nullptr;
 }
 
-void Source::Init(int samplerate, int length)
+void Source::Init(int theSampleRate, int theLength)
 {
-	this->samplerate = samplerate;
-	this->length = length;
+	this->samplerate = theSampleRate;
+	this->length = theLength;
 	SetGain(1);
 	SetPan(0);
 	SetPitch(1);
@@ -265,9 +265,9 @@ void Source::Rewind()
 	nextfill = 0;
 }
 
-void Source::FillBuffer(int offset, int length)
+void Source::FillBuffer(int offset, int fillLength)
 {
-	FillBuffer(pcmbuf + offset, length);
+	FillBuffer(pcmbuf + offset, fillLength);
 }
 
 void Source::Process(int len)
@@ -488,17 +488,17 @@ void WavStream::Clear()
 void WavStream::Init(
 	int theSampleRate,
 	int theBitDepth,
-	int nChannels,
-	bool bigEndian,
-	std::span<char> span)
+	int theNChannels,
+	bool theBigEndian,
+	std::span<char> theSpan)
 {
 	Clear();
-	Source::Init(theSampleRate, int((span.size() / (theBitDepth / 8)) / nChannels));
+	Source::Init(theSampleRate, int((theSpan.size() / (theBitDepth / 8)) / theNChannels));
 	this->bitdepth = theBitDepth;
-	this->channels = nChannels;
+	this->channels = theNChannels;
 	this->idx = 0;
-	this->span = span;
-	this->bigEndian = bigEndian;
+	this->span = theSpan;
+	this->bigEndian = theBigEndian;
 }
 
 std::span<char> WavStream::GetBuffer(int nBytesOut)

@@ -25,12 +25,10 @@
 
 #define Alloc_2d_array(type, array, n, m)					\
 {															\
-int i;														\
-															\
 	array = (type **) AllocPtr((long)n * sizeof(type *));	\
 	array[0] = (type *) AllocPtr((long)n * (long)m * sizeof(type));\
-	for (i = 1; i < n; i++)									\
-		array[i] = array[i-1] + m;							\
+	for (int pos = 1; pos < n; pos++)						\
+		array[pos] = array[pos-1] + m;						\
 }
 
 

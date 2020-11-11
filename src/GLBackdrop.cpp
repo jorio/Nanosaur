@@ -223,19 +223,19 @@ void GLBackdrop::Render(
 }
 
 void GLBackdrop::SetClipRegion(
-	int clipWidth,
-	int clipHeight)
+	int newClipWidth,
+	int newClipHeight)
 {
-	if (clipWidth < 0 || clipHeight < 0)
+	if (newClipWidth < 0 || newClipHeight < 0)
 	{
 		throw std::invalid_argument("illegal backdrop clip region dimensions");
 	}
 
-	if (clipWidth > textureWidth || clipHeight > textureHeight)
+	if (newClipWidth > textureWidth || newClipHeight > textureHeight)
 	{
 		throw std::invalid_argument("backdrop clip region dimensions may not exceed texture size");
 	}
 
-	this->clipWidth = clipWidth;
-	this->clipHeight = clipHeight;
+	this->clipWidth = newClipWidth;
+	this->clipHeight = newClipHeight;
 }
