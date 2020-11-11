@@ -1,6 +1,5 @@
 # External libraries
 extern/SDL*
-extern/Quesa*
 
 # Build directories
 /build*
