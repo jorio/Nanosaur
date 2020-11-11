@@ -26,7 +26,7 @@ endif()
 #------------------------------------------------------------------------------
 
 add_subdirectory(extern/Quesa)
-add_subdirectory(src/pomme)
+add_subdirectory(extern/Pomme)
 
 find_package(SDL2 REQUIRED COMPONENTS main)
 find_package(OpenGL REQUIRED)
@@ -238,9 +238,9 @@ endif()
 target_include_directories(${NANO_TARGET} PRIVATE
     ${SDL2_INCLUDE_DIRS}
     ${OPENGL_INCLUDE_DIRS}
+    extern/Pomme/src
     src
     src/game
-    src/pomme
     src/qd3d
 )
 
@@ -248,7 +248,7 @@ target_link_libraries(${NANO_TARGET}
     ${SDL2_LIBRARIES}
     ${OPENGL_LIBRARIES}
     Quesa_SDL
-    pomme
+    Pomme
 )
 
 #------------------------------------------------------------------------------
@@ -305,7 +305,7 @@ if(APPLE)
     # Set macOS target version for all subprojects
     set(MACOS_TARGET_VERSION "10.11")
     set_target_properties(Quesa_SDL       PROPERTIES XCODE_ATTRIBUTE_MACOSX_DEPLOYMENT_TARGET ${MACOS_TARGET_VERSION})
-    set_target_properties(pomme           PROPERTIES XCODE_ATTRIBUTE_MACOSX_DEPLOYMENT_TARGET ${MACOS_TARGET_VERSION})
+    set_target_properties(Pomme           PROPERTIES XCODE_ATTRIBUTE_MACOSX_DEPLOYMENT_TARGET ${MACOS_TARGET_VERSION})
 
     set_target_properties(${NANO_TARGET} PROPERTIES
         XCODE_ATTRIBUTE_MACOSX_DEPLOYMENT_TARGET ${MACOS_TARGET_VERSION}
