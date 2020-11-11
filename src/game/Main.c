@@ -104,12 +104,8 @@ OSErr		iErr;
 
 
 			/* MAKE FSSPEC FOR DATA FOLDER */
-			
-#ifdef PRO_MODE			
-	iErr = FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":DataExtreme:Images", &gDataSpec);
-#else
-	iErr = FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":Data:Images", &gDataSpec);
-#endif	
+
+	iErr = FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":Skeletons", &gDataSpec);
 	if (iErr)
 		DoFatalAlert("Cannot locate the Nanosaur Data folder.");
 

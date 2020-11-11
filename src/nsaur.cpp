@@ -1,24 +1,61 @@
 #include "Pomme.h"
 #include "PommeInit.h"
-#include "PommeGraphics.h"
 #include "PommeFiles.h"
-#include "pomme/Files/ArchiveVolume.h"
+#include "PommeGraphics.h"
 #include "GamePatches.h"
-#include "FindGameData.h"
 
-#include <iostream>
 #include <Quesa.h>
 #include <SDL.h>
 
+#include <iostream>
+#include <cstring>
+
+#if __APPLE__
+#include <libproc.h>
+#include <unistd.h>
+#endif
+
 extern "C"
 {
-// bare minimum from Windows.c to satisfy externs in game code
-WindowPtr gCoverWindow = nullptr;
-UInt32* gCoverWindowPixPtr = nullptr;
+	// bare minimum from Windows.c to satisfy externs in game code
+	WindowPtr gCoverWindow = nullptr;
+	UInt32* gCoverWindowPixPtr = nullptr;
 
-extern FSSpec gDataSpec;
+	// Lets the game know where to find its asset files
+	extern FSSpec gDataSpec;
 
-void GameMain(void);
+	void GameMain(void);
+}
+
+static void FindGameData()
+{
+	fs::path dataPath;
+
+#if __APPLE__
+	char pathbuf[PROC_PIDPATHINFO_MAXSIZE];
+
+	pid_t pid = getpid();
+	int ret = proc_pidpath(pid, pathbuf, sizeof(pathbuf));
+	if (ret <= 0)
+	{
+		throw std::runtime_error(std::string(__func__) + ": proc_pidpath failed: " + std::string(strerror(errno)));
+	}
+
+	dataPath = pathbuf;
+	dataPath = dataPath.parent_path().parent_path() / "Resources";
+#else
+	dataPath = "Data";
+#endif
+
+	dataPath = dataPath.lexically_normal();
+
+	// Set data spec
+	gDataSpec = Pomme::Files::HostPathToFSSpec(dataPath / "Skeletons");
+
+	// Use application resource file
+	auto applicationSpec = Pomme::Files::HostPathToFSSpec(dataPath / "Application");
+	short resFileRefNum = FSpOpenResFile(&applicationSpec, fsRdPerm);
+	UseResFile(resFileRefNum);
 }
 
 int CommonMain(int argc, const char** argv)
@@ -36,15 +73,8 @@ int CommonMain(int argc, const char** argv)
 	RenderBackdropQuad(BACKDROP_FILL);
 	ExclusiveOpenGLMode_End();
 
-#if EMBED_DATA
-	FindEmbeddedGameData(&gDataSpec);
-#else
-	SetGameDataPathFromArgs(argc, argv);
-	if (!FindGameData(&gDataSpec))
-	{
-		return 1;
-	}
-
+	FindGameData();
+#if !(__APPLE__)
 	Pomme::Graphics::SetWindowIconFromIcl8Resource(128);
 #endif
 
@@ -64,10 +94,6 @@ int CommonMain(int argc, const char** argv)
 	{
 		// no-op, the game may throw this exception to shut us down cleanly
 	}
-
-#if !(EMBED_DATA)
-	WriteDataLocationSetting();
-#endif
 
 	// Clean up
 	Pomme::Shutdown();

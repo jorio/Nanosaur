@@ -10,10 +10,6 @@ project(Nanosaur C CXX)
 set(NANO_TARGET ${PROJECT_NAME})
 set(NANO_ICNS cmake/Nanosaur.icns)
 
-if(APPLE)
-    set(EMBED_DATA true)
-endif()
-
 #------------------------------------------------------------------------------
 # GLOBAL OPTIONS (BEFORE ADDING SUBDIRECTORIES)
 #------------------------------------------------------------------------------
@@ -180,20 +176,6 @@ set(SRC_GLUE
     src/qd3d/QD3DView.h
 )
 
-if(EMBED_DATA)
-    list(APPEND SRC_GLUE
-        src/FindEmbeddedGameData.cpp
-        src/FindGameData.h
-    )
-else()
-    list(APPEND SRC_GLUE
-        src/FindGameData.cpp
-        src/FindGameData.h
-        $<$<BOOL:${WIN32}>:src/OpenDialog_Windows.cpp>
-        $<$<BOOL:${APPLE}>:src/OpenDialog_macOS.mm>
-    )
-endif()
-
 set(NANO_GAME_SOURCES
     ${NANO_HEADERS}
     ${NANO_SRC_SYSTEM}
@@ -281,7 +263,6 @@ target_compile_definitions(Quesa_SDL PUBLIC
 target_compile_definitions(${NANO_TARGET} PRIVATE
     QUESA_OS_SDL
     SOURCE_PORT_ENHANCEMENTS
-    $<$<BOOL:${EMBED_DATA}>:EMBED_DATA>
 )
 
 if(WIN32)
@@ -321,9 +302,6 @@ endif()
 #------------------------------------------------------------------------------
 
 if(APPLE)
-    # We need Cocoa for the open dialog
-    target_link_options(${NANO_TARGET} PRIVATE -framework Cocoa)
-
     # Set macOS target version for all subprojects
     set(MACOS_TARGET_VERSION "10.11")
     set_target_properties(Quesa_SDL       PROPERTIES XCODE_ATTRIBUTE_MACOSX_DEPLOYMENT_TARGET ${MACOS_TARGET_VERSION})
@@ -345,21 +323,22 @@ if(APPLE)
     set_source_files_properties(${SDL2_LIBRARIES} PROPERTIES MACOSX_PACKAGE_LOCATION "Frameworks")
 
     # Copy assets to app bundle
-    if(EMBED_DATA)
-        add_custom_command(TARGET ${NANO_TARGET} POST_BUILD COMMAND
-            ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/assets $<TARGET_FILE_DIR:${PROJECT_NAME}>/../Resources
-        )
-    endif()
+    add_custom_command(TARGET ${NANO_TARGET} POST_BUILD COMMAND
+        ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/Data $<TARGET_FILE_DIR:${PROJECT_NAME}>/../Resources)
 
     #add_custom_command(TARGET ${NANO_TARGET} POST_BUILD COMMAND
     #    plutil -replace NSHighResolutionCapable -bool true $<TARGET_FILE_DIR:${PROJECT_NAME}>/../Info.plist
     #)
+else()
+    # Copy assets besides executable
+    add_custom_command(TARGET ${NANO_TARGET} POST_BUILD COMMAND
+        ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/Data $<TARGET_FILE_DIR:${NANO_TARGET}>)
 endif()
 
 # Copy SDL2 DLLs to output folder on Windows
 if(WIN32)
     foreach(DLL ${SDL2_DLLS})
         add_custom_command(TARGET ${NANO_TARGET} POST_BUILD COMMAND
-            ${CMAKE_COMMAND} -E copy_if_different ${DLL} $<TARGET_FILE_DIR:${NANO_TARGET}>)
+            ${CMAKE_COMMAND} -E copy_if_different ${DLL} $<TARGET_FILE_DIR:${NANO_TARGET}>/Data)
     endforeach()
 endif()
