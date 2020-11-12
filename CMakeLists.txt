@@ -290,13 +290,19 @@ if(APPLE)
     set_source_files_properties(${GAME_ICNS} PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
     set_source_files_properties(${SDL2_LIBRARIES} PROPERTIES MACOSX_PACKAGE_LOCATION "Frameworks")
 
-    # Copy assets to app bundle
-    add_custom_command(TARGET ${GAME_TARGET} POST_BUILD COMMAND
-        ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/Data $<TARGET_FILE_DIR:${PROJECT_NAME}>/../Resources)
+    set(BUNDLE_CONTENTS_DIR "$<TARGET_FILE_DIR:${PROJECT_NAME}>/..")
 
-    #add_custom_command(TARGET ${GAME_TARGET} POST_BUILD COMMAND
-    #    plutil -replace NSHighResolutionCapable -bool true $<TARGET_FILE_DIR:${PROJECT_NAME}>/../Info.plist
-    #)
+    add_custom_command(TARGET ${GAME_TARGET} POST_BUILD
+        # Copy assets to app bundle
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/Data ${BUNDLE_CONTENTS_DIR}/Resources
+
+        # Nuke SDL headers in embedded framework
+        COMMAND rm -rf ${BUNDLE_CONTENTS_DIR}/Frameworks/SDL2.framework/Headers
+        COMMAND rm -rf ${BUNDLE_CONTENTS_DIR}/Frameworks/SDL2.framework/Versions/Current/Headers
+
+        # High-DPI support in Info.plist
+#		plutil -replace NSHighResolutionCapable -bool true ${BUNDLE_CONTENTS_DIR}/Info.plist
+    )
 else()
     # Copy assets besides executable
     add_custom_command(TARGET ${GAME_TARGET} POST_BUILD COMMAND
