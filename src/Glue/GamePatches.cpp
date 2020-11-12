@@ -68,6 +68,8 @@ Boolean IsSphereInConeOfVision(TQ3Point3D* coord, float radius, float hither, fl
 	TQ3Point3D p;
 	TQ3Point3D r;
 
+	radius *= 2.0f;  // hack to work around aggressive culling at the edges of the viewport in widescreen mode
+
 	Q3Point3D_Transform(coord, &gCameraWorldToViewMatrix, &world);
 
 			/* SEE IF BEHIND CAMERA */
