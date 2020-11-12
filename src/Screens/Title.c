@@ -420,7 +420,7 @@ static void Slideshow(const struct SlideshowEntry* slides)
 			RenderBackdropQuad(BACKDROP_FIT);
 			QD3D_CalcFramesPerSecond(); // required for DoSDLMaintenance to properly cap the framerate
 			DoSDLMaintenance();
-		} while(!(gNewKeys_Real[0] || gNewKeys_Real[1] ||  gNewKeys_Real[2] || gNewKeys_Real[3]));
+		} while (!GetNewKeyState_Real(kVK_Return) && !GetNewKeyState_Real(kVK_Escape) && !GetNewKeyState_Real(kVK_Space));
 	}
 
 	ExclusiveOpenGLMode_End();
