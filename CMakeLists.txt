@@ -189,7 +189,7 @@ endif()
 # EXECUTABLE TARGET
 #------------------------------------------------------------------------------
 
-if(WIN32 AND CMAKE_BUILD_TYPE MATCHES Release)
+if(WIN32)
     # "WIN32" here is equivalent to /SUBSYSTEM:WINDOWS for MSVC
     add_executable(${GAME_TARGET} WIN32 ${GAME_ALL_SOURCES})
 elseif(APPLE)
@@ -310,10 +310,14 @@ else()
         ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/Data $<TARGET_FILE_DIR:${GAME_TARGET}>/Data)
 endif()
 
-# Copy SDL2 DLLs to output folder on Windows
+# Copy SDL2 DLLs & readme file to output folder on Windows
 if(WIN32)
     foreach(DLL ${SDL2_DLLS})
         add_custom_command(TARGET ${GAME_TARGET} POST_BUILD COMMAND
             ${CMAKE_COMMAND} -E copy_if_different ${DLL} $<TARGET_FILE_DIR:${GAME_TARGET}>)
     endforeach()
+
+    # Write readme file containing version info
+    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/ReadMeWin32.txt.in ${CMAKE_BINARY_DIR}/ReadMeWin32.txt)
+    add_custom_command(TARGET ${GAME_TARGET} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_BINARY_DIR}/ReadMeWin32.txt $<TARGET_FILE_DIR:${GAME_TARGET}>/ReadMe.txt)
 endif()
