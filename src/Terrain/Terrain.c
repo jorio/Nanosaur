@@ -101,17 +101,13 @@ long	gCurrentSuperTileRow,gCurrentSuperTileCol;
 static short	gTerrainScrollBuffer[MAX_SUPERTILES_DEEP][MAX_SUPERTILES_WIDE];		// 2D array which has index to supertiles for each possible supertile
 
 short	gNumFreeSupertiles;
-static	SuperTileMemoryType		gSuperTileMemoryList[MAX_SUPERTILES];
+static	SuperTileMemoryType		*gSuperTileMemoryList = NULL;
 
 
 long	gTerrainItemDeleteWindow_Near,gTerrainItemDeleteWindow_Far,
 		gTerrainItemDeleteWindow_Left,gTerrainItemDeleteWindow_Right;
 
 TileAttribType	*gTileAttributes = nil;
-
-//POLY_FT3	gTerrainPolyList[NUM_POLYS_IN_SUPERTILE*MAX_SUPERTILES*2];
-
-//SVECTOR		gTerrainSVECTORS[MAX_SUPERTILES][SUPERTILE_SIZE+1][SUPERTILE_SIZE+1];
 
 UInt16		gTileFlipRotBits;
 short		gTileAttribParm0;
@@ -279,6 +275,29 @@ TQ3AttributeSet			geometryAttribSet;
 
 Ptr						blankTexPtr;
 TQ3SurfaceShaderObject	blankTexObject;
+
+
+			/**********************************/
+			/* ALLOCATE MEMORY FOR SUPERTILES */
+			/**********************************/
+
+	// Source port addition: the supertile list is now dynamically-allocated
+	// so we can toggle between Nanosaur and Nanosaur Extreme at boot time.
+	// Also, we allow more active supertiles than the original game by using
+	// shorts instead of bytes for supertile indices (thereby limiting the max
+	// amount of supertiles to 32767).
+
+	if (MAX_SUPERTILES > 32767)
+	{
+		DoFatalAlert("MAX_SUPERTILES too large. Try decreasing SUPERTILE_ACTIVE_RANGE.");
+	}
+
+	if (gSuperTileMemoryList != nil)
+	{
+		DoFatalAlert("gSuperTileMemoryList already allocated");
+	}
+
+	gSuperTileMemoryList = (SuperTileMemoryType *) AllocPtr(sizeof(SuperTileMemoryType) * MAX_SUPERTILES);
 
 
 			/**********************************/
@@ -467,6 +486,25 @@ TQ3SurfaceShaderObject	blankTexObject;
 		Q3Object_Dispose(geometryAttribSet);					// free extra ref to attribs
 	
 	}
+}
+
+
+/************** DISPOSE SUPERTILE MEMORY LIST ********************/
+//
+// Should only be called when the game completely shuts down (not in-between levels!)
+//
+
+void DisposeSupertileMemoryList(void)
+{
+	if (gSuperTileMemoryList == nil)
+	{
+		// Not allocated yet, nothing to dispose of
+		return;
+	}
+
+	DisposePtr((Ptr) gSuperTileMemoryList);
+
+	gSuperTileMemoryList = nil;
 }
 
 
