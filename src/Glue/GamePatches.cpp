@@ -367,4 +367,6 @@ void SetFullscreenMode()
 	int width, height;
 	SDL_GetWindowSize(gSDLWindow, &width, &height);
 	QD3D_OnWindowResized(width, height);
+
+	SDL_ShowCursor(gGamePrefs.fullscreen? 0: 1);
 }
