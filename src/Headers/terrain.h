@@ -104,11 +104,7 @@ enum
 
 #define	TERRAIN_SUPERTILE_UNIT_SIZE	(SUPERTILE_SIZE*TERRAIN_POLYGON_SIZE)	// world unit size of a supertile
 
-#ifdef PRO_MODE
-#define	SUPERTILE_ACTIVE_RANGE		4 						// distance to watch supertiles
-#else
-#define	SUPERTILE_ACTIVE_RANGE		3 						// distance to watch supertiles
-#endif
+extern const int SUPERTILE_ACTIVE_RANGE;					// distance to watch supertiles
 
 #define	SUPERTILE_DIST_WIDE		(SUPERTILE_ACTIVE_RANGE*2+1)
 #define	SUPERTILE_DIST_DEEP		(SUPERTILE_ACTIVE_RANGE+SUPERTILE_ACTIVE_RANGE)

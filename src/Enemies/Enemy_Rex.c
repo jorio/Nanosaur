@@ -34,6 +34,7 @@ extern	float					gFramesPerSecondFrac;
 extern	TQ3Vector3D			gDelta;
 extern	signed char			gNumEnemyOfKind[];
 
+extern const int MAX_REX;
 
 /****************************/
 /*    PROTOTYPES            */
@@ -48,13 +49,6 @@ static void  MoveRex_Pounce(ObjNode *theNode);
 /****************************/
 /*    CONSTANTS             */
 /****************************/
-
-#ifdef PRO_MODE
-#define	MAX_REX				8
-#else
-#define	MAX_REX				2
-#endif
-
 
 #define	REX_MAX_ATTACK_RANGE	1100.0f
 #define	REX_MIN_ATTACK_RANGE	350.0f

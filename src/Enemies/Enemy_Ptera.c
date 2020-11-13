@@ -36,6 +36,8 @@ extern	float					gFramesPerSecondFrac;
 extern	TQ3Vector3D			gDelta;
 extern	signed char			gNumEnemyOfKind[];
 
+extern const int MAX_PTERA;
+
 
 /****************************/
 /*    PROTOTYPES            */
@@ -52,12 +54,6 @@ static void MovePteraRock(ObjNode *theRock);
 /****************************/
 /*    CONSTANTS             */
 /****************************/
-
-#ifdef PRO_MODE
-#define	MAX_PTERA			10
-#else
-#define	MAX_PTERA			2
-#endif
 
 #define PTERA_TURN_SPEED	1.8f
 #define PTERA_WALK_SPEED	170

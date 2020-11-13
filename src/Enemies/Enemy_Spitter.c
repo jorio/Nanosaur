@@ -35,6 +35,7 @@ extern	float					gFramesPerSecondFrac;
 extern	TQ3Vector3D			gDelta;
 extern	signed char			gNumEnemyOfKind[];
 
+extern const int MAX_SPITTER;
 
 /****************************/
 /*    PROTOTYPES            */
@@ -51,12 +52,6 @@ static void MoveDinoSpit(ObjNode *theNode);
 /****************************/
 /*    CONSTANTS             */
 /****************************/
-
-#ifdef PRO_MODE
-#define	MAX_SPITTER				2
-#else
-#define	MAX_SPITTER				12
-#endif
 
 #define	SPITTER_MAX_ATTACK_RANGE	1200.0f
 #define	SPITTER_MIN_ATTACK_RANGE	300.0f

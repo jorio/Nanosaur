@@ -32,6 +32,7 @@ extern	float					gFramesPerSecondFrac;
 extern	TQ3Vector3D			gDelta;
 extern	signed char			gNumEnemyOfKind[];
 
+extern const int MAX_STEGO;
 
 /****************************/
 /*    PROTOTYPES            */
@@ -45,12 +46,6 @@ static void MoveStego_Standing(ObjNode *theNode);
 /****************************/
 /*    CONSTANTS             */
 /****************************/
-
-#ifdef PRO_MODE
-#define MAX_STEGO			10
-#else
-#define MAX_STEGO			2
-#endif
 
 #define	STEGO_ATTACK_RANGE	700
 #define STEGO_TURN_SPEED	.45

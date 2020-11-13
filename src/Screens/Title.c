@@ -42,6 +42,7 @@ extern	KeyMap gNewKeys_Real;
 extern	Boolean		gSongPlayingFlag,gResetSong,gDisableAnimSounds;
 extern	FSSpec		gDataSpec;
 extern	PrefsType	gGamePrefs;
+extern	const int	PRO_MODE;
 
 /****************************/
 /*    PROTOTYPES            */
@@ -457,11 +458,7 @@ static void ShowCharity_SourcePortCreditOverlay(void)
 
 void ShowCharity(void)
 {
-#ifdef PRO_MODE
-	const char* firstImage = ":images:Boot1Pro.pict";
-#else
-	const char* firstImage = ":images:Boot1.pict";
-#endif
+	const char* firstImage = PRO_MODE ? ":images:Boot1Pro.pict" : ":images:Boot1.pict";
 
 	const struct SlideshowEntry slides[] = {
 			{ SLIDESHOW_FILE, firstImage, 0, ShowCharity_SourcePortVersionOverlay },

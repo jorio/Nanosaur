@@ -25,6 +25,10 @@ extern "C"
 	// Lets the game know where to find its asset files
 	extern FSSpec gDataSpec;
 
+	extern SDL_Window* gSDLWindow;
+
+	extern int PRO_MODE;
+
 	void GameMain(void);
 }
 
@@ -59,11 +63,47 @@ static void FindGameData()
 	UseResFile(resFileRefNum);
 }
 
+static bool AskProMode()
+{
+	const SDL_MessageBoxButtonData buttons[] =
+	{
+		{ /* .flags, .buttonid, .text */        0, 0, (const char*)u8"Extreme!" },
+		{ SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, 1, (const char*)u8"Normal" },
+		{ SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT, 2, (const char*)u8"Quit" },
+	};
+
+	const SDL_MessageBoxData messageboxdata =
+	{
+		SDL_MESSAGEBOX_INFORMATION,		// .flags
+		gSDLWindow,						// .window
+		(const char*)u8"Select Nanosaur difficulty",	// .title
+		(const char*)u8"Which version of Nanosaur would you like to play?", // .message
+		SDL_arraysize(buttons),			// .numbuttons
+		buttons,						// .buttons
+		nullptr							// .colorScheme
+	};
+
+	int buttonid;
+	if (SDL_ShowMessageBox(&messageboxdata, &buttonid) < 0)
+	{
+		throw Pomme::QuitRequest();
+	}
+
+	switch (buttonid) {
+		case 2: // quit
+			throw Pomme::QuitRequest();
+		case 0: // extreme
+			return true;
+		default: // normal
+			return false;
+	}
+}
+
 static const char* GetWindowTitle()
 {
-    static char windowTitle[256];
-    snprintf(windowTitle, sizeof(windowTitle), "Nanosaur %s", PROJECT_VERSION);
-    return windowTitle;
+	static char windowTitle[256];
+	snprintf(windowTitle, sizeof(windowTitle), "Nanosaur%s %s", PRO_MODE ? " Extreme" : "", PROJECT_VERSION);
+	return windowTitle;
 }
 
 int CommonMain(int argc, const char** argv)
@@ -96,6 +136,12 @@ int CommonMain(int argc, const char** argv)
 	// Start the game
 	try
 	{
+#if 0
+		SetProModeSettings(AskProMode());
+		SDL_SetWindowTitle(gSDLWindow, GetWindowTitle());
+#else
+		SetProModeSettings(0);  // For now, don't expose Pro Mode, because we have perf issues with the renderer
+#endif
 		GameMain();
 	}
 	catch (Pomme::QuitRequest&)

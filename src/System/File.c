@@ -44,6 +44,7 @@ extern	short	*gTileAnimEntryList[];
 extern	long	gCurrentSuperTileRow,gCurrentSuperTileCol;
 extern	long	gMyStartX,gMyStartZ;
 extern	FSSpec	gDataSpec;
+extern	const int	PRO_MODE;
 
 /****************************/
 /*    PROTOTYPES            */
@@ -836,11 +837,11 @@ FSSpec	spec;
 				FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":terrain:level1.trt", &spec);
 				LoadTerrainTileset(&spec);
 				
-#ifdef PRO_MODE
-				FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":terrain:level1pro.ter", &spec);
-#else	
-				FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":terrain:level1.ter", &spec);
-#endif				
+				FSMakeFSSpec(
+					gDataSpec.vRefNum,
+					gDataSpec.parID,
+					PRO_MODE ? ":terrain:level1pro.ter" : ":terrain:level1.ter",
+					&spec);
 				LoadTerrain(&spec);
 
 				/* LOAD MODELS */

@@ -35,6 +35,7 @@ extern	float					gFramesPerSecondFrac;
 extern	TQ3Vector3D			gDelta;
 extern	signed char			gNumEnemyOfKind[];
 
+extern const int MAX_TRICER;
 
 /****************************/
 /*    PROTOTYPES            */
@@ -48,12 +49,6 @@ static void MoveTricer_Standing(ObjNode *theNode);
 /****************************/
 /*    CONSTANTS             */
 /****************************/
-
-#ifdef PRO_MODE
-#define MAX_TRICER			10
-#else
-#define MAX_TRICER			3
-#endif
 
 #define	TRICER_ATTACK_RANGE	600
 #define	TRICER_ATTACK_RANGE_IN_BUSH	550

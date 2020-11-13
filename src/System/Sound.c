@@ -34,12 +34,8 @@ static short EmergencyFreeChannel(void);
 /*    CONSTANTS             */
 /****************************/
 
-#ifdef PRO_MODE
+// Source port note: this was 11 in "non-pro mode" (i.e. not Nanosaur Extreme).
 #define		MAX_CHANNELS			14
-#else
-#define		MAX_CHANNELS			11
-#endif
-
 #define		MAX_SOUND_BANKS			5
 #define		MAX_EFFECTS				30
 

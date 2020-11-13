@@ -4,11 +4,7 @@
 
 #define	HITHER_DISTANCE	10.0f
 
-#ifdef PRO_MODE
-#define	YON_DISTANCE	2800.0f
-#else
-#define	YON_DISTANCE	1900.0f
-#endif
+extern const float YON_DISTANCE;
 
 
 enum

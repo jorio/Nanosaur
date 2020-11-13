@@ -19,6 +19,7 @@ extern	KeyMap					gNewKeys_Real;
 extern	PrefsType				gGamePrefs;
 extern	float			gFramesPerSecond,gFramesPerSecondFrac;
 extern	SDL_Window*				gSDLWindow;
+extern	const int				PRO_MODE;
 }
 
 static const int column1X = 320-256/2;
@@ -103,7 +104,7 @@ static void RenderQualityDialog()
 
 		ForeColor(blackColor);
 		{
-			const char* title = "NANOSAUR SETTINGS";
+			const char* title = PRO_MODE ? "NANOSAUR EXTREME SETTINGS" : "NANOSAUR SETTINGS";
 			short titleWidth = TextWidthC(title);
 			MoveTo(320 - (titleWidth / 2), 100);
 			DrawStringC(title);

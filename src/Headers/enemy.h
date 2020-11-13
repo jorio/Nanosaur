@@ -4,11 +4,7 @@
 
 #include "terrain.h"
 
-#ifdef PRO_MODE
-#define	MAX_ENEMIES	30
-#else
-#define	MAX_ENEMIES	8
-#endif
+extern const int MAX_ENEMIES;
 
 #define	DEFAULT_ENEMY_COLLISION_CTYPES	(CTYPE_MISC|CTYPE_HURTENEMY|CTYPE_BGROUND|CTYPE_BGROUND2|CTYPE_TRIGGER)
 

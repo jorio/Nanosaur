@@ -68,24 +68,11 @@ static void MoveNukeShockwave(ObjNode *theNode);
 /*    CONSTANTS             */
 /****************************/
 
-#ifdef PRO_MODE
-
-#define	SONIC_SCREAM_RATE	4		// bigger = faster (# shots / second)
-#define	BLASTER_RATE		7
-#define	HEATSEEK_RATE		2
-#define	TRIBLAST_RATE		7
-#define	NUKE_RATE		    .05
-
-
-#else
-
-#define	SONIC_SCREAM_RATE	4		// bigger = faster (# shots / second)
-#define	BLASTER_RATE		4
-#define	HEATSEEK_RATE		2
-#define	TRIBLAST_RATE		3
-#define	NUKE_RATE		.05
-
-#endif
+extern const float	SONIC_SCREAM_RATE;	// bigger = faster (# shots / second)
+extern const float	BLASTER_RATE;
+extern const float	HEATSEEK_RATE;
+extern const float	TRIBLAST_RATE;
+extern const float	NUKE_RATE;
 
 #define	SONIC_SCREAM_SPEED	500
 #define	SONIC_SCREAM_DAMAGE	1.0
