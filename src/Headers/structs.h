@@ -307,7 +307,7 @@ typedef struct
 	Boolean	reserved[4];
 }PrefsType;
 
-#define PREFS_MAGIC "Nanosaur Prefs v1"
+#define PREFS_MAGIC "Nanosaur Prefs v2"
 
 #endif
 
