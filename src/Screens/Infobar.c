@@ -407,7 +407,7 @@ Boolean	toggleMusic = !gMuteMusicFlag;
 	if (toggleMusic)
 		ToggleMusic();								// pause music
 
-	Pomme_PauseLoopingChannels(true);				// Source port addition: pause all looping channels
+	Pomme_PauseAllChannels(true);					// Source port addition: pause all looping channels
 
 			/***************/
 			/* MAKE RESUME */
@@ -494,7 +494,7 @@ Boolean	toggleMusic = !gMuteMusicFlag;
 	if (toggleMusic)
 		ToggleMusic();										// restart music
 
-	Pomme_PauseLoopingChannels(false);						// Source port addition: unpause looping channels
+	Pomme_PauseAllChannels(false);						// Source port addition: unpause looping channels
 	
 	if (selected == 1)									// see if want out
 	{
