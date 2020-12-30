@@ -414,8 +414,22 @@ static void Slideshow(const struct SlideshowEntry* slides)
 		}
 		ReadKeyboard();
 
+		float slideAge = 0;
+		bool promptShownYet = false;
+
 		do
 		{
+			slideAge += gFramesPerSecondFrac;
+
+			if (!promptShownYet && slideAge > 2)
+			{
+				MoveTo(490, 480);
+				RGBBackColor2(0);
+				RGBForeColor2(0xFFFFFF);
+				DrawStringC(" Hit SPACE to continue ");
+				promptShownYet = true;
+			}
+
 			ReadKeyboard();
 			DoSoundMaintenance();
 			RenderBackdropQuad(BACKDROP_FIT);
