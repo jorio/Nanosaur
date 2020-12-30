@@ -61,12 +61,12 @@ std::vector<SettingEntry> settings = {
 		{&gGamePrefs.vsync              , "V-Sync"            , []() { SDL_GL_SetSwapInterval(gGamePrefs.vsync ? 1 : 0); } },
 		{&gGamePrefs.highQualityTextures, "Texture Filtering"   },
 		{&gGamePrefs.canDoFog           , "Fog"                 },
-		{&gGamePrefs.shadows            , "Shadow Decals"       },
+//		{&gGamePrefs.shadows            , "Shadow Decals"       },
 //		{&gGamePrefs.dust               , "Dust"                },
-		{&gGamePrefs.allowGammaFade     , "Allow Gamma Fade"    },
+//		{&gGamePrefs.allowGammaFade     , "Allow Gamma Fade"    },
 		{&gGamePrefs.softerLighting     , "Softer Lighting"     },
-		{&gGamePrefs.interpolationStyle , "Face Shading"      , nullptr, {"Flat", "Per-Pixel"} },
-		{&gGamePrefs.opaqueWater        , "Water Alpha"       , nullptr, {"Translucent", "Opaque"}},
+//		{&gGamePrefs.interpolationStyle , "Face Shading"      , nullptr, {"Flat", "Per-Pixel"} },
+//		{&gGamePrefs.opaqueWater        , "Water Alpha"       , nullptr, {"Translucent", "Opaque"}},
 		{&gGamePrefs.mainMenuHelp       , "Main Menu Help"      },
 };
 
