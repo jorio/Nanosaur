@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.17)
+cmake_minimum_required(VERSION 3.13)
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
@@ -213,10 +213,10 @@ target_include_directories(${GAME_TARGET} PRIVATE
 )
 
 target_link_libraries(${GAME_TARGET}
-    ${SDL2_LIBRARIES}
-    ${OPENGL_LIBRARIES}
     Quesa_SDL
     Pomme
+    ${SDL2_LIBRARIES}
+    ${OPENGL_LIBRARIES}
 )
 
 #------------------------------------------------------------------------------
