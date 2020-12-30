@@ -1,6 +1,8 @@
 # Nanosaur changelog
 
-- **v1.5.0 (Nov. 2020)** Updated the game to run on today's systems at arbitrary resolutions.
+- **v1.4.1 (Dec. 2020)** Nanosaur Extreme is now playable.
+
+- **v1.4.0 (Nov. 2020)** Updated the game to run on today's systems at arbitrary resolutions.
 
 ---
 
