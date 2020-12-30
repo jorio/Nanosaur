@@ -9,7 +9,7 @@
     ```
     git clone --recurse-submodules https://github.com/jorio/Nanosaur
     ```
-1. Download [SDL2-2.0.12.dmg](http://libsdl.org/release/SDL2-2.0.12.dmg), open it, and copy **SDL2.framework** to the **extern** folder
+1. Download [SDL2-2.0.14.dmg](http://libsdl.org/release/SDL2-2.0.14.dmg), open it, and copy **SDL2.framework** to the **extern** folder
 1. Prep the Xcode project:
     ```
     cmake -G Xcode -S . -B build
@@ -29,7 +29,7 @@
     ```
     git clone --recurse-submodules https://github.com/jorio/Nanosaur
     ```
-1. Download [SDL2-devel-2.0.12-VC.zip](http://libsdl.org/release/SDL2-devel-2.0.12-VC.zip) and extract the contents into the **extern** folder
+1. Download [SDL2-devel-2.0.14-VC.zip](http://libsdl.org/release/SDL2-devel-2.0.14-VC.zip) and extract the contents into the **extern** folder
 1. Prep the Visual Studio solution:
     ```
     cmake -G "Visual Studio 16 2019" -A x64 -S . -B build
