@@ -127,7 +127,7 @@ static	Boolean beenHere = false;
 		StopAllEffectChannels();
 		KillSong();
 
-		ShowBugdomAd();
+//		ShowBugdomAd();
 		
 		if (gQD3DInitialized)
 			Q3Exit();
