@@ -57,6 +57,8 @@ void PatchSkeleton3DMF(const char* cName, TQ3Object newModel);
 
 void PatchGrouped3DMF(const char* cName, TQ3Object* objects, int nObjects);
 
+void ApplyEdgePadding(const TQ3Mipmap* mipmap);
+
 #ifdef __cplusplus
 }
 #endif

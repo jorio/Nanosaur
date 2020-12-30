@@ -167,7 +167,7 @@ static void SetAlphaTest(TQ3TriMeshData triMeshData, void* userData_thresholdFlo
 		if (mipmap.pixelType == kQ3PixelTypeARGB16 ||			// Edge padding only effective if image has alpha channel
 			mipmap.pixelType == kQ3PixelTypeARGB32)
 		{
-//			ApplyEdgePadding(&mipmap);
+			ApplyEdgePadding(&mipmap);
 		}
 
 		/* DISPOSE REFS */
