@@ -50,6 +50,13 @@ void DoSDLMaintenance(void);
 
 void SetFullscreenMode(void);
 
+//-----------------------------------------------------------------------------
+// Patch 3DMF models
+
+void PatchSkeleton3DMF(const char* cName, TQ3Object newModel);
+
+void PatchGrouped3DMF(const char* cName, TQ3Object* objects, int nObjects);
+
 #ifdef __cplusplus
 }
 #endif

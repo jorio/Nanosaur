@@ -26,6 +26,7 @@
 #include "3dmf.h"
 #include "3dmath.h"
 #include "skeletonjoints.h"
+#include "GamePatches.h"
 
 /****************************/
 /*    PROTOTYPES            */
@@ -70,6 +71,8 @@ TQ3Object		newModel;
 	newModel = Load3DMFModel(inSpec);
 	if (newModel == nil)
 		DoFatalAlert("LoadBonesReferenceModel: cant load 3dmf file!");
+
+	PatchSkeleton3DMF(inSpec->cName, newModel);		// patch 3DMF (add alpha test)
 
 	gCurrentSkeleton = skeleton;
 	DecomposeReferenceModel(newModel);

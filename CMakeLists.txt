@@ -138,6 +138,7 @@ set(GAME_GLUE_SOURCES
     ${GAME_SRCDIR}/Glue/GamePatches.cpp
     ${GAME_SRCDIR}/Glue/GLBackdrop.cpp
     ${GAME_SRCDIR}/Glue/GLFunctions.cpp
+    ${GAME_SRCDIR}/Glue/Patch3DMFModels.c
     ${GAME_SRCDIR}/Glue/ProMode.c
     ${GAME_SRCDIR}/Glue/SettingsScreen.cpp
     ${GAME_SRCDIR}/Glue/Q3FSSpecStorage.cpp

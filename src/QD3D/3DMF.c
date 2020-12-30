@@ -20,6 +20,7 @@
 #include "sound2.h"
 #include "qd3d_support.h"
 #include "qd3d_geometry.h"
+#include "GamePatches.h"
 
 extern	QD3DSetupOutputType		*gGameViewInfoPtr;
 
@@ -308,6 +309,10 @@ TQ3GroupPosition	position;
 			/* NUKE ORIGINAL FILE */
 			
 	Q3Object_Dispose(the3DMFFile);
+
+			/* PATCH 3DMF (ADD ALPHA TEST) */
+
+	PatchGrouped3DMF(spec->cName, gObjectGroupList[groupNum], nObjects);
 }
 
 
