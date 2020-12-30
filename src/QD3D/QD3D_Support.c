@@ -15,6 +15,7 @@
 #include <QD3DStorage.h>
 #include <QD3DMath.h>
 #include <QD3DErrors.h>
+#include <frustumculling.h>
 
 #include "globals.h"
 #include "misc.h"
@@ -609,6 +610,15 @@ TQ3ViewStatus			myViewStatus;
 
 		gQD3D_FreshDrawContext = false;
 	}
+
+
+
+
+			/* PREPARE FRUSTUM PLANES FOR SPHERE VISIBILITY CHECKS */
+			// (Source port addition)
+
+	UpdateFrustumPlanes(setupInfo->viewObject);
+
 
 			/***************/
 			/* RENDER LOOP */

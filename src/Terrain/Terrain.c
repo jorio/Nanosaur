@@ -19,6 +19,7 @@
 #include "mobjtypes.h"
 
 #include "GamePatches.h"
+#include "frustumculling.h"
 
 #include <QD3DGeometry.h>
 #include <QD3DMath.h>
@@ -32,7 +33,6 @@ extern	ObjNode		*gFirstNodePtr;
 extern	ObjNode		*gMyNodePtr;
 extern	TerrainItemEntryType	**gTerrainItemLookupTableX;
 extern	Ptr			gTileFilePtr;
-extern	TQ3Matrix4x4	gCameraWorldToViewMatrix,gCameraViewToFrustumMatrix,gCameraAdjustMatrix;
 extern	NewObjectDefinitionType	gNewObjectDefinition;
 extern	TQ3Point3D		gMyCoord;
 
@@ -51,7 +51,6 @@ static void CalcNewItemDeleteWindow(void);
 static float	GetTerrainHeightAtRowCol(long row, long col);
 static void CreateSuperTileMemoryList(void);
 static short	BuildTerrainSuperTile(long	startCol, long startRow);
-static Boolean SeeIfSuperTileInConeOfVision(short superTileNum);
 static void DrawTileIntoMipmap(UInt16 tile, short row, short col, UInt16 *buffer);
 static void BuildTerrainSuperTile_Flat(SuperTileMemoryType *, long startCol, long startRow);
 static inline void	ShrinkSuperTileTextureMap(UInt16 *srcPtr,UInt16 *destPtr);
@@ -1733,8 +1732,12 @@ TQ3Status	myStatus;
 		}
 #endif		
 		
-		if (!SeeIfSuperTileInConeOfVision(i))							// make sure it's visible
+		if (!IsSphereInFrustum_XZ(										// make sure it's visible
+				&gSuperTileMemoryList[i].coord,
+				1.25f*gSuperTileMemoryList[i].radius))
+		{
 			continue;
+		}
 			
 			/* DRAW THE TRIMESH IN THIS SUPERTILE */
 			
@@ -2805,103 +2808,6 @@ UInt16	tile;
 	}
 	return(0);
 }
-
-
-
-/**************** SEE IF SUPERTILE IN CONE OF VISION *******************/
-//
-// Returns false if is not in current camera's cone of vision.
-//
-
-static Boolean SeeIfSuperTileInConeOfVision(short superTileNum)
-{
-#if !(USE_BUGGY_CULLING)
-	SuperTileMemoryType* superTile = &gSuperTileMemoryList[superTileNum];
-	return IsSphereInConeOfVision(&superTile->coord, superTile->radius, HITHER_DISTANCE, YON_DISTANCE);
-#else
-float				w1,w2,radius;
-float				rx,ry,rz,px,py;
-TQ3Point3D			points[2];					// [0] = point, [1] = radius
-TQ3RationalPoint4D	outPoint4D[2];
-	
-	rx = gSuperTileMemoryList[superTileNum].coord.x; 
-	rz = gSuperTileMemoryList[superTileNum].coord.z;
-	ry = gSuperTileMemoryList[superTileNum].coord.y;
-	
-	radius = gSuperTileMemoryList[superTileNum].radius;							// get radius
-
-	points[0].x = 	(rx*gCameraWorldToViewMatrix.value[0][0]) + 
-					(ry*gCameraWorldToViewMatrix.value[1][0]) + 
-					(rz*gCameraWorldToViewMatrix.value[2][0]) + 
-					(gCameraWorldToViewMatrix.value[3][0]); 
-
-	points[0].y = 	(rx*gCameraWorldToViewMatrix.value[0][1]) + 
-					(ry*gCameraWorldToViewMatrix.value[1][1]) + 
-					(rz*gCameraWorldToViewMatrix.value[2][1]) + 
-					(gCameraWorldToViewMatrix.value[3][1]); 
-
-	points[0].z = 	(rx*gCameraWorldToViewMatrix.value[0][2]) + 
-					(ry*gCameraWorldToViewMatrix.value[1][2]) + 
-					(rz*gCameraWorldToViewMatrix.value[2][2]) + 
-					(gCameraWorldToViewMatrix.value[3][2]); 
-				
-				/* SEE IF BEHIND CAMERA */
-				
-	if (points[0].z >= -HITHER_DISTANCE)									
-	{
-		if ((points[0].z - radius) > -HITHER_DISTANCE)							// is entire sphere behind camera?
-			goto draw_off;
-			
-				/* PARTIALLY BEHIND */
-				
-		points[0].z -= radius;													// move edge over hither plane so cone calc will work
-	}
-	else
-	{
-			/* SEE IF BEYOND YON PLANE */
-		
-		if ((points[0].z + radius) < (-YON_DISTANCE))							// see if too far away
-			goto draw_off;
-	}
-
-			/*****************************/
-			/* SEE IF WITHIN VISION CONE */
-			/*****************************/
-
-	points[1].x = points[1].y = radius;
-	points[1].z = points[0].z;	
-	
-	Q3Point3D_To4DTransformArray(&points[0],&gCameraViewToFrustumMatrix,
-								&outPoint4D[0],	2,sizeof(TQ3Point3D),
-								sizeof(TQ3RationalPoint4D));
-	
-	
-	w1 = outPoint4D[0].w;
-	w2 = outPoint4D[1].w;
-	
-	px = w1*outPoint4D[0].x;
-	py = w1*outPoint4D[0].y;
-	rx = w2*outPoint4D[1].x;
-	ry = w2*outPoint4D[1].y;
-
-	if ((px + rx) < -1.0f)						// see if sphere "would be" out of bounds
-		goto draw_off;
-	if ((px - rx) > 1.0f)
-		goto draw_off;
-	
-	if ((py + ry) < -1.0f)						
-		goto draw_off;
-	if ((py - ry) > 1.0f)
-		goto draw_off;
-				
-draw_on:
-	return(true);
-
-draw_off:
-	return(false);
-#endif
-}
-
 
 
 

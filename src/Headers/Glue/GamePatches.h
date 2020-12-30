@@ -7,14 +7,8 @@
 extern "C" {
 #endif
 
-// SOURCE PORT EXTRAS
-
-#define USE_BUGGY_CULLING false
-
 //-----------------------------------------------------------------------------
 // Reimplementations of game functions
-
-Boolean IsSphereInConeOfVision(TQ3Point3D* coord, float radius, float hither, float yon);
 
 char GetTypedKey(void);
 
