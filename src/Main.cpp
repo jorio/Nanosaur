@@ -144,12 +144,8 @@ int CommonMain(int argc, const char** argv)
 	// Start the game
 	try
 	{
-#if 0
 		SetProModeSettings(AskProMode());
 		SDL_SetWindowTitle(gSDLWindow, GetWindowTitle());
-#else
-		SetProModeSettings(0);  // For now, don't expose Pro Mode, because we have perf issues with the renderer
-#endif
 		GameMain();
 	}
 	catch (Pomme::QuitRequest&)

@@ -6,7 +6,7 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 set(CMAKE_CXX_STANDARD 20)
 
 project(Nanosaur
-    VERSION 1.4.0
+    VERSION 1.4.1
     LANGUAGES C CXX
 )
 
