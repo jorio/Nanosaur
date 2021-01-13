@@ -25,7 +25,8 @@ if(MSVC)
 	add_compile_options(/Zc:__cplusplus)
 	add_compile_definitions(UNICODE _UNICODE)
 
-	set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT Bugdom)
+	set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT Nanosaur)
+
 endif()
 
 #------------------------------------------------------------------------------
@@ -198,7 +199,10 @@ endif()
 
 if(WIN32)
 	# "WIN32" here is equivalent to /SUBSYSTEM:WINDOWS for MSVC
-	add_executable(${GAME_TARGET} WIN32 ${GAME_ALL_SOURCES})
+	add_executable(${GAME_TARGET} WIN32
+		${GAME_ALL_SOURCES}
+		"${CMAKE_CURRENT_SOURCE_DIR}/cmake/WindowsResources.rc"
+	)
 elseif(APPLE)
 	add_executable(${GAME_TARGET} MACOSX_BUNDLE
 		${GAME_ALL_SOURCES}

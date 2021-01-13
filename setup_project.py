@@ -136,6 +136,4 @@ if input(F"Build project '{proj.dir_name}' now? (Y/N) ").upper() == 'Y':
     if system == 'Darwin':
         call(['hdiutil', 'create', '-fs', 'HFS+', '-srcfolder', F'{proj.dir_name}/Release', '-volname', F'{game_name} {game_ver}', F'{game_name}-{game_ver}-mac.dmg'])
     elif system == 'Windows':
-        call(['rcedit', F'{proj.dir_name}/Release/{game_name}.exe', '--set-icon', F'cmake/{game_name}.ico'])
-        call(['rcedit', F'{proj.dir_name}/Release/{game_name}.exe', '--set-product-version', game_ver])
         zipdir(F'{game_name}-{game_ver}-win64.zip', F'{proj.dir_name}/Release', F'{game_name}-{game_ver}')
