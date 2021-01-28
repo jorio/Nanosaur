@@ -6,6 +6,7 @@ extern "C" {
 #include "file.h"
 #include "sound2.h"
 #include "qd3d_support.h"
+#include "terrain.h"
 }
 
 #include <functional>
@@ -68,6 +69,7 @@ std::vector<SettingEntry> settings = {
 //		{&gGamePrefs.interpolationStyle , "Face Shading"      , nullptr, {"Flat", "Per-Pixel"} },
 //		{&gGamePrefs.opaqueWater        , "Water Alpha"       , nullptr, {"Translucent", "Opaque"}},
 		{&gGamePrefs.mainMenuHelp       , "Main Menu Help"      },
+		{&gGamePrefs.extreme            , "Extreme!"          , [](){SetProModeSettings(gGamePrefs.extreme); DisposeSupertileMemoryList(); InitTerrainManager();}},
 };
 
 static bool needFullRender = false;

@@ -116,21 +116,6 @@ OSErr		iErr;
 	QD3D_Boot();
 
 
-			/* INIT SOME OF MY STUFF */
-			
-	InitTerrainManager();
-	InitSkeletonManager();
-	InitSoundTools();
-	Init3DMFManager();	
-		
-
-
-			/* INIT MORE MY STUFF */
-					
-	InitObjectManager();
-	InitSpriteManager();
-	
-	
 			/* INIT PREFERENCES */
 			
 	memset(&gGamePrefs, 0, sizeof(gGamePrefs));
@@ -145,9 +130,27 @@ OSErr		iErr;
 	gGamePrefs.vsync = true;
 	gGamePrefs.mainMenuHelp = true;
 	gGamePrefs.opaqueWater = false;
+	gGamePrefs.extreme = false;
 				
 	LoadPrefs(&gGamePrefs);							// attempt to read from prefs file
 	SetFullscreenMode();
+	SetProModeSettings(gGamePrefs.extreme);
+
+
+
+			/* INIT SOME OF MY STUFF */
+
+	InitTerrainManager();
+	InitSkeletonManager();
+	InitSoundTools();
+	Init3DMFManager();
+
+
+
+			/* INIT MORE MY STUFF */
+
+	InitObjectManager();
+	InitSpriteManager();
 					
 }
 

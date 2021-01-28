@@ -304,10 +304,11 @@ typedef struct
 	Boolean interpolationStyle;
 	Boolean vsync;
 	Boolean opaqueWater;
+	Boolean extreme;
 	Boolean	reserved[4];
 }PrefsType;
 
-#define PREFS_MAGIC "Nanosaur Prefs v2"
+#define PREFS_MAGIC "Nanosaur Prefs v3"
 
 #endif
 
