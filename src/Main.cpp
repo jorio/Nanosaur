@@ -17,13 +17,13 @@
 extern "C"
 {
 	// bare minimum from Windows.c to satisfy externs in game code
+	SDL_Window* gSDLWindow = nullptr;
 	WindowPtr gCoverWindow = nullptr;
 	UInt32* gCoverWindowPixPtr = nullptr;
 
 	// Lets the game know where to find its asset files
 	extern FSSpec gDataSpec;
 
-	extern SDL_Window* gSDLWindow;
 
 	extern int PRO_MODE;
 
@@ -69,16 +69,30 @@ static void FindGameData()
 
 int CommonMain(int argc, const char** argv)
 {
-	Pomme::InitParams initParams =
-	{
-		.windowName = "Nanosaur",
-		.windowWidth = 640,
-		.windowHeight = 480,
-		.msaaSamples = 0
-	};
-
 	// Start our "machine"
-	Pomme::Init(initParams);
+	Pomme::Init();
+
+	// Initialize SDL video subsystem
+	if (0 != SDL_Init(SDL_INIT_VIDEO))
+		throw std::runtime_error("Couldn't initialize SDL video subsystem.");
+
+	// Create window
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+#ifndef _WIN32
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
+#endif
+//	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+//	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
+	gSDLWindow = SDL_CreateWindow(
+			"Nanosaur",
+			SDL_WINDOWPOS_UNDEFINED,
+			SDL_WINDOWPOS_UNDEFINED,
+			640,
+			480,
+			SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_SHOWN);
+	if (!gSDLWindow)
+		throw std::runtime_error("Couldn't create SDL window.");
 
 	// Set up globals that the game expects
 	gCoverWindow = Pomme::Graphics::GetScreenPort();
@@ -92,7 +106,7 @@ int CommonMain(int argc, const char** argv)
 
 	FindGameData();
 #if !(__APPLE__)
-	Pomme::Graphics::SetWindowIconFromIcl8Resource(128);
+	Pomme::Graphics::SetWindowIconFromIcl8Resource(gSDLWindow, 128);
 #endif
 
 	// Initialize Quesa
