@@ -98,7 +98,7 @@ void InitObjectManager(void)
 	gFirstNodePtr = nil;									// no node yet
 
 #if 1
-	DoAlert("TODO noquesa: Make Backface Style Object");
+	printf("TODO noquesa: Make Backface Style Object\n");
 #else
 			/* MAKE BACKFACE STYLE OBJECT */
 			

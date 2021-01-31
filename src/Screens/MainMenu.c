@@ -123,7 +123,7 @@ do_again:
 
 			/* MAKE VIEW */
 
-	QD3D_NewViewDef(&viewDef, gCoverWindow);
+	QD3D_NewViewDef(&viewDef);
 	viewDef.camera.hither 			= 50;
 	viewDef.camera.yon 				= 1000;
 	viewDef.camera.fov 				= 1.0;

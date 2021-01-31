@@ -8,6 +8,7 @@
 
 
 #include <QD3D.h>
+#include <SDL.h>
 
 
 #define	DEFAULT_FPS			4
@@ -16,10 +17,7 @@
 
 typedef	struct
 {
-	Boolean					useWindow;			// true if render to window, false if render to pixmap
-	WindowPtr				displayWindow;
 	GWorldPtr				gworld;
-	TQ3ObjectType			rendererType;
 	TQ3ColorARGB			clearColor;
 	Rect					paneClip;			// not pane size, but clip:  left = amount to clip off left
 }QD3DViewDefType;
@@ -87,11 +85,12 @@ typedef struct
 	TQ3GroupObject			lightGroup;		// another ref is in viewObject, this one's just for convenience!
 	TQ3DrawContextObject	drawContext;	// another ref is in viewObject, this one's just for convenience!
 #endif
-	WindowPtr				window;
 	Rect					paneClip;			// not pane size, but clip:  left = amount to clip off left
 	TQ3Point3D				currentCameraCoords;
 	TQ3Point3D				currentCameraLookAt;
 	float					hither,yon;
+	float					fov;
+	TQ3CameraPlacement		cameraPlacement;
 }QD3DSetupOutputType;
 
 
@@ -121,7 +120,7 @@ extern	TQ3GroupPosition QD3D_AddFillLight(QD3DSetupOutputType *setupInfo,TQ3Vect
 extern	TQ3GroupPosition QD3D_AddAmbientLight(QD3DSetupOutputType *setupInfo, TQ3ColorRGB *color, float brightness);
 extern	void QD3D_DoMemoryError(void);
 extern	void QD3D_ShowRecentError(void);
-extern	void QD3D_NewViewDef(QD3DSetupInputType *viewDef, WindowPtr theWindow);
+extern	void QD3D_NewViewDef(QD3DSetupInputType *viewDef);
 #if 0 // TODO noquesa
 extern	TQ3SurfaceShaderObject	QD3D_Data16ToTexture_NoMip(Ptr data, short width, short height);
 extern	TQ3StorageObject QD3D_GetMipmapStorageObjectFromAttrib(TQ3AttributeSet attribSet);
@@ -136,6 +135,9 @@ extern	void QD3D_SetTextureWrapMode(int mode);
 extern	void QD3D_SetBlendingMode(int mode);
 
 extern	void QD3D_OnWindowResized(int windowWidth, int windowHeight);
+
+
+void QD3D_GetCurrentViewport(const QD3DSetupOutputType *setupInfo, int *x, int *y, int *w, int *h);
 
 
 

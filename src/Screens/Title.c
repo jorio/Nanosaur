@@ -100,7 +100,7 @@ TQ3Point3D		cameraFrom = { 110, 90, 190.0 };
 
 			/* MAKE VIEW */
 
-	QD3D_NewViewDef(&viewDef, gCoverWindow);
+	QD3D_NewViewDef(&viewDef);
 	viewDef.camera.hither 			= 10;
 	viewDef.camera.yon				= gGamePrefs.canDoFog? 500: 700;		// Source port change from 500 to look good in widescreen without fog
 	viewDef.camera.fov 				= 1.0;
@@ -264,7 +264,7 @@ FSSpec			spec;
 
 			/* MAKE VIEW */
 
-	QD3D_NewViewDef(&viewDef, gCoverWindow);
+	QD3D_NewViewDef(&viewDef);
 	viewDef.camera.hither 			= 10;
 	viewDef.camera.yon 				= 350;
 	viewDef.camera.fov 				= 1.0;
@@ -471,6 +471,9 @@ static void ShowCharity_SourcePortCreditOverlay(void)
 }
 
 void ShowCharity(void)
+#if 1	// TODO noquesa
+{ printf("TODO noquesa: %s\n", __func__); }
+#else
 {
 	const char* firstImage = PRO_MODE ? ":images:Boot1Pro.pict" : ":images:Boot1.pict";
 
@@ -481,6 +484,7 @@ void ShowCharity(void)
 	};
 	Slideshow(slides);
 }
+#endif
 
 
 /*************** SHOW HELP **********************/

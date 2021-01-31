@@ -4,7 +4,9 @@
 #include <math.h>
 #include <string.h>
 
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #ifdef FLT_EPSILON
     #define kQ3RealZero                         (FLT_EPSILON)
@@ -28,6 +30,13 @@
 #define kQ32Pi                                  ((TQ3Float32) (2.0 * 3.1415926535898))
 #define kQ3PiOver2                              ((TQ3Float32) (3.1415926535898 / 2.0))
 #define kQ33PiOver2                             ((TQ3Float32) (3.0 * 3.1415926535898 / 2.0))
+
+
+#define Q3Math_DegreesToRadians(_x)             ((TQ3Float32) ((_x) *  kQ3Pi / 180.0f))
+#define Q3Math_RadiansToDegrees(_x)             ((TQ3Float32) ((_x) * 180.0f / kQ3Pi))
+#define Q3Math_Min(_x,_y)                       ((_x) <= (_y) ? (_x) : (_y))
+#define Q3Math_Max(_x,_y)                       ((_x) >= (_y) ? (_x) : (_y))
+
 
 
 #define __Q3Memory_Clear(ptr, size) memset((ptr), 0, (size))
@@ -998,6 +1007,173 @@ Q3Matrix4x4_SetRotate_XYZ(
 }
 
 
+static void Q3Matrix4x4_Invert(const TQ3Matrix4x4 *inMatrix, TQ3Matrix4x4 *result)
+{
+/*register*/ float 	val, val2, val_inv;
+/*register*/ int 	i, i4, i8, i12, j, ind;
+TQ3Matrix4x4 	mt1, mt2;
+float* const	mt1v = &mt1.value[0][0];
+float* const	mt2v = &mt2.value[0][0];
+
+
+	Q3Matrix4x4_SetIdentity(&mt2);
+	mt1 = *inMatrix;									// copy in matrix
+
+	for(i = 0; i != 4; i++)
+	{
+		val = mt1v[(i << 2) + i];
+		ind = i;
+
+		i4  = i + 4;
+		i8  = i + 8;
+		i12 = i + 12;
+
+		for (j = i + 1; j != 4; j++)
+		{
+			if (fabsf(mt1v[(i << 2) + j]) > fabsf(val))
+			{
+				ind = j;
+				val = mt1v[(i << 2) + j];
+			}
+		}
+
+		if (ind != i)
+		{
+			val2      = mt2v[i];
+			mt2v[i]    = mt2v[ind];
+			mt2v[ind]  = val2;
+
+			val2      = mt1v[i];
+			mt1v[i]    = mt1v[ind];
+			mt1v[ind]  = val2;
+
+			ind += 4;
+
+			val2      = mt2v[i4];
+			mt2v[i4]   = mt2v[ind];
+			mt2v[ind]  = val2;
+
+			val2      = mt1v[i4];
+			mt1v[i4]   = mt1v[ind];
+			mt1v[ind]  = val2;
+
+			ind += 4;
+
+			val2      = mt2v[i8];
+			mt2v[i8]   = mt2v[ind];
+			mt2v[ind]  = val2;
+
+			val2      = mt1v[i8];
+			mt1v[i8]   = mt1v[ind];
+			mt1v[ind]  = val2;
+
+			ind += 4;
+
+			val2      		= mt2v[i12];
+			mt2v[i12]  = mt2v[ind];
+			mt2v[ind]  = val2;
+
+			val2     		= mt1v[i12];
+			mt1v[i12]  = mt1v[ind];
+			mt1v[ind]  = val2;
+		}
+
+		if (val == 0.0f)
+			goto err;
+
+		val_inv = 1.0f / val;
+
+		mt1v[i]   *= val_inv;
+		mt2v[i]   *= val_inv;
+
+		mt1v[i4]  *= val_inv;
+		mt2v[i4]  *= val_inv;
+
+		mt1v[i8]  *= val_inv;
+		mt2v[i8]  *= val_inv;
+
+		mt1v[i12] *= val_inv;
+		mt2v[i12] *= val_inv;
+
+		if (i != 0)
+		{
+			val = mt1v[i << 2];
+
+			mt1v[0]  -= mt1v[i]   * val;
+			mt2v[0]  -= mt2v[i]   * val;
+
+			mt1v[4]  -= mt1v[i4]  * val;
+			mt2v[4]  -= mt2v[i4]  * val;
+
+			mt1v[8]  -= mt1v[i8]  * val;
+			mt2v[8]  -= mt2v[i8]  * val;
+
+			mt1v[12] -= mt1v[i12] * val;
+			mt2v[12] -= mt2v[i12] * val;
+		}
+
+		if (i != 1)
+		{
+			val = mt1v[(i << 2) + 1];
+
+			mt1v[1]  -= mt1v[i]   * val;
+			mt2v[1]  -= mt2v[i]   * val;
+
+			mt1v[5]  -= mt1v[i4]  * val;
+			mt2v[5]  -= mt2v[i4]  * val;
+
+			mt1v[9]  -= mt1v[i8]  * val;
+			mt2v[9]  -= mt2v[i8]  * val;
+
+			mt1v[13] -= mt1v[i12] * val;
+			mt2v[13] -= mt2v[i12] * val;
+		}
+
+		if (i != 2)
+		{
+			val = mt1v[(i << 2) + 2];
+
+			mt1v[2]  -= mt1v[i]   * val;
+			mt2v[2]  -= mt2v[i]   * val;
+
+			mt1v[6]  -= mt1v[i4]  * val;
+			mt2v[6]  -= mt2v[i4]  * val;
+
+			mt1v[10] -= mt1v[i8]  * val;
+			mt2v[10] -= mt2v[i8]  * val;
+
+			mt1v[14] -= mt1v[i12] * val;
+			mt2v[14] -= mt2v[i12] * val;
+		}
+
+		if (i != 3)
+		{
+			val = mt1v[(i << 2) + 3];
+
+			mt1v[3]  -= mt1v[i]   * val;
+			mt2v[3]  -= mt2v[i]   * val;
+
+			mt1v[7]  -= mt1v[i4]  * val;
+			mt2v[7]  -= mt2v[i4]  * val;
+
+			mt1v[11] -= mt1v[i8]  * val;
+			mt2v[11] -= mt2v[i8]  * val;
+
+			mt1v[15] -= mt1v[i12] * val;
+			mt2v[15] -= mt2v[i12] * val;
+		}
+	}
+
+	*result = mt2;								// copy to result
+	return;
+
+err:
+	Q3Matrix4x4_SetIdentity(result);			// error, so set result to identity
+}
+
+
+
+
 //-----------------------------------------------------------------------------
 static
 TQ3Point3D *
@@ -1050,3 +1226,6 @@ Q3Point3D_Distance(
 
 
 
+#ifdef __cplusplus
+}
+#endif

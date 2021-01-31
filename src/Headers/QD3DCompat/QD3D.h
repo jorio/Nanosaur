@@ -417,3 +417,9 @@ typedef struct TQ3FogStyleData {
 	float                                       density;
 	TQ3ColorARGB                                color;
 } TQ3FogStyleData;
+
+typedef struct TQ3CameraPlacement {
+	TQ3Point3D                                  cameraLocation;
+	TQ3Point3D                                  pointOfInterest;
+	TQ3Vector3D                                 upVector;
+} TQ3CameraPlacement;

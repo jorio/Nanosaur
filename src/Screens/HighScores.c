@@ -164,7 +164,7 @@ QD3DSetupInputType		viewDef;
 	
 			/* SET QD3D PARAMETERS */
 			
-	QD3D_NewViewDef(&viewDef, gCoverWindow);			
+	QD3D_NewViewDef(&viewDef);
 	viewDef.view.clearColor 		= clearColor;
 		
 #if TWO_MEG_VERSION

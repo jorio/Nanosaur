@@ -12,6 +12,7 @@
 #include <QD3D.h>
 #include <QD3DMath.h>
 #include <frustumculling.h>
+#include <stdio.h>
 
 #include "globals.h"
 #include "misc.h"
@@ -24,6 +25,7 @@
 
 #include "GamePatches.h" // Source port addition - for backdrop quad
 
+extern	SDL_Window	*gSDLWindow;
 extern	long		gScreenXOffset,gScreenYOffset;
 extern	Byte		gDemoMode;
 extern	PrefsType	gGamePrefs;
@@ -56,17 +58,17 @@ static TQ3Area GetAdjustedPane(int windowWidth, int windowHeight, Rect paneClip)
 /*    VARIABLES      */
 /*********************/
 
-#if 0	// TODO noquesa
+#if 0	// NOQUESA
 static TQ3CameraObject			gQD3D_CameraObject;
 TQ3GroupObject			gQD3D_LightGroup;
 static TQ3ViewObject			gQD3D_ViewObject;
-static TQ3DrawContextObject		gQD3D_DrawContext;
 static TQ3RendererObject		gQD3D_RendererObject;
 static TQ3ShaderObject			gQD3D_ShaderObject,gQD3D_NullShaderObject;
 static	TQ3StyleObject			gQD3D_BackfacingStyle;
 static	TQ3StyleObject			gQD3D_FillStyle;
 static	TQ3StyleObject			gQD3D_InterpolationStyle;
 #endif
+SDL_GLContext					gGLContext;
 
 TQ3ShaderObject					gQD3D_gShadowTexture = nil;
 
@@ -128,7 +130,7 @@ TQ3Status	myStatus;
 // fills a view def structure with default values.
 //
 
-void QD3D_NewViewDef(QD3DSetupInputType *viewDef, WindowPtr theWindow)
+void QD3D_NewViewDef(QD3DSetupInputType *viewDef)
 {
 TQ3ColorARGB		clearColor = {0,0,0,0};
 TQ3Point3D			cameraFrom = { 0, 40, 200.0 };
@@ -141,12 +143,14 @@ TQ3Vector3D			fillDirection2 = { -1, -1, .2 };
 	Q3Vector3D_Normalize(&fillDirection1,&fillDirection1);
 	Q3Vector3D_Normalize(&fillDirection2,&fillDirection2);
 
+#if 0	// NOQUESA
 	if (theWindow == nil)
 		viewDef->view.useWindow 	=	false;							// assume going to pixmap
 	else
 		viewDef->view.useWindow 	=	true;							// assume going to window
 	viewDef->view.displayWindow 	= theWindow;
 	viewDef->view.rendererType      = kQ3RendererTypeOpenGL;//kQ3RendererTypeInteractive;
+#endif
 	viewDef->view.clearColor 		= clearColor;
 	viewDef->view.paneClip.left 	= 0;
 	viewDef->view.paneClip.right 	= 0;
@@ -185,7 +189,7 @@ TQ3Vector3D			fillDirection2 = { -1, -1, .2 };
 /************** SETUP QD3D WINDOW *******************/
 
 void QD3D_SetupWindow(QD3DSetupInputType *setupDefPtr, QD3DSetupOutputType **outputHandle)
-#if 1	// TODO noquesa
+#if 0	// TODO noquesa
 { DoFatalAlert2("TODO noquesa", __func__); }
 #else
 {
@@ -210,15 +214,21 @@ QD3DSetupOutputType	*outputPtr;
 	
 
 				/* DISPOSE OF EXTRA REFERENCES */
-				
+
+#if 1
+	printf("TODO noquesa %s():%d\n", __func__, __LINE__);
+#else
 	status = Q3Object_Dispose(gQD3D_RendererObject);				// (is contained w/in gQD3D_ViewObject)
 	if (status == kQ3Failure)
 		DoFatalAlert("QD3D_SetupWindow: Q3Object_Dispose failed!");
+#endif
 	
 
 	
 				/* PASS BACK INFO */
-				
+#if 1
+	printf("TODO noquesa %s():%d\n", __func__, __LINE__);
+#else
 	outputPtr->viewObject = gQD3D_ViewObject;
 	outputPtr->interpolationStyle = gQD3D_InterpolationStyle;
 	outputPtr->fillStyle = gQD3D_FillStyle;
@@ -229,16 +239,19 @@ QD3DSetupOutputType	*outputPtr;
 	outputPtr->lightGroup = gQD3D_LightGroup;
 	outputPtr->drawContext = gQD3D_DrawContext;
 	outputPtr->window = setupDefPtr->view.displayWindow;		// remember which window
+#endif
 	outputPtr->paneClip = setupDefPtr->view.paneClip;
 	outputPtr->hither = setupDefPtr->camera.hither;				// remember hither/yon
 	outputPtr->yon = setupDefPtr->camera.yon;
+	outputPtr->fov = setupDefPtr->camera.fov;
 	
 	outputPtr->isActive = true;							// it's now an active structure
-	
+
 	QD3D_MoveCameraFromTo(outputPtr,&v,&v);				// call this to set outputPtr->currentCameraCoords & camera matrix
-	
+
+#if 0	// TODO noquesa
 	Q3DrawContext_SetClearImageColor(gQD3D_DrawContext, &setupDefPtr->view.clearColor); // (source port fix)
-	
+#endif
 
 			/* FOG */
 			
@@ -247,6 +260,11 @@ QD3DSetupOutputType	*outputPtr;
 		QD3D_SetRaveFog(outputPtr,setupDefPtr->lights.fogHither,setupDefPtr->lights.fogYon,
 						&setupDefPtr->view.clearColor,setupDefPtr->lights.fogMode);
 	}
+
+
+	glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+	SDL_GL_SwapWindow(gSDLWindow);
 }
 #endif
 
@@ -294,7 +312,7 @@ QD3DSetupOutputType	*data;
 /******************* CREATE GAME VIEW *************************/
 
 static void CreateView(QD3DSetupInputType *setupDefPtr)
-#if 1	// TODO noquesa
+#if 0	// TODO noquesa
 { DoFatalAlert2("TODO noquesa", __func__); }
 #else
 {
@@ -303,23 +321,32 @@ TQ3Status	status;
 TQ3Uns32	hints;
 #endif
 
+#if 0	// TODO noquesa
 				/* CREATE NEW VIEW OBJECT */
 				
 	gQD3D_ViewObject = Q3View_New();
 	if (gQD3D_ViewObject == nil)
 		DoFatalAlert("Q3View_New failed!");
+#endif
 
 
 			/* CREATE & SET DRAW CONTEXT */
-	
+
+#if 1	// TODO noquesa
+	gGLContext = SDL_GL_CreateContext(gSDLWindow);									// also makes it current
+	GAME_ASSERT(gGLContext);
+
+	gQD3D_FreshDrawContext = true;
+#else
 	CreateDrawContext(&setupDefPtr->view); 											// init draw context
-	
+
 	status = Q3View_SetDrawContext(gQD3D_ViewObject, gQD3D_DrawContext);			// assign context to view
 	if (status == kQ3Failure)
 		DoFatalAlert("Q3View_SetDrawContext Failed!");
+#endif
 
 
-
+#if 0	// TODO noquesa
 			/* CREATE & SET RENDERER */
 
 
@@ -357,6 +384,8 @@ TQ3Uns32	hints;
 	Q3InteractiveRenderer_SetRAVETextureFilter(gQD3D_RendererObject,kQATextureFilter_Fast);	// texturing
 #if 0 // Source port removal - deprecated by Quesa
 	Q3InteractiveRenderer_SetDoubleBufferBypass(gQD3D_RendererObject,kQ3True);
+#endif
+
 #endif
 }
 #endif
@@ -413,7 +442,7 @@ extern SDL_Window*		gSDLWindow;
 
 static void SetStyles(QD3DStyleDefType *styleDefPtr)
 #if 1	// TODO noquesa
-{ DoFatalAlert2("TODO noquesa", __func__); }
+{ printf("TODO noquesa: %s\n", __func__); }
 #else
 {
 
@@ -466,7 +495,7 @@ static void SetStyles(QD3DStyleDefType *styleDefPtr)
 
 static void CreateCamera(QD3DSetupInputType *setupDefPtr)
 #if 1	// TODO noquesa
-{ DoFatalAlert2("TODO noquesa", __func__); }
+{ printf("TODO noquesa: %s\n", __func__); }
 #else
 {
 TQ3CameraData					myCameraData;
@@ -531,7 +560,7 @@ QD3DCameraDefType 				*cameraDefPtr;
 
 static void CreateLights(QD3DLightDefType *lightDefPtr)
 #if 1	// TODO noquesa
-{ DoFatalAlert2("TODO noquesa", __func__); }
+{ printf("TODO noquesa: %s\n", __func__); }
 #else
 {
 TQ3GroupPosition		myGroupPosition;
@@ -784,7 +813,7 @@ TQ3CameraPlacement	placement;
 /*************** QD3D_MoveCameraFromTo ***************/
 
 void QD3D_MoveCameraFromTo(QD3DSetupOutputType *setupInfo, TQ3Vector3D *moveVector, TQ3Vector3D *lookAtVector)
-#if 1
+#if 0
 { DoFatalAlert2("TODO noquesa", __func__); }
 #else
 {
@@ -792,10 +821,14 @@ TQ3Status	status;
 TQ3CameraPlacement	placement;
 
 			/* GET CURRENT CAMERA INFO */
-			
+
+#if 1	// TODO noquesa
+	placement = setupInfo->cameraPlacement;
+#else
 	status = Q3Camera_GetPlacement(setupInfo->cameraObject, &placement);
 	if (status == kQ3Failure)
 		DoFatalAlert("Q3Camera_GetPlacement failed!");
+#endif
 
 
 			/* SET CAMERA COORDS */
@@ -813,10 +846,16 @@ TQ3CameraPlacement	placement;
 	setupInfo->currentCameraLookAt = placement.pointOfInterest;
 
 			/* UPDATE CAMERA INFO */
-			
+
+#if 1	// TODO noquesa
+	setupInfo->cameraPlacement = placement;
+
+
+#else
 	status = Q3Camera_SetPlacement(setupInfo->cameraObject, &placement);
 	if (status == kQ3Failure)
 		DoFatalAlert("Q3Camera_SetPlacement failed!");
+#endif
 		
 	CalcCameraMatrixInfo(setupInfo);	
 }
@@ -1657,7 +1696,7 @@ TQ3StorageObject		storage;
 
 static void MakeShadowTexture(void)
 #if 1
-{ DoFatalAlert2("TODO noquesa", __func__); }
+{ printf("TODO noquesa: %s\n", __func__); }
 #else
 {
 TQ3Status	status;
@@ -1860,7 +1899,7 @@ static TQ3Area GetAdjustedPane(int windowWidth, int windowHeight, Rect paneClip)
 // Adjusts the clipping pane and camera aspect ratio.
 void QD3D_OnWindowResized(int windowWidth, int windowHeight)
 #if 1
-{ DoFatalAlert2("TODO noquesa", __func__); }
+{ printf("TODO noquesa: %s\n", __func__); }
 #else
 {
 	if (!gGameViewInfoPtr)
@@ -1875,3 +1914,24 @@ void QD3D_OnWindowResized(int windowWidth, int windowHeight)
 }
 #endif
 
+
+
+#pragma mark -
+
+void QD3D_GetCurrentViewport(const QD3DSetupOutputType *setupInfo, int *x, int *y, int *w, int *h)
+{
+	int	t,b,l,r;
+	int gameWindowWidth, gameWindowHeight;
+
+	SDL_GetWindowSize(gSDLWindow, &gameWindowWidth, &gameWindowHeight);
+
+	t = setupInfo->paneClip.top;
+	b = setupInfo->paneClip.bottom;
+	l = setupInfo->paneClip.left;
+	r = setupInfo->paneClip.right;
+
+	*x = l;
+	*y = t;
+	*w = gameWindowWidth-l-r;
+	*h = gameWindowHeight-t-b;
+}

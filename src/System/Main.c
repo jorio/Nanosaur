@@ -161,7 +161,7 @@ TQ3ColorRGB		c2 = { 1, .9, .6 };
 
 			/* MAKE VIEW */
 
-	QD3D_NewViewDef(&viewDef, gCoverWindow);
+	QD3D_NewViewDef(&viewDef);
 	
 #if TWO_MEG_VERSION
 	viewDef.view.paneClip.left 		+= 144;  

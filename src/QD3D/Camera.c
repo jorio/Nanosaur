@@ -12,6 +12,12 @@
 #include <QD3D.h>
 #include <QD3DMath.h>
 
+#if __APPLE__
+	#include <OpenGL/glu.h>		// gluPerspective
+#else
+	#include <GL/glu.h>			// gluPerspective
+#endif
+
 #include "globals.h"
 #include "objects.h"
 #include "camera.h"
@@ -233,15 +239,54 @@ float	fps = gFramesPerSecondFrac;
 
 /********************** CALC CAMERA MATRIX INFO ************************/
 
-void CalcCameraMatrixInfo(QD3DSetupOutputType *viewPtr)
-#if 1
+void CalcCameraMatrixInfo(QD3DSetupOutputType *setupInfo)
+#if 0
 { DoFatalAlert2("TODO noquesa", __func__); }
 #else
 {
+	int temp, w, h;
+	QD3D_GetCurrentViewport(setupInfo, &temp, &temp, &w, &h);
+	float aspect = (float)w/(float)h;
+
+			/* INIT PROJECTION MATRIX */
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+
+	gluPerspective (Q3Math_RadiansToDegrees(setupInfo->fov),	// fov
+					aspect,					// aspect
+					setupInfo->hither,		// hither
+					setupInfo->yon);		// yon
+
+
+			/* INIT MODELVIEW MATRIX */
+
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	TQ3CameraPlacement* placement = &setupInfo->cameraPlacement;
+	gluLookAt(placement->cameraLocation.x, placement->cameraLocation.y, placement->cameraLocation.z,
+			  placement->pointOfInterest.x, placement->pointOfInterest.y, placement->pointOfInterest.z,
+			  placement->upVector.x, placement->upVector.y, placement->upVector.z);
+
+
+
+
+
+
+
 			/* GET CAMERA VIEW MATRIX INFO */
-			
+
+#if 1	// TODO noquesa
+	glGetFloatv(GL_MODELVIEW_MATRIX, (GLfloat *)&gCameraWorldToViewMatrix);				// get camera's world to view matrix
+	glGetFloatv(GL_PROJECTION_MATRIX, (GLfloat *)&gCameraViewToFrustumMatrix);			// get camera's view to frustrum matrix (to calc screen coords)
+//	Q3Matrix4x4_Multiply(&gCameraWorldToViewMatrix, &gCameraViewToFrustumMatrix, &gCameraWorldToFrustumMatrix);		// (from otto)
+
+//	OGLMatrix4x4_GetFrustumToWindow(setupInfo, &gFrustumToWindowMatrix);		// (from otto)
+//	OGLMatrix4x4_Multiply(&gWorldToFrustumMatrix, &gFrustumToWindowMatrix, &gWorldToWindowMatrix);		// (from otto)
+#else
 	Q3Camera_GetWorldToView(viewPtr->cameraObject, &gCameraWorldToViewMatrix);			// get camera's world to view matrix
-	Q3Camera_GetViewToFrustum(viewPtr->cameraObject, &gCameraViewToFrustumMatrix);		// get camera's view to frustrum matrix (to calc screen coords)		
+	Q3Camera_GetViewToFrustum(viewPtr->cameraObject, &gCameraViewToFrustumMatrix);		// get camera's view to frustrum matrix (to calc screen coords)
+#endif
 	
 	
 			/* CALCULATE THE ADJUSTMENT MATRIX */
