@@ -3,13 +3,11 @@
 #include "PommeFiles.h"
 #include "PommeGraphics.h"
 #include "GamePatches.h"
-#include "version.h"
 
 #include <Quesa.h>
 #include <SDL.h>
 
 #include <iostream>
-#include <cstring>
 
 #if __APPLE__
 #include <libproc.h>
@@ -69,13 +67,6 @@ static void FindGameData()
 	UseResFile(resFileRefNum);
 }
 
-static const char* GetWindowTitle()
-{
-	static char windowTitle[256];
-	snprintf(windowTitle, sizeof(windowTitle), "Nanosaur%s %s", PRO_MODE ? " Extreme" : "", PROJECT_VERSION);
-	return windowTitle;
-}
-
 int CommonMain(int argc, const char** argv)
 {
 	Pomme::InitParams initParams =
@@ -114,7 +105,6 @@ int CommonMain(int argc, const char** argv)
 	// Start the game
 	try
 	{
-		SDL_SetWindowTitle(gSDLWindow, GetWindowTitle());
 		GameMain();
 	}
 	catch (Pomme::QuitRequest&)

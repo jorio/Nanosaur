@@ -3,6 +3,10 @@
 // PRO_MODE preprocessor define. However, the source port lets you pick either
 // version of the game with the same build.
 
+#include <SDL.h>
+#include <string.h>
+#include "version.h"
+
 int		PRO_MODE;
 int		SUPERTILE_ACTIVE_RANGE;
 int		MAX_ENEMIES;
@@ -18,6 +22,8 @@ float	BLASTER_RATE;
 float	HEATSEEK_RATE;
 float	TRIBLAST_RATE;
 float	NUKE_RATE;
+
+extern	SDL_Window		*gSDLWindow;
 
 void SetProModeSettings(int pro)
 {
@@ -36,4 +42,15 @@ void SetProModeSettings(int pro)
 	HEATSEEK_RATE				= pro ? 2 : 2;
 	TRIBLAST_RATE				= pro ? 7 : 3;
 	NUKE_RATE					= pro ? .05 : .05;
+
+	// Re-set window title
+	if (gSDLWindow)
+	{
+		static char windowTitle[256];
+		snprintf(windowTitle, sizeof(windowTitle),
+			"%s %s",
+			PRO_MODE ? "Nanosaur Extreme" : "Nanosaur",
+			PROJECT_VERSION);
+		SDL_SetWindowTitle(gSDLWindow, windowTitle);
+	}
 }
