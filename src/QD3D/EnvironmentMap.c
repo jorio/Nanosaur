@@ -104,6 +104,9 @@ TQ3Status	status;
 /************ CALC ENVIRONMENT MAPPING COORDS ************/
 
 void CalcEnvironmentMappingCoords(TQ3Point3D *camCoord)
+#if 1	// TODO noquesa
+{ printf("TODO noquesa: %s\n", __func__); }
+#else
 {
 ObjNode	*thisNodePtr;
 
@@ -142,6 +145,7 @@ ObjNode	*thisNodePtr;
 
 
 }
+#endif
 
 
 

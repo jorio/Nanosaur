@@ -749,6 +749,9 @@ check_x:
 //
 
 void CreateCollisionTrianglesForObject(ObjNode *theNode)
+#if 1	// TODO noquesa
+{ DoFatalAlert2("TODO noquesa", __func__); }
+#else
 {
 short	i;
 
@@ -789,6 +792,7 @@ short	i;
 		theNode->CollisionTriangles->triangles[i] = gCollTriangles[i];				// copy each triangle
 	
 }
+#endif
 
 
 /****************** SCAN FOR TRIANGLES - RECURSE ***********************/

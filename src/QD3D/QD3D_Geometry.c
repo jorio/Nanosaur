@@ -264,6 +264,9 @@ long	i;
 //
 
 void QD3D_ExplodeGeometry(ObjNode *theNode, float boomForce, Byte particleMode, long particleDensity, float particleDecaySpeed)
+#if 1	// TODO noquesa
+{ DoFatalAlert2("TODO noquesa", __func__); }
+#else
 {
 TQ3Object theObject;
 
@@ -297,6 +300,7 @@ TQ3Object theObject;
 		ExplodeGeometry_Recurse(theObject);	
 	}
 }
+#endif
 
 
 /****************** EXPLODE GEOMETRY - RECURSE ***********************/

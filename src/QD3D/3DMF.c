@@ -321,9 +321,14 @@ TQ3GroupPosition	position;
 		if (status == kQ3Failure)
 			DoFatalAlert("LoadGrouped3DMF: Q3Group_GetPositionObject failed!");
 #endif
-		
+
+#if 1
+		printf("TODO noquesa: actually calc radius & bbox\n");
+		gObjectGroupRadiusList[groupNum][i] = 50;	// save radius of it
+#else
 		gObjectGroupRadiusList[groupNum][i] = QD3D_CalcObjectRadius(gObjectGroupList[groupNum][i]);	// save radius of it
 		QD3D_CalcObjectBoundingBox(gGameViewInfoPtr,gObjectGroupList[groupNum][i],&gObjectGroupBBoxList[groupNum][i]); // save bbox
+#endif
 		
 #if 0	// NOQUESA
 		Q3Group_GetNextPosition(the3DMFFile, &position);			// get position of next object

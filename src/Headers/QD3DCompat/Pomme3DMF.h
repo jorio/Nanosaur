@@ -9,6 +9,7 @@ extern "C"
 
 typedef void*			Pomme3DMF_FileHandle;
 typedef uint32_t*		Pomme3DMF_MeshGroupHandle;
+typedef void*			Pomme3DMF_MeshHandle;
 
 
 Pomme3DMF_FileHandle Pomme3DMF_LoadModelFile(const FSSpec* spec);
