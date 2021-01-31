@@ -31,7 +31,6 @@
 #include "camera.h"
 #include "pickups.h"
 
-extern	TQ3ViewObject			gGameViewObject;
 extern	ObjNode		*gCurrentNode,*gInventoryObject;
 extern	float		gFramesPerSecondFrac,gFramesPerSecond,gFuel;
 extern	Byte		gCameraMode;

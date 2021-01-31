@@ -10,11 +10,6 @@
 /****************************/
 
 #include "globals.h"
-#include <QD3DGroup.h>
-#include <QD3DStorage.h>
-#include <QD3DIO.h>
-#include <QD3DErrors.h>
-#include <QD3DGeometry.h>
 #include "misc.h"
 #include "3dmf.h"
 #include "sound2.h"
@@ -69,6 +64,9 @@ short	i;
 //
 
 TQ3Object	Load3DMFModel(FSSpec *inFile)
+#if 1
+{ DoFatalAlert2("TODO noquesa", __func__); return nil; }
+#else
 {
 TQ3FileObject		fileObj;
 TQ3Object			theModel;
@@ -94,6 +92,7 @@ TQ3Object			theModel;
 	Q3Object_Dispose(fileObj);
 	return(theModel);
 }
+#endif
 
 
 /*************** CREATE 3DMF FILE OBJECT ****************/
@@ -104,6 +103,9 @@ TQ3Object			theModel;
 //
 
 static TQ3FileObject	Create3DMFFileObject(FSSpec *myFSSpec)
+#if 1
+{ DoFatalAlert2("TODO noquesa", __func__); return nil; }
+#else
 {
 TQ3FileObject		myFileObj;
 TQ3StorageObject	myStorageObj;
@@ -139,6 +141,7 @@ TQ3StorageObject	myStorageObj;
 			
 	return(myFileObj);
 }
+#endif
 
 
 
@@ -153,6 +156,9 @@ TQ3StorageObject	myStorageObj;
 //
 
 static TQ3Status MyRead3DMFModel(TQ3FileObject file, TQ3Object *model)
+#if 1
+{ DoFatalAlert2("TODO noquesa", __func__); return kQ3Failure; }
+#else
 {
 TQ3GroupObject	myGroup;
 TQ3Object		myObject;
@@ -239,6 +245,7 @@ TQ3Object		myObject;
 	
 	return(kQ3Success);
 }
+#endif
 	
 	
 	
@@ -252,6 +259,9 @@ TQ3Object		myObject;
 
 
 void LoadGrouped3DMF(FSSpec *spec, Byte groupNum)
+#if 1	// TODO noquesa
+{ DoFatalAlert2("TODO noquesa", __func__); }
+#else
 {
 TQ3Object		the3DMFFile;
 TQ3Uns32		nObjects;
@@ -314,11 +324,15 @@ TQ3GroupPosition	position;
 
 	PatchGrouped3DMF(spec->cName, gObjectGroupList[groupNum], nObjects);
 }
+#endif
 
 
 /******************** DELETE 3DMF GROUP **************************/
 
 void Free3DMFGroup(Byte groupNum)
+#if 1	// TODO noquesa
+{ DoFatalAlert2("TODO noquesa", __func__); }
+#else
 {
 short	i;
 
@@ -336,6 +350,7 @@ short	i;
 
 	gNumObjectsInGroupList[groupNum] = 0;
 }
+#endif
 
 
 /******************* DELETE ALL 3DMF GROUPS ************************/

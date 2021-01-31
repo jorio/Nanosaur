@@ -10,8 +10,9 @@
 /****************************/
 
 #include <QD3D.h>
-#include <QD3DErrors.h>
 #include <QD3DMath.h>
+#include <string.h>
+#include <stdio.h>
 #include "globals.h"
 #include "mobjtypes.h"
 #include "objects.h"

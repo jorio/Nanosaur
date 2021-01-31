@@ -255,6 +255,9 @@ long	numAnims,numJoints;
 //
 
 static void DisposeSkeletonDefinitionMemory(SkeletonDefType *skeleton)
+#if 1	// TODO noquesa
+{ DoFatalAlert2("TODO noquesa", __func__); }
+#else
 {	
 short	i,j,numAnims,numJoints;
 
@@ -318,6 +321,7 @@ short	i,j,numAnims,numJoints;
 			
 	DisposePtr((Ptr)skeleton);
 }
+#endif
 
 
 

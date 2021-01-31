@@ -10,7 +10,7 @@
 /***************/
 
 #include 	<QD3D.h>
-#include 	<QD3DErrors.h>
+#include	<string.h>
 #include	"globals.h"
 #include 	"objects.h"
 #include	"misc.h"

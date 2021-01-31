@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD 20)
 
 set(CMAKE_OSX_DEPLOYMENT_TARGET "10.11" CACHE STRING "Minimum OS X deployment version")
 
-project(Nanosaur
+project(Nanosaur_NoQuesa
 	VERSION 1.4.1
 	LANGUAGES C CXX
 )
@@ -25,7 +25,7 @@ if(MSVC)
 	add_compile_options(/Zc:__cplusplus)
 	add_compile_definitions(UNICODE _UNICODE)
 
-	set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT Nanosaur)
+	set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
 
 endif()
 
@@ -33,7 +33,6 @@ endif()
 # DEPENDENCIES
 #------------------------------------------------------------------------------
 
-add_subdirectory(extern/Quesa)
 add_subdirectory(extern/Pomme)
 
 find_package(SDL2 REQUIRED COMPONENTS main)
@@ -148,27 +147,11 @@ set(GAME_GLUE_SOURCES
 	${GAME_SRCDIR}/Glue/Patch3DMFModels.c
 	${GAME_SRCDIR}/Glue/ProMode.c
 	${GAME_SRCDIR}/Glue/SettingsScreen.cpp
-	${GAME_SRCDIR}/Glue/Q3FSSpecStorage.cpp
 	${GAME_SRCDIR}/Headers/Glue/GamePatches.h
 	${GAME_SRCDIR}/Headers/Glue/GLBackdrop.h
 	${GAME_SRCDIR}/Headers/Glue/GLFunctions.h
 	${GAME_SRCDIR}/Headers/QD3DCompat/QD3D.h
-	${GAME_SRCDIR}/Headers/QD3DCompat/QD3DCamera.h
-	${GAME_SRCDIR}/Headers/QD3DCompat/QD3DDrawContext.h
-	${GAME_SRCDIR}/Headers/QD3DCompat/QD3DErrors.h
-	${GAME_SRCDIR}/Headers/QD3DCompat/QD3DGeometry.h
-	${GAME_SRCDIR}/Headers/QD3DCompat/QD3DGroup.h
-	${GAME_SRCDIR}/Headers/QD3DCompat/QD3DIO.h
-	${GAME_SRCDIR}/Headers/QD3DCompat/QD3DLight.h
 	${GAME_SRCDIR}/Headers/QD3DCompat/QD3DMath.h
-	${GAME_SRCDIR}/Headers/QD3DCompat/QD3DPick.h
-	${GAME_SRCDIR}/Headers/QD3DCompat/QD3DRenderer.h
-	${GAME_SRCDIR}/Headers/QD3DCompat/QD3DSet.h
-	${GAME_SRCDIR}/Headers/QD3DCompat/QD3DShader.h
-	${GAME_SRCDIR}/Headers/QD3DCompat/QD3DStorage.h
-	${GAME_SRCDIR}/Headers/QD3DCompat/QD3DStyle.h
-	${GAME_SRCDIR}/Headers/QD3DCompat/QD3DTransform.h
-	${GAME_SRCDIR}/Headers/QD3DCompat/QD3DView.h
 )
 
 set(GAME_ALL_SOURCES
@@ -224,7 +207,6 @@ target_include_directories(${GAME_TARGET} PRIVATE
 )
 
 target_link_libraries(${GAME_TARGET}
-	Quesa_SDL
 	Pomme
 	${SDL2_LIBRARIES}
 	${OPENGL_LIBRARIES}
@@ -238,13 +220,7 @@ add_compile_definitions(
 	"$<$<CONFIG:DEBUG>:_DEBUG>"
 )
 
-target_compile_definitions(Quesa_SDL PUBLIC
-	QUESA_OS_SDL
-	QUESA_APPLY_FOG_COLOR_IN_ALL_PASSES
-)
-
 target_compile_definitions(${GAME_TARGET} PRIVATE
-	QUESA_OS_SDL
 	SOURCE_PORT_ENHANCEMENTS
 )
 
@@ -267,6 +243,13 @@ if(NOT MSVC)
 		-Wno-multichar
 		-Wno-unknown-pragmas
 		-Wno-unused-parameter
+
+		-Werror=implicit-function-declaration
+		-Werror=return-type
+
+		-Wno-unused-variable
+		-Wno-unused-function
+		-Wno-unused-but-set-variable
 	)
 else()
 	target_compile_options(${GAME_TARGET} PRIVATE

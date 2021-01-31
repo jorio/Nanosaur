@@ -14,7 +14,7 @@ extern SDL_Window* gSDLWindow;
 extern PrefsType gGamePrefs;
 }
 
-constexpr const bool ALLOW_BACKDROP_TEXTURE = true;
+constexpr const bool ALLOW_BACKDROP_TEXTURE = false;
 std::unique_ptr<GLBackdrop> glBackdrop = nullptr;
 
 static SDL_GLContext exclusiveGLContext = nullptr;

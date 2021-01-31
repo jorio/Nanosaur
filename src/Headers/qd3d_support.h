@@ -8,12 +8,6 @@
 
 
 #include <QD3D.h>
-#include <QD3DCamera.h>
-#include <QD3DDrawContext.h>
-#include <QD3DRenderer.h>
-#include <QD3DShader.h>
-#include <QD3DStyle.h>
-#include <QD3DView.h>
 
 
 #define	DEFAULT_FPS			4
@@ -82,6 +76,7 @@ typedef struct
 typedef struct
 {
 	Boolean					isActive;
+#if 0 // TODO noquesa
 	TQ3ViewObject			viewObject;
 	TQ3ShaderObject			shaderObject;
 	TQ3ShaderObject			nullShaderObject;
@@ -91,6 +86,7 @@ typedef struct
 	TQ3CameraObject			cameraObject;	// another ref is in viewObject, this one's just for convenience!
 	TQ3GroupObject			lightGroup;		// another ref is in viewObject, this one's just for convenience!
 	TQ3DrawContextObject	drawContext;	// another ref is in viewObject, this one's just for convenience!
+#endif
 	WindowPtr				window;
 	Rect					paneClip;			// not pane size, but clip:  left = amount to clip off left
 	TQ3Point3D				currentCameraCoords;
@@ -109,6 +105,7 @@ extern	void QD3D_DrawScene(QD3DSetupOutputType *setupInfo, void (*drawRoutine)(Q
 extern	void QD3D_UpdateCameraFrom(QD3DSetupOutputType *setupInfo, TQ3Point3D *from);
 extern	void QD3D_MoveCameraFromTo(QD3DSetupOutputType *setupInfo, TQ3Vector3D *moveVector, TQ3Vector3D *lookAtVector);
 extern	void	QD3D_CalcFramesPerSecond(void);
+#if 0 // TODO noquesa
 extern	TQ3SurfaceShaderObject	QD3D_GetTextureMap(long	textureRezID, FSSpec *myFSSpec);
 extern	TQ3GroupPosition QD3D_AddPointLight(QD3DSetupOutputType *setupInfo,TQ3Point3D *point, TQ3ColorRGB *color, float brightness);
 extern	void QD3D_SetPointLightCoords(QD3DSetupOutputType *setupInfo, TQ3GroupPosition lightPosition, TQ3Point3D *point);
@@ -116,6 +113,7 @@ extern	void QD3D_SetPointLightBrightness(QD3DSetupOutputType *setupInfo, TQ3Grou
 extern	void QD3D_DeleteLight(QD3DSetupOutputType *setupInfo, TQ3GroupPosition lightPosition);
 extern	TQ3SurfaceShaderObject	QD3D_PICTToTexture(PicHandle picture);
 extern	TQ3SurfaceShaderObject	QD3D_GWorldToTexture(GWorldPtr theGWorld, Boolean pointToGWorld);
+#endif
 extern	void SetBackFaceStyle(QD3DSetupOutputType *setupInfo, TQ3BackfacingStyle style);
 extern	void SetFillStyle(QD3DSetupOutputType *setupInfo, TQ3FillStyle style);
 extern	void QD3D_DeleteAllLights(QD3DSetupOutputType *setupInfo);
@@ -124,10 +122,12 @@ extern	TQ3GroupPosition QD3D_AddAmbientLight(QD3DSetupOutputType *setupInfo, TQ3
 extern	void QD3D_DoMemoryError(void);
 extern	void QD3D_ShowRecentError(void);
 extern	void QD3D_NewViewDef(QD3DSetupInputType *viewDef, WindowPtr theWindow);
+#if 0 // TODO noquesa
 extern	TQ3SurfaceShaderObject	QD3D_Data16ToTexture_NoMip(Ptr data, short width, short height);
 extern	TQ3StorageObject QD3D_GetMipmapStorageObjectFromAttrib(TQ3AttributeSet attribSet);
 extern	GWorldPtr QD3D_MipmapToGWorld(TQ3Mipmap *mipmap, Rect *r);
 extern	void QD3D_GWorldToMipMap(GWorldPtr pGWorld, TQ3Mipmap *mipmap, Boolean pointToGWorld);
+#endif
 
 extern	void QD3D_SetRaveFog(QD3DSetupOutputType *setupInfo, float fogHither, float fogYon, TQ3ColorARGB *fogColor, TQ3FogMode fogMode);
 extern	void QD3D_SetTextureFilter(unsigned long textureMode);

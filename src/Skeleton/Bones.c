@@ -12,12 +12,7 @@
 
 
 #include <QD3D.h>
-#include <QD3DErrors.h>
-#include <QD3DGeometry.h>
-#include <QD3DGroup.h>
 #include <QD3DMath.h>
-#include <QD3DSet.h>
-#include <QD3DTransform.h>
 
 #include "globals.h"
 #include "misc.h"
@@ -72,12 +67,17 @@ TQ3Object		newModel;
 	if (newModel == nil)
 		DoFatalAlert("LoadBonesReferenceModel: cant load 3dmf file!");
 
+#if 0	// TODO noquesa (might not be needed anymore)
 	PatchSkeleton3DMF(inSpec->cName, newModel);		// patch 3DMF (add alpha test)
+#endif
 
 	gCurrentSkeleton = skeleton;
 	DecomposeReferenceModel(newModel);
-	
+
+	DoFatalAlert("TODO noquesa: Q3Object_Dispose in LoadBonesReferenceModel");
+#if 0
 	Q3Object_Dispose(newModel);			// dont need original 3DMF anymore
+#endif
 }
 
 
@@ -100,6 +100,9 @@ static void DecomposeReferenceModel(TQ3Object theModel)
 /***************** DECOM REF MO: RECURSE ***************************/
 
 static void DecompRefMo_Recurse(TQ3Object inObj)
+#if 1	// TODO noquesa
+{ DoFatalAlert2("TODO noquesa", __func__); }
+#else
 {
 TQ3GroupPosition	position;
 TQ3Object   		newObj;
@@ -135,11 +138,15 @@ TQ3ObjectType		oType;
   		}
 	}
 }
+#endif
 
 
 /******************* DECOMPOSE A TRIMESH ***********************/
 
 static void DecomposeATriMesh(TQ3Object theTriMesh)
+#if 1	// TODO noquesa
+{ DoFatalAlert2("TODO noquesa", __func__); }
+#else
 {
 TQ3Status			status;
 unsigned long		numVertecies,vertNum;
@@ -242,6 +249,7 @@ added_norm:
 	gCurrentSkeleton->numDecomposedTriMeshes++;											// inc # of trimeshes in decomp list
 
 }
+#endif
 
 
 
@@ -295,6 +303,9 @@ SkeletonObjDataType	*currentSkelObjData;
 /******************** UPDATE SKINNED GEOMETRY: RECURSE ************************/
 
 static void UpdateSkinnedGeometry_Recurse(short joint)
+#if 1	// TODO noquesa
+{ DoFatalAlert2("TODO noquesa", __func__); }
+#else
 {
 long			numChildren,numPoints,p,i,numRefs,r,triMeshNum,p2,c,numNormals,n;
 TQ3Matrix4x4	oldM;
@@ -532,6 +543,7 @@ TQ3TriMeshData		*localTriMeshes = &currentSkelObjData->localTriMeshes[0];
 	}
 
 }
+#endif
 
 
 /******************* PRIME BONE DATA *********************/

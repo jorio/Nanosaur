@@ -10,11 +10,7 @@
 /****************************/
 
 #include <QD3D.h>
-#include <QD3DGroup.h>
-#include <QD3DLight.h>
-#include <QD3DStorage.h>
 #include <QD3DMath.h>
-#include <QD3DErrors.h>
 #include <frustumculling.h>
 
 #include "globals.h"
@@ -43,8 +39,10 @@ static void SetStyles(QD3DStyleDefType *styleDefPtr);
 static void CreateCamera(QD3DSetupInputType *setupDefPtr);
 static void CreateLights(QD3DLightDefType *lightDefPtr);
 static void CreateView(QD3DSetupInputType *setupDefPtr);
+#if 0 // TODO noquesa
 static void DrawPICTIntoMipmap(PicHandle pict,long width, long height, TQ3Mipmap *mipmap);
 static void Data16ToMipmap(Ptr data, short width, short height, TQ3Mipmap *mipmap);
+#endif
 static void MakeShadowTexture(void);
 static TQ3Area GetAdjustedPane(int windowWidth, int windowHeight, Rect paneClip);
 
@@ -58,6 +56,7 @@ static TQ3Area GetAdjustedPane(int windowWidth, int windowHeight, Rect paneClip)
 /*    VARIABLES      */
 /*********************/
 
+#if 0	// TODO noquesa
 static TQ3CameraObject			gQD3D_CameraObject;
 TQ3GroupObject			gQD3D_LightGroup;
 static TQ3ViewObject			gQD3D_ViewObject;
@@ -67,6 +66,7 @@ static TQ3ShaderObject			gQD3D_ShaderObject,gQD3D_NullShaderObject;
 static	TQ3StyleObject			gQD3D_BackfacingStyle;
 static	TQ3StyleObject			gQD3D_FillStyle;
 static	TQ3StyleObject			gQD3D_InterpolationStyle;
+#endif
 
 TQ3ShaderObject					gQD3D_gShadowTexture = nil;
 
@@ -97,6 +97,7 @@ static Boolean gQD3D_FreshDrawContext = false;
 
 void QD3D_Boot(void)
 {
+#if 0 // TODO noquesa
 TQ3Status	myStatus;
 
 
@@ -105,6 +106,7 @@ TQ3Status	myStatus;
 	myStatus = Q3Initialize();
 	if ( myStatus == kQ3Failure )
 		DoFatalAlert("Q3Initialize returned failure.");	
+#endif
 
 	gQD3DInitialized = true;
 
@@ -183,6 +185,9 @@ TQ3Vector3D			fillDirection2 = { -1, -1, .2 };
 /************** SETUP QD3D WINDOW *******************/
 
 void QD3D_SetupWindow(QD3DSetupInputType *setupDefPtr, QD3DSetupOutputType **outputHandle)
+#if 1	// TODO noquesa
+{ DoFatalAlert2("TODO noquesa", __func__); }
+#else
 {
 TQ3Vector3D	v = {0,0,0};
 TQ3Status	status;
@@ -243,6 +248,7 @@ QD3DSetupOutputType	*outputPtr;
 						&setupDefPtr->view.clearColor,setupDefPtr->lights.fogMode);
 	}
 }
+#endif
 
 
 /***************** QD3D_DisposeWindowSetup ***********************/
@@ -251,6 +257,9 @@ QD3DSetupOutputType	*outputPtr;
 //
 
 void QD3D_DisposeWindowSetup(QD3DSetupOutputType **dataHandle)
+#if 1	// TODO noquesa
+{ DoFatalAlert2("TODO noquesa", __func__); }
+#else
 {
 QD3DSetupOutputType	*data;
 
@@ -279,11 +288,15 @@ QD3DSetupOutputType	*data;
 	DisposePtr((Ptr)data);
 	*dataHandle = nil;
 }
+#endif
 
 
 /******************* CREATE GAME VIEW *************************/
 
 static void CreateView(QD3DSetupInputType *setupDefPtr)
+#if 1	// TODO noquesa
+{ DoFatalAlert2("TODO noquesa", __func__); }
+#else
 {
 TQ3Status	status;
 #if 0 // Source port removal
@@ -346,11 +359,15 @@ TQ3Uns32	hints;
 	Q3InteractiveRenderer_SetDoubleBufferBypass(gQD3D_RendererObject,kQ3True);
 #endif
 }
+#endif
 
 
 /**************** CREATE DRAW CONTEXT *********************/
 
 static void CreateDrawContext(QD3DViewDefType *viewDefPtr)
+#if 1	// TODO noquesa
+{ DoFatalAlert2("TODO noquesa", __func__); }
+#else
 {
 TQ3DrawContextData		drawContexData;
 TQ3SDLDrawContextData	myMacDrawContextData;
@@ -383,6 +400,7 @@ extern SDL_Window*		gSDLWindow;
 
 	gQD3D_FreshDrawContext = true;
 }
+#endif
 
 
 
@@ -394,6 +412,9 @@ extern SDL_Window*		gSDLWindow;
 //
 
 static void SetStyles(QD3DStyleDefType *styleDefPtr)
+#if 1	// TODO noquesa
+{ DoFatalAlert2("TODO noquesa", __func__); }
+#else
 {
 
 				/* SET INTERPOLATION (FOR SHADING) */
@@ -437,12 +458,16 @@ static void SetStyles(QD3DStyleDefType *styleDefPtr)
 	gQD3D_NullShaderObject = Q3NULLIllumination_New();
 
 }
+#endif
 
 
 
 /****************** CREATE CAMERA *********************/
 
 static void CreateCamera(QD3DSetupInputType *setupDefPtr)
+#if 1	// TODO noquesa
+{ DoFatalAlert2("TODO noquesa", __func__); }
+#else
 {
 TQ3CameraData					myCameraData;
 TQ3ViewAngleAspectCameraData	myViewAngleCameraData;
@@ -499,11 +524,15 @@ QD3DCameraDefType 				*cameraDefPtr;
 	if (myErr == kQ3Failure)
 		DoFatalAlert("Q3View_SetCamera Failed!");
 }
+#endif
 
 
 /********************* CREATE LIGHTS ************************/
 
 static void CreateLights(QD3DLightDefType *lightDefPtr)
+#if 1	// TODO noquesa
+{ DoFatalAlert2("TODO noquesa", __func__); }
+#else
 {
 TQ3GroupPosition		myGroupPosition;
 TQ3LightData			myLightData;
@@ -571,6 +600,7 @@ TQ3Status	myErr;
 		DoFatalAlert("Q3View_SetLightGroup Failed!");		
 
 }
+#endif
 
 
 
@@ -579,6 +609,9 @@ TQ3Status	myErr;
 /******************* QD3D DRAW SCENE *********************/
 
 void QD3D_DrawScene(QD3DSetupOutputType *setupInfo, void (*drawRoutine)(QD3DSetupOutputType *))
+#if 1	// TODO noquesa
+{ DoFatalAlert2("TODO noquesa", __func__); }
+#else
 {
 TQ3Status				myStatus;
 TQ3ViewStatus			myViewStatus;
@@ -662,6 +695,7 @@ TQ3ViewStatus			myViewStatus;
 		
 	} while ( myViewStatus == kQ3ViewStatusRetraverse );	
 }
+#endif
 
 
 //=======================================================================================================
@@ -673,6 +707,9 @@ TQ3ViewStatus			myViewStatus;
 /*************** QD3D_UpdateCameraFromTo ***************/
 
 void QD3D_UpdateCameraFromTo(QD3DSetupOutputType *setupInfo, TQ3Point3D *from, TQ3Point3D *to)
+#if 1	// TODO noquesa
+{ DoFatalAlert2("TODO noquesa", __func__); }
+#else
 {
 TQ3Status	status;
 TQ3CameraPlacement	placement;
@@ -707,11 +744,15 @@ TQ3CameraObject		camera;
 
 	CalcCameraMatrixInfo(setupInfo);	
 }
+#endif
 
 
 /*************** QD3D_UpdateCameraFrom ***************/
 
 void QD3D_UpdateCameraFrom(QD3DSetupOutputType *setupInfo, TQ3Point3D *from)
+#if 1	// TODO noquesa
+{ DoFatalAlert2("TODO noquesa", __func__); }
+#else
 {
 TQ3Status	status;
 TQ3CameraPlacement	placement;
@@ -737,11 +778,15 @@ TQ3CameraPlacement	placement;
 
 	CalcCameraMatrixInfo(setupInfo);	
 }
+#endif
 
 
 /*************** QD3D_MoveCameraFromTo ***************/
 
 void QD3D_MoveCameraFromTo(QD3DSetupOutputType *setupInfo, TQ3Vector3D *moveVector, TQ3Vector3D *lookAtVector)
+#if 1
+{ DoFatalAlert2("TODO noquesa", __func__); }
+#else
 {
 TQ3Status	status;
 TQ3CameraPlacement	placement;
@@ -775,6 +820,7 @@ TQ3CameraPlacement	placement;
 		
 	CalcCameraMatrixInfo(setupInfo);	
 }
+#endif
 
 
 
@@ -789,6 +835,9 @@ TQ3CameraPlacement	placement;
 /********************* QD3D ADD POINT LIGHT ************************/
 
 TQ3GroupPosition QD3D_AddPointLight(QD3DSetupOutputType *setupInfo,TQ3Point3D *point, TQ3ColorRGB *color, float brightness)
+#if 1
+{ DoFatalAlert2("TODO noquesa", __func__); return nil; }
+#else
 {
 TQ3GroupPosition		myGroupPosition;
 TQ3LightData			myLightData;
@@ -818,11 +867,15 @@ TQ3LightObject			myLight;
 	return(myGroupPosition);
 
 }
+#endif
 
 
 /****************** QD3D SET POINT LIGHT COORDS ********************/
 
 void QD3D_SetPointLightCoords(QD3DSetupOutputType *setupInfo, TQ3GroupPosition lightPosition, TQ3Point3D *point)
+#if 1
+{ DoFatalAlert2("TODO noquesa", __func__); }
+#else
 {
 TQ3PointLightData	pointLightData;
 TQ3LightObject		light;
@@ -845,11 +898,15 @@ TQ3Status			status;
 		
 	Q3Object_Dispose(light);
 }
+#endif
 
 
 /****************** QD3D SET POINT LIGHT BRIGHTNESS ********************/
 
 void QD3D_SetPointLightBrightness(QD3DSetupOutputType *setupInfo, TQ3GroupPosition lightPosition, float bright)
+#if 1
+{ DoFatalAlert2("TODO noquesa", __func__); }
+#else
 {
 TQ3LightObject		light;
 TQ3Status			status;
@@ -864,12 +921,16 @@ TQ3Status			status;
 
 	Q3Object_Dispose(light);
 }
+#endif
 
 
 
 /********************* QD3D ADD FILL LIGHT ************************/
 
 TQ3GroupPosition QD3D_AddFillLight(QD3DSetupOutputType *setupInfo,TQ3Vector3D *fillVector, TQ3ColorRGB *color, float brightness)
+#if 1
+{ DoFatalAlert2("TODO noquesa", __func__); return nil; }
+#else
 {
 TQ3GroupPosition		myGroupPosition;
 TQ3LightData			myLightData;
@@ -896,10 +957,14 @@ TQ3DirectionalLightData	myDirectionalLightData;
 	Q3Object_Dispose(myLight);												// dispose of light
 	return(myGroupPosition);
 }
+#endif
 
 /********************* QD3D ADD AMBIENT LIGHT ************************/
 
 TQ3GroupPosition QD3D_AddAmbientLight(QD3DSetupOutputType *setupInfo, TQ3ColorRGB *color, float brightness)
+#if 1
+{ DoFatalAlert2("TODO noquesa", __func__); return nil; }
+#else
 {
 TQ3GroupPosition		myGroupPosition;
 TQ3LightData			myLightData;
@@ -923,6 +988,7 @@ TQ3LightObject			myLight;
 	
 	return(myGroupPosition);
 }
+#endif
 
 
 
@@ -930,6 +996,9 @@ TQ3LightObject			myLight;
 /****************** QD3D DELETE LIGHT ********************/
 
 void QD3D_DeleteLight(QD3DSetupOutputType *setupInfo, TQ3GroupPosition lightPosition)
+#if 1
+{ DoFatalAlert2("TODO noquesa", __func__); }
+#else
 {
 TQ3LightObject		light;
 
@@ -939,6 +1008,7 @@ TQ3LightObject		light;
 
 	Q3Object_Dispose(light);
 }
+#endif
 
 
 /****************** QD3D DELETE ALL LIGHTS ********************/
@@ -947,6 +1017,9 @@ TQ3LightObject		light;
 //
 
 void QD3D_DeleteAllLights(QD3DSetupOutputType *setupInfo)
+#if 1
+{ DoFatalAlert2("TODO noquesa", __func__); }
+#else
 {
 TQ3Status				status;
 
@@ -955,6 +1028,7 @@ TQ3Status				status;
 		DoFatalAlert("QD3D_DeleteAllLights: Q3Group_EmptyObjects Failed!");
 
 }
+#endif
 
 
 
@@ -977,6 +1051,9 @@ TQ3Status				status;
 //
 
 TQ3SurfaceShaderObject	QD3D_GetTextureMap(long	textureRezID, FSSpec *myFSSpec)
+#if 1
+{ DoFatalAlert2("TODO noquesa", __func__); return nil; }
+#else
 {
 PicHandle			picture;
 TQ3SurfaceShaderObject		shader;
@@ -1044,6 +1121,7 @@ err:
 	DoAlert("Sorry, error reading PICT file!");
 	return(nil);
 }
+#endif
 
 
 /**************** QD3D PICT TO TEXTURE ***********************/
@@ -1055,6 +1133,9 @@ err:
 //
 
 TQ3SurfaceShaderObject	QD3D_PICTToTexture(PicHandle picture)
+#if 1
+{ DoFatalAlert2("TODO noquesa", __func__); return nil; }
+#else
 {
 TQ3Mipmap 				mipmap;
 TQ3TextureObject		texture;
@@ -1085,6 +1166,7 @@ long					width,height;
 
 	return(shader);	
 }
+#endif
 
 
 /**************** QD3D GWORLD TO TEXTURE ***********************/
@@ -1095,6 +1177,9 @@ long					width,height;
 //
 
 TQ3SurfaceShaderObject	QD3D_GWorldToTexture(GWorldPtr theGWorld, Boolean pointToGWorld)
+#if 1
+{ DoFatalAlert2("TODO noquesa", __func__); return nil; }
+#else
 {
 TQ3Mipmap 					mipmap;
 TQ3TextureObject			texture;
@@ -1120,6 +1205,7 @@ TQ3SurfaceShaderObject		shader;
 
 	return(shader);	
 }
+#endif
 
 
 /******************** DRAW PICT INTO MIPMAP ********************/
@@ -1127,6 +1213,7 @@ TQ3SurfaceShaderObject		shader;
 // OUTPUT: mipmap = new mipmap holding texture image
 //
 
+#if 0	// TODO noquesa
 static void DrawPICTIntoMipmap(PicHandle pict, long width, long height, TQ3Mipmap* mipmap)
 {
 #if 1
@@ -1226,6 +1313,7 @@ short					depth;
 	DisposeGWorld (pGWorld);
 #endif
 }
+#endif
 
 
 /******************** GWORLD TO MIPMAP ********************/
@@ -1237,6 +1325,7 @@ short					depth;
 // OUTPUT: mipmap = new mipmap holding texture image
 //
 
+#if 0	// TODO noquesa
 void QD3D_GWorldToMipMap(GWorldPtr pGWorld, TQ3Mipmap *mipmap, Boolean pointToGWorld)
 {
 Ptr			 			pictMapAddr;
@@ -1287,6 +1376,7 @@ short					depth;
 	mipmap->mipmaps[0].rowBytes = pictRowBytes;
 	mipmap->mipmaps[0].offset = 0;
 }
+#endif
 
 
 
@@ -1298,6 +1388,9 @@ short					depth;
 /****************** QD3D:  SET BACKFACE STYLE ***********************/
 
 void SetBackFaceStyle(QD3DSetupOutputType *setupInfo, TQ3BackfacingStyle style)
+#if 1
+{ DoFatalAlert2("TODO noquesa", __func__); }
+#else
 {
 TQ3Status status;
 TQ3BackfacingStyle	backfacingStyle;
@@ -1314,11 +1407,15 @@ TQ3BackfacingStyle	backfacingStyle;
 		DoFatalAlert("Q3BackfacingStyle_Set Failed!");
 
 }
+#endif
 
 
 /****************** QD3D:  SET FILL STYLE ***********************/
 
 void SetFillStyle(QD3DSetupOutputType *setupInfo, TQ3FillStyle style)
+#if 1
+{ DoFatalAlert2("TODO noquesa", __func__); }
+#else
 {
 TQ3Status 		status;
 TQ3FillStyle	fillStyle;
@@ -1335,6 +1432,7 @@ TQ3FillStyle	fillStyle;
 		DoFatalAlert("Q3FillStyle_Set Failed!");
 
 }
+#endif
 
 
 //=======================================================================================================
@@ -1388,6 +1486,9 @@ static	unsigned long then = 0;
 /************ QD3D: SHOW RECENT ERROR *******************/
 
 void QD3D_ShowRecentError(void)
+#if 1
+{ DoFatalAlert2("TODO noquesa", __func__); }
+#else
 {
 TQ3Error	q3Err;
 Str255		s;
@@ -1414,6 +1515,7 @@ Str255		s;
 		DoFatalAlert2("QD3D Error", s);
 	}
 }
+#endif
 
 /***************** QD3D: DO MEMORY ERROR **********************/
 
@@ -1442,6 +1544,9 @@ void QD3D_DoMemoryError(void)
 //
 
 TQ3SurfaceShaderObject	QD3D_Data16ToTexture_NoMip(Ptr data, short width, short height)
+#if 1
+{ DoFatalAlert2("TODO noquesa", __func__); return nil; }
+#else
 {
 TQ3Mipmap 					mipmap;
 TQ3TextureObject			texture;
@@ -1467,6 +1572,7 @@ TQ3SurfaceShaderObject		shader;
 
 	return(shader);	
 }
+#endif
 
 
 /******************** DATA16 TO MIPMAP ********************/
@@ -1478,6 +1584,7 @@ TQ3SurfaceShaderObject		shader;
 // OUTPUT: mipmap = new mipmap holding texture image
 //
 
+#if 0	// TODO noquesa
 static void Data16ToMipmap(Ptr data, short width, short height, TQ3Mipmap *mipmap)
 {
 			/* MAKE 16bit MIPMAP */
@@ -1497,10 +1604,12 @@ static void Data16ToMipmap(Ptr data, short width, short height, TQ3Mipmap *mipma
 	mipmap->mipmaps[0].rowBytes = width*2;
 	mipmap->mipmaps[0].offset = 0;
 }
+#endif
 
 
 /**************** QD3D: GET MIPMAP STORAGE OBJECT FROM ATTRIB **************************/
 
+#if 0	// TODO noquesa
 TQ3StorageObject QD3D_GetMipmapStorageObjectFromAttrib(TQ3AttributeSet attribSet)
 {
 TQ3Status	status;
@@ -1537,6 +1646,7 @@ TQ3StorageObject		storage;
 	Q3Object_Dispose(texture);	
 	return(storage);
 }
+#endif
 
 
 /*********************** MAKE SHADOW TEXTURE ***************************/
@@ -1546,6 +1656,9 @@ TQ3StorageObject		storage;
 //
 
 static void MakeShadowTexture(void)
+#if 1
+{ DoFatalAlert2("TODO noquesa", __func__); }
+#else
 {
 TQ3Status	status;
 TQ3TextureObject	texture;
@@ -1623,6 +1736,7 @@ UInt32		*buffer,*pixelPtr,pixmapRowbytes,size,sizeRead;
 	Q3Object_Dispose(texture);
 	Q3Object_Dispose(mipmap.image);												// nuke old image storage
 }
+#endif
 
 #pragma mark ---------- fog & settings -------------
 
@@ -1644,6 +1758,9 @@ void QD3D_SetRaveFog(QD3DSetupOutputType *setupInfo, float fogHither, float fogY
 /************************ SET TEXTURE FILTER **************************/
 
 void QD3D_SetTextureFilter(unsigned long textureMode)
+#if 1
+{ DoFatalAlert2("TODO noquesa", __func__); }
+#else
 {
 	if (!gGamePrefs.highQualityTextures)		// see if allow high quality
 		return;
@@ -1657,6 +1774,7 @@ void QD3D_SetTextureFilter(unsigned long textureMode)
 	QASetInt(gRaveDrawContext, (TQATagInt)kQATag_TextureFilter, textureMode);
 #endif
 }
+#endif
 
 
 
@@ -1741,6 +1859,9 @@ static TQ3Area GetAdjustedPane(int windowWidth, int windowHeight, Rect paneClip)
 // Called when the game window gets resized.
 // Adjusts the clipping pane and camera aspect ratio.
 void QD3D_OnWindowResized(int windowWidth, int windowHeight)
+#if 1
+{ DoFatalAlert2("TODO noquesa", __func__); }
+#else
 {
 	if (!gGameViewInfoPtr)
 		return;
@@ -1752,4 +1873,5 @@ void QD3D_OnWindowResized(int windowWidth, int windowHeight)
 
 	Q3ViewAngleAspectCamera_SetAspectRatio(gGameViewInfoPtr->cameraObject, aspectRatioXToY);
 }
+#endif
 

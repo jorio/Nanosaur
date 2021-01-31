@@ -9,7 +9,8 @@
 /* EXTERNALS   */
 /***************/
 
-#include 	<stdlib.h>
+#include	<SDL.h>
+#include	<stdlib.h>
 #include	"globals.h"
 #include	"windows_nano.h"
 #include	"misc.h"

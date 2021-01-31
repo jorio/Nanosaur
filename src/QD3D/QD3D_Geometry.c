@@ -10,11 +10,7 @@
 /****************************/
 
 #include <QD3D.h>
-#include <QD3DGroup.h>
-#include <QD3DTransform.h>
 #include <QD3DMath.h>
-#include <QD3DGeometry.h>
-#include <QD3DView.h>
 
 #include "globals.h"
 #include "misc.h"
@@ -68,6 +64,9 @@ ParticleType		gParticles[MAX_PARTICLES];
 /*************** QD3D: CALC OBJECT BOUNDING BOX ************************/
 
 void QD3D_CalcObjectBoundingBox(QD3DSetupOutputType *setupInfo, TQ3Object theObject, TQ3BoundingBox	*boundingBox)
+#if 1
+{ DoFatalAlert2("TODO noquesa", __func__); }
+#else
 {
 	if (setupInfo == nil)
 		DoFatalAlert("QD3D_CalcObjectBoundingBox: setupInfo = nil");
@@ -82,6 +81,7 @@ void QD3D_CalcObjectBoundingBox(QD3DSetupOutputType *setupInfo, TQ3Object theObj
 		Q3Object_Submit(theObject,setupInfo->viewObject);
 	}while(Q3View_EndBoundingBox(setupInfo->viewObject, boundingBox) == kQ3ViewStatusRetraverse);
 }
+#endif
 
 
 
@@ -102,6 +102,9 @@ float QD3D_CalcObjectRadius(TQ3Object theObject)
 /****************** CALC RADIUS - RECURSE ***********************/
 
 static void CalcRadius_Recurse(TQ3Object obj)
+#if 1
+{ DoFatalAlert2("TODO noquesa", __func__); }
+#else
 {
 TQ3GroupPosition	position;
 TQ3Object   		object;
@@ -174,6 +177,7 @@ TQ3Matrix4x4  		stashMatrix;
   		gWorkMatrix = stashMatrix;										// pop matrix  		
 	}
 }
+#endif
 
 //===================================================================================================
 //===================================================================================================
@@ -185,6 +189,9 @@ TQ3Matrix4x4  		stashMatrix;
 /********************** QD3D: INIT PARTICLES **********************/
 
 void QD3D_InitParticles(void)
+#if 1
+{ DoFatalAlert2("TODO noquesa", __func__); }
+#else
 {
 long	i;
 
@@ -227,6 +234,7 @@ long	i;
 		gParticles[i].vertAttribs[1].attributeUseArray = nil;
 	}
 }
+#endif
 
 
 /********************* FIND FREE PARTICLE ***********************/
@@ -294,6 +302,9 @@ TQ3Object theObject;
 /****************** EXPLODE GEOMETRY - RECURSE ***********************/
 
 static void ExplodeGeometry_Recurse(TQ3Object obj)
+#if 1	// TODO noquesa
+{ DoFatalAlert2("TODO noquesa", __func__); }
+#else
 {
 TQ3GroupPosition	position;
 TQ3Object   		object;
@@ -348,6 +359,7 @@ TQ3Matrix4x4  		stashMatrix;
   		gWorkMatrix = stashMatrix;										// pop matrix  		
 	}
 }
+#endif
 
 
 /********************** EXPLODE TRIMESH *******************************/
@@ -357,6 +369,9 @@ TQ3Matrix4x4  		stashMatrix;
 //
 
 static void ExplodeTriMesh(TQ3Object theTriMesh, TQ3TriMeshData *inData)
+#if 1	// TODO noquesa
+{ DoFatalAlert2("TODO noquesa", __func__); }
+#else
 {
 TQ3TriMeshData		triMeshData;
 TQ3Point3D			centerPt = {0,0,0};
@@ -484,6 +499,7 @@ long				i;
 	if (theTriMesh)
 		Q3TriMesh_EmptyData(&triMeshData);
 }
+#endif
 
 
 /************************** QD3D: MOVE PARTICLES ****************************/
@@ -575,6 +591,9 @@ TQ3Matrix4x4	matrix,matrix2;
 /************************* QD3D: DRAW PARTICLES ****************************/
 
 void QD3D_DrawParticles(QD3DSetupOutputType *setupInfo)
+#if 1	// TODO noquesa
+{ DoFatalAlert2("TODO noquesa", __func__); }
+#else
 {
 long	i;
 TQ3ViewObject	view = setupInfo->viewObject;
@@ -600,6 +619,7 @@ TQ3ViewObject	view = setupInfo->viewObject;
 	Q3Pop_Submit(view);													// restore state
 	
 }
+#endif
 
 
 
@@ -629,6 +649,9 @@ void QD3D_ScrollUVs(TQ3Object theObject, float du, float dv)
 /****************** SCROLL UVs - RECURSE ***********************/
 
 static void ScrollUVs_Recurse(TQ3Object obj)
+#if 1	// TODO noquesa
+{ DoFatalAlert2("TODO noquesa", __func__); }
+#else
 {
 TQ3GroupPosition	position;
 TQ3Object   		object;
@@ -695,6 +718,7 @@ TQ3Matrix4x4  		stashMatrix;
   		gWorkMatrix = stashMatrix;										// pop matrix  		
 	}
 }
+#endif
 
 
 
@@ -703,6 +727,9 @@ TQ3Matrix4x4  		stashMatrix;
 /********************** SCROLL UVS: TRIMESH *******************************/
 
 static void ScrollUVs_TriMesh(TQ3Object theTriMesh)
+#if 1	// TODO noquesa
+{ DoFatalAlert2("TODO noquesa", __func__); }
+#else
 {
 TQ3TriMeshData		triMeshData;
 TQ3SurfaceShaderObject	shader;
@@ -723,6 +750,7 @@ TQ3SurfaceShaderObject	shader;
 	}
 	Q3TriMesh_EmptyData(&triMeshData);
 }
+#endif
 
 
 
@@ -737,6 +765,9 @@ TQ3SurfaceShaderObject	shader;
 //
 
 void QD3D_ReplaceGeometryTexture(TQ3Object obj, TQ3SurfaceShaderObject theShader)
+#if 1	// TODO noquesa
+{ DoFatalAlert2("TODO noquesa", __func__); }
+#else
 {
 TQ3GroupPosition	position;
 TQ3Object   		object;
@@ -789,6 +820,7 @@ TQ3TriMeshData		triMeshData;
   		}
 	}
 }
+#endif
 
 
 /**************************** QD3D: DUPLICATE TRIMESH DATA *******************************/
@@ -801,6 +833,9 @@ TQ3TriMeshData		triMeshData;
 //
 
 void QD3D_DuplicateTriMeshData(TQ3TriMeshData *inData, TQ3TriMeshData *outData)
+#if 1	// TODO noquesa
+{ DoFatalAlert2("TODO noquesa", __func__); }
+#else
 {
 UInt32	numPoints,numVertexAttributeTypes;
 UInt32	i;
@@ -858,6 +893,7 @@ UInt32	i;
 				 sizeof(TQ3Param2D) * numPoints);															// copy uv values into new array
 	}
 }
+#endif
 
 
 
@@ -867,6 +903,9 @@ UInt32	i;
 //
 
 void QD3D_FreeDuplicateTriMeshData(TQ3TriMeshData *inData)
+#if 1	// TODO noquesa
+{ DoFatalAlert2("TODO noquesa", __func__); }
+#else
 {
 	DisposePtr((Ptr)inData->points);
 	inData->points = nil;
@@ -884,6 +923,7 @@ void QD3D_FreeDuplicateTriMeshData(TQ3TriMeshData *inData)
 	inData->vertexAttributeTypes = nil;
 	
 }
+#endif
 
         
 

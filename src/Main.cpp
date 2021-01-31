@@ -4,7 +4,6 @@
 #include "PommeGraphics.h"
 #include "GamePatches.h"
 
-#include <Quesa.h>
 #include <SDL.h>
 
 #include <iostream>
@@ -108,13 +107,6 @@ int CommonMain(int argc, const char** argv)
 #if !(__APPLE__)
 	Pomme::Graphics::SetWindowIconFromIcl8Resource(gSDLWindow, 128);
 #endif
-
-	// Initialize Quesa
-	auto qd3dStatus = Q3Initialize();
-	if (qd3dStatus != kQ3Success)
-	{
-		throw std::runtime_error("Couldn't initialize Quesa.");
-	}
 
 	// Start the game
 	try

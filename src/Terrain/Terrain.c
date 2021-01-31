@@ -8,6 +8,8 @@
 /***************/
 
 
+#include "QD3D.h"
+
 #include "globals.h"
 #include "objects.h"
 #include "main.h"
@@ -21,9 +23,7 @@
 #include "GamePatches.h"
 #include "frustumculling.h"
 
-#include <QD3DGeometry.h>
 #include <QD3DMath.h>
-#include <QD3DStorage.h>
 #include <stdlib.h>
 #include <string.h>
 #include "qd3d_geometry.h"
@@ -263,6 +263,9 @@ void DisposeTerrain(void)
 //
 
 static void CreateSuperTileMemoryList(void)
+#if 1	// TODO noquesa
+{ DoFatalAlert2("TODO noquesa", __func__); }
+#else
 {
 short					u,v,i,j;
 TQ3Status				status;
@@ -490,6 +493,7 @@ TQ3SurfaceShaderObject	blankTexObject;
 	
 	}
 }
+#endif
 
 
 /***************** GET FREE SUPERTILE MEMORY *******************/
@@ -532,6 +536,9 @@ short	i;
 //
 
 static short	BuildTerrainSuperTile(long	startCol, long startRow)
+#if 1	// TODO noquesa
+{ DoFatalAlert2("TODO noquesa", __func__); return 0; }
+#else
 {
 long	 			row,col,row2,col2,i;
 short				superTileNum;
@@ -874,12 +881,16 @@ SuperTileMemoryType	*superTilePtr;
 
 	return(superTileNum);
 }
+#endif
 
 
 
 /************************* BUILD TERRAIN SUPERTILE: FLAT ************************************/
 
 static void BuildTerrainSuperTile_Flat(SuperTileMemoryType	*superTilePtr, long startCol, long startRow) 
+#if 1	// TODO noquesa
+{ DoFatalAlert2("TODO noquesa", __func__); }
+#else
 {
 TQ3GeometryObject	theTriMesh;
 TQ3TriMeshData		triMeshData;
@@ -970,6 +981,7 @@ TQ3PlaneEquation	planeEq;
 	Q3TriMesh_SetData(theTriMesh,&triMeshData);										// update the trimesh with new info
 	Q3TriMesh_EmptyData(&triMeshData);												// free the trimesh data
 }
+#endif
 
 
 
@@ -1682,6 +1694,9 @@ static inline void ReleaseSuperTileObject(short superTileNum)
 //
 
 void DrawTerrain(QD3DSetupOutputType *setupInfo)
+#if 1	// TODO noquesa
+{ DoFatalAlert2("TODO noquesa", __func__); }
+#else
 {
 short	i;
 TQ3Status	myStatus;
@@ -1738,6 +1753,7 @@ TQ3Status	myStatus;
 	DrawObjects(setupInfo);												// draw objNodes
 	QD3D_DrawParticles(setupInfo);
 }
+#endif
 
 
 /***************** GET TERRAIN HEIGHT AT COORD ******************/

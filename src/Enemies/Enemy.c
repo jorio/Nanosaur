@@ -27,7 +27,6 @@
 #include "sound2.h"
 
 extern	NewObjectDefinitionType	gNewObjectDefinition;
-extern	TQ3ViewObject			gGameViewObject;
 extern	ObjNode					*gCurrentNode,*gFirstNodePtr;
 extern	float				gFramesPerSecondFrac,gFramesPerSecond;
 extern	TQ3Point3D			gCoord;

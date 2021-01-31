@@ -3,8 +3,7 @@
 // This file is part of Nanosaur. https://github.com/jorio/nanosaur
 
 #include "Pomme.h"
-#include <Quesa.h>
-#include <QuesaStorage.h>
+#include <QD3D.h>
 #include "GamePatches.h"
 extern "C"
 {
@@ -59,6 +58,7 @@ static void _EdgePadding(
 	}
 }
 
+#if 0		// TODO noquesa
 void ApplyEdgePadding(const TQ3Mipmap* mipmap)
 {
 	unsigned char* buffer;
@@ -111,3 +111,4 @@ void ApplyEdgePadding(const TQ3Mipmap* mipmap)
 			break;
 	}
 }
+#endif

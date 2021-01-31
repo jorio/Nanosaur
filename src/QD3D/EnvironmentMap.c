@@ -10,12 +10,7 @@
 /****************************/
 
 #include <QD3D.h>
-#include <QD3DCamera.h>
-#include <QD3DErrors.h>
-#include <QD3DGeometry.h>
-#include <QD3DGroup.h>
 #include <QD3DMath.h>
-#include	<QD3DTransform.h>
 
 #include "globals.h"
 #include "qd3d_support.h"
@@ -59,6 +54,9 @@ static TQ3Point3D	gCamCoord = {0,0,0};
 /******************* INIT REFLECTION MAP QUEUE ************************/
 
 void InitReflectionMapQueue(void)
+#if 1	// TODO noquesa
+{ DoFatalAlert2("TODO noquesa", __func__); }
+#else
 {
 short	i;
 
@@ -70,11 +68,15 @@ short	i;
 
 	gReflectionMapQueueSize = 0;
 }
+#endif
 
 
 /******************* SUBMIT REFLECTION MAP QUEUE ************************/
 
 void SubmitReflectionMapQueue(QD3DSetupOutputType *viewInfo)
+#if 1	// TODO noquesa
+{ DoFatalAlert2("TODO noquesa", __func__); }
+#else
 {
 short	i;
 TQ3Status	status;
@@ -95,6 +97,7 @@ TQ3Status	status;
 	QD3D_SetTextureFilter(kQATextureFilter_Fast);						// set normal textures
 	
 }
+#endif
 
 
 
@@ -145,6 +148,9 @@ ObjNode	*thisNodePtr;
 /****************** CALC ENV MAP_RECURSE *********************/
 
 static void CalcEnvMap_Recurse(TQ3Object obj)
+#if 1	// TODO noquesa
+{ DoFatalAlert2("TODO noquesa", __func__); }
+#else
 {
 TQ3Matrix4x4		transform;
 TQ3GroupPosition	position;
@@ -198,6 +204,7 @@ TQ3Matrix4x4  		stashMatrix;
   		gWorkMatrix = stashMatrix;										// pop matrix
 	}
 }
+#endif
 
 
 
@@ -209,6 +216,9 @@ TQ3Matrix4x4  		stashMatrix;
 //
 
 static void EnvironmentMapTriMesh(TQ3Object theTriMesh, TQ3TriMeshData *inData)
+#if 1	// TODO noquesa
+{ DoFatalAlert2("TODO noquesa", __func__); }
+#else
 {
 TQ3Status			status;
 long				numVertecies,vertNum,numFaceAttribTypes,faceNum,numFaces;
@@ -370,6 +380,7 @@ got_uv:
 	
 	gReflectionMapQueueSize++;		
 }
+#endif
 
 
 

@@ -9,6 +9,7 @@ extern "C" {
 #include "terrain.h"
 }
 
+#include <SDL.h>
 #include <functional>
 #include <vector>
 #include "GamePatches.h"

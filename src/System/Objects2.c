@@ -11,9 +11,8 @@
 
 #include "globals.h"
 
-#include <QD3DGroup.h>
+#include "QD3D.h"
 #include "QD3DMath.h"
-#include <Quesa.h>
 
 #include "objects.h"
 #include "misc.h"
@@ -208,6 +207,9 @@ void SetObjectCollisionBounds(ObjNode *theNode, short top, short bottom, short l
 /******************* ATTACH SHADOW TO OBJECT ************************/
 
 ObjNode	*AttachShadowToObject(ObjNode *theNode, float scaleX, float scaleZ)
+#if 1	// TODO noquesa
+{ DoFatalAlert2("TODO noquesa", __func__); return nil; }
+#else
 {
 ObjNode	*shadowObj;
 							
@@ -236,6 +238,7 @@ ObjNode	*shadowObj;
 
 	return(shadowObj);
 }
+#endif
 
 
 

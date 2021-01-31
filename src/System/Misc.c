@@ -10,7 +10,6 @@
 /***************/
 
 #include <QD3D.h>
-#include <QD3DErrors.h>
 #include <math.h>
 
 #include	"globals.h"
@@ -79,6 +78,7 @@ Str255		numStr;
 
 void DoAlert(const char* s)
 {
+	printf("NANOSAUR ALERT: %s\n", s);
 	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, __func__, s, NULL);
 }
 
@@ -97,6 +97,7 @@ void DoAssert(const char* msg, const char* file, int line)
 
 void DoFatalAlert(const char* s)
 {
+	printf("NANOSAUR FATAL ALERT: %s\n", s);
 	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, __func__, s, NULL);
 	CleanQuit();
 }
@@ -107,6 +108,7 @@ void DoFatalAlert2(const char* s1, const char* s2)
 {
 	static char alertbuf[1024];
 	snprintf(alertbuf, 1024, "%s\n%s", s1, s2);
+	printf("NANOSAUR FATAL ALERT: %s\n", alertbuf);
 	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, __func__, alertbuf, NULL);
 	ExitToShell();
 }
@@ -129,8 +131,8 @@ static	Boolean beenHere = false;
 
 //		ShowBugdomAd();
 		
-		if (gQD3DInitialized)
-			Q3Exit();
+//		if (gQD3DInitialized)
+//			Q3Exit();
 	}
 
 	// Source port addition: save prefs before quitting if any setting was

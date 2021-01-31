@@ -11,7 +11,6 @@
 
 #include <QD3D.h>
 #include <QD3DMath.h>
-#include <QD3DStorage.h>
 #include "globals.h"
 #include "objects.h"
 #include "windows_nano.h"
@@ -552,6 +551,9 @@ short	i;
 /******************* INIT GPS MAP ********************/
 
 static void InitGPSMap(void)
+#if 1	// TODO noquesa
+{ DoFatalAlert2("TODO noquesa", __func__); }
+#else
 {
 Rect					r;
 OSErr					myErr;
@@ -697,11 +699,15 @@ static TQ3Point3D				points[4] = { { -GPS_DISPLAY_SIZE,  GPS_DISPLAY_SIZE, 0 },
 			
 	gOldGPSCoordX = gOldGPSCoordY = -100000;
 }
+#endif
 
 
 /****************** MOVE GPS *********************/
 
 static void MoveGPS(ObjNode *theNode)
+#if 1	// TODO noquesa
+{ DoFatalAlert2("TODO noquesa", __func__); }
+#else
 {
 long				x,y,left,right,top,bottom;
 TQ3Mipmap 			mipmap;
@@ -865,6 +871,7 @@ TQ3Status			status;
 						
 	UpdateInfobarIcon(theNode);
 }
+#endif
 
 
 /************** DEC ASTEROID TIMER *********************/

@@ -11,10 +11,8 @@
 
 #include "globals.h"
 
-#include <QD3DGeometry.h>
-#include <QD3DGroup.h>
+#include "QD3D.h"
 #include "QD3DMath.h"
-#include <QD3DTransform.h>
 #include <GamePatches.h>
 #include <string.h>
 
@@ -39,7 +37,6 @@ extern	TQ3Object	gObjectGroupList[MAX_3DMF_GROUPS][MAX_OBJECTS_IN_GROUP];
 extern	float		gObjectGroupRadiusList[MAX_3DMF_GROUPS][MAX_OBJECTS_IN_GROUP];
 extern	short		gNumObjectsInGroupList[MAX_3DMF_GROUPS];
 extern	float		gFramesPerSecondFrac;
-extern	TQ3ShaderObject	gQD3D_gShadowTexture;
 extern	ObjNode		*gPlayerObj;
 extern	QD3DSetupOutputType		*gGameViewInfoPtr;
 extern	PrefsType	gGamePrefs;
@@ -100,6 +97,9 @@ void InitObjectManager(void)
 		
 	gFirstNodePtr = nil;									// no node yet
 
+#if 1
+	DoAlert("TODO noquesa: Make Backface Style Object");
+#else
 			/* MAKE BACKFACE STYLE OBJECT */
 			
 	if (gKeepBackfaceStyleObject == nil)
@@ -111,6 +111,7 @@ void InitObjectManager(void)
 	else
 		DoFatalAlert("InitObjectManager: gKeepBackfaceStyleObject != nil");
 
+#endif
 }
 
 
@@ -310,6 +311,9 @@ void ResetDisplayGroupObject(ObjNode *theNode)
 //
 
 void AttachGeometryToDisplayGroupObject(ObjNode *theNode, TQ3Object geometry)
+#if 1	// TODO noquesa
+{ DoFatalAlert2("TODO noquesa", __func__); }
+#else
 {
 TQ3GroupPosition	groupPosition;
 
@@ -317,6 +321,7 @@ TQ3GroupPosition	groupPosition;
 	if (groupPosition == nil)
 		DoFatalAlert("Error: AttachGeometryToDisplayGroupObject");
 }
+#endif
 
 
 
@@ -329,6 +334,9 @@ TQ3GroupPosition	groupPosition;
 //
 
 void CreateBaseGroup(ObjNode *theNode)
+#if 1	// TODO noquesa
+{ DoFatalAlert2("TODO noquesa", __func__); }
+#else
 {
 TQ3GroupPosition		myGroupPosition;
 TQ3Matrix4x4			transMatrix,scaleMatrix,rotMatrix;
@@ -379,6 +387,7 @@ TQ3TransformObject		transObject;
 		
 	theNode->BaseTransformObject = transObject;									// keep extra LEGAL ref (remember to dispose later)
 }
+#endif
 
 
 
@@ -444,6 +453,9 @@ ObjNode		*thisNodePtr;
 /**************************** DRAW OBJECTS ***************************/
 
 void DrawObjects(QD3DSetupOutputType *setupInfo)
+#if 1	// TODO noquesa
+{ DoFatalAlert2("TODO noquesa", __func__); }
+#else
 {
 ObjNode		*theNode;
 TQ3Status	myStatus;
@@ -588,6 +600,7 @@ next:
 
 	SubmitReflectionMapQueue(setupInfo);				// draw anything in the reflection map queue
 }
+#endif
 
 
 /********************* MOVE STATIC OBJECT **********************/
@@ -733,6 +746,9 @@ long	i,num;
 /****************** DISPOSE OBJECT BASE GROUP **********************/
 
 void DisposeObjectBaseGroup(ObjNode *theNode)
+#if 1	// TODO noquesa
+{ DoFatalAlert2("TODO noquesa", __func__); }
+#else
 {
 TQ3Status	status;
 
@@ -751,6 +767,7 @@ TQ3Status	status;
 		theNode->BaseTransformObject = nil;
 	}
 }
+#endif
 
 
 
@@ -886,6 +903,9 @@ TQ3Matrix4x4	matrix;
 //
 
 void SetObjectTransformMatrix(ObjNode *theNode)
+#if 1	// TODO noquesa
+{ DoFatalAlert2("TODO noquesa", __func__); }
+#else
 {
 TQ3Status 				error;
 
@@ -899,6 +919,7 @@ TQ3Status 				error;
 			DoFatalAlert("Q3MatrixTransform_Set Failed!");
 	}
 }
+#endif
 
 /********************* MAKE OBJECT KEEP BACKFACES ***********************/
 //
@@ -906,6 +927,9 @@ TQ3Status 				error;
 //
 
 void MakeObjectKeepBackfaces(ObjNode *theNode)
+#if 1	// TODO noquesa
+{ DoFatalAlert2("TODO noquesa", __func__); }
+#else
 {
 TQ3GroupPosition	position;
 TQ3Status			status;
@@ -925,6 +949,7 @@ TQ3ObjectType		oType;
 	if (Q3Group_AddObjectBefore(theNode->BaseGroup, position, gKeepBackfaceStyleObject) == nil)
 		DoFatalAlert("MakeObjectKeepBackfaces: Q3Group_AddObjectBefore failed!");
 }
+#endif
 
 
 
@@ -936,6 +961,9 @@ TQ3ObjectType		oType;
 // INPUT: transPecent = 0..1.0   0 = totally trans, 1.0 = totally opaque
 
 void MakeObjectTransparent(ObjNode *theNode, float transPercent)
+#if 1	// TODO noquesa
+{ DoFatalAlert2("TODO noquesa", __func__); }
+#else
 {
 TQ3GroupPosition	position;
 TQ3Status			status;
@@ -1009,8 +1037,5 @@ TQ3AttributeType	attribType;
 bye:
 	Q3Object_Dispose(attrib);								// dispose of extra ref
 }
-
-
-
-
+#endif
 

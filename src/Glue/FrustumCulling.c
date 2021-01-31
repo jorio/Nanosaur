@@ -2,11 +2,13 @@
 // (C) 2020 Iliyas Jorio
 // This file is part of Bugdom. https://github.com/jorio/bugdom
 
-#include <Quesa.h>
+#include <QD3D.h>
 #include <math.h>
 #include <stdbool.h>
-#include <QuesaView.h>
 #include "frustumculling.h"
+
+#include "Pomme.h"
+#include "misc.h"	// DoFatalAlert2 -- TODO noquesa
 
 static TQ3RationalPoint4D gFrustumPlanes[6];
 
@@ -16,6 +18,9 @@ static TQ3RationalPoint4D gFrustumPlanes[6];
 // Planes 4,5: Z axis. Near, far
 
 void UpdateFrustumPlanes(TQ3ViewObject viewObject)
+#if 1	// TODO noquesa
+{ DoFatalAlert2("TODO noquesa", __func__); }
+#else
 {
 	TQ3Matrix4x4 worldToFrustum;
 	Q3View_GetWorldToFrustumMatrixState(viewObject, &worldToFrustum);
@@ -41,6 +46,7 @@ void UpdateFrustumPlanes(TQ3ViewObject viewObject)
 
 #undef M
 }
+#endif
 
 static inline bool IsSphereFacingFrustumPlane(const TQ3Point3D* worldPt, float radius, int plane)
 {

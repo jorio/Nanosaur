@@ -9,7 +9,6 @@
 /****************************/
 
 #include <QD3D.h>
-#include <QD3DTransform.h>
 #include <QD3DMath.h>
 #include <math.h>
 #include "globals.h"

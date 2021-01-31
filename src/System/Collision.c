@@ -9,9 +9,7 @@
 /* EXTERNALS   */
 /***************/
 
-#include <QD3DGeometry.h>
-#include <QD3DTransform.h>
-#include <QD3DGroup.h>
+#include "QD3D.h"
 #include "globals.h"
 #include "objects.h"
 #include "collision.h"
@@ -796,6 +794,9 @@ short	i;
 /****************** SCAN FOR TRIANGLES - RECURSE ***********************/
 
 static void ScanForTriangles_Recurse(TQ3Object obj)
+#if 1	// TODO noquesa
+{ DoFatalAlert2("TODO noquesa", __func__); }
+#else
 {
 TQ3GroupPosition	position;
 TQ3Object   		object;
@@ -845,11 +846,15 @@ TQ3Matrix4x4  		stashMatrix,transform;
   		gWorkMatrix = stashMatrix;										// pop matrix  		
 	}
 }
+#endif
 
 
 /************************ GET TRIANGLES FROM TRIMESH ****************************/
 
 static void GetTrianglesFromTriMesh(TQ3Object obj)
+#if 1	// TODO noquesa
+{ DoFatalAlert2("TODO noquesa", __func__); }
+#else
 {
 TQ3TriMeshData		triMeshData;
 TQ3Uns32			v,t;
@@ -976,6 +981,7 @@ float				m00,m01,m02,m10,m11,m12,m20,m21,m22,m30,m31,m32;
 			
 	Q3TriMesh_EmptyData(&triMeshData);
 }
+#endif
 
 
 /**************** ALLOCATE COLLISION TRIANGLE MEMORY *******************/

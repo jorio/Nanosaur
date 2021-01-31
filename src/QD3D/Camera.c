@@ -234,6 +234,9 @@ float	fps = gFramesPerSecondFrac;
 /********************** CALC CAMERA MATRIX INFO ************************/
 
 void CalcCameraMatrixInfo(QD3DSetupOutputType *viewPtr)
+#if 1
+{ DoFatalAlert2("TODO noquesa", __func__); }
+#else
 {
 			/* GET CAMERA VIEW MATRIX INFO */
 			
@@ -249,6 +252,7 @@ void CalcCameraMatrixInfo(QD3DSetupOutputType *viewPtr)
 	Q3Matrix4x4_Invert(&gCameraWorldToViewMatrix,&gCameraAdjustMatrix);
 	
 }
+#endif
 
 
 /**************** MOVE CAMERA: MANUAL ********************/

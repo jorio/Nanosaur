@@ -20,10 +20,7 @@
 
 #include "Pomme.h"
 #include "GamePatches.h"
-#include <Quesa.h>
-#include <QuesaGeometry.h>
-#include <QuesaGroup.h>
-#include <QuesaShader.h>
+#include <QD3D.h>
 #include <misc.h>
 
 
@@ -53,7 +50,11 @@ static void ForEachTriMesh(
 		void (*callback)(TQ3TriMeshData triMeshData, void* userData),
 		void* userData,
 		uint64_t triMeshMask)
+#if 1	// TODO noquesa
+{ DoFatalAlert2("TODO noquesa", __func__); }
+#else
 {
+
 	TQ3Object	frontier[OBJTREE_FRONTIER_STACK_LENGTH];
 	int			top = 0;
 
@@ -121,6 +122,7 @@ static void ForEachTriMesh(
 		DoAlert("This group contains more trimeshes than can fit in the mask.");
 	}
 }
+#endif
 
 
 /**************************** QD3D: SET TEXTURE ALPHA THRESHOLD *******************************/
@@ -138,6 +140,9 @@ static void ForEachTriMesh(
 // need that extra depth sorting. The transparent texels can simply be discarded instead.
 
 static void SetAlphaTest(TQ3TriMeshData triMeshData, void* userData_thresholdFloatPtr)
+#if 1	// TODO noquesa
+{ DoFatalAlert2("TODO noquesa", __func__); }
+#else
 {
 	// SEE IF HAS A TEXTURE
 	if (Q3AttributeSet_Contains(triMeshData.triMeshAttributeSet, kQ3AttributeTypeSurfaceShader))
@@ -176,6 +181,7 @@ static void SetAlphaTest(TQ3TriMeshData triMeshData, void* userData_thresholdFlo
 		Q3Object_Dispose(shader);
 	}
 }
+#endif
 
 /****************************/
 /*    PUBLIC FUNCTIONS      */
