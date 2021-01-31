@@ -58,6 +58,7 @@ struct SettingEntry
 };
 
 std::vector<SettingEntry> settings = {
+		{&gGamePrefs.extreme            , "Game Difficulty"   , []() { SetProModeSettings(gGamePrefs.extreme); }, { "Easy", "EXTREME!" } },
 		{&gGamePrefs.fullscreen         , "Fullscreen"        , SetFullscreenMode },
 		{&gGamePrefs.vsync              , "V-Sync"            , []() { SDL_GL_SetSwapInterval(gGamePrefs.vsync ? 1 : 0); } },
 		{&gGamePrefs.highQualityTextures, "Texture Filtering"   },
@@ -69,7 +70,6 @@ std::vector<SettingEntry> settings = {
 //		{&gGamePrefs.interpolationStyle , "Face Shading"      , nullptr, {"Flat", "Per-Pixel"} },
 //		{&gGamePrefs.opaqueWater        , "Water Alpha"       , nullptr, {"Translucent", "Opaque"}},
 		{&gGamePrefs.mainMenuHelp       , "Main Menu Help"      },
-		{&gGamePrefs.extreme            , "Extreme!"          , [](){SetProModeSettings(gGamePrefs.extreme); DisposeSupertileMemoryList(); InitTerrainManager();}},
 };
 
 static bool needFullRender = false;
@@ -183,6 +183,7 @@ void DoQualityDialog()
 		{
 			settings[selectedEntry].Cycle(GetNewKeyState(kKey_TurnLeft) ? -1 : 1);
 			PlayEffect(EFFECT_BLASTER);
+			needFullRender = true;
 		}
 		RenderQualityDialog();
 

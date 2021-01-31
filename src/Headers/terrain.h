@@ -222,15 +222,5 @@ extern	UInt16	GetPathTileNumAtRowCol(long row, long col);
 extern	void RotateOnTerrain(ObjNode *theNode, float sideOff, float endOff);
 extern	void DoMyTerrainUpdate(void);
 
-
-extern	void DisposeSupertileMemoryList(void);
-
-
-
 #endif
-
-
-
-
-
 

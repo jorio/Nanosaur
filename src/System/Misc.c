@@ -131,8 +131,6 @@ static	Boolean beenHere = false;
 		
 		if (gQD3DInitialized)
 			Q3Exit();
-
-		DisposeSupertileMemoryList();
 	}
 
 	// Source port addition: save prefs before quitting if any setting was

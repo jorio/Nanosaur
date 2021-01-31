@@ -54,7 +54,6 @@ static short	BuildTerrainSuperTile(long	startCol, long startRow);
 static void DrawTileIntoMipmap(UInt16 tile, short row, short col, UInt16 *buffer);
 static void BuildTerrainSuperTile_Flat(SuperTileMemoryType *, long startCol, long startRow);
 static inline void	ShrinkSuperTileTextureMap(UInt16 *srcPtr,UInt16 *destPtr);
-static inline void ReleaseAllSuperTiles(void);
 
 
 /****************************/
@@ -99,7 +98,7 @@ long	gCurrentSuperTileRow,gCurrentSuperTileCol;
 // so we can have an active supertile area of 8x8 supertiles or more
 static short	gTerrainScrollBuffer[MAX_SUPERTILES_DEEP][MAX_SUPERTILES_WIDE];		// 2D array which has index to supertiles for each possible supertile
 
-short	gNumFreeSupertiles;
+short	gNumFreeSupertiles = 0;
 static	SuperTileMemoryType		*gSuperTileMemoryList = NULL;
 
 
@@ -245,8 +244,13 @@ void DisposeTerrain(void)
 		DisposePtr((Ptr)gTerrainPtr);
 		gTerrainPtr = nil;
 	}
-	
-	ReleaseAllSuperTiles();
+
+	if (gSuperTileMemoryList != nil)						// release all supertiles (source port addition)
+	{
+		DisposePtr((Ptr) gSuperTileMemoryList);
+		gSuperTileMemoryList = nil;
+	}
+	gNumFreeSupertiles = 0;
 }
 
 
@@ -485,25 +489,6 @@ TQ3SurfaceShaderObject	blankTexObject;
 		Q3Object_Dispose(geometryAttribSet);					// free extra ref to attribs
 	
 	}
-}
-
-
-/************** DISPOSE SUPERTILE MEMORY LIST ********************/
-//
-// Should only be called when the game completely shuts down (not in-between levels!)
-//
-
-void DisposeSupertileMemoryList(void)
-{
-	if (gSuperTileMemoryList == nil)
-	{
-		// Not allocated yet, nothing to dispose of
-		return;
-	}
-
-	DisposePtr((Ptr) gSuperTileMemoryList);
-
-	gSuperTileMemoryList = nil;
 }
 
 
@@ -1689,17 +1674,6 @@ static inline void ReleaseSuperTileObject(short superTileNum)
 {
 	gSuperTileMemoryList[superTileNum].mode = SUPERTILE_MODE_FREE;		// it's free!
 	gNumFreeSupertiles++;
-}
-
-/******************** RELEASE ALL SUPERTILES ************************/
-
-static inline void ReleaseAllSuperTiles(void)
-{
-long	i;
-
-	for (i = 0; i < MAX_SUPERTILES; i++)
-		ReleaseSuperTileObject(i);
-
 }
 
 /********************* DRAW TERRAIN **************************/

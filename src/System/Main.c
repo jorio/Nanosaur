@@ -140,18 +140,11 @@ OSErr		iErr;
 
 			/* INIT SOME OF MY STUFF */
 
-	InitTerrainManager();
 	InitSkeletonManager();
 	InitSoundTools();
 	Init3DMFManager();
-
-
-
-			/* INIT MORE MY STUFF */
-
 	InitObjectManager();
 	InitSpriteManager();
-					
 }
 
 
@@ -240,7 +233,8 @@ TQ3ColorRGB		c2 = { 1, .9, .6 };
 	MakeCameraEvent();
 	
 			/* PREP THE TERRAIN */
-			
+
+	InitTerrainManager();
 	PrimeInitialTerrain();
 	InitTimePortals();
 	
