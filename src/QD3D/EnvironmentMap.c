@@ -74,30 +74,33 @@ short	i;
 /******************* SUBMIT REFLECTION MAP QUEUE ************************/
 
 void SubmitReflectionMapQueue(QD3DSetupOutputType *viewInfo)
-#if 1	// TODO noquesa
-{ DoFatalAlert2("TODO noquesa", __func__); }
-#else
 {
 short	i;
 TQ3Status	status;
 
+#if 0	// NOQUESA
 	QD3D_SetTextureFilter(kQATextureFilter_Mid);						// set nice textures
+#endif
 
 	for (i=0; i < gReflectionMapQueueSize; i++)
 	{
+#if 1	// NOQUESA
+		printf("TODO noquesa: %s\n", __func__);
+#else
 		if (gReflectionMapQueue2[i])									// is skeleton?
 			status = Q3TriMesh_Submit(gReflectionMapQueue2[i], viewInfo->viewObject);			
 		else
 			status = Q3TriMesh_Submit(&gReflectionMapQueue[i], viewInfo->viewObject);	
 		if (status != kQ3Success)
 			DoFatalAlert("SubmitReflectionMapQueue: Q3TriMesh_Submit failed!");
+#endif
 		gNodesDrawn++;
 	}
-	
+
+#if 0	// NOQUESA
 	QD3D_SetTextureFilter(kQATextureFilter_Fast);						// set normal textures
-	
-}
 #endif
+}
 
 
 

@@ -638,29 +638,31 @@ TQ3Status	myErr;
 /******************* QD3D DRAW SCENE *********************/
 
 void QD3D_DrawScene(QD3DSetupOutputType *setupInfo, void (*drawRoutine)(QD3DSetupOutputType *))
-#if 1	// TODO noquesa
-{ DoFatalAlert2("TODO noquesa", __func__); }
-#else
 {
+#if 0	// NOQUESA
 TQ3Status				myStatus;
 TQ3ViewStatus			myViewStatus;
+#endif
 
-	if (setupInfo == nil)
-		DoFatalAlert("QD3D_DrawScene setupInfo == nil");
-
-	if (!setupInfo->isActive)									// make sure it's legit
-		DoFatalAlert("QD3D_DrawScene isActive == false");
+	GAME_ASSERT(setupInfo);
+	GAME_ASSERT(setupInfo->isActive);							// make sure it's legit
 
 
 			/* START RENDERING */
 
-			
-	myStatus = Q3View_StartRendering(setupInfo->viewObject);			
+#if 1	// NOQUESA
+	int mkc = SDL_GL_MakeCurrent(gSDLWindow, gGLContext);
+	GAME_ASSERT_MESSAGE(mkc == 0, SDL_GetError());
+
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+#else
+	myStatus = Q3View_StartRendering(setupInfo->viewObject);
 	if ( myStatus == kQ3Failure )
 	{
 		DoAlert("ERROR: Q3View_StartRendering Failed!");
 		QD3D_ShowRecentError();
 	}
+#endif
 
 
 	if (gQD3D_FreshDrawContext)
@@ -675,16 +677,25 @@ TQ3ViewStatus			myViewStatus;
 
 
 
-
+#if 1	// NOQUESA
+	printf("TODO noquesa: %s: update frustum planes\n", __func__);
+#else
 			/* PREPARE FRUSTUM PLANES FOR SPHERE VISIBILITY CHECKS */
 			// (Source port addition)
 
 	UpdateFrustumPlanes(setupInfo->viewObject);
+#endif
 
 
 			/***************/
 			/* RENDER LOOP */
 			/***************/
+#if 1	// NOQUESA
+	if (drawRoutine)
+		drawRoutine(setupInfo);
+
+	SDL_GL_SwapWindow(gSDLWindow);
+#else
 	do
 	{
 				/* DRAW STYLES */
@@ -722,9 +733,9 @@ TQ3ViewStatus			myViewStatus;
 		else if (myViewStatus == kQ3ViewStatusRetraverse)
 			DoFatalAlert("QD3D_DrawScene: we need to retraverse!");
 		
-	} while ( myViewStatus == kQ3ViewStatusRetraverse );	
-}
+	} while ( myViewStatus == kQ3ViewStatusRetraverse );
 #endif
+}
 
 
 //=======================================================================================================

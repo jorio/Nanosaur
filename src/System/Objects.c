@@ -459,17 +459,16 @@ ObjNode		*thisNodePtr;
 /**************************** DRAW OBJECTS ***************************/
 
 void DrawObjects(QD3DSetupOutputType *setupInfo)
-#if 1	// TODO noquesa
-{ DoFatalAlert2("TODO noquesa", __func__); }
-#else
 {
 ObjNode		*theNode;
 TQ3Status	myStatus;
 short		i,numTriMeshes;
 unsigned long	statusBits;
+#if 0	// NOQUESA
 TQ3ViewObject	view = setupInfo->viewObject;
 #if 0 // Source port removal: completely removed triangle caching
 Boolean			cacheMode;
+#endif
 #endif
 
 	gNodesDrawn = 0;
@@ -489,8 +488,9 @@ Boolean			cacheMode;
 	QD3D_SetTriangleCacheMode(true);
 	cacheMode = true;
 #endif
-	
 
+
+#if 0	// NOQUESA
 				/* SET TEXTURE FILTER FOR ALL NODES */
 	// Source port change: the original game used to default to nearest-neighbor texturing.
 	// You had to enable texture filtering by setting STATUS_BIT_HIGHFILTER in the statusBits of
@@ -500,12 +500,21 @@ Boolean			cacheMode;
 	QD3D_SetTextureFilter(gGamePrefs.highQualityTextures
 			? kQATextureFilter_Best
 			: kQATextureFilter_Fast);
+#endif
 
 			/***********************/
 			/* MAIN NODE TASK LOOP */
 			/***********************/			
 	do
 	{
+#if 1	// NOQUESA -- TODO: nuke this
+		if (theNode->StatusBits & STATUS_BIT_REFLECTIONMAP)
+		{
+			theNode->StatusBits &= ~STATUS_BIT_REFLECTIONMAP;
+			printf("TODO noquesa: %s:%d: I'm killing the reflectionmap flag for now\n", __func__, __LINE__);
+		}
+#endif
+
 		statusBits = theNode->StatusBits;						// get obj's status bits
 						
 		if (statusBits & STATUS_BIT_ISCULLED)					// see if is culled
@@ -556,9 +565,13 @@ Boolean			cacheMode;
 #endif
 		
 				/* CHECK NULL SHADER */
-				
+
 			if (statusBits & STATUS_BIT_NULLSHADER)
+#if 1	// NOQUESA
+				printf("TODO noquesa: %s:%d: submit null shader\n", __func__, __LINE__);
+#else
 				Q3Shader_Submit(setupInfo->nullShaderObject, view);
+#endif
 		
 			switch(theNode->Genre)
 			{
@@ -569,10 +582,17 @@ Boolean			cacheMode;
 
 						numTriMeshes = theNode->Skeleton->skeletonDefinition->numDecomposedTriMeshes;
 						for (i = 0; i < numTriMeshes; i++)
+#if 1	// NOQUESA
+							printf("TODO noquesa: %s:%d: submit skeleton trimesh\n", __func__, __LINE__);
+#else
 							Q3TriMesh_Submit(&theNode->Skeleton->localTriMeshes[i], view);
+#endif
 						break;
 				
 				case	DISPLAY_GROUP_GENRE:
+#if 1	// NOQUESA
+						printf("TODO noquesa: %s:%d: submit DG trimesh\n", __func__, __LINE__);
+#else
 						if (theNode->BaseGroup)
 						{
 							gNodesDrawn++;
@@ -580,6 +600,7 @@ Boolean			cacheMode;
 							if ( myStatus == kQ3Failure )
 								DoFatalAlert("DrawObjects: Q3Object_Submit failed!");
 						}
+#endif
 						break;
 			}
 
@@ -591,7 +612,11 @@ Boolean			cacheMode;
 #endif
 
 			if (statusBits & STATUS_BIT_NULLSHADER)							// undo NULL shader
+#if 1	// NOQUESA
+				printf("TODO noquesa: %s:%d: undo null shader\n", __func__, __LINE__);
+#else
 				Q3Shader_Submit(setupInfo->shaderObject, view);
+#endif
 				
 #if 0   // Source port removal
 			if (statusBits & STATUS_BIT_BLEND_INTERPOLATE)
@@ -606,7 +631,6 @@ next:
 
 	SubmitReflectionMapQueue(setupInfo);				// draw anything in the reflection map queue
 }
-#endif
 
 
 /********************* MOVE STATIC OBJECT **********************/
