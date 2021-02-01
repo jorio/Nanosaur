@@ -273,7 +273,12 @@ QD3DSetupOutputType	*outputPtr;
 	}
 
 
+			/* SET UP SOME OPENGL RENDERER PROPERTIES */
+
 	glEnable(GL_DEPTH_TEST);
+
+	glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+	glEnable(GL_COLOR_MATERIAL);
 
 	glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
