@@ -479,10 +479,10 @@ ObjNode		*thisNodePtr;
 void DrawObjects(QD3DSetupOutputType *setupInfo)
 {
 ObjNode		*theNode;
-TQ3Status	myStatus;
-short		i,numTriMeshes;
 unsigned long	statusBits;
 #if 0	// NOQUESA
+TQ3Status	myStatus;
+short		i,numTriMeshes;
 TQ3ViewObject	view = setupInfo->viewObject;
 #if 0 // Source port removal: completely removed triangle caching
 Boolean			cacheMode;
@@ -541,9 +541,13 @@ Boolean			cacheMode;
 #endif
 
 		statusBits = theNode->StatusBits;						// get obj's status bits
-						
+
 		if (statusBits & STATUS_BIT_ISCULLED)					// see if is culled
-			goto next;		
+#if 1	// NOQUESA
+			printf("TODO noquesa: %s: node %p might be culled? check radius calculation / frustum culling first!\n", __func__, theNode);
+#else
+			goto next;
+#endif
 									
 		if (statusBits & STATUS_BIT_HIDDEN)						// see if is hidden
 			goto next;		
@@ -600,23 +604,11 @@ Boolean			cacheMode;
 		
 			switch(theNode->Genre)
 			{
-				case	SKELETON_GENRE:	
-						gNodesDrawn++;
-						GetModelCurrentPosition(theNode->Skeleton);			
+				case	SKELETON_GENRE:
+						GetModelCurrentPosition(theNode->Skeleton);
 						UpdateSkinnedGeometry(theNode);
-
-						numTriMeshes = theNode->Skeleton->skeletonDefinition->numDecomposedTriMeshes;
-						for (i = 0; i < numTriMeshes; i++)
 #if 1	// NOQUESA
-							printf("TODO noquesa: %s:%d: submit skeleton trimesh\n", __func__, __LINE__);
-#else
-							Q3TriMesh_Submit(&theNode->Skeleton->localTriMeshes[i], view);
-#endif
-						break;
-				
-				case	DISPLAY_GROUP_GENRE:
-#if 1	// NOQUESA
-
+						// TODO: essentially the same as DISPLAY_GROUP_GENRE. Merge?
 						glPushMatrix();
 						glMultMatrixf(&theNode->BaseTransformMatrix.value[0][0]);
 						glColor4f(1, 0, 1, 1);
@@ -625,9 +617,42 @@ Boolean			cacheMode;
 						glVertex3f(0,0,0); glVertex3f(theNode->Radius,0,0);
 						glVertex3f(0,0,0); glVertex3f(0,0,theNode->Radius);
 						glEnd();
-						for (int j = 0; j < theNode->NumMeshes; j++)
+						int numTriMeshes = theNode->Skeleton->skeletonDefinition->numDecomposedTriMeshes;
+						for (int i = 0; i < numTriMeshes; i++)
 						{
-							TQ3TriMeshData* tmd = theNode->MeshList[j];
+							TQ3TriMeshData* tmd = theNode->Skeleton->localTriMeshPtrs[i];
+
+							glVertexPointer(3, GL_FLOAT, 0, tmd->points);
+							glNormalPointer(GL_FLOAT, 0, tmd->vertexNormals);
+							glColorPointer(4, GL_FLOAT, 0, tmd->vertexColors);
+
+							glDrawElements(GL_TRIANGLES, tmd->numTriangles*3, GL_UNSIGNED_INT, tmd->triangles);
+							CHECK_GL_ERROR();
+
+							gTrianglesDrawn += tmd->numTriangles;
+						}
+						glPopMatrix();
+#else
+						numTriMeshes = theNode->Skeleton->skeletonDefinition->numDecomposedTriMeshes;
+						for (i = 0; i < numTriMeshes; i++)
+							Q3TriMesh_Submit(&theNode->Skeleton->localTriMeshes[i], view);
+#endif
+						gNodesDrawn++;
+						break;
+				
+				case	DISPLAY_GROUP_GENRE:
+#if 1	// NOQUESA
+						glPushMatrix();
+						glMultMatrixf(&theNode->BaseTransformMatrix.value[0][0]);
+						glColor4f(1, 0, 1, 1);
+						glBegin(GL_LINES);
+						glVertex3f(0,0,0); glVertex3f(0,theNode->Radius,0);
+						glVertex3f(0,0,0); glVertex3f(theNode->Radius,0,0);
+						glVertex3f(0,0,0); glVertex3f(0,0,theNode->Radius);
+						glEnd();
+						for (int i = 0; i < theNode->NumMeshes; i++)
+						{
+							TQ3TriMeshData* tmd = theNode->MeshList[i];
 
 							glVertexPointer(3, GL_FLOAT, 0, tmd->points);
 							glNormalPointer(GL_FLOAT, 0, tmd->vertexNormals);
