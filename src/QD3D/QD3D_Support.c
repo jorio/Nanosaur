@@ -815,130 +815,64 @@ TQ3ViewStatus			myViewStatus;
 /*************** QD3D_UpdateCameraFromTo ***************/
 
 void QD3D_UpdateCameraFromTo(QD3DSetupOutputType *setupInfo, TQ3Point3D *from, TQ3Point3D *to)
-#if 1	// TODO noquesa
-{ DoFatalAlert2("TODO noquesa", __func__); }
-#else
 {
-TQ3Status	status;
-TQ3CameraPlacement	placement;
-TQ3CameraObject		camera;
-
-			/* GET CURRENT CAMERA INFO */
-
-	camera = setupInfo->cameraObject;
-			
-	status = Q3Camera_GetPlacement(camera, &placement);
-	if (status == kQ3Failure)
-		DoFatalAlert("Q3Camera_GetPlacement failed!");
-
-
 			/* SET CAMERA LOOK AT */
-			
-	placement.pointOfInterest = *to;
+
+	setupInfo->cameraPlacement.pointOfInterest = *to;
 	setupInfo->currentCameraLookAt = *to;
 
-
 			/* SET CAMERA COORDS */
-			
-	placement.cameraLocation = *from;
+
+	setupInfo->cameraPlacement.cameraLocation = *from;
 	setupInfo->currentCameraCoords = *from;				// keep global copy for quick use
 
-
 			/* UPDATE CAMERA INFO */
-			
-	status = Q3Camera_SetPlacement(camera, &placement);
-	if (status == kQ3Failure)
-		DoFatalAlert("Q3Camera_SetPlacement failed!");
 
-	CalcCameraMatrixInfo(setupInfo);	
+	CalcCameraMatrixInfo(setupInfo);
 }
-#endif
 
 
 /*************** QD3D_UpdateCameraFrom ***************/
 
 void QD3D_UpdateCameraFrom(QD3DSetupOutputType *setupInfo, TQ3Point3D *from)
-#if 1	// TODO noquesa
-{ DoFatalAlert2("TODO noquesa", __func__); }
-#else
 {
-TQ3Status	status;
-TQ3CameraPlacement	placement;
-
-			/* GET CURRENT CAMERA INFO */
-			
-	status = Q3Camera_GetPlacement(setupInfo->cameraObject, &placement);
-	if (status == kQ3Failure)
-		DoFatalAlert("Q3Camera_GetPlacement failed!");
-
-
 			/* SET CAMERA COORDS */
 			
-	placement.cameraLocation = *from;
+	setupInfo->cameraPlacement.cameraLocation = *from;
 	setupInfo->currentCameraCoords = *from;				// keep global copy for quick use
 	
 
 			/* UPDATE CAMERA INFO */
-			
-	status = Q3Camera_SetPlacement(setupInfo->cameraObject, &placement);
-	if (status == kQ3Failure)
-		DoFatalAlert("Q3Camera_SetPlacement failed!");
 
-	CalcCameraMatrixInfo(setupInfo);	
+	CalcCameraMatrixInfo(setupInfo);
 }
-#endif
 
 
 /*************** QD3D_MoveCameraFromTo ***************/
 
 void QD3D_MoveCameraFromTo(QD3DSetupOutputType *setupInfo, TQ3Vector3D *moveVector, TQ3Vector3D *lookAtVector)
-#if 0
-{ DoFatalAlert2("TODO noquesa", __func__); }
-#else
 {
-TQ3Status	status;
-TQ3CameraPlacement	placement;
-
-			/* GET CURRENT CAMERA INFO */
-
-#if 1	// TODO noquesa
-	placement = setupInfo->cameraPlacement;
-#else
-	status = Q3Camera_GetPlacement(setupInfo->cameraObject, &placement);
-	if (status == kQ3Failure)
-		DoFatalAlert("Q3Camera_GetPlacement failed!");
-#endif
-
-
 			/* SET CAMERA COORDS */
-			
 
-	placement.cameraLocation.x += moveVector->x;
-	placement.cameraLocation.y += moveVector->y;
-	placement.cameraLocation.z += moveVector->z;
+	setupInfo->cameraPlacement.cameraLocation.x += moveVector->x;
+	setupInfo->cameraPlacement.cameraLocation.y += moveVector->y;
+	setupInfo->cameraPlacement.cameraLocation.z += moveVector->z;
 
-	placement.pointOfInterest.x += lookAtVector->x;
-	placement.pointOfInterest.y += lookAtVector->y;
-	placement.pointOfInterest.z += lookAtVector->z;
-	
-	setupInfo->currentCameraCoords = placement.cameraLocation;	// keep global copy for quick use
-	setupInfo->currentCameraLookAt = placement.pointOfInterest;
+			/* SET CAMERA LOOK AT */
+
+	setupInfo->cameraPlacement.pointOfInterest.x += lookAtVector->x;
+	setupInfo->cameraPlacement.pointOfInterest.y += lookAtVector->y;
+	setupInfo->cameraPlacement.pointOfInterest.z += lookAtVector->z;
+
+			/* KEEP GLOBAL COPY FOR QUICK USE (SOURCE PORT NOTE: REDUNDANT) */
+
+	setupInfo->currentCameraCoords = setupInfo->cameraPlacement.cameraLocation;	// keep global copy for quick use
+	setupInfo->currentCameraLookAt = setupInfo->cameraPlacement.pointOfInterest;
 
 			/* UPDATE CAMERA INFO */
 
-#if 1	// TODO noquesa
-	setupInfo->cameraPlacement = placement;
-
-
-#else
-	status = Q3Camera_SetPlacement(setupInfo->cameraObject, &placement);
-	if (status == kQ3Failure)
-		DoFatalAlert("Q3Camera_SetPlacement failed!");
-#endif
-		
-	CalcCameraMatrixInfo(setupInfo);	
+	CalcCameraMatrixInfo(setupInfo);
 }
-#endif
 
 
 

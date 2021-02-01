@@ -86,8 +86,8 @@ typedef struct
 	TQ3DrawContextObject	drawContext;	// another ref is in viewObject, this one's just for convenience!
 #endif
 	Rect					paneClip;			// not pane size, but clip:  left = amount to clip off left
-	TQ3Point3D				currentCameraCoords;
-	TQ3Point3D				currentCameraLookAt;
+	TQ3Point3D				currentCameraCoords;		// TODO noquesa: Redundant
+	TQ3Point3D				currentCameraLookAt;		// TODO noquesa: Redundant
 	float					hither,yon;
 	float					fov;
 	TQ3CameraPlacement		cameraPlacement;
