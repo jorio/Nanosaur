@@ -254,10 +254,7 @@ long	numAnims,numJoints;
 //
 
 static void DisposeSkeletonDefinitionMemory(SkeletonDefType *skeleton)
-#if 1	// TODO noquesa
-{ DoFatalAlert2("TODO noquesa", __func__); }
-#else
-{	
+{
 short	i,j,numAnims,numJoints;
 
 	if (skeleton == nil)
@@ -294,8 +291,14 @@ short	i,j,numAnims,numJoints;
 	}
 
 			/* DISPOSE DECOMPOSED DATA ARRAYS */
-			
+
 	for (j = 0; j < skeleton->numDecomposedTriMeshes; j++)			// first dispose of the trimesh data in there
+#if 1	// NOQUESA
+	{
+		Q3TriMeshData_Dispose(skeleton->decomposedTriMeshPtrs[j]);
+		skeleton->decomposedTriMeshPtrs[j] = nil;
+	}
+#else
 		Q3TriMesh_EmptyData(&skeleton->decomposedTriMeshes[j]);
 			
 	if (skeleton->decomposedTriMeshes)
@@ -303,6 +306,7 @@ short	i,j,numAnims,numJoints;
 		DisposePtr((Ptr)skeleton->decomposedTriMeshes);
 		skeleton->decomposedTriMeshes = nil;
 	}
+#endif
 
 	if (skeleton->decomposedPointList)
 	{
@@ -320,7 +324,6 @@ short	i,j,numAnims,numJoints;
 			
 	DisposePtr((Ptr)skeleton);
 }
-#endif
 
 
 
