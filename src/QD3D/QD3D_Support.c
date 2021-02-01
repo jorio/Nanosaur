@@ -291,9 +291,6 @@ QD3DSetupOutputType	*outputPtr;
 //
 
 void QD3D_DisposeWindowSetup(QD3DSetupOutputType **dataHandle)
-#if 1	// TODO noquesa
-{ DoFatalAlert2("TODO noquesa", __func__); }
-#else
 {
 QD3DSetupOutputType	*data;
 
@@ -304,7 +301,10 @@ QD3DSetupOutputType	*data;
 	DisposeBackdropTexture(); // Source port addition - release backdrop GL texture
 
 	gNodesDrawn = 0;  // Source port addition - reset debug "nodes drawn" counter
-	
+
+#if 1	// NOQUESA
+	printf("TODO noquesa: %s\n", __func__);
+#else
 	Q3Object_Dispose(data->viewObject);
 	Q3Object_Dispose(data->interpolationStyle);
 	Q3Object_Dispose(data->backfacingStyle);
@@ -314,6 +314,7 @@ QD3DSetupOutputType	*data;
 	Q3Object_Dispose(data->drawContext);
 	Q3Object_Dispose(data->shaderObject);
 	Q3Object_Dispose(data->nullShaderObject);
+#endif
 		
 	data->isActive = false;									// now inactive
 	
@@ -322,7 +323,6 @@ QD3DSetupOutputType	*data;
 	DisposePtr((Ptr)data);
 	*dataHandle = nil;
 }
-#endif
 
 
 /******************* CREATE GAME VIEW *************************/

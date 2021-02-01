@@ -140,7 +140,8 @@ typedef struct
 	BoneDefinitionType	*Bones;							// data which describes bone heirarachy
 	
 	long				numDecomposedTriMeshes;			// # trimeshes in skeleton
-	TQ3TriMeshData		*decomposedTriMeshes;			// array of triMeshData
+//	TQ3TriMeshData		*decomposedTriMeshes;			// array of triMeshData
+	TQ3TriMeshData		**decomposedTriMeshPtrs;		// array of triMeshData
 
 	long				numDecomposedPoints;			// # shared points in skeleton
 	DecomposedPointType	*decomposedPointList;			// array of shared points
@@ -180,8 +181,13 @@ typedef struct
 
 	TQ3Matrix4x4	jointTransformMatrix[MAX_JOINTS];	// holds matrix xform for each joint
 
-	SkeletonDefType	*skeletonDefinition;						// point to skeleton's common/shared data	
+	SkeletonDefType	*skeletonDefinition;						// point to skeleton's common/shared data
+#if 1	// NOQUESA
+	// TODO noquesa: could probably be merged into ObjNode's trimesh list
+	TQ3TriMeshData	*localTriMeshPtrs[MAX_DECOMPOSED_TRIMESHES];	// the triMeshes to submit for this ObjNode
+#else
 	TQ3TriMeshData	localTriMeshes[MAX_DECOMPOSED_TRIMESHES];	// the triMeshes to submit for this ObjNode
+#endif
 }SkeletonObjDataType;
 
 

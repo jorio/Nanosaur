@@ -1,8 +1,12 @@
+#include <cstring>
 #include "Pomme.h"
 #include "PommeFiles.h"
 #include "Pomme3DMF.h"
 #include "Pomme3DMF_Internal.h"
 
+#define ALLOCATOR_HEADER_BYTES 16
+
+// TODO: use __Q3Alloc for C++ classes as well
 #define CHECK_COOKIE(obj)												\
 	do																	\
 	{																	\
@@ -18,31 +22,64 @@ static void Assert(bool condition, const char* message)
 	}
 }
 
-template<typename T>
-static T* __Q3Alloc(size_t bytes, uint32_t cookie)
+struct __Q3AllocatorCookie
 {
-	uint8_t* data = (uint8_t*) calloc(16 + bytes, 1);
+	uint32_t		classID;
+	uint32_t		blockSize;		// including header cookie
+};
 
-	*(uint32_t*) data = cookie;
+static_assert(sizeof(__Q3AllocatorCookie) <= ALLOCATOR_HEADER_BYTES);
 
-	return (T*) (data + 16);
+template<typename T>
+static T* __Q3Alloc(size_t payloadBytes, uint32_t classID)
+{
+	size_t totalBytes = ALLOCATOR_HEADER_BYTES + payloadBytes;
+
+	uint8_t* block = (uint8_t*) calloc(totalBytes, 1);
+
+	__Q3AllocatorCookie* cookie = (__Q3AllocatorCookie*) block;
+
+	cookie->classID		= classID;
+	cookie->blockSize	= totalBytes;
+
+	return (T*) (block + ALLOCATOR_HEADER_BYTES);
 }
 
-static void __Q3Dispose(void* object, uint32_t expectedCookie)
+static __Q3AllocatorCookie* __Q3GetCookie(const void* sourcePayload, uint32_t classID)
+{
+	if (!sourcePayload)
+		throw std::runtime_error("__Q3GetCookie: got null pointer");
+
+	uint8_t* block = ((uint8_t*) sourcePayload) - ALLOCATOR_HEADER_BYTES;
+
+	__Q3AllocatorCookie* cookie = (__Q3AllocatorCookie*) block;
+
+	if (classID != cookie->classID)
+		throw std::runtime_error("__Q3GetCookie: incorrect cookie");
+
+	return cookie;
+}
+
+template<typename T>
+static T* __Q3Copy(const T* sourcePayload, uint32_t classID)
+{
+	__Q3AllocatorCookie* sourceCookie = __Q3GetCookie(sourcePayload, classID);
+
+	uint8_t* block = (uint8_t*) calloc(sourceCookie->blockSize, 1);
+	memcpy(block, sourceCookie, sourceCookie->blockSize);
+
+	return (T*) (block + ALLOCATOR_HEADER_BYTES);
+}
+
+static void __Q3Dispose(void* object, uint32_t classID)
 {
 	if (!object)
 		return;
 
-	uint8_t* memoryChunk = ((uint8_t*) object) - 16;
+	auto cookie = __Q3GetCookie(object, classID);
+	cookie->classID = 'DEAD';
 
-	uint32_t* memoryCookiePtr = (uint32_t*) memoryChunk;
-
-	if (expectedCookie != *memoryCookiePtr)
-		throw std::runtime_error("Dispose: incorrect cookie");
-
-	*memoryCookiePtr = 'DEAD';
-
-	free(memoryChunk);
+	free(cookie);
 }
 
 Pomme3DMF_FileHandle Pomme3DMF_LoadModelFile(const FSSpec* spec)
@@ -71,6 +108,17 @@ void Pomme3DMF_DisposeModelFile(Pomme3DMF_FileHandle the3DMFFile)
 	auto metaFile = (Q3MetaFile*) the3DMFFile;
 	CHECK_COOKIE(*metaFile);
 	delete metaFile;
+}
+
+TQ3TriMeshFlatGroup Pomme3DMF_GetAllMeshes(Pomme3DMF_FileHandle the3DMFFile)
+{
+	auto& metaFile = *(Q3MetaFile*) the3DMFFile;
+	CHECK_COOKIE(metaFile);
+
+	TQ3TriMeshFlatGroup list;
+	list.numMeshes		= metaFile.meshes.size();
+	list.meshes			= metaFile.meshes.data();
+	return list;
 }
 
 int Pomme3DMF_CountTopLevelMeshGroups(Pomme3DMF_FileHandle the3DMFFile)
@@ -128,6 +176,11 @@ TQ3TriMeshData* Q3TriMeshData_New(int numTriangles,	int numPoints)
 	}
 
 	return triMeshData;
+}
+
+TQ3TriMeshData* Q3TriMeshData_Duplicate(const TQ3TriMeshData* source)
+{
+	return __Q3Copy(source, 'TMSH');
 }
 
 void Q3TriMeshData_Dispose(TQ3TriMeshData* triMeshData)

@@ -157,8 +157,8 @@ float	max,originX,originY,originZ;
 	for (i = 0; i < n; i++)
 	{
 		float	d;
-		
-		bbox = &newNode->Skeleton->localTriMeshes[i].bBox;
+
+		bbox = &newNode->Skeleton->localTriMeshPtrs[i]->bBox;
 		d = fabs(originX - bbox->min.x);			// left
 		if (d > max)
 			max = d;		
@@ -211,41 +211,40 @@ long	numAnims,numJoints;
 				/***************************/
 
 	skeleton->NumAnimEvents = (Byte *)AllocPtr(sizeof(Byte)*numAnims);		// array which holds # events for each anim
-	if (skeleton->NumAnimEvents == nil)
-		DoFatalAlert("Not enough memory to alloc NumAnimEvents");
+	GAME_ASSERT(skeleton->NumAnimEvents);
 
 	skeleton->AnimEventsList = (AnimEventType **)AllocPtr(sizeof(AnimEventType *)*numAnims);	// alloc 1st dimension (for each anim)
-	if (skeleton->AnimEventsList == nil)
-		DoFatalAlert("Not enough memory to alloc AnimEventsList");
+	GAME_ASSERT(skeleton->AnimEventsList);
+
 	for (i=0; i < numAnims; i++)
 	{
 		skeleton->AnimEventsList[i] = (AnimEventType *)AllocPtr(sizeof(AnimEventType)*MAX_ANIM_EVENTS);	// alloc 2nd dimension (for max events)
-		if (skeleton->AnimEventsList[i] == nil)
-			DoFatalAlert("Not enough memory to alloc AnimEventsList");
-	}	
+		GAME_ASSERT(skeleton->AnimEventsList[i]);
+	}
 	
 			/* ALLOC BONE INFO */
 			
 	skeleton->Bones = (BoneDefinitionType *)AllocPtr(sizeof(BoneDefinitionType)*numJoints);	
-	if (skeleton->Bones == nil)
-		DoFatalAlert("Not enough memory to alloc Bones");
+	GAME_ASSERT(skeleton->Bones);
 
 
 		/* ALLOC DECOMPOSED DATA */
-			
+
+#if 1	// NOQUESA
+	skeleton->decomposedTriMeshPtrs = (TQ3TriMeshData**) AllocPtr(sizeof(TQ3TriMeshData*) * MAX_DECOMPOSED_TRIMESHES);
+	GAME_ASSERT(skeleton->decomposedTriMeshPtrs);
+#else
 	skeleton->decomposedTriMeshes = (TQ3TriMeshData *)AllocPtr(sizeof(TQ3TriMeshData)*MAX_DECOMPOSED_TRIMESHES);		
 	if (skeleton->decomposedTriMeshes == nil)
 		DoFatalAlert("Not enough memory to alloc decomposedTriMeshes");
+#endif
 
 	skeleton->decomposedPointList = (DecomposedPointType *)AllocPtr(sizeof(DecomposedPointType)*MAX_DECOMPOSED_POINTS);		
-	if (skeleton->decomposedPointList == nil)
-		DoFatalAlert("Not enough memory to alloc decomposedPointList");
+	GAME_ASSERT(skeleton->decomposedPointList);
 
 	skeleton->decomposedNormalsList = (TQ3Vector3D *)AllocPtr(sizeof(TQ3Vector3D)*MAX_DECOMPOSED_NORMALS);		
-	if (skeleton->decomposedNormalsList == nil)
-		DoFatalAlert("Not enough memory to alloc decomposedNormalsList");
-			
-	
+	GAME_ASSERT(skeleton->decomposedNormalsList);
+
 }
 
 
@@ -337,15 +336,13 @@ SkeletonObjDataType	*skeletonData;
 short				i;
 
 	skeletonDefPtr = gLoadedSkeletonsList[sourceSkeletonNum];				// get ptr to source skeleton definition info
-	if (skeletonDefPtr == nil)
-		DoFatalAlert("CopySkeletonInfoToNewSkeleton: Skeleton data isnt loaded!");
-		
+	GAME_ASSERT_MESSAGE(skeletonDefPtr, "Skeleton data isn't loaded!");
+
 
 			/* ALLOC MEMORY FOR NEW SKELETON OBJECT DATA STRUCTURE */
 			
 	skeletonData = (SkeletonObjDataType *)AllocPtr(sizeof(SkeletonObjDataType));
-	if (skeletonData == nil)
-		DoFatalAlert("MakeNewSkeletonBaseData: Cannot alloc new SkeletonObjDataType");
+	GAME_ASSERT(skeletonData);
 
 
 			/* INIT NEW SKELETON */
@@ -359,7 +356,13 @@ short				i;
 			/****************************************/
 			
 	for (i=0; i < skeletonDefPtr->numDecomposedTriMeshes; i++)
+#if 1	// NOQUESA
+	{
+		skeletonData->localTriMeshPtrs[i] = Q3TriMeshData_Duplicate(skeletonDefPtr->decomposedTriMeshPtrs[i]);
+	}
+#else
 		QD3D_DuplicateTriMeshData(&skeletonDefPtr->decomposedTriMeshes[i],&skeletonData->localTriMeshes[i]);
+#endif
 
 	return(skeletonData);
 }
@@ -373,8 +376,15 @@ short	i;
 
 			/* FREE ALL LOCAL TRIMESH DATA */
 		
-	for (i=0; i < data->skeletonDefinition->numDecomposedTriMeshes; i++)		
+	for (i=0; i < data->skeletonDefinition->numDecomposedTriMeshes; i++)
+#if 1	// NOQUESA
+	{
+		Q3TriMeshData_Dispose(data->localTriMeshPtrs[i]);
+		data->localTriMeshPtrs[i] = nil;
+	}
+#else
 		QD3D_FreeDuplicateTriMeshData(&data->localTriMeshes[i]);
+#endif
 	
 	
 			/* FREE THE SKELETON DATA */

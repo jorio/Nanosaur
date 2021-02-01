@@ -395,7 +395,7 @@ typedef struct
 // This structure does not exist in QD3D.
 typedef struct
 {
-	uint32_t									numMeshes;
+	int											numMeshes;
 	TQ3TriMeshData**							meshes;
 } TQ3TriMeshFlatGroup;
 

@@ -825,7 +825,7 @@ long	i,num;
 
 void DisposeObjectBaseGroup(ObjNode *theNode)
 #if 1	// TODO noquesa
-{ DoFatalAlert2("TODO noquesa", __func__); }
+{ printf("TODO noquesa: %s\n", __func__); }
 #else
 {
 TQ3Status	status;

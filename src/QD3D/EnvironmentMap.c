@@ -55,7 +55,7 @@ static TQ3Point3D	gCamCoord = {0,0,0};
 
 void InitReflectionMapQueue(void)
 #if 1	// TODO noquesa
-{ DoFatalAlert2("TODO noquesa", __func__); }
+{ printf("TODO noquesa: %s\n", __func__); }
 #else
 {
 short	i;

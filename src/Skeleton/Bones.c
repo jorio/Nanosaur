@@ -27,7 +27,7 @@
 /*    PROTOTYPES            */
 /****************************/
 
-static void DecomposeATriMesh(TQ3Object theTriMesh);
+static void DecomposeATriMesh(TQ3TriMeshData* triMeshData);
 static void DecompRefMo_Recurse(TQ3Object inObj);
 static void DecomposeReferenceModel(TQ3Object theModel);
 static void UpdateSkinnedGeometry_Recurse(short joint);
@@ -61,21 +61,38 @@ static	TQ3Vector3D			gTransformedNormals[MAX_DECOMPOSED_NORMALS];	// temporary b
 
 void LoadBonesReferenceModel(FSSpec	*inSpec, SkeletonDefType *skeleton)
 {
+#if 1	// NOQUESA
+	Pomme3DMF_FileHandle the3DMFFile = Pomme3DMF_LoadModelFile(inSpec);
+	GAME_ASSERT(the3DMFFile);
+#else
 TQ3Object		newModel;
 
 	newModel = Load3DMFModel(inSpec);
 	if (newModel == nil)
 		DoFatalAlert("LoadBonesReferenceModel: cant load 3dmf file!");
+#endif
 
 #if 0	// TODO noquesa (might not be needed anymore)
 	PatchSkeleton3DMF(inSpec->cName, newModel);		// patch 3DMF (add alpha test)
 #endif
 
 	gCurrentSkeleton = skeleton;
+
+#if 1	// NOQUESA
+			/* DECOMPOSE REFERENCE MODEL */
+
+	gCurrentSkeleton->numDecomposedTriMeshes	= 0;
+	gCurrentSkeleton->numDecomposedPoints		= 0;
+	gCurrentSkeleton->numDecomposedNormals		= 0;
+
+	TQ3TriMeshFlatGroup meshList = Pomme3DMF_GetAllMeshes(the3DMFFile);
+	for (int i = 0; i < meshList.numMeshes; i++)
+	{
+		DecomposeATriMesh(meshList.meshes[i]);
+	}
+#else
 	DecomposeReferenceModel(newModel);
 
-	DoFatalAlert("TODO noquesa: Q3Object_Dispose in LoadBonesReferenceModel");
-#if 0
 	Q3Object_Dispose(newModel);			// dont need original 3DMF anymore
 #endif
 }
@@ -143,34 +160,38 @@ TQ3ObjectType		oType;
 
 /******************* DECOMPOSE A TRIMESH ***********************/
 
-static void DecomposeATriMesh(TQ3Object theTriMesh)
-#if 1	// TODO noquesa
-{ DoFatalAlert2("TODO noquesa", __func__); }
-#else
+static void DecomposeATriMesh(TQ3TriMeshData* triMeshData)
 {
-TQ3Status			status;
+//TQ3Status			status;				// NOQUESA
 unsigned long		numVertecies,vertNum;
 TQ3Point3D			*vertexList;
 long				i,n,refNum,pointNum;
 TQ3Vector3D			*normalPtr;
-TQ3TriMeshData		*triMeshData;
+//TQ3TriMeshData		*triMeshData;	// NOQUESA
 DecomposedPointType	*decomposedPoint;
 
 	n = gCurrentSkeleton->numDecomposedTriMeshes;												// get index into list of trimeshes
-	if (n >= MAX_DECOMPOSED_TRIMESHES)
-		DoFatalAlert("DecomposeATriMesh: gNumDecomposedTriMeshes > MAX_DECOMPOSED_TRIMESHES");
+	GAME_ASSERT(n < MAX_DECOMPOSED_TRIMESHES);
 
 			/* GET TRIMESH DATA */
-			
+
+#if 1	// NOQUESA
+	gCurrentSkeleton->decomposedTriMeshPtrs[n] = triMeshData;
+#else
 	status = Q3TriMesh_GetData(theTriMesh, &gCurrentSkeleton->decomposedTriMeshes[n]);			// get trimesh data
 	if (status != kQ3Success) 
 		DoFatalAlert("PreTransformTriMesh: Q3TriMesh_GetData failed!");
 		
 	triMeshData = &gCurrentSkeleton->decomposedTriMeshes[n];
+#endif
 		
 	numVertecies = triMeshData->numPoints;														// get # verts in trimesh
 	vertexList = triMeshData->points;															// point to vert list
+#if 1	// NOQUESA
+	normalPtr  = triMeshData->vertexNormals;													// point to normals
+#else
 	normalPtr  = (TQ3Vector3D *)(triMeshData->vertexAttributeTypes[0].data); 					// point to normals
+#endif
 
 				/*******************************/
 				/* EXTRACT VERTECIES & NORMALS */
@@ -190,9 +211,8 @@ DecomposedPointType	*decomposedPoint;
 					/* ADD ANOTHER REFERENCE */
 					
 				refNum = decomposedPoint->numRefs;												// get # refs for this point
-				if (refNum >= MAX_POINT_REFS)
-					DoFatalAlert("DecomposeATriMesh: MAX_POINT_REFS exceeded!");
-					
+				GAME_ASSERT(refNum < MAX_POINT_REFS);
+
 				decomposedPoint->whichTriMesh[refNum] = n;										// set triMesh #
 				decomposedPoint->whichPoint[refNum] = vertNum;									// set point #
 				decomposedPoint->numRefs++;														// inc counter
@@ -202,9 +222,8 @@ DecomposedPointType	*decomposedPoint;
 				/* IT'S A NEW POINT SO ADD TO LIST */
 				
 		pointNum = gCurrentSkeleton->numDecomposedPoints;
-		if (pointNum >= MAX_DECOMPOSED_POINTS)
-			DoFatalAlert("DecomposeATriMesh: MAX_DECOMPOSED_POINTS exceeded!");
-		
+		GAME_ASSERT(pointNum < MAX_DECOMPOSED_POINTS);
+
 		refNum = 0;																			// it's the 1st entry (need refNum for below).
 		
 		decomposedPoint = &gCurrentSkeleton->decomposedPointList[pointNum];					// point to this decomposed point
@@ -234,9 +253,8 @@ added_vert:
 				/* ADD NEW NORMAL TO LIST */
 				
 		i = gCurrentSkeleton->numDecomposedNormals;										// get # decomposed normals already in list
-		if (i >= MAX_DECOMPOSED_NORMALS)
-			DoFatalAlert("DecomposeATriMesh: MAX_DECOMPOSED_NORMALS exceeded!");
-		
+		GAME_ASSERT(i < MAX_DECOMPOSED_NORMALS);
+
 		gCurrentSkeleton->decomposedNormalsList[i] = normalPtr[vertNum];				// add new normal to list			
 		gCurrentSkeleton->numDecomposedNormals++;										// inc # decomposed normals
 		
@@ -249,7 +267,6 @@ added_norm:
 	gCurrentSkeleton->numDecomposedTriMeshes++;											// inc # of trimeshes in decomp list
 
 }
-#endif
 
 
 
@@ -296,7 +313,7 @@ SkeletonObjDataType	*currentSkelObjData;
 			
 	numTriMeshes = currentSkelObjData->skeletonDefinition->numDecomposedTriMeshes;
 	for (i = 0; i < numTriMeshes; i++)
-		currentSkelObjData->localTriMeshes[i].bBox = gBBox;								// apply to local copy of trimesh
+		currentSkelObjData->localTriMeshPtrs[i]->bBox = gBBox;							// apply to local copy of trimesh
 }
 
 
@@ -304,7 +321,7 @@ SkeletonObjDataType	*currentSkelObjData;
 
 static void UpdateSkinnedGeometry_Recurse(short joint)
 #if 1	// TODO noquesa
-{ DoFatalAlert2("TODO noquesa", __func__); }
+{ printf("TODO noquesa: %s\n", __func__); }
 #else
 {
 long			numChildren,numPoints,p,i,numRefs,r,triMeshNum,p2,c,numNormals,n;
