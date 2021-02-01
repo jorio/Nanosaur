@@ -25,6 +25,7 @@ extern "C" {
 
 extern "C" {
 extern long gNodesDrawn;
+extern long gTrianglesDrawn;
 extern SDL_Window* gSDLWindow;
 extern float gFramesPerSecond;
 extern PrefsType gGamePrefs;
@@ -261,7 +262,7 @@ void DoSDLMaintenance()
 	UInt32 ticksElapsed = now - debugText.lastUpdateAt;
 	if (ticksElapsed >= debugText.updateInterval) {
 		float fps = 1000 * debugText.frameAccumulator / (float)ticksElapsed;
-		snprintf(debugText.titleBuffer, 1024, "nsaur - %d fps - %ld nodes drawn", (int)round(fps), gNodesDrawn);
+		snprintf(debugText.titleBuffer, 1024, "nsaur - %d fps - %ld nodes drawn - %ld tris drawn", (int)round(fps), gNodesDrawn, gTrianglesDrawn);
 		SDL_SetWindowTitle(gSDLWindow, debugText.titleBuffer);
 		debugText.frameAccumulator = 0;
 		debugText.lastUpdateAt = now;

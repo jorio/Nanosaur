@@ -32,14 +32,14 @@ static void DumpTGA_RGBA(const char* path, short width, short height, const char
 
 
 template<typename T>
-static void ReadTriangleVertexIndices(Pomme::BigEndianIStream& f, int numTriangles, Q3MetaFile_TriMesh& triMesh)
+static void ReadTriangleVertexIndices(Pomme::BigEndianIStream& f, int numTriangles, TQ3TriMeshData* currentMesh)
 {
 	for (int i = 0; i < numTriangles; i++)
 	{
 		T v0 = f.Read<T>();
 		T v1 = f.Read<T>();
 		T v2 = f.Read<T>();
-		triMesh.triangles.push_back({v0, v1, v2});
+		currentMesh->triangles[i] = {v0, v1, v2};
 	}
 }
 
@@ -109,14 +109,11 @@ uint32_t Q3MetaFileParser::Parse1Chunk()
 		case 'tmsh':    // TriMesh
 		{
 			Assert(!currentMesh, "nested meshes not supported");
-			auto meshID = metaFile.meshes.size();
-			metaFile.meshes.push_back({});
-			currentMesh = &metaFile.meshes[meshID];
-			if (!metaFile.topLevelMeshGroups.empty())
-				metaFile.topLevelMeshGroups.back().push_back(meshID);
-//				currentMeshContainerDepth = containerEnds.size();
 			Parse_tmsh(chunkSize);
-			printf(" (mesh #%ld)", meshID);
+			Assert(currentMesh, "currentMesh wasn't get set by Parse_tmsh?");
+			if (!metaFile.topLevelMeshGroups.empty())
+				metaFile.topLevelMeshGroups.back().push_back(currentMesh);
+//				currentMeshContainerDepth = containerEnds.size();
 			break;
 		}
 
@@ -137,11 +134,11 @@ uint32_t Q3MetaFileParser::Parse1Chunk()
 				float g = f.Read<float>();
 				float b = f.Read<float>();
 				printf("%.3f %.3f %.3f\t", r, g, b);
-				for (auto& vertexColor : currentMesh->vertexColors)
+				for (uint32_t i = 0; i < currentMesh->numPoints; i++)
 				{
-					vertexColor.r = r;
-					vertexColor.g = g;
-					vertexColor.b = b;
+					currentMesh->vertexColors[i].r = r;
+					currentMesh->vertexColors[i].g = g;
+					currentMesh->vertexColors[i].b = b;
 				}
 			}
 			break;
@@ -154,11 +151,12 @@ uint32_t Q3MetaFileParser::Parse1Chunk()
 				float r	= f.Read<float>();
 				float g	= f.Read<float>();
 				float b	= f.Read<float>();
+				float a = r;
 				printf("%.3f %.3f %.3f\t", r, g, b);
 				Assert(r == g && g == b, "kxpr: expecting all components to be equal");
-				for (auto & vertexColor : currentMesh->vertexColors)
+				for (uint32_t i = 0; i < currentMesh->numPoints; i++)
 				{
-					vertexColor.a = r;
+					currentMesh->vertexColors[i].a = a;
 				}
 				currentMesh->hasTransparency = true;
 			}
@@ -173,7 +171,9 @@ uint32_t Q3MetaFileParser::Parse1Chunk()
 			{
 				printf("Texture already seen!");
 				f.Skip(chunkSize);
-				currentMesh->textures.push_back(knownTextures[chunkOffset]);
+				Assert(!currentMesh->hasTexture, "txmm: current mesh already has a texture");
+				currentMesh->hasTexture = true;
+				currentMesh->internalTextureID = knownTextures[chunkOffset];
 			}
 			else
 			{
@@ -275,9 +275,7 @@ void Q3MetaFileParser::Parse3DMF()
 void Q3MetaFileParser::Parse_tmsh(uint32_t chunkSize)
 {
 	Assert(chunkSize >= 52, "Illegal tmsh size");
-	Assert(currentMesh, "no current mesh");
-
-	Q3MetaFile_TriMesh& mesh = *currentMesh;
+	Assert(!currentMesh, "current mesh already set");
 
 	uint32_t	numTriangles			= f.Read<uint32_t>();
 	uint32_t	numTriangleAttributes	= f.Read<uint32_t>();
@@ -291,26 +289,22 @@ void Q3MetaFileParser::Parse_tmsh(uint32_t chunkSize)
 	Assert(0 == numEdgeAttributes, "edge attributes are not supported");
 	//Assert(0 == numVertexAttributes, "vertex attributes are not supported");
 
+	currentMesh = Q3TriMeshData_New(numTriangles, numVertices);
 
-	mesh.triangles.reserve(numTriangles);
-	mesh.points.reserve(numVertices);
-
-	mesh.vertexUVs.resize(numVertices, {0, 0});
-	mesh.vertexColors.resize(numVertices, {1, 1, 1, 1});
-	mesh.vertexNormals.resize(numVertices, {0, 0, 0});
+	metaFile.meshes.push_back(currentMesh);
 
 	// Triangles
 	if (numVertices <= 0xFF)
 	{
-		ReadTriangleVertexIndices<uint8_t>(f, numTriangles, mesh);
+		ReadTriangleVertexIndices<uint8_t>(f, numTriangles, currentMesh);
 	}
 	else if (numVertices <= 0xFFFF)
 	{
-		ReadTriangleVertexIndices<uint16_t>(f, numTriangles, mesh);
+		ReadTriangleVertexIndices<uint16_t>(f, numTriangles, currentMesh);
 	}
 	else
 	{
-		ReadTriangleVertexIndices<uint32_t>(f, numTriangles, mesh);
+		ReadTriangleVertexIndices<uint32_t>(f, numTriangles, currentMesh);
 	}
 
 
@@ -325,7 +319,7 @@ void Q3MetaFileParser::Parse_tmsh(uint32_t chunkSize)
 		float y = f.Read<float>();
 		float z = f.Read<float>();
 		//printf("%f %f %f\n", vertexX, vertexY, vertexZ);
-		mesh.points.push_back({x, y, z });
+		currentMesh->points[i] = {x, y, z};
 	}
 
 	// Bounding box
@@ -337,9 +331,9 @@ void Q3MetaFileParser::Parse_tmsh(uint32_t chunkSize)
 		float yMax = f.Read<float>();
 		float zMax = f.Read<float>();
 		uint32_t emptyFlag = f.Read<uint32_t>();
-		mesh.boundingBox.min = {xMin, yMin, zMin };
-		mesh.boundingBox.max = {xMax, yMax, zMax };
-		mesh.boundingBox.isEmpty = emptyFlag? kQ3True: kQ3False;
+		currentMesh->bBox.min = {xMin, yMin, zMin};
+		currentMesh->bBox.max = {xMax, yMax, zMax};
+		currentMesh->bBox.isEmpty = emptyFlag? kQ3True: kQ3False;
 		//printf("%f %f %f - %f %f %f (empty? %d)\n", xMin, yMin, zMin, xMax, yMax, zMax, emptyFlag);
 	}
 }
@@ -369,7 +363,8 @@ void Q3MetaFileParser::Parse_atar(uint32_t chunkSize)
 	if (isVertexAttribute && attributeType == kQ3AttributeTypeShadingUV)
 	{
 		printf("vertex UVs");
-		for (uint32_t i = 0; i < currentMesh->points.size(); i++)
+		Assert(currentMesh->vertexUVs, "current mesh has no vertex UV array");
+		for (uint32_t i = 0; i < currentMesh->numPoints; i++)
 		{
 			float u = f.Read<float>();
 			float v = f.Read<float>();
@@ -380,19 +375,20 @@ void Q3MetaFileParser::Parse_atar(uint32_t chunkSize)
 	{
 		printf("vertex normals");
 		Assert(positionInArray == 0, "PIA must be 0 for normals");
-		for (uint32_t i = 0; i < currentMesh->points.size(); i++)
+		Assert(currentMesh->vertexNormals, "current mesh has no vertex normal array");
+		for (uint32_t i = 0; i < currentMesh->numPoints; i++)
 		{
-			float x = f.Read<float>();
-			float y = f.Read<float>();
-			float z = f.Read<float>();
-			currentMesh->vertexNormals[i] = {x, y, z};
+			currentMesh->vertexNormals[i].x = f.Read<float>();
+			currentMesh->vertexNormals[i].y = f.Read<float>();
+			currentMesh->vertexNormals[i].z = f.Read<float>();
 		}
 	}
 	else if (isVertexAttribute && attributeType == kQ3AttributeTypeDiffuseColor)	// used in Bugdom's Global_Models2.3dmf
 	{
 		printf("vertex diffuse");
 //		Assert(positionInArray == 0, "PIA must be 0 for colors");
-		for (uint32_t i = 0; i < currentMesh->points.size(); i++)
+		Assert(currentMesh->vertexNormals, "current mesh has no vertex color array");
+		for (uint32_t i = 0; i < currentMesh->numPoints; i++)
 		{
 			currentMesh->vertexColors[i].r = f.Read<float>();
 			currentMesh->vertexColors[i].g = f.Read<float>();
@@ -402,7 +398,7 @@ void Q3MetaFileParser::Parse_atar(uint32_t chunkSize)
 	else if (isTriangleAttribute && attributeType == kQ3AttributeTypeNormal)		// face normals
 	{
 		printf("face normals (ignore)");
-		f.Skip(currentMesh->triangles.size() * 3 * 4);
+		f.Skip(currentMesh->numTriangles * 3 * 4);
 	}
 	else
 	{
@@ -413,6 +409,7 @@ void Q3MetaFileParser::Parse_atar(uint32_t chunkSize)
 uint32_t Q3MetaFileParser::Parse_txmm(uint32_t chunkSize)
 {
 	Assert(currentMesh, "no current mesh");
+	Assert(!currentMesh->hasTexture, "current mesh already has a texture");
 	Assert(chunkSize >= 8*4, "incorrect chunk header size");
 
 	uint32_t useMipmapping	= f.Read<uint32_t>();
@@ -444,9 +441,10 @@ uint32_t Q3MetaFileParser::Parse_txmm(uint32_t chunkSize)
 	uint32_t internalTextureID = metaFile.textures.size();
 	metaFile.textures.push_back({});
 	Q3MetaFile_Texture& texture = metaFile.textures[internalTextureID];
-	currentMesh->textures.push_back(internalTextureID);
+	currentMesh->internalTextureID = internalTextureID;
+	currentMesh->hasTexture = true;
 
-	texture.textureName	= 0;
+	texture.textureName		= 0;
 	texture.useMipMapping	= useMipmapping;
 	texture.pixelType		= pixelType;
 	texture.bitOrder		= bitOrder;

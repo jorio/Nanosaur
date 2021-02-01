@@ -7,10 +7,11 @@ extern "C"
 
 #include "PommeTypes.h"
 
-typedef void*			Pomme3DMF_FileHandle;
-typedef uint32_t*		Pomme3DMF_MeshGroupHandle;
-typedef void*			Pomme3DMF_MeshHandle;
+#include "QD3D.h"
 
+typedef void*				Pomme3DMF_FileHandle;
+
+#pragma mark -
 
 Pomme3DMF_FileHandle Pomme3DMF_LoadModelFile(const FSSpec* spec);
 
@@ -18,9 +19,13 @@ void Pomme3DMF_DisposeModelFile(Pomme3DMF_FileHandle the3DMFFile);
 
 int Pomme3DMF_CountTopLevelMeshGroups(Pomme3DMF_FileHandle the3DMFFile);
 
-Pomme3DMF_MeshGroupHandle Pomme3DMF_GetTopLevelMeshGroup(Pomme3DMF_FileHandle the3DMFFile, int groupNumber);
+TQ3TriMeshFlatGroup Pomme3DMF_GetTopLevelMeshGroup(Pomme3DMF_FileHandle the3DMFFile, int groupNumber);
 
+#pragma mark -
 
+TQ3TriMeshData* Q3TriMeshData_New(int numTriangles, int numPoints);
+
+void Q3TriMeshData_Dispose(TQ3TriMeshData*);
 
 #ifdef __cplusplus
 }

@@ -30,7 +30,11 @@ extern	void DeleteObject(ObjNode	*theNode);
 extern	void GetObjectInfo(ObjNode *theNode);
 extern	void UpdateObject(ObjNode *theNode);
 extern	ObjNode *MakeNewDisplayGroupObject(NewObjectDefinitionType *newObjDef);
+#if 1	// NOQUESA
+void AttachGeometryToDisplayGroupObject(ObjNode* theNode, int numMeshes, TQ3TriMeshData** meshList);
+#else
 extern	void AttachGeometryToDisplayGroupObject(ObjNode *theNode, TQ3Object geometry);
+#endif
 extern	void CreateBaseGroup(ObjNode *theNode);
 extern	void UpdateObjectTransforms(ObjNode *theNode);
 extern	void SetObjectTransformMatrix(ObjNode *theNode);

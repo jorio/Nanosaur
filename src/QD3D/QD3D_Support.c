@@ -11,6 +11,13 @@
 
 #include <QD3D.h>
 #include <QD3DMath.h>
+
+#if __APPLE__
+	#include <OpenGL/glu.h>		// gluPerspective
+#else
+	#include <GL/glu.h>			// gluPerspective
+#endif
+
 #include <frustumculling.h>
 #include <stdio.h>
 
@@ -244,7 +251,11 @@ QD3DSetupOutputType	*outputPtr;
 	outputPtr->hither = setupDefPtr->camera.hither;				// remember hither/yon
 	outputPtr->yon = setupDefPtr->camera.yon;
 	outputPtr->fov = setupDefPtr->camera.fov;
-	
+
+	outputPtr->cameraPlacement.upVector				= setupDefPtr->camera.up;
+	outputPtr->cameraPlacement.pointOfInterest		= setupDefPtr->camera.to;
+	outputPtr->cameraPlacement.cameraLocation		= setupDefPtr->camera.from;
+
 	outputPtr->isActive = true;							// it's now an active structure
 
 	QD3D_MoveCameraFromTo(outputPtr,&v,&v);				// call this to set outputPtr->currentCameraCoords & camera matrix
@@ -654,7 +665,14 @@ TQ3ViewStatus			myViewStatus;
 	int mkc = SDL_GL_MakeCurrent(gSDLWindow, gGLContext);
 	GAME_ASSERT_MESSAGE(mkc == 0, SDL_GetError());
 
+	int windowWidth, windowHeight;
+	SDL_GetWindowSize(gSDLWindow, &windowWidth, &windowHeight);
+	glViewport(0, 0, windowWidth, windowHeight);
+
+
+	glClearColor(0, 0.5f, 0.5f, 1);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 #else
 	myStatus = Q3View_StartRendering(setupInfo->viewObject);
 	if ( myStatus == kQ3Failure )

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <SDL_opengl.h>
+#include <stdbool.h>
 
 
 typedef float		TQ3Float32;
@@ -18,17 +19,6 @@ typedef void*		TQ3StorageObject;
 typedef void*		TQ3ShaderObject;
 typedef void*		TQ3FileObject;
 typedef void*		TQ3TriMeshAttributeData;
-
-/*
-struct
-{
-	TQ3ObjectType	objectType;
-	union
-	{
-		TQ3
-	};
-};
- */
 
 enum {
     kQ3ObjectTypeInvalid                        = ((TQ3ObjectType) 0),
@@ -383,31 +373,31 @@ typedef struct
 	uint32_t				pointIndices[3];
 } TQ3TriMeshTriangleData;
 
+// This structure differs from QD3D.
 typedef struct
 {
-	// TODO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-//	TQ3AttributeSet _Nullable                   triMeshAttributeSet;
+	uint32_t									numTriangles;
+	TQ3TriMeshTriangleData						*triangles;
 
-	uint32_t                                    numTriangles;
-	TQ3TriMeshTriangleData                      * triangles;
+	uint32_t									numPoints;
+	TQ3Point3D									*points;
+	TQ3Param2D									*vertexUVs;
+	TQ3Vector3D									*vertexNormals;
+	TQ3ColorRGBA								*vertexColors;
 
-	uint32_t                                    numTriangleAttributeTypes;
-//	TQ3TriMeshAttributeData                     * _Nullable triangleAttributeTypes;
+	TQ3BoundingBox								bBox;
 
-	uint32_t                                    numEdges;
-//	TQ3TriMeshEdgeData                          * _Nullable edges;
-
-	uint32_t                                    numEdgeAttributeTypes;
-//	TQ3TriMeshAttributeData                     * _Nullable edgeAttributeTypes;
-
-	uint32_t                                    numPoints;
-	TQ3Point3D                                  * points;
-
-	uint32_t                                    numVertexAttributeTypes;
-//	TQ3TriMeshAttributeData                     * _Nullable vertexAttributeTypes;
-
-	TQ3BoundingBox                              bBox;
+	bool										hasTransparency;
+	bool										hasTexture;
+	uint32_t									internalTextureID;
 } TQ3TriMeshData;
+
+// This structure does not exist in QD3D.
+typedef struct
+{
+	uint32_t									numMeshes;
+	TQ3TriMeshData**							meshes;
+} TQ3TriMeshFlatGroup;
 
 typedef struct TQ3FogStyleData {
 	TQ3Switch                                   state;

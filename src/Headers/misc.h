@@ -25,7 +25,11 @@ OSErr DrawPictureToScreen(FSSpec *myFSSpec, short x, short y);
 #define GAME_ASSERT(condition) do { if (!(condition)) DoAssert(#condition, __func__, __LINE__); } while(0)
 #define GAME_ASSERT_MESSAGE(condition, message) do { if (!(condition)) DoAssert(message, __func__, __LINE__); } while(0)
 
-
+#define CHECK_GL_ERROR()												\
+	do {					 											\
+		GLenum err = glGetError();										\
+		GAME_ASSERT_MESSAGE(err == GL_NO_ERROR, (const char*) gluErrorString(err));	\
+	} while(0)
 
 
 

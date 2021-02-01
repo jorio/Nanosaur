@@ -264,7 +264,7 @@ struct ObjNode
 	TQ3Object			BaseGroup;				// group containing all geometry,etc. for this object (for drawing)
 #else
 	int						NumMeshes;
-	Pomme3DMF_MeshHandle	MeshList[MAX_MESHHANDLES_IN_OBJNODE];
+	TQ3TriMeshData*			MeshList[MAX_MESHHANDLES_IN_OBJNODE];
 #endif
 	float				Radius;					// radius use for object culling calculation
 

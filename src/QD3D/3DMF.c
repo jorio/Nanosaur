@@ -38,10 +38,8 @@ static TQ3FileObject	Create3DMFFileObject(FSSpec *myFSSpec);
 /*    VARIABLES      */
 /*********************/
 
-FSSpec	gLast3DMF_FSSpec;
-
 Pomme3DMF_FileHandle		gObjectGroupFile[MAX_3DMF_GROUPS];
-Pomme3DMF_MeshGroupHandle	gObjectGroupList[MAX_3DMF_GROUPS][MAX_OBJECTS_IN_GROUP];
+TQ3TriMeshFlatGroup			gObjectGroupList[MAX_3DMF_GROUPS][MAX_OBJECTS_IN_GROUP];
 float			gObjectGroupRadiusList[MAX_3DMF_GROUPS][MAX_OBJECTS_IN_GROUP];
 TQ3BoundingBox 	gObjectGroupBBoxList[MAX_3DMF_GROUPS][MAX_OBJECTS_IN_GROUP];
 short			gNumObjectsInGroupList[MAX_3DMF_GROUPS] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
@@ -315,7 +313,8 @@ TQ3GroupPosition	position;
 	{
 #if 1	// NOQUESA
 		gObjectGroupList[groupNum][i] = Pomme3DMF_GetTopLevelMeshGroup(the3DMFFile, i);
-		GAME_ASSERT(gObjectGroupList[groupNum][i]);
+		GAME_ASSERT(0 != gObjectGroupList[groupNum][i].numMeshes);
+		GAME_ASSERT(nil != gObjectGroupList[groupNum][i].meshes);
 #else
 		status = Q3Group_GetPositionObject(the3DMFFile, position, &gObjectGroupList[groupNum][i]);	// get ref to object
 		if (status == kQ3Failure)
@@ -364,6 +363,8 @@ short	i;
 		Pomme3DMF_DisposeModelFile(gObjectGroupFile[groupNum]);
 		gObjectGroupFile[groupNum] = nil;
 	}
+
+	memset(gObjectGroupList, 0, sizeof(gObjectGroupList));
 #else
 	for (i = 0; i < gNumObjectsInGroupList[groupNum]; i++)			// dispose of old objects (or at least this reference)
 	{
@@ -373,10 +374,10 @@ short	i;
 			gObjectGroupList[groupNum][i] = nil;
 		}
 	}
-#endif
-	
+
 	for (i = 0; i < MAX_OBJECTS_IN_GROUP; i++)						// make sure to init the entire list to be safe
 		gObjectGroupList[groupNum][i] = nil;
+#endif
 
 	gNumObjectsInGroupList[groupNum] = 0;
 }

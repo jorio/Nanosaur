@@ -296,6 +296,10 @@ void CalcCameraMatrixInfo(QD3DSetupOutputType *setupInfo)
 				
 	Q3Matrix4x4_Invert(&gCameraWorldToViewMatrix,&gCameraAdjustMatrix);
 	
+
+
+
+	CHECK_GL_ERROR();
 }
 #endif
 

@@ -30,6 +30,7 @@ struct Q3MetaFile_Texture
 	}
 };
 
+/*
 struct Q3MetaFile_TriMesh
 {
 	static const uint32_t			COOKIE = 'TMSH';
@@ -49,6 +50,7 @@ struct Q3MetaFile_TriMesh
 		cookie = 'DEAD';
 	}
 };
+*/
 
 struct Q3MetaFile
 {
@@ -56,8 +58,8 @@ struct Q3MetaFile
 
 	uint32_t						cookie = COOKIE;
 	std::vector<Q3MetaFile_Texture>	textures;
-	std::vector<Q3MetaFile_TriMesh>	meshes;
-	std::vector<std::vector<uint32_t> > topLevelMeshGroups;
+	std::vector<TQ3TriMeshData*>	meshes;
+	std::vector<std::vector<TQ3TriMeshData*> > topLevelMeshGroups;
 
 	~Q3MetaFile()
 	{
@@ -90,7 +92,7 @@ private:
 
 	int currentDepth = 0;
 
-	Q3MetaFile_TriMesh* currentMesh;
+	TQ3TriMeshData* currentMesh;
 	int numTexturesDumpedToTGA = 0;
 
 	std::map<uint32_t, uint64_t> referenceTOC;

@@ -13,6 +13,13 @@
 
 #include "QD3D.h"
 #include "QD3DMath.h"
+
+#if __APPLE__
+	#include <OpenGL/glu.h>		// gluPerspective
+#else
+	#include <GL/glu.h>			// gluPerspective
+#endif
+
 #include <GamePatches.h>
 #include <string.h>
 
@@ -33,7 +40,7 @@
 #include "bones.h"
 #include "collision.h"
 
-extern	TQ3Object	gObjectGroupList[MAX_3DMF_GROUPS][MAX_OBJECTS_IN_GROUP];
+extern	TQ3TriMeshFlatGroup	gObjectGroupList[MAX_3DMF_GROUPS][MAX_OBJECTS_IN_GROUP];
 extern	float		gObjectGroupRadiusList[MAX_3DMF_GROUPS][MAX_OBJECTS_IN_GROUP];
 extern	short		gNumObjectsInGroupList[MAX_3DMF_GROUPS];
 extern	float		gFramesPerSecondFrac;
@@ -76,6 +83,7 @@ long		gNumObjsInDeleteQueue = 0;
 ObjNode		*gObjectDeleteQueue[OBJ_DEL_Q_SIZE];
 
 long		gNodesDrawn = 0;  // Source port addition - nodes drawn during a frame (for statistics)
+long		gTrianglesDrawn = 0;  // Source port addition - triangles drawn during a frame (for statistics)
 
 //============================================================================================================
 //============================================================================================================
@@ -273,10 +281,10 @@ Byte	group,type;
 	group = newObjDef->group;											// get group #
 	type = newObjDef->type;												// get type #
 	
-	if (type >= gNumObjectsInGroupList[group])							// see if illegal
-		DoFatalAlert("MakeNewDisplayGroupObject: type > gNumObjectsInGroupList[]!");
-	
-	AttachGeometryToDisplayGroupObject(newObj,gObjectGroupList[group][type]);
+	GAME_ASSERT(type < gNumObjectsInGroupList[group]);					// see if illegal
+
+	TQ3TriMeshFlatGroup* meshList = &gObjectGroupList[group][type];
+	AttachGeometryToDisplayGroupObject(newObj, meshList->numMeshes, meshList->meshes);
 
 			/* CALC RADIUS */
 			
@@ -299,8 +307,9 @@ void ResetDisplayGroupObject(ObjNode *theNode)
 
 	if (theNode->Type >= gNumObjectsInGroupList[theNode->Group])							// see if illegal
 		DoFatalAlert("ResetDisplayGroupObject: type > gNumObjectsInGroupList[]!");
-	
-	AttachGeometryToDisplayGroupObject(theNode,gObjectGroupList[theNode->Group][theNode->Type]);	// attach geometry to group
+
+	TQ3TriMeshFlatGroup* meshList = &gObjectGroupList[theNode->Group][theNode->Type];
+	AttachGeometryToDisplayGroupObject(theNode, meshList->numMeshes, meshList->meshes);		// attach geometry to group
 
 }
 
@@ -312,20 +321,29 @@ void ResetDisplayGroupObject(ObjNode *theNode)
 // called which made the group & transforms.
 //
 
+#if 1	// NOQUESA
+void AttachGeometryToDisplayGroupObject(ObjNode* theNode, int numMeshes, TQ3TriMeshData** meshList)
+{
+	for (int i = 0; i < numMeshes; i++)
+	{
+		int nodeMeshIndex = theNode->NumMeshes;
+
+		theNode->NumMeshes++;
+		GAME_ASSERT(theNode->NumMeshes <= MAX_MESHHANDLES_IN_OBJNODE);
+
+		theNode->MeshList[nodeMeshIndex] = meshList[i];
+	}
+}
+#else
 void AttachGeometryToDisplayGroupObject(ObjNode *theNode, TQ3Object geometry)
 {
-#if 1	// NOQUESA
-	theNode->NumMeshes++;
-	GAME_ASSERT(theNode->NumMeshes <= MAX_MESHHANDLES_IN_OBJNODE);
-	theNode->MeshList[theNode->NumMeshes-1] = geometry;
-#else
 TQ3GroupPosition	groupPosition;
 
 	groupPosition = Q3Group_AddObject(theNode->BaseGroup,geometry);
 	if (groupPosition == nil)
 		DoFatalAlert("Error: AttachGeometryToDisplayGroupObject");
-#endif
 }
+#endif
 
 
 
@@ -472,6 +490,7 @@ Boolean			cacheMode;
 #endif
 
 	gNodesDrawn = 0;
+	gTrianglesDrawn = 0;
 
 	if (gFirstNodePtr == nil)							// see if there are any objects
 		return;
@@ -481,6 +500,12 @@ Boolean			cacheMode;
 	CheckAllObjectsInConeOfVision();
 	
 	theNode = gFirstNodePtr;
+
+
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_COLOR_ARRAY);
+	glEnableClientState(GL_NORMAL_ARRAY);
+
 
 #if 0
 			/* TURN ON TRIANGLE CACHING */
@@ -591,7 +616,30 @@ Boolean			cacheMode;
 				
 				case	DISPLAY_GROUP_GENRE:
 #if 1	// NOQUESA
-						printf("TODO noquesa: %s:%d: submit DG trimesh\n", __func__, __LINE__);
+
+						glPushMatrix();
+						glMultMatrixf(&theNode->BaseTransformMatrix.value[0][0]);
+						glColor4f(1, 0, 1, 1);
+						glBegin(GL_LINES);
+						glVertex3f(0,0,0); glVertex3f(0,theNode->Radius,0);
+						glVertex3f(0,0,0); glVertex3f(theNode->Radius,0,0);
+						glVertex3f(0,0,0); glVertex3f(0,0,theNode->Radius);
+						glEnd();
+						for (int j = 0; j < theNode->NumMeshes; j++)
+						{
+							TQ3TriMeshData* tmd = theNode->MeshList[j];
+
+							glVertexPointer(3, GL_FLOAT, 0, tmd->points);
+							glNormalPointer(GL_FLOAT, 0, tmd->vertexNormals);
+							glColorPointer(4, GL_FLOAT, 0, tmd->vertexColors);
+
+							glDrawElements(GL_TRIANGLES, tmd->numTriangles*3, GL_UNSIGNED_INT, tmd->triangles);
+							CHECK_GL_ERROR();
+
+							gTrianglesDrawn += tmd->numTriangles;
+						}
+						glPopMatrix();
+						gNodesDrawn++;
 #else
 						if (theNode->BaseGroup)
 						{
