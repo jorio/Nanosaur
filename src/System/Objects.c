@@ -609,14 +609,8 @@ Boolean			cacheMode;
 						UpdateSkinnedGeometry(theNode);
 #if 1	// NOQUESA
 						// TODO: essentially the same as DISPLAY_GROUP_GENRE. Merge?
-						glPushMatrix();
-						glMultMatrixf(&theNode->BaseTransformMatrix.value[0][0]);
-						glColor4f(1, 0, 1, 1);
-						glBegin(GL_LINES);
-						glVertex3f(0,0,0); glVertex3f(0,theNode->Radius,0);
-						glVertex3f(0,0,0); glVertex3f(theNode->Radius,0,0);
-						glVertex3f(0,0,0); glVertex3f(0,0,theNode->Radius);
-						glEnd();
+//						glPushMatrix();	// Don't mult with the BaseTransformMatrix -- skeleton code already does it
+//						glMultMatrixf(&theNode->BaseTransformMatrix.value[0][0]);	// Don't mult with the BaseTransformMatrix -- skeleton code already does it
 						int numTriMeshes = theNode->Skeleton->skeletonDefinition->numDecomposedTriMeshes;
 						for (int i = 0; i < numTriMeshes; i++)
 						{
@@ -631,7 +625,7 @@ Boolean			cacheMode;
 
 							gTrianglesDrawn += tmd->numTriangles;
 						}
-						glPopMatrix();
+//						glPopMatrix();	// Don't mult with the BaseTransformMatrix -- skeleton code already does it
 #else
 						numTriMeshes = theNode->Skeleton->skeletonDefinition->numDecomposedTriMeshes;
 						for (i = 0; i < numTriMeshes; i++)
@@ -644,12 +638,6 @@ Boolean			cacheMode;
 #if 1	// NOQUESA
 						glPushMatrix();
 						glMultMatrixf(&theNode->BaseTransformMatrix.value[0][0]);
-						glColor4f(1, 0, 1, 1);
-						glBegin(GL_LINES);
-						glVertex3f(0,0,0); glVertex3f(0,theNode->Radius,0);
-						glVertex3f(0,0,0); glVertex3f(theNode->Radius,0,0);
-						glVertex3f(0,0,0); glVertex3f(0,0,theNode->Radius);
-						glEnd();
 						for (int i = 0; i < theNode->NumMeshes; i++)
 						{
 							TQ3TriMeshData* tmd = theNode->MeshList[i];

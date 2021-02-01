@@ -320,9 +320,6 @@ SkeletonObjDataType	*currentSkelObjData;
 /******************** UPDATE SKINNED GEOMETRY: RECURSE ************************/
 
 static void UpdateSkinnedGeometry_Recurse(short joint)
-#if 1	// TODO noquesa
-{ printf("TODO noquesa: %s\n", __func__); }
-#else
 {
 long			numChildren,numPoints,p,i,numRefs,r,triMeshNum,p2,c,numNormals,n;
 TQ3Matrix4x4	oldM;
@@ -337,7 +334,7 @@ float				*jointMat = &currentSkelObjData->jointTransformMatrix[joint].value[0][0
 float				*matPtr = &gMatrix.value[0][0];
 float				x,y,z;
 DecomposedPointType	*decomposedPointList = currentSkeleton->decomposedPointList;
-TQ3TriMeshData		*localTriMeshes = &currentSkelObjData->localTriMeshes[0];
+TQ3TriMeshData		**localTriMeshPtrs = currentSkelObjData->localTriMeshPtrs;
 
 	minX = minY = minZ = 1000000000;
 	maxX = maxY = maxZ = -minX;									// calc local bbox with registers for speed
@@ -443,7 +440,7 @@ TQ3TriMeshData		*localTriMeshes = &currentSkelObjData->localTriMeshes[0];
 			p2 = decomposedPointList[i].whichPoint[0];								// get point # in the triMesh 
 			n = decomposedPointList[i].whichNormal[0];								// get index into gDecomposedNormalsList
 
-			normalAttribs = (TQ3Vector3D *)(localTriMeshes[triMeshNum].vertexAttributeTypes[0].data);	// point to normals attribute list in local trimesh
+			normalAttribs = localTriMeshPtrs[triMeshNum]->vertexNormals;			// point to normals attribute list in local trimesh
 			normalAttribs[p2] = gTransformedNormals[n];								// copy transformed normal into triMesh
 		}
 		else																		// handle multi-case
@@ -454,7 +451,7 @@ TQ3TriMeshData		*localTriMeshes = &currentSkelObjData->localTriMeshes[0];
 				p2 = decomposedPointList[i].whichPoint[r];								
 				n = decomposedPointList[i].whichNormal[r];								
 
-				normalAttribs = (TQ3Vector3D *)(localTriMeshes[triMeshNum].vertexAttributeTypes[0].data);
+				normalAttribs = localTriMeshPtrs[triMeshNum]->vertexNormals;
 				normalAttribs[p2] = gTransformedNormals[n];
 			}
 		}
@@ -510,9 +507,9 @@ TQ3TriMeshData		*localTriMeshes = &currentSkelObjData->localTriMeshes[0];
 			triMeshNum = decomposedPointList[i].whichTriMesh[0];						// get triMesh # that uses this point
 			p2 = decomposedPointList[i].whichPoint[0];									// get point # in the triMesh
 	
-			localTriMeshes[triMeshNum].points[p2].x = newX;								// set the point in local copy of trimesh
-			localTriMeshes[triMeshNum].points[p2].y = newY;
-			localTriMeshes[triMeshNum].points[p2].z = newZ;
+			localTriMeshPtrs[triMeshNum]->points[p2].x = newX;								// set the point in local copy of trimesh
+			localTriMeshPtrs[triMeshNum]->points[p2].y = newY;
+			localTriMeshPtrs[triMeshNum]->points[p2].z = newZ;
 		}
 		else																			// multi-refs
 		{		
@@ -521,9 +518,9 @@ TQ3TriMeshData		*localTriMeshes = &currentSkelObjData->localTriMeshes[0];
 				triMeshNum = decomposedPointList[i].whichTriMesh[r];					
 				p2 = decomposedPointList[i].whichPoint[r];								
 		
-				localTriMeshes[triMeshNum].points[p2].x = newX;	
-				localTriMeshes[triMeshNum].points[p2].y = newY;
-				localTriMeshes[triMeshNum].points[p2].z = newZ;
+				localTriMeshPtrs[triMeshNum]->points[p2].x = newX;
+				localTriMeshPtrs[triMeshNum]->points[p2].y = newY;
+				localTriMeshPtrs[triMeshNum]->points[p2].z = newZ;
 			}
 		}
 	}
@@ -560,7 +557,6 @@ TQ3TriMeshData		*localTriMeshes = &currentSkelObjData->localTriMeshes[0];
 	}
 
 }
-#endif
 
 
 /******************* PRIME BONE DATA *********************/
