@@ -7,6 +7,15 @@
 
 //#define printf(...) do{}while(0)
 
+class Q3MetaFile_EarlyEOFException : public std::exception
+{
+public:
+	const char *what() const noexcept override
+	{
+		return "Early EOF in 3DMF";
+	}
+};
+
 static void Assert(bool condition, const char* message)
 {
 	if (!condition)
@@ -76,6 +85,9 @@ uint32_t Q3MetaFileParser::Parse1Chunk()
 
 	switch (chunkType)
 	{
+		case 0:		// Happens in Diloph_Fin.3df at 0x00014233 -- signals early EOF? or corrupted file? either way, stop parsing.
+			throw Q3MetaFile_EarlyEOFException();
+
 		case 'cntr':    // Container
 		{
 			if (currentDepth == 1)
@@ -113,7 +125,6 @@ uint32_t Q3MetaFileParser::Parse1Chunk()
 			Assert(currentMesh, "currentMesh wasn't get set by Parse_tmsh?");
 			if (!metaFile.topLevelMeshGroups.empty())
 				metaFile.topLevelMeshGroups.back().push_back(currentMesh);
-//				currentMeshContainerDepth = containerEnds.size();
 			break;
 		}
 
@@ -259,13 +270,18 @@ void Q3MetaFileParser::Parse3DMF()
 	}
 
 
-	size_t currentMeshContainerDepth = 0;
-
-
 	// Chunk Loop
-	while (f.Tell() != fileLength)
+	try
 	{
-		Parse1Chunk();
+		while (f.Tell() != fileLength)
+		{
+			Parse1Chunk();
+		}
+	}
+	catch (Q3MetaFile_EarlyEOFException&)
+	{
+		// Stop parsing
+		printf("Early EOF");
 	}
 
 	printf("\n");

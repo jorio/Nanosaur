@@ -91,6 +91,8 @@ Pomme3DMF_FileHandle Pomme3DMF_LoadModelFile(const FSSpec* spec)
 	if (err != noErr)
 		return nullptr;
 
+	printf("========== LOADING 3DMF: %s ===========\n", spec->cName);
+
 	Q3MetaFile* metaFile = new Q3MetaFile();
 
 	auto& fileStream = Pomme::Files::GetStream(refNum);
