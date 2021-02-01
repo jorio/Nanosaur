@@ -816,19 +816,9 @@ TQ3ViewStatus			myViewStatus;
 
 void QD3D_UpdateCameraFromTo(QD3DSetupOutputType *setupInfo, TQ3Point3D *from, TQ3Point3D *to)
 {
-			/* SET CAMERA LOOK AT */
-
-	setupInfo->cameraPlacement.pointOfInterest = *to;
-	setupInfo->currentCameraLookAt = *to;
-
-			/* SET CAMERA COORDS */
-
-	setupInfo->cameraPlacement.cameraLocation = *from;
-	setupInfo->currentCameraCoords = *from;				// keep global copy for quick use
-
-			/* UPDATE CAMERA INFO */
-
-	CalcCameraMatrixInfo(setupInfo);
+	setupInfo->cameraPlacement.pointOfInterest = *to;					// set camera look at
+	setupInfo->cameraPlacement.cameraLocation = *from;					// set camera coords
+	CalcCameraMatrixInfo(setupInfo);									// update matrices
 }
 
 
@@ -836,15 +826,8 @@ void QD3D_UpdateCameraFromTo(QD3DSetupOutputType *setupInfo, TQ3Point3D *from, T
 
 void QD3D_UpdateCameraFrom(QD3DSetupOutputType *setupInfo, TQ3Point3D *from)
 {
-			/* SET CAMERA COORDS */
-			
-	setupInfo->cameraPlacement.cameraLocation = *from;
-	setupInfo->currentCameraCoords = *from;				// keep global copy for quick use
-	
-
-			/* UPDATE CAMERA INFO */
-
-	CalcCameraMatrixInfo(setupInfo);
+	setupInfo->cameraPlacement.cameraLocation = *from;					// set camera coords
+	CalcCameraMatrixInfo(setupInfo);									// update matrices
 }
 
 
@@ -852,26 +835,15 @@ void QD3D_UpdateCameraFrom(QD3DSetupOutputType *setupInfo, TQ3Point3D *from)
 
 void QD3D_MoveCameraFromTo(QD3DSetupOutputType *setupInfo, TQ3Vector3D *moveVector, TQ3Vector3D *lookAtVector)
 {
-			/* SET CAMERA COORDS */
-
-	setupInfo->cameraPlacement.cameraLocation.x += moveVector->x;
+	setupInfo->cameraPlacement.cameraLocation.x += moveVector->x;		// set camera coords
 	setupInfo->cameraPlacement.cameraLocation.y += moveVector->y;
 	setupInfo->cameraPlacement.cameraLocation.z += moveVector->z;
 
-			/* SET CAMERA LOOK AT */
-
-	setupInfo->cameraPlacement.pointOfInterest.x += lookAtVector->x;
+	setupInfo->cameraPlacement.pointOfInterest.x += lookAtVector->x;	// set camera look at
 	setupInfo->cameraPlacement.pointOfInterest.y += lookAtVector->y;
 	setupInfo->cameraPlacement.pointOfInterest.z += lookAtVector->z;
 
-			/* KEEP GLOBAL COPY FOR QUICK USE (SOURCE PORT NOTE: REDUNDANT) */
-
-	setupInfo->currentCameraCoords = setupInfo->cameraPlacement.cameraLocation;	// keep global copy for quick use
-	setupInfo->currentCameraLookAt = setupInfo->cameraPlacement.pointOfInterest;
-
-			/* UPDATE CAMERA INFO */
-
-	CalcCameraMatrixInfo(setupInfo);
+	CalcCameraMatrixInfo(setupInfo);									// update matrices
 }
 
 

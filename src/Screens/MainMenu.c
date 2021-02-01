@@ -200,7 +200,7 @@ do_again:
 				
 		GenerateFallingEgg();
 		MoveObjects();
-		CalcEnvironmentMappingCoords(&gGameViewInfoPtr->currentCameraCoords);		
+		CalcEnvironmentMappingCoords(&gGameViewInfoPtr->cameraPlacement.cameraLocation);
 		QD3D_DrawScene(gGameViewInfoPtr,DrawObjects);	
 		QD3D_CalcFramesPerSecond();					
 		
@@ -467,7 +467,7 @@ Boolean	stop;
 				
 		QD3D_CalcFramesPerSecond();					
 		MoveObjects();
-		CalcEnvironmentMappingCoords(&gGameViewInfoPtr->currentCameraCoords);		
+		CalcEnvironmentMappingCoords(&gGameViewInfoPtr->cameraPlacement.cameraLocation);
 		QD3D_DrawScene(gGameViewInfoPtr,DrawObjects);		
 		ReadKeyboard();
 		

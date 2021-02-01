@@ -134,7 +134,7 @@ TQ3Vector3D	camDelta = {0,0,0};
 		if (GetNewKeyState_Real(KEY_SPACE))
 			break;
 			
-	}while(gGameViewInfoPtr->currentCameraCoords.x < 2200);
+	}while(gGameViewInfoPtr->cameraPlacement.cameraLocation.x < 2200);
 	
 	
 			/* CLEANUP */
@@ -340,7 +340,7 @@ got_slot:
 
 static void EnterPlayerName(unsigned long newScore)
 {
-TQ3Point3D	camPt = gGameViewInfoPtr->currentCameraCoords;
+TQ3Point3D	camPt = gGameViewInfoPtr->cameraPlacement.cameraLocation;
 float		camWobble = 0;
 short		i;
 

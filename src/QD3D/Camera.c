@@ -311,6 +311,9 @@ static void MoveCamera_Manual(void)
 TQ3Point3D	from,to,target;
 float		rotY,x,z,distX,distZ,distY,dist;
 
+const TQ3Point3D*	currentCameraLookAt	= &gGameViewInfoPtr->cameraPlacement.pointOfInterest;
+const TQ3Point3D*	currentCameraCoords	= &gGameViewInfoPtr->cameraPlacement.cameraLocation;
+
 			/**********************/
 			/* CALC LOOK AT POINT */
 			/**********************/
@@ -320,9 +323,9 @@ float		rotY,x,z,distX,distZ,distY,dist;
 	target.z = gMyCoord.z;
 
 
-	distX = target.x - gGameViewInfoPtr->currentCameraLookAt.x;
-	distY = target.y - gGameViewInfoPtr->currentCameraLookAt.y;
-	distZ = target.z - gGameViewInfoPtr->currentCameraLookAt.z;
+	distX = target.x - currentCameraLookAt->x;
+	distY = target.y - currentCameraLookAt->y;
+	distZ = target.z - currentCameraLookAt->z;
 
 	if (distX > 50)		
 		distX = 50;
@@ -335,9 +338,9 @@ float		rotY,x,z,distX,distZ,distY,dist;
 	if (distZ < -50)
 		distZ = -50;
 
-	to.x = gGameViewInfoPtr->currentCameraLookAt.x+(distX * (gFramesPerSecondFrac * gCameraLookAtAccel));
-	to.y = gGameViewInfoPtr->currentCameraLookAt.y+(distY * (gFramesPerSecondFrac * (gCameraLookAtAccel*.7)));
-	to.z = gGameViewInfoPtr->currentCameraLookAt.z+(distZ * (gFramesPerSecondFrac * gCameraLookAtAccel));
+	to.x = currentCameraLookAt->x + (distX * (gFramesPerSecondFrac * gCameraLookAtAccel));
+	to.y = currentCameraLookAt->y + (distY * (gFramesPerSecondFrac * (gCameraLookAtAccel*.7)));
+	to.z = currentCameraLookAt->z + (distZ * (gFramesPerSecondFrac * gCameraLookAtAccel));
 
 
 			/*******************/
@@ -354,9 +357,9 @@ float		rotY,x,z,distX,distZ,distY,dist;
 
 			/* MOVE CAMERA TOWARDS POINT */
 			
-	distX = target.x - gGameViewInfoPtr->currentCameraCoords.x;
-	distZ = target.z - gGameViewInfoPtr->currentCameraCoords.z;
-	
+	distX = target.x - currentCameraCoords->x;
+	distZ = target.z - currentCameraCoords->z;
+
 	if (distX > 100)													// pin max accel factor
 		distX = 100;
 	else
@@ -367,9 +370,9 @@ float		rotY,x,z,distX,distZ,distY,dist;
 	else
 	if (distZ < -100)
 		distZ = -100;
-		
-	from.x = gGameViewInfoPtr->currentCameraCoords.x+(distX * (gFramesPerSecondFrac * gCameraFromAccel));
-	from.z = gGameViewInfoPtr->currentCameraCoords.z+(distZ * (gFramesPerSecondFrac * gCameraFromAccel));
+
+	from.x = currentCameraCoords->x + (distX * (gFramesPerSecondFrac * gCameraFromAccel));
+	from.z = currentCameraCoords->z + (distZ * (gFramesPerSecondFrac * gCameraFromAccel));
 
 
 			/***************/
@@ -390,9 +393,9 @@ float		rotY,x,z,distX,distZ,distY,dist;
 		target.y = to.y + (dist*gCameraHeightFactor) + CAM_MINY;					// calc desired y based on dist and height factor	
 		target.y += gMyHeightOffGround;	
 	}
-	
-	dist = (target.y - gGameViewInfoPtr->currentCameraCoords.y)*gCameraFromAccelY;	// calc dist from current y to desired y
-	from.y = gGameViewInfoPtr->currentCameraCoords.y+(dist*gFramesPerSecondFrac);
+
+	dist = (target.y - currentCameraCoords->y)*gCameraFromAccelY;	// calc dist from current y to desired y
+	from.y = currentCameraCoords->y+(dist*gFramesPerSecondFrac);
 
 	if (from.y < (to.y+CAM_MINY))													// make sure camera never under the "to" point (insures against camera flipping over)
 		from.y = (to.y+CAM_MINY);	

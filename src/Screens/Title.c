@@ -202,7 +202,7 @@ TQ3Point3D		cameraFrom = { 110, 90, 190.0 };
 	while(!Button())
 	{
 		MoveObjects();
-		CalcEnvironmentMappingCoords(&gGameViewInfoPtr->currentCameraCoords);
+		CalcEnvironmentMappingCoords(&gGameViewInfoPtr->cameraPlacement.cameraLocation);
 		QD3D_DrawScene(gGameViewInfoPtr,DrawObjects);
 		QD3D_CalcFramesPerSecond();
 		ReadKeyboard();									// keys get us out
@@ -323,7 +323,7 @@ FSSpec			spec;
 			break;
 
 		MoveObjects();
-		CalcEnvironmentMappingCoords(&gGameViewInfoPtr->currentCameraCoords);
+		CalcEnvironmentMappingCoords(&gGameViewInfoPtr->cameraPlacement.cameraLocation);
 		QD3D_DrawScene(gGameViewInfoPtr,DrawObjects);	
 		QD3D_CalcFramesPerSecond();					
 	}
