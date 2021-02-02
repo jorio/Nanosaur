@@ -263,21 +263,15 @@ void DisposeTerrain(void)
 //
 
 static void CreateSuperTileMemoryList(void)
-#if 1	// TODO noquesa
-{ DoFatalAlert2("TODO noquesa", __func__); }
-#else
 {
 short					u,v,i,j;
 TQ3Status				status;
-TQ3TriMeshData			triMeshData;
 TQ3Point3D				p[NUM_VERTICES_IN_SUPERTILE];
 TQ3TriMeshTriangleData	newTriangle[NUM_POLYS_IN_SUPERTILE];
-TQ3TriMeshAttributeData	triangleAttribs,vertAttribs[2];
 TQ3Vector3D				faceNormals[NUM_POLYS_IN_SUPERTILE];
 TQ3Vector3D				vertexNormals[NUM_VERTICES_IN_SUPERTILE];
 TQ3Param2D				uvs[NUM_VERTICES_IN_SUPERTILE];
 TQ3Param2D				uvs2[4] = {{0,1},  {1,1},   {0,0},   {1,0}};
-TQ3AttributeSet			geometryAttribSet;
 
 Ptr						blankTexPtr;
 TQ3SurfaceShaderObject	blankTexObject;
@@ -293,15 +287,9 @@ TQ3SurfaceShaderObject	blankTexObject;
 	// shorts instead of bytes for supertile indices (thereby limiting the max
 	// amount of supertiles to 32767).
 
-	if (MAX_SUPERTILES > 32767)
-	{
-		DoFatalAlert("MAX_SUPERTILES too large. Try decreasing SUPERTILE_ACTIVE_RANGE.");
-	}
+	GAME_ASSERT_MESSAGE(MAX_SUPERTILES <= 32767, "MAX_SUPERTILES too large. Try decreasing SUPERTILE_ACTIVE_RANGE.");
 
-	if (gSuperTileMemoryList != nil)
-	{
-		DoFatalAlert("gSuperTileMemoryList already allocated");
-	}
+	GAME_ASSERT_MESSAGE(!gSuperTileMemoryList, "gSuperTileMemoryList already allocated.");
 
 	gSuperTileMemoryList = (SuperTileMemoryType *) AllocPtr(sizeof(SuperTileMemoryType) * MAX_SUPERTILES);
 
@@ -312,7 +300,7 @@ TQ3SurfaceShaderObject	blankTexObject;
 			
 				/* INIT POINT COORDS & NORMALS */
 				
-	for (i = 0; i < NUM_VERTICES_IN_SUPERTILE; i++)											
+	for (i = 0; i < NUM_VERTICES_IN_SUPERTILE; i++)
 	{
 		p[i].x = p[i].y = p[i].z = 0.0f;										// clear point list
 		vertexNormals[i].x = vertexNormals[i].z = 0;						// set dummy vertex normals (point up)
@@ -369,6 +357,7 @@ TQ3SurfaceShaderObject	blankTexObject;
 	{
 					/* SET DATA */
 
+#if 0	// NOQUESA
 		triangleAttribs.attributeType = kQ3AttributeTypeNormal;					// set attribute Type
 		triangleAttribs.data = &faceNormals;									// point to attribute data
 		triangleAttribs.attributeUseArray = nil;								// (not used)
@@ -380,20 +369,51 @@ TQ3SurfaceShaderObject	blankTexObject;
 		vertAttribs[1].attributeType = kQ3AttributeTypeShadingUV;				// set attrib type == shading UV
 		vertAttribs[1].data = &uvs[0];											// point to vertex UV's
 		vertAttribs[1].attributeUseArray = nil;									// (not used)		
-
+#endif
 
 		gSuperTileMemoryList[i].mode = SUPERTILE_MODE_FREE;						// it's free for use
 
+#if 1	// NOQUESA
+
+		// TODO: create texture!
+		printf("TODO noquesa: Create Terrain Trimesh Texture\n");
+
+		// TODO: do we need face normals at all?
+
+					/* CREATE THE TRIMESH OBJECT */
+
+		TQ3TriMeshData* tmd = Q3TriMeshData_New(NUM_POLYS_IN_SUPERTILE, NUM_VERTICES_IN_SUPERTILE);
+		GAME_ASSERT(tmd);
+
+		gSuperTileMemoryList[i].triMeshPtr = tmd;
+
+		memcpy(tmd->triangles,		newTriangle,	sizeof(tmd->triangles[0]) * NUM_POLYS_IN_SUPERTILE);
+//		memcpy(tmd->points,			p,				sizeof(tmd->points[0]) * NUM_VERTICES_IN_SUPERTILE);
+//		memcpy(tmd->vertexNormals,	vertexNormals,	sizeof(tmd->vertexNormals[0]) * NUM_VERTICES_IN_SUPERTILE);
+		memcpy(tmd->vertexUVs,		uvs,			sizeof(tmd->vertexUVs[0]) * NUM_VERTICES_IN_SUPERTILE);
+		for (int pointIndex = 0; pointIndex < NUM_VERTICES_IN_SUPERTILE; pointIndex++)
+		{
+			tmd->points[pointIndex] = (TQ3Point3D) { 0, 0, 0 };					// clear point list
+			tmd->vertexNormals[pointIndex] = (TQ3Vector3D) { 0, 1, 0 };			// set dummy vertex normals (point up)
+		}
+		// TODO: face normals?
+
+		tmd->bBox.isEmpty = kQ3False;					// calc bounding box
+		tmd->bBox.min.x = tmd->bBox.min.y = tmd->bBox.min.z = 0;
+		tmd->bBox.max.x = tmd->bBox.max.y = tmd->bBox.max.z = TERRAIN_SUPERTILE_UNIT_SIZE;
+
+
+#else
+
 					/* MAKE BLANK TEXTURE */
-					
+
 		blankTexPtr = AllocPtr(SUPERTILE_TEXMAP_SIZE * SUPERTILE_TEXMAP_SIZE * sizeof(short));		// alloc memory for texture
 		if (blankTexPtr == nil)
 			DoFatalAlert("CreateSuperTileMemoryList: AllocPtr failed!");
 
 		blankTexObject = QD3D_Data16ToTexture_NoMip(blankTexPtr, SUPERTILE_TEXMAP_SIZE, SUPERTILE_TEXMAP_SIZE);
-		if (blankTexObject == nil)
-			DoFatalAlert("CreateSuperTileMemoryList: QD3D_Data16ToTexture_NoMip failed!");
-			
+		GAME_ASSERT(blankTexObject);
+
 		DisposePtr(blankTexPtr);																	// free memory
 	
 		Q3Shader_SetUBoundary(blankTexObject, kQ3ShaderUVBoundaryClamp);		// source port addition
@@ -448,12 +468,45 @@ TQ3SurfaceShaderObject	blankTexObject;
 			DoAlert("CreateSuperTileMemoryList: Q3TriMesh_New failed!");
 			QD3D_ShowRecentError();
 		}
+#endif
 	
 	
 			/****************************************************/
 			/* NOW CREATE SECONDARY TRIMESH FOR FLAT SUPERTILES */
 			/****************************************************/
 
+#if 1	// NOQUESA
+		TQ3TriMeshData* tmdFlat = Q3TriMeshData_New(2, 4);			// only 2 triangles in a flat supertile, 4 vertices
+		GAME_ASSERT(tmdFlat);
+
+		gSuperTileMemoryList[i].triMeshPtr2 = tmdFlat;
+
+				/* CREATE THE 2 TRIANGLES */
+		// SOURCE PORT NOTE: changed first tri's winding to 0-2-1. Second tri doesn't need to change.
+		tmdFlat->triangles[0].pointIndices[0] = 0;
+		tmdFlat->triangles[0].pointIndices[1] = 2;
+		tmdFlat->triangles[0].pointIndices[2] = 1;
+		tmdFlat->triangles[1].pointIndices[0] = 1;
+		tmdFlat->triangles[1].pointIndices[1] = 2;
+		tmdFlat->triangles[1].pointIndices[2] = 3;
+
+		for (int pointIndex = 0; pointIndex < 4; pointIndex++)
+		{
+			tmdFlat->points[pointIndex] = (TQ3Point3D) {0, 0, 0 };				// clear point list
+			tmdFlat->vertexNormals[pointIndex] = (TQ3Vector3D) {0, 1, 0 };		// set dummy vertex normals (point up)
+		}
+
+//		memcpy(tmd2->triangles,		newTriangle,	2 * sizeof(tmd->triangles[0]));
+//		memcpy(tmd2->points,			p,			4 * sizeof(tmd2->points[0]));
+//		memcpy(tmd2->vertexNormals,	vertexNormals,	4 * sizeof(tmd2->vertexNormals[0]));
+		memcpy(tmdFlat->vertexUVs, uvs2, 4 * sizeof(tmdFlat->vertexUVs[0]));
+		// TODO: face normals?
+
+		tmdFlat->bBox.isEmpty = kQ3False;					// calc bounding box
+		tmdFlat->bBox.min.x = tmdFlat->bBox.min.y = tmdFlat->bBox.min.z = 0;
+		tmdFlat->bBox.max.x = tmdFlat->bBox.max.y = tmdFlat->bBox.max.z = TERRAIN_SUPERTILE_UNIT_SIZE;
+
+#else
 					/* MODIFY THE UV ATTRIBS */
 					
 		vertAttribs[1].data = &uvs2[0];								
@@ -490,10 +543,9 @@ TQ3SurfaceShaderObject	blankTexObject;
 	
 				
 		Q3Object_Dispose(geometryAttribSet);					// free extra ref to attribs
-	
+#endif
 	}
 }
-#endif
 
 
 /***************** GET FREE SUPERTILE MEMORY *******************/
@@ -536,16 +588,12 @@ short	i;
 //
 
 static short	BuildTerrainSuperTile(long	startCol, long startRow)
-#if 1	// TODO noquesa
-{ DoFatalAlert2("TODO noquesa", __func__); return 0; }
-#else
 {
 long	 			row,col,row2,col2,i;
 short				superTileNum;
 float				height,miny,maxy;
 TQ3Vector3D			normals[SUPERTILE_SIZE+1][SUPERTILE_SIZE+1];
-TQ3GeometryObject	theTriMesh;
-TQ3TriMeshData		triMeshData;
+TQ3TriMeshData		*triMeshPtr;
 TQ3Vector3D			*normalPtr,*vertexNormalList;
 UInt16				tile;
 short				h1,h2,h3,h4;
@@ -554,7 +602,6 @@ TQ3TriMeshTriangleData	*triangleList;
 TQ3StorageObject	mipmapStorage;
 unsigned char		*buffer;
 UInt32				validSize,bufferSize;
-TQ3Status			status;
 SuperTileMemoryType	*superTilePtr;
 
 	superTileNum = GetFreeSuperTileMemory();					// get memory block for the data
@@ -764,27 +811,24 @@ SuperTileMemoryType	*superTilePtr;
 			/*********************************/
 
 					/* GET THE TRIMESH */
-					
-	theTriMesh = gSuperTileMemoryList[superTileNum].triMesh;					// get the triMesh
-	if (theTriMesh == nil)
-		DoFatalAlert("BuildTerrainSuperTile: triMesh == nil");
 
-	Q3TriMesh_GetData(theTriMesh,&triMeshData);
-	pointList = triMeshData.points;												// get ptr to point/vertex list
-	triangleList = triMeshData.triangles;										// get ptr to triangle index list
-	vertexNormalList = (TQ3Vector3D*)triMeshData.vertexAttributeTypes[0].data;				// get ptr to vertex normals
-	
-	normalPtr = (TQ3Vector3D*)triMeshData.triangleAttributeTypes->data;						// get ptr to face normals
-	
+	triMeshPtr = gSuperTileMemoryList[superTileNum].triMeshPtr;					// get the triMesh
+	GAME_ASSERT(triMeshPtr);
+
+	pointList = triMeshPtr->points;												// get ptr to point/vertex list
+	triangleList = triMeshPtr->triangles;										// get ptr to triangle index list
+	vertexNormalList = triMeshPtr->vertexNormals;								// get ptr to vertex normals
+	normalPtr = nil;	// TODO QUESA: FACE NORMALS!							// get ptr to face normals
+
 	
 			/* SET BOUNDING BOX */
 			
-	triMeshData.bBox.min.x = gWorkGrid[0][0].x;
-	triMeshData.bBox.max.x = triMeshData.bBox.min.x+TERRAIN_SUPERTILE_UNIT_SIZE;
-	triMeshData.bBox.min.y = miny;
-	triMeshData.bBox.max.y = maxy;
-	triMeshData.bBox.min.z = gWorkGrid[0][0].z;
-	triMeshData.bBox.max.z = triMeshData.bBox.min.z + TERRAIN_SUPERTILE_UNIT_SIZE;
+	triMeshPtr->bBox.min.x = gWorkGrid[0][0].x;
+	triMeshPtr->bBox.max.x = triMeshPtr->bBox.min.x+TERRAIN_SUPERTILE_UNIT_SIZE;
+	triMeshPtr->bBox.min.y = miny;
+	triMeshPtr->bBox.max.y = maxy;
+	triMeshPtr->bBox.min.z = gWorkGrid[0][0].z;
+	triMeshPtr->bBox.max.z = triMeshPtr->bBox.min.z + TERRAIN_SUPERTILE_UNIT_SIZE;
 				
 
 					/* SET VERTEX COORDS & NORMALS */
@@ -823,26 +867,26 @@ SuperTileMemoryType	*superTilePtr;
 			{
 					/* \ */
 				// SOURCE PORT NOTE: changed winding to 0-2-1 for both tris.
-				triMeshData.triangles[i].pointIndices[0] = gTileTriangles1_B[row2][col2][0];
-				triMeshData.triangles[i].pointIndices[1] = gTileTriangles1_B[row2][col2][2];
-				triMeshData.triangles[i].pointIndices[2] = gTileTriangles1_B[row2][col2][1];
+				triMeshPtr->triangles[i].pointIndices[0] = gTileTriangles1_B[row2][col2][0];
+				triMeshPtr->triangles[i].pointIndices[1] = gTileTriangles1_B[row2][col2][2];
+				triMeshPtr->triangles[i].pointIndices[2] = gTileTriangles1_B[row2][col2][1];
 				i++;
-				triMeshData.triangles[i].pointIndices[0] = gTileTriangles2_B[row2][col2][0];
-				triMeshData.triangles[i].pointIndices[1] = gTileTriangles2_B[row2][col2][2];
-				triMeshData.triangles[i].pointIndices[2] = gTileTriangles2_B[row2][col2][1];
+				triMeshPtr->triangles[i].pointIndices[0] = gTileTriangles2_B[row2][col2][0];
+				triMeshPtr->triangles[i].pointIndices[1] = gTileTriangles2_B[row2][col2][2];
+				triMeshPtr->triangles[i].pointIndices[2] = gTileTriangles2_B[row2][col2][1];
 				i++;
 			}
 			else
 			{
 					/* / */
 				// SOURCE PORT NOTE: changed winding to 0-2-1 for both tris.
-				triMeshData.triangles[i].pointIndices[0] = gTileTriangles1_A[row2][col2][0];
-				triMeshData.triangles[i].pointIndices[1] = gTileTriangles1_A[row2][col2][2];
-				triMeshData.triangles[i].pointIndices[2] = gTileTriangles1_A[row2][col2][1];
+				triMeshPtr->triangles[i].pointIndices[0] = gTileTriangles1_A[row2][col2][0];
+				triMeshPtr->triangles[i].pointIndices[1] = gTileTriangles1_A[row2][col2][2];
+				triMeshPtr->triangles[i].pointIndices[2] = gTileTriangles1_A[row2][col2][1];
 				i++;
-				triMeshData.triangles[i].pointIndices[0] = gTileTriangles2_A[row2][col2][0];
-				triMeshData.triangles[i].pointIndices[1] = gTileTriangles2_A[row2][col2][2];
-				triMeshData.triangles[i].pointIndices[2] = gTileTriangles2_A[row2][col2][1];
+				triMeshPtr->triangles[i].pointIndices[0] = gTileTriangles2_A[row2][col2][0];
+				triMeshPtr->triangles[i].pointIndices[1] = gTileTriangles2_A[row2][col2][2];
+				triMeshPtr->triangles[i].pointIndices[2] = gTileTriangles2_A[row2][col2][1];
 				i++;
 			}			
 		}
@@ -852,19 +896,25 @@ SuperTileMemoryType	*superTilePtr;
 					
 	for (i = 0; i < NUM_POLYS_IN_SUPERTILE; i++)
 	{
-		
+#if 1	// NOQUESA
+		printf("TODO noquesa: add face normals in trimeshptr\n");
+#else
 		CalcFaceNormal(&pointList[triangleList[i].pointIndices[2]],			
 						&pointList[triangleList[i].pointIndices[1]],
 						&pointList[triangleList[i].pointIndices[0]],
-						&normalPtr[i]);		
+						&normalPtr[i]);
+#endif
 	}			
 			
 			/******************/
 			/* UPDATE TEXTURE */
 			/******************/
 
+#if 1	// NOQUESA
+	printf("TODO noquesa: update supertile texture\n");
+#else
 			/* GET MIPMAP BUFFER */
-				
+
 	mipmapStorage = QD3D_GetMipmapStorageObjectFromAttrib(triMeshData.triMeshAttributeSet);	// get storage object
 	status = Q3MemoryStorage_GetBuffer(mipmapStorage, &buffer, &validSize, &bufferSize);	// get ptr to the buffer
 			
@@ -878,22 +928,18 @@ SuperTileMemoryType	*superTilePtr;
 	Q3TriMesh_SetData(theTriMesh,&triMeshData);										// update the trimesh with new info
 	Q3TriMesh_EmptyData(&triMeshData);												// free the trimesh data
 
+#endif
 
 	return(superTileNum);
 }
-#endif
 
 
 
 /************************* BUILD TERRAIN SUPERTILE: FLAT ************************************/
 
 static void BuildTerrainSuperTile_Flat(SuperTileMemoryType	*superTilePtr, long startCol, long startRow) 
-#if 1	// TODO noquesa
-{ DoFatalAlert2("TODO noquesa", __func__); }
-#else
 {
-TQ3GeometryObject	theTriMesh;
-TQ3TriMeshData		triMeshData;
+TQ3TriMeshData		*triMeshPtr;
 TQ3Point3D			*pointList;
 TQ3StorageObject	mipmapStorage;
 TQ3Status			status;
@@ -908,14 +954,10 @@ TQ3PlaneEquation	planeEq;
 			/*********************************/
 
 					/* GET THE TRIMESH */
-					
-	theTriMesh = superTilePtr->triMesh2;					// get the triMesh
-	if (theTriMesh == nil)
-		DoFatalAlert("BuildTerrainSuperTile_Flat: triMesh == nil");
 
-	Q3TriMesh_GetData(theTriMesh,&triMeshData);
-	pointList = triMeshData.points;												// get ptr to point/vertex list
-	
+	triMeshPtr = superTilePtr->triMeshPtr2;
+	pointList = triMeshPtr->points;												// get ptr to point/vertex list
+
 
 					/* SET VERTEX COORDS */
 	
@@ -934,13 +976,13 @@ TQ3PlaneEquation	planeEq;
 	pointList[2].x -= SUPERTILE_OVERLAP;
 
 			/* SET BOUNDING BOX */
-			
-	triMeshData.bBox.min.x = pointList[0].x;
-	triMeshData.bBox.max.x = pointList[1].x;
-	triMeshData.bBox.min.y = pointList[0].y;
-	triMeshData.bBox.max.y = pointList[0].y;
-	triMeshData.bBox.min.z = pointList[0].z;
-	triMeshData.bBox.max.z = pointList[2].z;
+
+	triMeshPtr->bBox.min.x = pointList[0].x;
+	triMeshPtr->bBox.max.x = pointList[1].x;
+	triMeshPtr->bBox.min.y = pointList[0].y;
+	triMeshPtr->bBox.max.y = pointList[0].y;
+	triMeshPtr->bBox.min.z = pointList[0].z;
+	triMeshPtr->bBox.max.z = pointList[2].z;
 
 
 	CalcPlaneEquationOfTriangle(&planeEq, &pointList[0], &pointList[1],&pointList[2]);// calc plane equation for entire supertile
@@ -965,6 +1007,9 @@ TQ3PlaneEquation	planeEq;
 		}
 	}
 
+#if 1	// TODO noquesa
+	printf("TODO noquesa: %s: texture\n", __func__);
+#else
 				/* UPDATE TEXTURE */
 				
 	mipmapStorage = QD3D_GetMipmapStorageObjectFromAttrib(triMeshData.triMeshAttributeSet);	// get storage object
@@ -980,8 +1025,8 @@ TQ3PlaneEquation	planeEq;
 			
 	Q3TriMesh_SetData(theTriMesh,&triMeshData);										// update the trimesh with new info
 	Q3TriMesh_EmptyData(&triMeshData);												// free the trimesh data
-}
 #endif
+}
 
 
 
@@ -1694,10 +1739,10 @@ static inline void ReleaseSuperTileObject(short superTileNum)
 //
 
 void DrawTerrain(QD3DSetupOutputType *setupInfo)
-#if 1	// TODO noquesa
-{ DoFatalAlert2("TODO noquesa", __func__); }
-#else
 {
+#if 1	// TODO NOQUESA
+	printf("TODO noquesa: %s\n", __func__);
+#else
 short	i;
 TQ3Status	myStatus;
 			
@@ -1746,6 +1791,7 @@ TQ3Status	myStatus;
 #if 0 // Source port fix: clamping is now set per-shader in CreateSuperTileMemoryList
 	QD3D_SetTextureWrapMode(kQAGL_Repeat);								// let textures wrap/repeat
 #endif
+#endif
 
 
 		/* DRAW OBJECTS */
@@ -1753,7 +1799,6 @@ TQ3Status	myStatus;
 	DrawObjects(setupInfo);												// draw objNodes
 	QD3D_DrawParticles(setupInfo);
 }
-#endif
 
 
 /***************** GET TERRAIN HEIGHT AT COORD ******************/

@@ -750,7 +750,7 @@ check_x:
 
 void CreateCollisionTrianglesForObject(ObjNode *theNode)
 #if 1	// TODO noquesa
-{ DoFatalAlert2("TODO noquesa", __func__); }
+{ printf("TODO noquesa: %s(%p)\n", __func__, theNode); }
 #else
 {
 short	i;

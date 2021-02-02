@@ -368,13 +368,13 @@ typedef struct
 	float                                       constant;
 } TQ3PlaneEquation;
 
-typedef struct
+typedef struct TQ3TriMeshTriangleData
 {
 	uint32_t				pointIndices[3];
 } TQ3TriMeshTriangleData;
 
 // This structure differs from QD3D.
-typedef struct
+typedef struct TQ3TriMeshData
 {
 	uint32_t									numTriangles;
 	TQ3TriMeshTriangleData						*triangles;

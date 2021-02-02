@@ -190,7 +190,10 @@ TQ3Matrix4x4  		stashMatrix;
 
 void QD3D_InitParticles(void)
 #if 1
-{ DoFatalAlert2("TODO noquesa", __func__); }
+{
+	printf("TODO noquesa: %s\n", __func__);
+	gNumParticles = 0;
+}
 #else
 {
 long	i;
@@ -265,7 +268,7 @@ long	i;
 
 void QD3D_ExplodeGeometry(ObjNode *theNode, float boomForce, Byte particleMode, long particleDensity, float particleDecaySpeed)
 #if 1	// TODO noquesa
-{ DoFatalAlert2("TODO noquesa", __func__); }
+{ printf("TODO noquesa: %s\n", __func__); }
 #else
 {
 TQ3Object theObject;
@@ -596,7 +599,7 @@ TQ3Matrix4x4	matrix,matrix2;
 
 void QD3D_DrawParticles(QD3DSetupOutputType *setupInfo)
 #if 1	// TODO noquesa
-{ DoFatalAlert2("TODO noquesa", __func__); }
+{ printf("TODO noquesa: %s\n", __func__); }
 #else
 {
 long	i;
@@ -654,7 +657,7 @@ void QD3D_ScrollUVs(TQ3Object theObject, float du, float dv)
 
 static void ScrollUVs_Recurse(TQ3Object obj)
 #if 1	// TODO noquesa
-{ DoFatalAlert2("TODO noquesa", __func__); }
+{ printf("TODO noquesa: %s\n", __func__); }
 #else
 {
 TQ3GroupPosition	position;

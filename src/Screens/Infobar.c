@@ -552,7 +552,9 @@ short	i;
 
 static void InitGPSMap(void)
 #if 1	// TODO noquesa
-{ DoFatalAlert2("TODO noquesa", __func__); }
+{
+	printf("TODO noquesa: %s\n", __func__);
+}
 #else
 {
 Rect					r;

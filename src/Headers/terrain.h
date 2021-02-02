@@ -138,15 +138,14 @@ struct SuperTileMemoryType
 	UInt16				row,col;								// supertile's map position
 	TQ3Point3D			coord;									// world coords
 	long				left,back;								// integer coords of back/left corner
-	TQ3GeometryObject	triMesh;								// trimeshes for the supertile
-	TQ3Point3D			vectorList[NUM_VERTICES_IN_SUPERTILE];
+	TQ3TriMeshData		*triMeshPtr;							// trimeshes for the supertile
+	TQ3TriMeshData		*triMeshPtr2;							// for 4  point flat supertiles
 	Byte				splitAngle[SUPERTILE_SIZE][SUPERTILE_SIZE];		// 0 = /  1 = \ .
 	TQ3PlaneEquation	tilePlanes1[SUPERTILE_SIZE][SUPERTILE_SIZE];		// plane equation for each tile poly A
 	TQ3PlaneEquation	tilePlanes2[SUPERTILE_SIZE][SUPERTILE_SIZE];		// plane equation for each tile poly B
 	
 	float				radius;									// radius of this supertile
 	
-	TQ3GeometryObject	triMesh2;								// for 4  point flat supertiles
 	Boolean				isFlat;
 };
 typedef struct SuperTileMemoryType SuperTileMemoryType;

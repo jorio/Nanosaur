@@ -208,7 +208,10 @@ void SetObjectCollisionBounds(ObjNode *theNode, short top, short bottom, short l
 
 ObjNode	*AttachShadowToObject(ObjNode *theNode, float scaleX, float scaleZ)
 #if 1	// TODO noquesa
-{ DoFatalAlert2("TODO noquesa", __func__); return nil; }
+{
+	printf("TODO noquesa: %s\n", __func__);
+	return nil;
+}
 #else
 {
 ObjNode	*shadowObj;
