@@ -14,16 +14,12 @@
 #include "misc.h"
 #include "input.h"
 #include "player_control.h"
-#include "selfrundemo.h"
 #include "windows_nano.h"
 #include "title.h"
 
 extern	unsigned long gOriginalSystemVolume;
 extern	short		gMainAppRezFile;
-extern	Byte		gDemoMode;
-extern	Boolean		gAbortedFlag,gGameOverFlag,gAbortDemoFlag;
-extern	DemoCacheKeyType	*gDemoCachePtr;
-extern	long		gDemoCacheIndex;
+extern	Boolean		gGameOverFlag;
 
 /**********************/
 /*     PROTOTYPES     */
@@ -94,89 +90,15 @@ void InitInput(void)
 
 void ReadKeyboard(void)
 {
-KeyMap tempKeys;
-
-					/*****************/
-					/* DEMO PLAYBACK */
-					/*****************/
-
-	if (gDemoMode == DEMO_MODE_PLAYBACK)								// see if read from demo file
-	{
-		if (gDemoCachePtr[gDemoCacheIndex].count <= 0)					// see if need to get next keymap
-		{
-			gDemoCacheIndex++;											// next recorded keymap
-			if (gDemoCachePtr[gDemoCacheIndex].count == END_DEMO_MARK)	// see if end of file
-			{
-				StopDemo();
-				return;
-			}
-			
-			gKeyMap[0] = gDemoCachePtr[gDemoCacheIndex].keyMap[0];		// get new keys
-			gKeyMap[1] = gDemoCachePtr[gDemoCacheIndex].keyMap[1];
-			gKeyMap[2] = gDemoCachePtr[gDemoCacheIndex].keyMap[2];
-			gKeyMap[3] = gDemoCachePtr[gDemoCacheIndex].keyMap[3];
-		}
-		
-		gDemoCachePtr[gDemoCacheIndex].count--;							// decrement iteration counter
-		
-		MyGetKeys(&tempKeys);												// read real keyboard only to check for abort
-		if (tempKeys[0] || tempKeys[1] || tempKeys[2] || tempKeys[3])	// any key aborts
-			StopDemo();
-	}
-	else
-		MyGetKeys(&gKeyMap);										// READ THE REAL KEYBOARD
-
+	MyGetKeys(&gKeyMap);												// READ THE REAL KEYBOARD
 
 			/* CALC WHICH KEYS ARE NEW THIS TIME */
-			
+
 	gNewKeys[0] = (gOldKeys[0] ^ gKeyMap[0]) & gKeyMap[0];
 	gNewKeys[1] = (gOldKeys[1] ^ gKeyMap[1]) & gKeyMap[1];
 	gNewKeys[2] = (gOldKeys[2] ^ gKeyMap[2]) & gKeyMap[2];
 	gNewKeys[3] = (gOldKeys[3] ^ gKeyMap[3]) & gKeyMap[3];
 
-
-
-					/***************/
-					/* RECORD DEMO */
-					/***************/
-	
-	if (gDemoMode == DEMO_MODE_RECORD)							// see if record keyboard
-	{
-		if ((gKeyMap[0] == gOldKeys[0]) &&						// see if same as last occurrence
-			(gKeyMap[1] == gOldKeys[1]) &&
-			(gKeyMap[2] == gOldKeys[2]) &&
-			(gKeyMap[3] == gOldKeys[3]))
-		{
-			gDemoCachePtr[gDemoCacheIndex].count++;				// inc iteration count
-		}
-		else														// new KeyMap, so reset and add
-		{	
-			gDemoCacheIndex++;										// key cache key slot
-			gDemoCachePtr[gDemoCacheIndex].count = 1;				// init iteration count to 1
-			gDemoCachePtr[gDemoCacheIndex].keyMap[0] = gKeyMap[0];	// set keymap
-			gDemoCachePtr[gDemoCacheIndex].keyMap[1] = gKeyMap[1];
-			gDemoCachePtr[gDemoCacheIndex].keyMap[2] = gKeyMap[2];
-			gDemoCachePtr[gDemoCacheIndex].keyMap[3] = gKeyMap[3];			
-		}
-		
-		if ((sizeof(DemoCacheKeyType) * gDemoCacheIndex) >= MAX_DEMO_SIZE)	// see if overflowed
-			DoFatalAlert("Demo Record Buffer Overflow!");
-
-					/* SEE IF END OF DEMO */
-					
-		if (Nano_GetKeyState(KEY_ESC))
-		{
-			SaveDemoData();
-			gGameOverFlag = gAbortedFlag = gAbortDemoFlag = true;
-		}
-	}
-	
-				/* SEE IF QUIT GAME */
-				
-	if (GetKeyState_Real(KEY_Q) && GetKeyState_Real(KEY_APPLE))			// see if key quit
-		CleanQuit();	
-
-		
 			/* REMEMBER AS OLD MAP */
 
 	gOldKeys[0] = gKeyMap[0];
@@ -193,9 +115,7 @@ KeyMap tempKeys;
 
 void ReadKeyboard_Real(void)
 {
-
-
-	GetKeys(gKeyMap_Real);										
+	GetKeys(gKeyMap_Real);
 
 			/* CALC WHICH KEYS ARE NEW THIS TIME */
 			
@@ -203,7 +123,6 @@ void ReadKeyboard_Real(void)
 	gNewKeys_Real[1] = (gOldKeys_Real[1] ^ gKeyMap_Real[1]) & gKeyMap_Real[1];
 	gNewKeys_Real[2] = (gOldKeys_Real[2] ^ gKeyMap_Real[2]) & gKeyMap_Real[2];
 	gNewKeys_Real[3] = (gOldKeys_Real[3] ^ gKeyMap_Real[3]) & gKeyMap_Real[3];
-
 
 			/* REMEMBER AS OLD MAP */
 

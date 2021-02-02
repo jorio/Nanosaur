@@ -18,7 +18,6 @@
 #include "sound2.h"
 #include "file.h"
 #include "player_control.h"
-#include 	"selfrundemo.h"
 #include "objects.h"
 #include "input.h"
 #include "3dmf.h"
@@ -30,7 +29,7 @@
 
 extern	long		gOriginalSystemVolume;
 extern	short		gMainAppRezFile;
-extern	Boolean		gGameOverFlag,gAbortedFlag;
+extern	Boolean		gGameOverFlag;
 extern	QD3DSetupOutputType		*gGameViewInfoPtr;
 extern	Boolean		gQD3DInitialized;
 extern  PrefsType	gGamePrefs;

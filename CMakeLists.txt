@@ -58,7 +58,6 @@ set(GAME_CORE_SOURCES
 	${GAME_SRCDIR}/System/Sprites.c
 	${GAME_SRCDIR}/System/Sound.c
 	${GAME_SRCDIR}/System/Windows.c
-	${GAME_SRCDIR}/System/SelfRunDemo.c
 	${GAME_SRCDIR}/Terrain/Terrain.c
 	${GAME_SRCDIR}/Terrain/Terrain2.c
 	${GAME_SRCDIR}/Player/MyGuy.c
@@ -120,7 +119,6 @@ set(GAME_CORE_HEADERS
 	${GAME_SRCDIR}/Headers/player_control.h
 	${GAME_SRCDIR}/Headers/qd3d_geometry.h
 	${GAME_SRCDIR}/Headers/qd3d_support.h
-	${GAME_SRCDIR}/Headers/selfrundemo.h
 	${GAME_SRCDIR}/Headers/skeletonanim.h
 	${GAME_SRCDIR}/Headers/skeletonjoints.h
 	${GAME_SRCDIR}/Headers/skeletonobj.h

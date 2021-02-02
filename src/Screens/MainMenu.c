@@ -24,7 +24,6 @@
 #include "title.h"
 #include "file.h"
 #include "environmentmap.h"
-#include 	"selfrundemo.h"
 #include "highscores.h"
 
 #include "GamePatches.h"
@@ -96,8 +95,6 @@ ObjNode	*gMainMenuIcons[NUM_MAINMENU_ICONS];
 
 Byte	gCurrentSelection;
 
-float	gTimeToDemo;
-
 static	float		gMainMenuWheelRot;
 static	float		gWheelCenterZ;
 
@@ -108,7 +105,6 @@ void DoMainMenu(void)
 FSSpec	file;
 QD3DSetupInputType	viewDef;
 TQ3Point3D			cameraFrom = { 0, 00, 600.0 };
-float				timer;
 Size				size;
 
 	MaxMem(&size);
@@ -181,9 +177,8 @@ do_again:
 
 
 			/* INIT DEMO TIMER */
-			
+
 	QD3D_CalcFramesPerSecond();
-	timer = 0;
 
 				/*************/
 				/* MAIN LOOP */
@@ -218,7 +213,6 @@ do_again:
 			else
 				gCurrentSelection--;
 			SpinToPreviousMainMenuIcon();
-			timer = 0;
 		}
 		else	
 		if (GetNewKeyState_Real(KEY_RIGHT))									// spin right
@@ -226,30 +220,12 @@ do_again:
 			if (++gCurrentSelection >= NUM_MAINMENU_ICONS)
 				gCurrentSelection = 0;
 			SpinToNextMainMenuIcon();
-			timer = 0;
-		}		
-	
-				/* SEE IF DEMO TIME */
-				
-//		timer += gFramesPerSecondFrac;
-//		if (timer > 10)
-//		{
-//			InitDemoPlayback();
-//			break;
-//		}
-							
+		}
 	}while(true);
-
-			/* SEE IF RECORD DEMO */
-			
-	if (GetKeyState_Real(KEY_R))
-		StartRecordingDemo();
 
 	QD3D_CalcFramesPerSecond();		// call this to prime data for demo playback/record
 
 
-//	DumpGLPixels("nanodump_menu.tga");
-	
 		/***********/
 		/* CLEANUP */
 		/***********/

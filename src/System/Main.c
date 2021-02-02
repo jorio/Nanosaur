@@ -34,7 +34,6 @@
 #include "infobar.h"
 #include "sprites.h"
 #include "3dmath.h"
-#include 	"selfrundemo.h"
 #include "weapons.h"
 #include "mainmenu.h"
 #include "timeportal.h"
@@ -46,10 +45,9 @@
 
 #include "GamePatches.h"
 
-extern	Boolean			gAbortDemoFlag,gRestartSavedGame,gGameIsDemoFlag,gSongPlayingFlag;
+extern	Boolean			gSongPlayingFlag;
 extern	NewObjectDefinitionType	gNewObjectDefinition;
 extern	float			gFramesPerSecond,gFramesPerSecondFrac,gTimeRemaining,gMyHealth,gFuel;
-extern	Byte		gMyCharacterType,gDemoMode;
 extern	WindowPtr	gCoverWindow;
 extern	TQ3Point3D	gCoord;
 extern	long	gMyStartX,gMyStartZ;
@@ -78,7 +76,7 @@ static void PlayLevel(void);
 
 
 short		gMainAppRezFile;
-Boolean		gGameOverFlag,gAbortedFlag;
+Boolean		gGameOverFlag;
 Boolean		gPlayerGotKilledFlag,gWonGameFlag;
 
 QD3DSetupOutputType		*gGameViewInfoPtr = nil;
@@ -207,8 +205,8 @@ TQ3ColorRGB		c2 = { 1, .9, .6 };
 
 
 				/* INIT FLAGS */
-				
-	gAbortDemoFlag = gGameOverFlag = false;
+
+	gGameOverFlag = false;
 	gPlayerGotKilledFlag = false;
 	gWonGameFlag = false;
 	gMyHealth = 1.0;
@@ -248,7 +246,6 @@ TQ3ColorRGB		c2 = { 1, .9, .6 };
 static void CleanupLevel(void)
 {
 	StopAllEffectChannels();
-	StopDemo();
 	DeleteAllObjects();
 	FreeAllSkeletonFiles(-1);
 	DisposeTerrain();
@@ -287,12 +284,6 @@ FSSpec	spec;
 		ReadKeyboard();
 
 
-				/* SEE IF DEMO ENDED */				
-		
-		if (gAbortDemoFlag)
-			break;
-	
-	
 				/* MOVE OBJECTS */
 				
 		CalcPlayerKeyControls();
@@ -316,13 +307,10 @@ FSSpec	spec;
 
 				
 			/* SEE IF PAUSE GAME */
-				
-		if (gDemoMode != DEMO_MODE_RECORD)
-		{
-			if (GetNewKeyState(kKey_Pause))				// see if pause/abort
-				DoPaused();
-		}
-		
+
+		if (GetNewKeyState(kKey_Pause))						// see if pause/abort
+			DoPaused();
+
 			/* CHECK CHEAT KEYS */
 			
 		if (GetKeyState_Real(KEY_F15) || GetKeyState_Real(KEY_F12))

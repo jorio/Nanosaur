@@ -34,7 +34,7 @@ extern	NewObjectDefinitionType	gNewObjectDefinition;
 extern	Byte			gCurrentAttackMode;
 extern	float			gFramesPerSecond,gFramesPerSecondFrac,gCameraRotY,gCameraRotX,gMyHealth;
 extern	WindowPtr				gCoverWindow;
-extern	Boolean			gPossibleAttackModes[],gGameOverFlag,gAbortedFlag;
+extern	Boolean			gPossibleAttackModes[],gGameOverFlag;
 extern	short			gWeaponInventory[];
 extern	ObjNode			*gPlayerObj;
 extern	QD3DSetupOutputType		*gGameViewInfoPtr;
@@ -493,7 +493,7 @@ Boolean	toggleMusic = !gMuteMusicFlag;
 	
 	if (selected == 1)									// see if want out
 	{
-		gGameOverFlag = gAbortedFlag = true;
+		gGameOverFlag = true;
 	}
 }
 

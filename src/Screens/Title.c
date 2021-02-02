@@ -25,7 +25,6 @@
 #include "skeletonobj.h"
 #include "environmentmap.h"
 #include "sound2.h"
-#include 	"selfrundemo.h"
 #include "skeletonanim.h"
 
 #include "GamePatches.h"
