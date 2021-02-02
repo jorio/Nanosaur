@@ -140,7 +140,6 @@ typedef struct
 	BoneDefinitionType	*Bones;							// data which describes bone heirarachy
 	
 	long				numDecomposedTriMeshes;			// # trimeshes in skeleton
-//	TQ3TriMeshData		*decomposedTriMeshes;			// array of triMeshData
 	TQ3TriMeshData		**decomposedTriMeshPtrs;		// array of triMeshData
 
 	long				numDecomposedPoints;			// # shared points in skeleton

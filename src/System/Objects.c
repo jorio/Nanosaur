@@ -419,7 +419,25 @@ ObjNode		*thisNodePtr;
 
 /**************************** DRAW OBJECTS ***************************/
 
-void DrawObjects(QD3DSetupOutputType *setupInfo)
+static void DrawTriMeshList(int numMeshes, TQ3TriMeshData** meshList)
+{
+	for (int i = 0; i < numMeshes; i++)
+	{
+		const TQ3TriMeshData* mesh = meshList[i];
+
+		glVertexPointer(3, GL_FLOAT, 0, mesh->points);
+		glNormalPointer(GL_FLOAT, 0, mesh->vertexNormals);
+		glColorPointer(4, GL_FLOAT, 0, mesh->vertexColors);
+
+		glDrawElements(GL_TRIANGLES, mesh->numTriangles*3, GL_UNSIGNED_INT, mesh->triangles);
+		CHECK_GL_ERROR();
+
+		gTrianglesDrawn += mesh->numTriangles;
+		gMeshesDrawn++;
+	}
+}
+
+	void DrawObjects(QD3DSetupOutputType *setupInfo)
 {
 ObjNode		*theNode;
 unsigned long	statusBits;
@@ -547,62 +565,17 @@ Boolean			cacheMode;
 				case	SKELETON_GENRE:
 						GetModelCurrentPosition(theNode->Skeleton);
 						UpdateSkinnedGeometry(theNode);
-#if 1	// NOQUESA
-						// TODO: essentially the same as DISPLAY_GROUP_GENRE. Merge?
-//						glPushMatrix();	// Don't mult with the BaseTransformMatrix -- skeleton code already does it
-//						glMultMatrixf(&theNode->BaseTransformMatrix.value[0][0]);	// Don't mult with the BaseTransformMatrix -- skeleton code already does it
-						int numTriMeshes = theNode->Skeleton->skeletonDefinition->numDecomposedTriMeshes;
-						for (int i = 0; i < numTriMeshes; i++)
-						{
-							TQ3TriMeshData* tmd = theNode->Skeleton->localTriMeshPtrs[i];
-
-							glVertexPointer(3, GL_FLOAT, 0, tmd->points);
-							glNormalPointer(GL_FLOAT, 0, tmd->vertexNormals);
-							glColorPointer(4, GL_FLOAT, 0, tmd->vertexColors);
-
-							glDrawElements(GL_TRIANGLES, tmd->numTriangles*3, GL_UNSIGNED_INT, tmd->triangles);
-							CHECK_GL_ERROR();
-
-							gTrianglesDrawn += tmd->numTriangles;
-						}
-//						glPopMatrix();	// Don't mult with the BaseTransformMatrix -- skeleton code already does it
-#else
-						numTriMeshes = theNode->Skeleton->skeletonDefinition->numDecomposedTriMeshes;
-						for (i = 0; i < numTriMeshes; i++)
-							Q3TriMesh_Submit(&theNode->Skeleton->localTriMeshes[i], view);
-#endif
+						// Don't mult matrix with BaseTransformMatrix -- skeleton code already does it
+						DrawTriMeshList(theNode->Skeleton->skeletonDefinition->numDecomposedTriMeshes, theNode->Skeleton->localTriMeshPtrs);
 						gNodesDrawn++;
 						break;
-				
+
 				case	DISPLAY_GROUP_GENRE:
-#if 1	// NOQUESA
 						glPushMatrix();
 						glMultMatrixf(&theNode->BaseTransformMatrix.value[0][0]);
-						for (int i = 0; i < theNode->NumMeshes; i++)
-						{
-							TQ3TriMeshData* tmd = theNode->MeshList[i];
-
-							glVertexPointer(3, GL_FLOAT, 0, tmd->points);
-							glNormalPointer(GL_FLOAT, 0, tmd->vertexNormals);
-							glColorPointer(4, GL_FLOAT, 0, tmd->vertexColors);
-
-							glDrawElements(GL_TRIANGLES, tmd->numTriangles*3, GL_UNSIGNED_INT, tmd->triangles);
-							CHECK_GL_ERROR();
-
-							gTrianglesDrawn += tmd->numTriangles;
-							gMeshesDrawn++;
-						}
+						DrawTriMeshList(theNode->NumMeshes, theNode->MeshList);
 						glPopMatrix();
 						gNodesDrawn++;
-#else
-						if (theNode->BaseGroup)
-						{
-							gNodesDrawn++;
-							myStatus = Q3Object_Submit(theNode->BaseGroup, view);
-							if ( myStatus == kQ3Failure )
-								DoFatalAlert("DrawObjects: Q3Object_Submit failed!");
-						}
-#endif
 						break;
 			}
 
