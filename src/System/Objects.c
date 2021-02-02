@@ -84,6 +84,7 @@ ObjNode		*gObjectDeleteQueue[OBJ_DEL_Q_SIZE];
 
 long		gNodesDrawn = 0;  // Source port addition - nodes drawn during a frame (for statistics)
 long		gTrianglesDrawn = 0;  // Source port addition - triangles drawn during a frame (for statistics)
+long		gMeshesDrawn = 0;
 
 //============================================================================================================
 //============================================================================================================
@@ -491,6 +492,7 @@ Boolean			cacheMode;
 
 	gNodesDrawn = 0;
 	gTrianglesDrawn = 0;
+	gMeshesDrawn = 0;
 
 	if (gFirstNodePtr == nil)							// see if there are any objects
 		return;
@@ -650,6 +652,7 @@ Boolean			cacheMode;
 							CHECK_GL_ERROR();
 
 							gTrianglesDrawn += tmd->numTriangles;
+							gMeshesDrawn++;
 						}
 						glPopMatrix();
 						gNodesDrawn++;
@@ -981,9 +984,11 @@ TQ3Matrix4x4	matrix;
 	Q3Matrix4x4_Multiply(&theNode->BaseTransformMatrix,&matrix, &theNode->BaseTransformMatrix);
 
 
+#if 0	// NOQUESA
 				/* UPDATE TRANSFORM OBJECT */
 				
 	SetObjectTransformMatrix(theNode);
+#endif
 }
 
 

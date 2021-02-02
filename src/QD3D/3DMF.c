@@ -281,6 +281,7 @@ TQ3GroupPosition	position;
 
 #if 1	// NOQUESA
 	the3DMFFile = Pomme3DMF_LoadModelFile(spec);
+	gObjectGroupFile[groupNum] = the3DMFFile;
 #else
 	the3DMFFile = Load3DMFModel(spec);
 	if (the3DMFFile == nil)
@@ -364,7 +365,7 @@ short	i;
 		gObjectGroupFile[groupNum] = nil;
 	}
 
-	memset(gObjectGroupList, 0, sizeof(gObjectGroupList));
+	memset(gObjectGroupList[groupNum], 0, sizeof(gObjectGroupList[groupNum]));
 #else
 	for (i = 0; i < gNumObjectsInGroupList[groupNum]; i++)			// dispose of old objects (or at least this reference)
 	{
