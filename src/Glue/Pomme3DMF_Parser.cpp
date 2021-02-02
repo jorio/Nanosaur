@@ -205,12 +205,13 @@ uint32_t Q3MetaFileParser::Parse1Chunk()
 			break;
 		}
 
-		default:
-			printf("??????????????????? size=%d", chunkSize);
-			//Assert(false, "Unknown chunkType");
-			//return -1;
+		case 'toc ':
+			// Already read TOC at beginning
 			f.Skip(chunkSize);
 			break;
+
+		default:
+			throw std::runtime_error("unrecognized 3DMF chunk");
 	}
 
 	return chunkType;
@@ -221,8 +222,6 @@ void Q3MetaFileParser::Parse3DMF()
 	baseStream.seekg(0, std::ios::end);
 	std::streampos fileLength = baseStream.tellg();
 	baseStream.seekg(0, std::ios::beg);
-
-	//printf("========== %s ============\n", path);
 
 	Assert(f.Read<uint32_t>() == '3DMF', "Not a 3DMF file");
 	Assert(f.Read<uint32_t>() == 16, "Bad header length");
@@ -235,8 +234,6 @@ void Q3MetaFileParser::Parse3DMF()
 
 	uint64_t tocOffset = f.Read<uint64_t>();
 	printf("Version %d.%d    tocOffset %08lx\n", versionMajor, versionMinor, tocOffset);
-
-	//Assert(tocOffset == 0, "Can't handle files with a TOC yet");
 
 	// Read TOC
 	if (tocOffset != 0)
@@ -300,10 +297,8 @@ void Q3MetaFileParser::Parse_tmsh(uint32_t chunkSize)
 	uint32_t	numVertices				= f.Read<uint32_t>();
 	uint32_t	numVertexAttributes		= f.Read<uint32_t>();
 	printf("%d tris, %d vertices\t", numTriangles, numVertices);
-	//Assert(0 == numTriangleAttributes, "triangle attributes are not supported");
 	Assert(0 == numEdges, "edges are not supported");
 	Assert(0 == numEdgeAttributes, "edge attributes are not supported");
-	//Assert(0 == numVertexAttributes, "vertex attributes are not supported");
 
 	currentMesh = Q3TriMeshData_New(numTriangles, numVertices);
 
@@ -565,4 +560,3 @@ uint32_t Q3MetaFileParser::Parse_txmm(uint32_t chunkSize)
 
 	return internalTextureID;
 }
-
