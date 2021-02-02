@@ -20,166 +20,22 @@ typedef void*		TQ3ShaderObject;
 typedef void*		TQ3FileObject;
 typedef void*		TQ3TriMeshAttributeData;
 
-enum {
-    kQ3ObjectTypeInvalid                        = ((TQ3ObjectType) 0),
-    kQ3ObjectTypeView                           = 'view',
-    kQ3ObjectTypeViewer                         = 'vwer',
-    kQ3ObjectTypeSlab                           = 'slab',
-    kQ3ObjectTypeElement                        = 'elmn',
-        kQ3ElementTypeAttribute                 = 'eatt',
-    kQ3ObjectTypePick                           = 'pick',
-        kQ3PickTypeWindowPoint                  = 'pkwp',
-        kQ3PickTypeWindowRect                   = 'pkwr',
-        kQ3PickTypeWorldRay                     = 'pkry',
-    kQ3ObjectTypeShared                         = 'shrd',
-        kQ3SharedTypeRenderer                   = 'rddr',
-            kQ3RendererTypeWireFrame            = 'wrfr',
-            kQ3RendererTypeGeneric              = 'gnrr',
-            kQ3RendererTypeInteractive          = 'ctwn',
-            kQ3RendererTypeOpenGL               = 'oglr',
-            kQ3RendererTypeCartoon              = 'toon',
-            kQ3RendererTypeHiddenLine           = 'hdnl',
-        kQ3SharedTypeShape                      = 'shap',
-            kQ3ShapeTypeGeometry                = 'gmtr',
-                kQ3GeometryTypeBox              = 'box ',
-                kQ3GeometryTypeGeneralPolygon   = 'gpgn',
-                kQ3GeometryTypeLine             = 'line',
-                kQ3GeometryTypeMarker           = 'mrkr',
-                kQ3GeometryTypePixmapMarker     = 'mrkp',
-                kQ3GeometryTypeMesh             = 'mesh',
-                kQ3GeometryTypeNURBCurve        = 'nrbc',
-                kQ3GeometryTypeNURBPatch        = 'nrbp',
-                kQ3GeometryTypePoint            = 'pnt ',
-                kQ3GeometryTypePolygon          = 'plyg',
-                kQ3GeometryTypePolyLine         = 'plyl',
-                kQ3GeometryTypeTriangle         = 'trng',
-                kQ3GeometryTypeTriGrid          = 'trig',
-                kQ3GeometryTypeCone             = 'cone',
-                kQ3GeometryTypeCylinder         = 'cyln',
-                kQ3GeometryTypeDisk             = 'disk',
-                kQ3GeometryTypeEllipse          = 'elps',
-                kQ3GeometryTypeEllipsoid        = 'elpd',
-                kQ3GeometryTypePolyhedron       = 'plhd',
-                kQ3GeometryTypeTorus            = 'tors',
-                kQ3GeometryTypeTriMesh          = 'tmsh',
-                kQ3GeometryTypeNakedTriMesh     = 'ntms',
-            kQ3ShapeTypeShader                  = 'shdr',
-                kQ3ShaderTypeSurface            = 'sush',
-                    kQ3SurfaceShaderTypeTexture = 'txsu',
-                kQ3ShaderTypeIllumination       = 'ilsh',
-                    kQ3IlluminationTypePhong    = 'phil',
-                    kQ3IlluminationTypeLambert  = 'lmil',
-                    kQ3IlluminationTypeNULL     = 'nuil',
-                    kQ3IlluminationTypeNondirectional = 'ndil',
-            kQ3ShapeTypeStyle                   = 'styl',
-                kQ3StyleTypeBackfacing          = 'bckf',
-                kQ3StyleTypeInterpolation       = 'intp',
-                kQ3StyleTypeFill                = 'fist',
-                kQ3StyleTypePickID              = 'pkid',
-//#if QUESA_ALLOW_QD3D_EXTENSIONS
-                kQ3StyleTypeCastShadows         = 'cash',
-                kQ3StyleTypeLineWidth           = 'lnwd',
-				kQ3StyleTypeBlending			= 'blnd',
-				kQ3StyleTypeZWriteTransparency	= 'zwrt',
-//#endif // QUESA_ALLOW_QD3D_EXTENSIONS
-                kQ3StyleTypeReceiveShadows      = 'rcsh',
-                kQ3StyleTypeHighlight           = 'high',
-                kQ3StyleTypeSubdivision         = 'sbdv',
-                kQ3StyleTypeOrientation         = 'ofdr',
-                kQ3StyleTypePickParts           = 'pkpt',
-                kQ3StyleTypeAntiAlias           = 'anti',
-                kQ3StyleTypeFog                 = 'fogg',
-                kQ3StyleTypeFogExtended         = 'fogx',
-           kQ3ShapeTypeTransform                = 'xfrm',
-                kQ3TransformTypeMatrix          = 'mtrx',
-                kQ3TransformTypeScale           = 'scal',
-                kQ3TransformTypeTranslate       = 'trns',
-                kQ3TransformTypeRotate          = 'rott',
-                kQ3TransformTypeRotateAboutPoint= 'rtap',
-                kQ3TransformTypeRotateAboutAxis = 'rtaa',
-                kQ3TransformTypeQuaternion      = 'qtrn',
-                kQ3TransformTypeReset           = 'rset',
-//#if QUESA_ALLOW_QD3D_EXTENSIONS
-                kQ3TransformTypeCamera          = 'camt',
-                kQ3TransformTypeCameraRasterize = 'rast',
-//#endif // QUESA_ALLOW_QD3D_EXTENSIONS
-            kQ3ShapeTypeLight                   = 'lght',
-                kQ3LightTypeAmbient             = 'ambn',
-                kQ3LightTypeDirectional         = 'drct',
-                kQ3LightTypePoint               = 'pntl',
-                kQ3LightTypeSpot                = 'spot',
-            kQ3ShapeTypeCamera                  = 'cmra',
-                kQ3CameraTypeOrthographic       = 'orth',
-                kQ3CameraTypeViewPlane          = 'vwpl',
-                kQ3CameraTypeViewAngleAspect    = 'vana',
-                kQ3CameraTypeAllSeeing          = 'alse',
-                kQ3CameraTypeFisheye            = 'fish',
-            kQ3ShapeTypeStateOperator           = 'stop',
-                kQ3StateOperatorTypePush        = 'push',
-                kQ3StateOperatorTypePop         = 'pop ',
-            kQ3ShapeTypeGroup                   = 'grup',
-                kQ3GroupTypeDisplay             = 'dspg',
-                    kQ3DisplayGroupTypeOrdered  = 'ordg',
-                    kQ3DisplayGroupTypeIOProxy  = 'iopx',
-                kQ3GroupTypeLight               = 'lghg',
-                kQ3GroupTypeInfo                = 'info',
-            kQ3ShapeTypeUnknown                 = 'unkn',
-                kQ3UnknownTypeText              = 'uktx',
-                kQ3UnknownTypeBinary            = 'ukbn',
-            kQ3ShapeTypeReference               = 'rfrn',
-                kQ3ReferenceTypeExternal        = 'rfex',
-        kQ3SharedTypeSet                        = 'set ',
-            kQ3SetTypeAttribute                 = 'attr',
-        kQ3SharedTypeDrawContext                = 'dctx',
-            kQ3DrawContextTypePixmap            = 'dpxp',
-            kQ3DrawContextTypeMacintosh         = 'dmac',
-            kQ3DrawContextTypeCocoa             = 'dcco',
-            kQ3DrawContextTypeWin32DC           = 'dw32',
-            kQ3DrawContextTypeSDL               = 'dsdl',
-            kQ3DrawContextTypeDDSurface         = 'ddds',
-            kQ3DrawContextTypeX11               = 'dx11',
-        kQ3SharedTypeTexture                    = 'txtr',
-            kQ3TextureTypePixmap                = 'txpm',
-            kQ3TextureTypeMipmap                = 'txmm',
-            kQ3TextureTypeCompressedPixmap      = 'txcp',
-        kQ3SharedTypeFile                       = 'file',
-        kQ3SharedTypeStorage                    = 'strg',
-            kQ3StorageTypeMemory                = 'mems',
-                kQ3MemoryStorageTypeHandle      = 'hndl',
-            kQ3StorageTypePath                  = 'Qstp',
-            kQ3StorageTypeFileStream            = 'Qsfs',
-            kQ3StorageTypeUnix                  = 'uxst',
-                kQ3UnixStorageTypePath          = 'unix',
-            kQ3StorageTypeMacintosh             = 'macn',
-                kQ3MacintoshStorageTypeFSSpec   = 'macp',
-            kQ3StorageTypeWin32                 = 'wist',
-        kQ3SharedTypeString                     = 'strn',
-            kQ3StringTypeCString                = 'strc',
-        kQ3SharedTypeShapePart                  = 'sprt',
-            kQ3ShapePartTypeMeshPart            = 'spmh',
-                kQ3MeshPartTypeMeshFacePart     = 'mfac',
-                kQ3MeshPartTypeMeshEdgePart     = 'medg',
-                kQ3MeshPartTypeMeshVertexPart   = 'mvtx',
-        kQ3SharedTypeControllerState            = 'ctst',
-        kQ3SharedTypeTracker                    = 'trkr',
-        kQ3SharedTypeViewHints                  = 'vwhn',
-        kQ3SharedTypeEndGroup                   = 'endg'
-};
-
-
-typedef enum {
+typedef enum
+{
 	kQ3False                                    = 0,
 	kQ3True                                     = 1,
 	kQ3BooleanSize32                            = 0xFFFFFFFF
 } TQ3Boolean;
 
-typedef enum {
+typedef enum
+{
 	kQ3Off                                      = 0,
 	kQ3On                                       = 1,
 	kQ3SwitchSize32                             = 0xFFFFFFFF
 } TQ3Switch;
 
-typedef enum {
+typedef enum
+{
 	kQ3Failure                                  = 0,
 	kQ3Success                                  = 1,
 	kQ3StatusSize32                             = 0xFFFFFFFF
@@ -205,7 +61,8 @@ enum TQ3AttributeTypes
 	kQ3AttributeTypeSize32                      = 0xFFFFFFFF
 };
 
-typedef enum {
+typedef enum
+{
 	/// 8 bits for red, green, and blue. High-order byte ignored.
 	kQ3PixelTypeRGB32                           = 0,
 
@@ -228,14 +85,16 @@ typedef enum {
 	kQ3PixelTypeSize32                          = 0xFFFFFFFF
 } TQ3PixelType;
 
-typedef enum TQ3InterpolationStyle {
+typedef enum TQ3InterpolationStyle
+{
 	kQ3InterpolationStyleNone                   = 0,
 	kQ3InterpolationStyleVertex                 = 1,
 	kQ3InterpolationStylePixel                  = 2,
 	kQ3InterpolationSize32                      = 0xFFFFFFFF
 } TQ3InterpolationStyle;
 
-typedef enum TQ3BackfacingStyle {
+typedef enum TQ3BackfacingStyle
+{
 	kQ3BackfacingStyleBoth                      = 0,
 	kQ3BackfacingStyleRemove                    = 1,
 	kQ3BackfacingStyleFlip                      = 2,
@@ -243,14 +102,16 @@ typedef enum TQ3BackfacingStyle {
 	kQ3BackfacingStyleSize32                    = 0xFFFFFFFF
 } TQ3BackfacingStyle;
 
-typedef enum TQ3FillStyle {
+typedef enum TQ3FillStyle
+{
 	kQ3FillStyleFilled                          = 0,
 	kQ3FillStyleEdges                           = 1,
 	kQ3FillStylePoints                          = 2,
 	kQ3FillStyleSize32                          = 0xFFFFFFFF
 } TQ3FillStyle;
 
-typedef enum TQ3FogMode {
+typedef enum TQ3FogMode
+{
 	kQ3FogModeLinear                            = 0,
 	kQ3FogModeExponential                       = 1,
 	kQ3FogModeExponentialSquared                = 2,
@@ -259,65 +120,67 @@ typedef enum TQ3FogMode {
 	kQ3FogModeSize32                            = 0xFFFFFFFF
 } TQ3FogMode;
 
-typedef enum {
+typedef enum
+{
 	kQ3EndianBig                                = 0,
 	kQ3EndianLittle                             = 1,
 	kQ3EndianSize32                             = 0xFFFFFFFF
 } TQ3Endian;
 
-
-
-typedef struct
+typedef struct TQ3Param2D
 {
 	float					u;
 	float					v;
 } TQ3Param2D;
 
-typedef struct
+typedef struct TQ3Point2D
 {
 	float					x;
 	float					y;
 } TQ3Point2D;
 
-typedef struct TQ3Area {
+typedef struct TQ3Area
+{
 	TQ3Point2D				min;
 	TQ3Point2D				max;
 } TQ3Area;
 
-typedef struct
+typedef struct TQ3Point3D
 {
 	float					x;
 	float					y;
 	float					z;
 } TQ3Point3D;
 
-typedef struct
+typedef struct TQ3Vector2D
 {
 	float					x;
 	float					y;
 } TQ3Vector2D;
 
-typedef struct
+typedef struct TQ3Vector3D
 {
 	float					x;
 	float					y;
 	float					z;
 } TQ3Vector3D;
 
-typedef struct TQ3RationalPoint3D {
+typedef struct TQ3RationalPoint3D
+{
 	float					x;
 	float					y;
 	float					w;
 } TQ3RationalPoint3D;
 
-typedef struct TQ3RationalPoint4D {
+typedef struct TQ3RationalPoint4D
+{
 	float					x;
 	float					y;
 	float					z;
 	float					w;
 } TQ3RationalPoint4D;
 
-typedef struct
+typedef struct TQ3ColorARGB
 {
 	float					r;
 	float					g;
@@ -325,7 +188,7 @@ typedef struct
 	float					a;
 } TQ3ColorARGB;
 
-typedef struct
+typedef struct TQ3ColorRGBA
 {
 	float					r;
 	float					g;
@@ -333,36 +196,36 @@ typedef struct
 	float					a;
 } TQ3ColorRGBA;
 
-typedef struct
+typedef struct TQ3ColorRGB
 {
 	float					r;
 	float					g;
 	float					b;
 } TQ3ColorRGB;
 
-typedef struct
+typedef struct TQ3Vertex3D
 {
 	TQ3Point3D				point;
 } TQ3Vertex3D;
 
-typedef struct
+typedef struct TQ3BoundingBox
 {
 	TQ3Point3D				min;
 	TQ3Point3D				max;
 	TQ3Boolean				isEmpty;
 } TQ3BoundingBox;
 
-typedef struct
+typedef struct TQ3Matrix3x3
 {
 	float					value[3][3];
 } TQ3Matrix3x3;
 
-typedef struct
+typedef struct TQ3Matrix4x4
 {
 	float					value[4][4];
 } TQ3Matrix4x4;
 
-typedef struct
+typedef struct TQ3PlaneEquation
 {
 	TQ3Vector3D                                 normal;
 	float                                       constant;
@@ -393,13 +256,14 @@ typedef struct TQ3TriMeshData
 } TQ3TriMeshData;
 
 // This structure does not exist in QD3D.
-typedef struct
+typedef struct TQ3TriMeshFlatGroup
 {
 	int											numMeshes;
 	TQ3TriMeshData**							meshes;
 } TQ3TriMeshFlatGroup;
 
-typedef struct TQ3FogStyleData {
+typedef struct TQ3FogStyleData
+{
 	TQ3Switch                                   state;
 	TQ3FogMode                                  mode;
 	float                                       fogStart;
@@ -408,7 +272,8 @@ typedef struct TQ3FogStyleData {
 	TQ3ColorARGB                                color;
 } TQ3FogStyleData;
 
-typedef struct TQ3CameraPlacement {
+typedef struct TQ3CameraPlacement
+{
 	TQ3Point3D                                  cameraLocation;
 	TQ3Point3D                                  pointOfInterest;
 	TQ3Vector3D                                 upVector;
