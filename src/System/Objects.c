@@ -504,10 +504,6 @@ Boolean			cacheMode;
 	theNode = gFirstNodePtr;
 
 
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_COLOR_ARRAY);
-	glEnableClientState(GL_NORMAL_ARRAY);
-
 
 #if 0
 			/* TURN ON TRIANGLE CACHING */

@@ -22,7 +22,6 @@
  
 extern	TQ3Point3D	gCoord;
 extern	TQ3Vector3D	gDelta;
-extern	TQ3Matrix4x4	gWorkMatrix;
 extern	ObjNode		*gFirstNodePtr;
 extern	long	gTerrainUnitDepth,gTerrainUnitWidth;
 extern	float		gFramesPerSecond,gFramesPerSecondFrac;
@@ -34,7 +33,7 @@ extern	float		gFramesPerSecond,gFramesPerSecondFrac;
 
 static void AddBGCollisions(ObjNode *theNode, float realDX, float realDZ, UInt32 cType);
 static void AllocateCollisionTriangleMemory(ObjNode *theNode, long numTriangles);
-static void GetTrianglesFromTriMesh(TQ3Object obj);
+static void GetTrianglesFromTriMesh(TQ3TriMeshData* triMeshDataPtr, const TQ3Matrix4x4* matrix);
 static void ScanForTriangles_Recurse(TQ3Object obj);
 static void AddTriangleCollision(ObjNode *thisNode, float x, float y, float z, float oldX, float oldZ, long bottomSide, long oldBottomSide);
 
@@ -749,29 +748,24 @@ check_x:
 //
 
 void CreateCollisionTrianglesForObject(ObjNode *theNode)
-#if 1	// TODO noquesa
-{ printf("TODO noquesa: %s(%p)\n", __func__, theNode); }
-#else
 {
-short	i;
-
-	if (theNode->BaseGroup == nil)
+	if (!theNode->NumMeshes)
 		return;
 		
 			/* CREATE TEMPORARY TRIANGLE LIST */
 			
 	gNumCollTriangles = 0;							// clear counter
-	Q3Matrix4x4_SetIdentity(&gWorkMatrix);			// init to identity matrix
+//	Q3Matrix4x4_SetIdentity(&gWorkMatrix);			// init to identity matrix
 	gCollTrianglesBBox.min.x =						// init bounding box
 	gCollTrianglesBBox.min.y =
 	gCollTrianglesBBox.min.z = 1000000;
 	gCollTrianglesBBox.max.x =
 	gCollTrianglesBBox.max.y =
 	gCollTrianglesBBox.max.z = -1000000;
-	
-	ScanForTriangles_Recurse(theNode->BaseGroup);
-	
-	
+
+	for (int i = 0; i < theNode->NumMeshes; i++)
+		GetTrianglesFromTriMesh(theNode->MeshList[i], &theNode->BaseTransformMatrix);
+
 		/* ALLOC MEM & COPY TEMP LIST INTO REAL LIST */
 			
 	AllocateCollisionTriangleMemory(theNode, gNumCollTriangles);					// alloc memory
@@ -788,11 +782,10 @@ short	i;
 	theNode->CollisionTriangles->bBox.max.y = gCollTrianglesBBox.max.y + 50;
 	theNode->CollisionTriangles->bBox.max.z = gCollTrianglesBBox.max.z + 50;
 	
-	for (i=0; i < gNumCollTriangles; i++)
+	for (int i = 0; i < gNumCollTriangles; i++)
 		theNode->CollisionTriangles->triangles[i] = gCollTriangles[i];				// copy each triangle
 	
 }
-#endif
 
 
 /****************** SCAN FOR TRIANGLES - RECURSE ***********************/
@@ -855,51 +848,29 @@ TQ3Matrix4x4  		stashMatrix,transform;
 
 /************************ GET TRIANGLES FROM TRIMESH ****************************/
 
-static void GetTrianglesFromTriMesh(TQ3Object obj)
-#if 1	// TODO noquesa
-{ DoFatalAlert2("TODO noquesa", __func__); }
-#else
+static void GetTrianglesFromTriMesh(TQ3TriMeshData* triMeshDataPtr, const TQ3Matrix4x4* transform)
 {
-TQ3TriMeshData		triMeshData;
-TQ3Uns32			v,t;
-short				i0,i1,i2;
-TQ3Point3D			*points;
+TQ3Point3D			*points;		// transformed points
 float				nX,nY,nZ,x,y,z;
 TQ3PlaneEquation 	*plane;
 TQ3Vector3D			vv;
-float				m00,m01,m02,m10,m11,m12,m20,m21,m22,m30,m31,m32;
 
-
-			/* GET DATA */
-			
-	Q3TriMesh_GetData(obj,&triMeshData);							// get trimesh data	
-		
-	
 		/* TRANSFORM ALL POINTS */
-			
-	points = &triMeshData.points[0];								// point to points list
-	
-	m00 = gWorkMatrix.value[0][0];	m01 = gWorkMatrix.value[0][1];	m02 = gWorkMatrix.value[0][2];	// load matrix into registers
-	m10 = gWorkMatrix.value[1][0];	m11 = gWorkMatrix.value[1][1];	m12 = gWorkMatrix.value[1][2];
-	m20 = gWorkMatrix.value[2][0];	m21 = gWorkMatrix.value[2][1];	m22 = gWorkMatrix.value[2][2];
-	m30 = gWorkMatrix.value[3][0];	m31 = gWorkMatrix.value[3][1];	m32 = gWorkMatrix.value[3][2];
-	
-	for (v = 0; v < triMeshData.numPoints; v++)						// scan thru all verts
-	{	
-		x = (m00*points[v].x) + (m10*points[v].y) + (m20*points[v].z) + m30;			// transform x value
-		y = (m01*points[v].x) + (m11*points[v].y) + (m21*points[v].z) + m31;			// transform y
-		points[v].z = (m02*points[v].x) + (m12*points[v].y) + (m22*points[v].z) + m32;	// transform z
-		points[v].x = x;
-		points[v].y = y;	
-	}
-	
-				/* CHECK EACH FACE */
-						
-	for (t = 0; t < triMeshData.numTriangles; t++)					// scan thru all faces
+
+	points = (TQ3Point3D*) NewPtrClear(triMeshDataPtr->numPoints * sizeof(TQ3Point3D));
+
+	for (int v = 0; v < triMeshDataPtr->numPoints; v++)					// scan thru all verts
 	{
-		i0 = triMeshData.triangles[t].pointIndices[0];				// get indecies of 3 points
-		i1 = triMeshData.triangles[t].pointIndices[1];			
-		i2 = triMeshData.triangles[t].pointIndices[2];
+		Q3Point3D_Transform(&triMeshDataPtr->points[v], transform, &points[v]);
+	}
+
+				/* CHECK EACH FACE */
+
+	for (int t = 0; t < triMeshDataPtr->numTriangles; t++)				// scan thru all faces
+	{
+		uint32_t i0 = triMeshDataPtr->triangles[t].pointIndices[0];		// get indices of 3 points
+		uint32_t i1 = triMeshDataPtr->triangles[t].pointIndices[1];
+		uint32_t i2 = triMeshDataPtr->triangles[t].pointIndices[2];
 		
 		Q3Point3D_CrossProductTri(&points[i0],&points[i1],&points[i2], &vv);	// calc face normal		
 		nY = vv.y;
@@ -936,56 +907,39 @@ float				m00,m01,m02,m10,m11,m12,m20,m21,m22,m30,m31,m32;
 							(plane->normal.z * z);			
 							
 				/* UPDATE BOUNDING BOX */
-					
-		if (x < gCollTrianglesBBox.min.x)							// check all 3 vertices to update bbox
-			gCollTrianglesBBox.min.x = x;
-		if (y < gCollTrianglesBBox.min.y)
-			gCollTrianglesBBox.min.y = y;
-		if (z < gCollTrianglesBBox.min.z)
-			gCollTrianglesBBox.min.z = z;
-		if (x > gCollTrianglesBBox.max.x)
-			gCollTrianglesBBox.max.x = x;
-		if (y > gCollTrianglesBBox.max.y)
-			gCollTrianglesBBox.max.y = y;
-		if (z > gCollTrianglesBBox.max.z)
-			gCollTrianglesBBox.max.z = z;
 
-		if (points[i1].x < gCollTrianglesBBox.min.x)
-			gCollTrianglesBBox.min.x = points[i1].x;
-		if (points[i1].y < gCollTrianglesBBox.min.y)
-			gCollTrianglesBBox.min.y = points[i1].y;
-		if (points[i1].z < gCollTrianglesBBox.min.z)
-			gCollTrianglesBBox.min.z = points[i1].z;
-		if (points[i1].x > gCollTrianglesBBox.max.x)
-			gCollTrianglesBBox.max.x = points[i1].x;
-		if (points[i1].y > gCollTrianglesBBox.max.y)
-			gCollTrianglesBBox.max.y = points[i1].y;
-		if (points[i1].z > gCollTrianglesBBox.max.z)
-			gCollTrianglesBBox.max.z = points[i1].z;
+		if (x < gCollTrianglesBBox.min.x) gCollTrianglesBBox.min.x = x;	// check all 3 vertices to update bbox
+		if (y < gCollTrianglesBBox.min.y) gCollTrianglesBBox.min.y = y;
+		if (z < gCollTrianglesBBox.min.z) gCollTrianglesBBox.min.z = z;
 
-		if (points[i2].x < gCollTrianglesBBox.min.x)
-			gCollTrianglesBBox.min.x = points[i2].x;
-		if (points[i2].y < gCollTrianglesBBox.min.y)
-			gCollTrianglesBBox.min.y = points[i2].y;
-		if (points[i2].z < gCollTrianglesBBox.min.z)
-			gCollTrianglesBBox.min.z = points[i2].z;
-		if (points[i2].x > gCollTrianglesBBox.max.x)
-			gCollTrianglesBBox.max.x = points[i2].x;
-		if (points[i2].y > gCollTrianglesBBox.max.y)
-			gCollTrianglesBBox.max.y = points[i2].y;
-		if (points[i2].z > gCollTrianglesBBox.max.z)
-			gCollTrianglesBBox.max.z = points[i2].z;
+		if (x > gCollTrianglesBBox.max.x) gCollTrianglesBBox.max.x = x;
+		if (y > gCollTrianglesBBox.max.y) gCollTrianglesBBox.max.y = y;
+		if (z > gCollTrianglesBBox.max.z) gCollTrianglesBBox.max.z = z;
+
+		if (points[i1].x < gCollTrianglesBBox.min.x) gCollTrianglesBBox.min.x = points[i1].x;
+		if (points[i1].y < gCollTrianglesBBox.min.y) gCollTrianglesBBox.min.y = points[i1].y;
+		if (points[i1].z < gCollTrianglesBBox.min.z) gCollTrianglesBBox.min.z = points[i1].z;
+
+		if (points[i1].x > gCollTrianglesBBox.max.x) gCollTrianglesBBox.max.x = points[i1].x;
+		if (points[i1].y > gCollTrianglesBBox.max.y) gCollTrianglesBBox.max.y = points[i1].y;
+		if (points[i1].z > gCollTrianglesBBox.max.z) gCollTrianglesBBox.max.z = points[i1].z;
+
+		if (points[i2].x < gCollTrianglesBBox.min.x) gCollTrianglesBBox.min.x = points[i2].x;
+		if (points[i2].y < gCollTrianglesBBox.min.y) gCollTrianglesBBox.min.y = points[i2].y;
+		if (points[i2].z < gCollTrianglesBBox.min.z) gCollTrianglesBBox.min.z = points[i2].z;
+
+		if (points[i2].x > gCollTrianglesBBox.max.x) gCollTrianglesBBox.max.x = points[i2].x;
+		if (points[i2].y > gCollTrianglesBBox.max.y) gCollTrianglesBBox.max.y = points[i2].y;
+		if (points[i2].z > gCollTrianglesBBox.max.z) gCollTrianglesBBox.max.z = points[i2].z;
 			
 		gNumCollTriangles++;										// inc counter				
-		if (gNumCollTriangles > MAX_TEMP_COLL_TRIANGLES)
-			DoFatalAlert("GetTrianglesFromTriMesh: too many triangles in list!");							
+		GAME_ASSERT(gNumCollTriangles <= MAX_TEMP_COLL_TRIANGLES);
 	}
-	
-			/* CLEANUP */
-			
-	Q3TriMesh_EmptyData(&triMeshData);
+
+
+	DisposePtr((Ptr) points);
+	points = nil;
 }
-#endif
 
 
 /**************** ALLOCATE COLLISION TRIANGLE MEMORY *******************/
@@ -997,15 +951,13 @@ static void AllocateCollisionTriangleMemory(ObjNode *theNode, long numTriangles)
 	if (theNode->CollisionTriangles)
 		DisposeCollisionTriangleMemory(theNode);
 
-	if (numTriangles == 0)
-		DoFatalAlert("AllocateCollisionTriangleMemory: numTriangles = 0?");
-	
+	GAME_ASSERT(numTriangles != 0);
+
 			/* ALLOC MEMORY */
 			
 	theNode->CollisionTriangles = (TriangleCollisionList *)AllocPtr(sizeof(TriangleCollisionList));				// alloc main block
-	if (theNode->CollisionTriangles == nil)
-		DoFatalAlert("AllocateCollisionTriangleMemory: Alloc failed!");
-	
+	GAME_ASSERT(theNode->CollisionTriangles);
+
 	theNode->CollisionTriangles->triangles = (CollisionTriangleType *)AllocPtr(sizeof(CollisionTriangleType) * numTriangles);	// alloc triangle array
 
 	theNode->CollisionTriangles->numTriangles = numTriangles;						// set #	

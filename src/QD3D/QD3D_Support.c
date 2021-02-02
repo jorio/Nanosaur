@@ -758,6 +758,11 @@ TQ3ViewStatus			myViewStatus;
 			/***************/
 			/* RENDER LOOP */
 			/***************/
+
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_COLOR_ARRAY);
+	glEnableClientState(GL_NORMAL_ARRAY);
+
 #if 1	// NOQUESA
 	if (drawRoutine)
 		drawRoutine(setupInfo);

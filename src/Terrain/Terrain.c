@@ -36,6 +36,10 @@ extern	Ptr			gTileFilePtr;
 extern	NewObjectDefinitionType	gNewObjectDefinition;
 extern	TQ3Point3D		gMyCoord;
 
+extern	long		gTrianglesDrawn;
+extern	long		gMeshesDrawn;
+
+
 
 /****************************/
 /*  PROTOTYPES             */
@@ -1740,19 +1744,11 @@ static inline void ReleaseSuperTileObject(short superTileNum)
 
 void DrawTerrain(QD3DSetupOutputType *setupInfo)
 {
-#if 1	// TODO NOQUESA
-	printf("TODO noquesa: %s\n", __func__);
-#else
 short	i;
 TQ3Status	myStatus;
 			
 				/* DRAW STUFF */
-				
-	QD3D_SetTextureFilter(kQATextureFilter_Mid);						// set nice textures
-#if 0 // Source port fix: clamping is now set per-shader in CreateSuperTileMemoryList
-	QD3D_SetTextureWrapMode(kQAGL_Clamp);								// clap textures for nicer seams
-#endif
-	
+
 	for (i = 0; i < MAX_SUPERTILES; i++)
 	{
 		if (gSuperTileMemoryList[i].mode != SUPERTILE_MODE_USED)		// if supertile is being used, then draw it
@@ -1765,16 +1761,36 @@ TQ3Status	myStatus;
 			continue;
 		}
 #endif		
-		
+
+#if 1	// NOQUESA
+		printf("TODO noquesa: %s: IsSphereInFrustum_XZ\n", __func__);
+#else
 		if (!IsSphereInFrustum_XZ(										// make sure it's visible
 				&gSuperTileMemoryList[i].coord,
 				1.25f*gSuperTileMemoryList[i].radius))
 		{
 			continue;
 		}
-			
+#endif
+
 			/* DRAW THE TRIMESH IN THIS SUPERTILE */
-			
+
+#if 1	// NOQUESA
+		TQ3TriMeshData* mesh = gSuperTileMemoryList[i].isFlat
+				? gSuperTileMemoryList[i].triMeshPtr2
+				: gSuperTileMemoryList[i].triMeshPtr;
+
+		glVertexPointer(3, GL_FLOAT, 0, mesh->points);
+		glNormalPointer(GL_FLOAT, 0, mesh->vertexNormals);
+		glColorPointer(4, GL_FLOAT, 0, mesh->vertexColors);
+
+		glDrawElements(GL_TRIANGLES, mesh->numTriangles*3, GL_UNSIGNED_INT, mesh->triangles);
+//		CHECK_GL_ERROR();
+
+		gTrianglesDrawn += mesh->numTriangles;
+		gMeshesDrawn++;
+
+#else
 		if (gSuperTileMemoryList[i].isFlat)
 			myStatus = Q3Object_Submit(gSuperTileMemoryList[i].triMesh2,setupInfo->viewObject);
 		else
@@ -1785,13 +1801,8 @@ TQ3Status	myStatus;
 			DoAlert("DrawTerrain: Q3Object_Submit failed!");	
 			QD3D_ShowRecentError();	
 		}
-		
+#endif
 	}
-	QD3D_SetTextureFilter(kQATextureFilter_Fast);						// make it fast again
-#if 0 // Source port fix: clamping is now set per-shader in CreateSuperTileMemoryList
-	QD3D_SetTextureWrapMode(kQAGL_Repeat);								// let textures wrap/repeat
-#endif
-#endif
 
 
 		/* DRAW OBJECTS */

@@ -263,85 +263,39 @@ TQ3Object		myObject;
 
 void LoadGrouped3DMF(FSSpec *spec, Byte groupNum)
 {
-TQ3Object		the3DMFFile;
-TQ3Uns32		nObjects;
-TQ3Status 		status;
-TQ3Uns32		i;
-TQ3GroupPosition	position;
-
-	if (groupNum >= MAX_3DMF_GROUPS)
-		DoFatalAlert("LoadGrouped3DMF: groupNum >= MAX_3DMF_GROUPS");
+	GAME_ASSERT(groupNum < MAX_3DMF_GROUPS);
 
 			/* DISPOSE OF ANY OLD OBJECTS */
 
 	Free3DMFGroup(groupNum);
 
-
 			/* LOAD NEW GEOMETRY */
 
-#if 1	// NOQUESA
-	the3DMFFile = Pomme3DMF_LoadModelFile(spec);
-	gObjectGroupFile[groupNum] = the3DMFFile;
-#else
-	the3DMFFile = Load3DMFModel(spec);
-	if (the3DMFFile == nil)
-		DoFatalAlert("LoadGrouped3DMF: Load3DMFModel failed!");
-#endif
+	Pomme3DMF_FileHandle the3DMFFile = Pomme3DMF_LoadModelFile(spec);
+	GAME_ASSERT(the3DMFFile);
 
+	gObjectGroupFile[groupNum] = the3DMFFile;
 
 			/* BUILD OBJECT LIST */
-#if 1	// NOQUESA
-	nObjects = Pomme3DMF_CountTopLevelMeshGroups(the3DMFFile);
+
+	int nObjects = Pomme3DMF_CountTopLevelMeshGroups(the3DMFFile);
 	GAME_ASSERT(nObjects > 0);
-#else
-	status = Q3Group_CountObjects(the3DMFFile, &nObjects);			// get # objects in group.  Assume each object is a separate linked item
-	if (status == kQ3Failure)
-		DoFatalAlert("LoadGrouped3DMF: Q3Group_CountObjects failed!");
+	GAME_ASSERT(nObjects <= MAX_OBJECTS_IN_GROUP);
 
-	if (nObjects > MAX_OBJECTS_IN_GROUP)							// see if overflow
-		DoFatalAlert("LoadGrouped3DMF: gNumObjectsInGroupList > MAX_OBJECTS_IN_GROUP");
-	
-	status = Q3Group_GetFirstPosition(the3DMFFile, &position);		// get 1st object in list
-	if (status == kQ3Failure)
-		DoFatalAlert("Q3Group_GetFirstPosition failed!");
-#endif
-
-			/*********************/
-			/* SCAN THRU OBJECTS */
-			/*********************/
-			
-	for (i = 0; i < nObjects; i++)
+	for (int i = 0; i < nObjects; i++)
 	{
-#if 1	// NOQUESA
-		gObjectGroupList[groupNum][i] = Pomme3DMF_GetTopLevelMeshGroup(the3DMFFile, i);
-		GAME_ASSERT(0 != gObjectGroupList[groupNum][i].numMeshes);
-		GAME_ASSERT(nil != gObjectGroupList[groupNum][i].meshes);
-#else
-		status = Q3Group_GetPositionObject(the3DMFFile, position, &gObjectGroupList[groupNum][i]);	// get ref to object
-		if (status == kQ3Failure)
-			DoFatalAlert("LoadGrouped3DMF: Q3Group_GetPositionObject failed!");
-#endif
+		TQ3TriMeshFlatGroup meshList = Pomme3DMF_GetTopLevelMeshGroup(the3DMFFile, i);
+		gObjectGroupList[groupNum][i] = meshList;
+		GAME_ASSERT(0 != meshList.numMeshes);
+		GAME_ASSERT(nil != meshList.meshes);
 
-#if 1
-		printf("TODO noquesa: actually calc radius & bbox\n");
-		gObjectGroupRadiusList[groupNum][i] = 50;	// save radius of it
-#else
-		gObjectGroupRadiusList[groupNum][i] = QD3D_CalcObjectRadius(gObjectGroupList[groupNum][i]);	// save radius of it
-		QD3D_CalcObjectBoundingBox(gGameViewInfoPtr,gObjectGroupList[groupNum][i],&gObjectGroupBBoxList[groupNum][i]); // save bbox
-#endif
-		
-#if 0	// NOQUESA
-		Q3Group_GetNextPosition(the3DMFFile, &position);			// get position of next object
-#endif
+		gObjectGroupRadiusList[groupNum][i] = QD3D_CalcObjectRadius(meshList.numMeshes, meshList.meshes);	// save radius of it
+		QD3D_CalcObjectBoundingBox(meshList.numMeshes, meshList.meshes, &gObjectGroupBBoxList[groupNum][i]); // save bbox
 	}
 
 	gNumObjectsInGroupList[groupNum] = nObjects;					// set # objects.
 
 #if 0	// NOQUESA
-			/* NUKE ORIGINAL FILE */
-			
-	Q3Object_Dispose(the3DMFFile);
-
 			/* PATCH 3DMF (ADD ALPHA TEST) */
 
 	PatchGrouped3DMF(spec->cName, gObjectGroupList[groupNum], nObjects);

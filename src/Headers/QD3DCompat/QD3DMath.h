@@ -677,6 +677,11 @@ static float Q3Point2D_Distance(const TQ3Point2D *p1, const TQ3Point2D *p2)
 	return __Q3FastPoint2D_Distance(p1, p2);
 }
 
+static float Q3Vector3D_Length(const TQ3Vector3D* v)
+{
+	return __Q3FastVector3D_Length(v);
+}
+
 static void Q3Vector2D_Normalize(
 		const TQ3Vector2D* v1,
 		TQ3Vector2D* result)

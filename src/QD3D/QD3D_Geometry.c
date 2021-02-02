@@ -45,10 +45,6 @@ static void ScrollUVs_TriMesh(TQ3Object theTriMesh);
 /*    VARIABLES      */
 /*********************/
 
-float				gMaxRadius;
-
-TQ3Matrix4x4 		gWorkMatrix;
-
 float		gBoomForce,gParticleDecaySpeed;
 Byte		gParticleMode;
 long		gParticleDensity;
@@ -63,25 +59,42 @@ ParticleType		gParticles[MAX_PARTICLES];
 
 /*************** QD3D: CALC OBJECT BOUNDING BOX ************************/
 
-void QD3D_CalcObjectBoundingBox(QD3DSetupOutputType *setupInfo, TQ3Object theObject, TQ3BoundingBox	*boundingBox)
-#if 1
-{ DoFatalAlert2("TODO noquesa", __func__); }
-#else
+void QD3D_CalcObjectBoundingBox(int numMeshes, TQ3TriMeshData** meshList, TQ3BoundingBox* boundingBox)
 {
-	if (setupInfo == nil)
-		DoFatalAlert("QD3D_CalcObjectBoundingBox: setupInfo = nil");
-	if (theObject == nil)
-		DoFatalAlert("QD3D_CalcObjectBoundingBox: theObject = nil");
-	if (boundingBox == nil)
-		DoFatalAlert("QD3D_CalcObjectBoundingBox: boundingBox = nil");
+	GAME_ASSERT(numMeshes);
+	GAME_ASSERT(meshList);
+	GAME_ASSERT(boundingBox);
 
-	Q3View_StartBoundingBox(setupInfo->viewObject, kQ3ComputeBoundsExact);
-	do
+	boundingBox->isEmpty = true;
+	boundingBox->min = (TQ3Point3D) { 0, 0, 0 };
+	boundingBox->max = (TQ3Point3D) { 0, 0, 0 };
+
+	for (int i = 0; i < numMeshes; i++)
 	{
-		Q3Object_Submit(theObject,setupInfo->viewObject);
-	}while(Q3View_EndBoundingBox(setupInfo->viewObject, boundingBox) == kQ3ViewStatusRetraverse);
+		TQ3TriMeshData* mesh = meshList[i];
+		for (int v = 0; v < mesh->numPoints; v++)
+		{
+			TQ3Point3D p = mesh->points[v];
+
+			if (boundingBox->isEmpty)
+			{
+				boundingBox->isEmpty = false;
+				boundingBox->min = p;
+				boundingBox->max = p;
+			}
+			else
+			{
+				if (p.x < boundingBox->min.x) boundingBox->min.x = p.x;
+				if (p.y < boundingBox->min.y) boundingBox->min.y = p.y;
+				if (p.z < boundingBox->min.z) boundingBox->min.z = p.z;
+
+				if (p.x > boundingBox->max.x) boundingBox->max.x = p.x;
+				if (p.y > boundingBox->max.y) boundingBox->max.y = p.y;
+				if (p.z > boundingBox->max.z) boundingBox->max.z = p.z;
+			}
+		}
+	}
 }
-#endif
 
 
 
@@ -90,22 +103,32 @@ void QD3D_CalcObjectBoundingBox(QD3DSetupOutputType *setupInfo, TQ3Object theObj
 // Given any object as input, calculates the radius based on the farthest TriMesh vertex.
 //
 
-float QD3D_CalcObjectRadius(TQ3Object theObject)
+float QD3D_CalcObjectRadius(int numMeshes, TQ3TriMeshData** meshList)
 {
-	gMaxRadius = 0;	
-	Q3Matrix4x4_SetIdentity(&gWorkMatrix);					// init to identity matrix
-	CalcRadius_Recurse(theObject);
-	return(gMaxRadius);
-}
+#if 1	// NOQUESA
+	float maxRadius = 0;
 
+	for (int i = 0; i < numMeshes; i++)
+	{
+		TQ3TriMeshData* mesh = meshList[i];
+		for (int v = 0; v < mesh->numPoints; v++)						// scan thru all verts
+		{
+			TQ3Point3D tmPoint = mesh->points[v];						// get point
+//			Q3Point3D_Transform(&tmPoint, &gWorkMatrix, &tmPoint);		// transform it
 
-/****************** CALC RADIUS - RECURSE ***********************/
+			float dist = Q3Vector3D_Length((TQ3Vector3D*) &tmPoint);	// calc dist
+			if (dist > maxRadius)
+				maxRadius = dist;
+		}
+	}
 
-static void CalcRadius_Recurse(TQ3Object obj)
-#if 1
-{ DoFatalAlert2("TODO noquesa", __func__); }
+	return maxRadius;
 #else
-{
+	gMaxRadius = 0;
+	Q3Matrix4x4_SetIdentity(&gWorkMatrix);					// init to identity matrix
+
+
+
 TQ3GroupPosition	position;
 TQ3Object   		object;
 TQ3ObjectType		oType;
@@ -176,8 +199,10 @@ TQ3Matrix4x4  		stashMatrix;
   		}
   		gWorkMatrix = stashMatrix;										// pop matrix  		
 	}
-}
+
+	return(gMaxRadius);
 #endif
+}
 
 //===================================================================================================
 //===================================================================================================
@@ -648,7 +673,9 @@ void QD3D_ScrollUVs(TQ3Object theObject, float du, float dv)
 {
 	Q3Matrix3x3_SetTranslate(&gUVTransformMatrix, du, dv);		// make the matrix
 
+#if 0	// TODO noquesa -- we removed gWorkMatrixmaybe we won't need this anymore
 	Q3Matrix4x4_SetIdentity(&gWorkMatrix);						// init to identity matrix
+#endif
 	ScrollUVs_Recurse(theObject);	
 }
 
