@@ -295,34 +295,12 @@ Byte	group,type;
 }
 
 
-/******************* RESET DISPLAY GROUP OBJECT *********************/
-//
-// If the ObjNode's "Type" field has changed, call this to dispose of
-// the old BaseGroup and create a new one with the correct model attached.
-//
-
-void ResetDisplayGroupObject(ObjNode *theNode)
-{
-	DisposeObjectBaseGroup(theNode);									// dispose of old group
-	CreateBaseGroup(theNode);											// create new group object
-
-	if (theNode->Type >= gNumObjectsInGroupList[theNode->Group])							// see if illegal
-		DoFatalAlert("ResetDisplayGroupObject: type > gNumObjectsInGroupList[]!");
-
-	TQ3TriMeshFlatGroup* meshList = &gObjectGroupList[theNode->Group][theNode->Type];
-	AttachGeometryToDisplayGroupObject(theNode, meshList->numMeshes, meshList->meshes);		// attach geometry to group
-
-}
-
-
-
 /************************* ADD GEOMETRY TO DISPLAY GROUP OBJECT ***********************/
 //
 // Attaches a geometry object to the BaseGroup object. MakeNewDisplayGroupObject must have already been
 // called which made the group & transforms.
 //
 
-#if 1	// NOQUESA
 void AttachGeometryToDisplayGroupObject(ObjNode* theNode, int numMeshes, TQ3TriMeshData** meshList)
 {
 	for (int i = 0; i < numMeshes; i++)
@@ -335,16 +313,6 @@ void AttachGeometryToDisplayGroupObject(ObjNode* theNode, int numMeshes, TQ3TriM
 		theNode->MeshList[nodeMeshIndex] = meshList[i];
 	}
 }
-#else
-void AttachGeometryToDisplayGroupObject(ObjNode *theNode, TQ3Object geometry)
-{
-TQ3GroupPosition	groupPosition;
-
-	groupPosition = Q3Group_AddObject(theNode->BaseGroup,geometry);
-	if (groupPosition == nil)
-		DoFatalAlert("Error: AttachGeometryToDisplayGroupObject");
-}
-#endif
 
 
 
@@ -358,22 +326,11 @@ TQ3GroupPosition	groupPosition;
 
 void CreateBaseGroup(ObjNode *theNode)
 {
-TQ3GroupPosition		myGroupPosition;
 TQ3Matrix4x4			transMatrix,scaleMatrix,rotMatrix;
-TQ3TransformObject		transObject;
 
 				/* CREATE THE GROUP OBJECT */
 
-#if 1	// NOQUESA
 	theNode->NumMeshes = 0;
-#else
-	theNode->BaseGroup = Q3DisplayGroup_New();
-	if (theNode->BaseGroup == nil)
-	{
-		DoAlert("CreateBaseGroup: Q3DisplayGroup_New failed!");
-		QD3D_ShowRecentError();
-	}
-#endif
 
 					/* SETUP BASE MATRIX */
 			
@@ -397,21 +354,6 @@ TQ3TransformObject		transObject;
 	Q3Matrix4x4_Multiply(&theNode->BaseTransformMatrix,							// mult by trans matrix
 						 &transMatrix,
 						 &theNode->BaseTransformMatrix);
-
-
-#if 0	// NOQUESA
-					/* CREATE A MATRIX XFORM */
-
-	transObject = Q3MatrixTransform_New(&theNode->BaseTransformMatrix);			// make matrix xform object
-	if (transObject == nil)
-		DoFatalAlert("CreateBaseGroup: Q3MatrixTransform_New Failed!");
-
-	myGroupPosition = Q3Group_AddObject(theNode->BaseGroup, transObject);		// add to base group
-	if (myGroupPosition == nil)
-		DoFatalAlert("Q3Group_AddObject Failed!");
-		
-	theNode->BaseTransformObject = transObject;									// keep extra LEGAL ref (remember to dispose later)
-#endif
 }
 
 
@@ -987,31 +929,6 @@ TQ3Matrix4x4	matrix;
 #endif
 }
 
-
-/***************** SET OBJECT TRANSFORM MATRIX *******************/
-//
-// This call simply resets the base transform object so that it uses the latest
-// base transform matrix
-//
-
-void SetObjectTransformMatrix(ObjNode *theNode)
-#if 1	// TODO noquesa
-{ printf("TODO noquesa: %s: this function is unnecessary\n", __func__); }
-#else
-{
-TQ3Status 				error;
-
-	if (theNode->CType == INVALID_NODE_FLAG)		// see if invalid
-		return;
-
-	if (theNode->BaseTransformObject)				// see if this has a trans obj
-	{
-		error = Q3MatrixTransform_Set(theNode->BaseTransformObject,&theNode->BaseTransformMatrix);
-		if (error != kQ3Success)
-			DoFatalAlert("Q3MatrixTransform_Set Failed!");
-	}
-}
-#endif
 
 /********************* MAKE OBJECT KEEP BACKFACES ***********************/
 //

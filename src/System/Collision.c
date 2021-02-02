@@ -34,7 +34,6 @@ extern	float		gFramesPerSecond,gFramesPerSecondFrac;
 static void AddBGCollisions(ObjNode *theNode, float realDX, float realDZ, UInt32 cType);
 static void AllocateCollisionTriangleMemory(ObjNode *theNode, long numTriangles);
 static void GetTrianglesFromTriMesh(TQ3TriMeshData* triMeshDataPtr, const TQ3Matrix4x4* matrix);
-static void ScanForTriangles_Recurse(TQ3Object obj);
 static void AddTriangleCollision(ObjNode *thisNode, float x, float y, float z, float oldX, float oldZ, long bottomSide, long oldBottomSide);
 
 
@@ -788,64 +787,6 @@ void CreateCollisionTrianglesForObject(ObjNode *theNode)
 }
 
 
-/****************** SCAN FOR TRIANGLES - RECURSE ***********************/
-
-static void ScanForTriangles_Recurse(TQ3Object obj)
-#if 1	// TODO noquesa
-{ DoFatalAlert2("TODO noquesa", __func__); }
-#else
-{
-TQ3GroupPosition	position;
-TQ3Object   		object;
-TQ3ObjectType		oType;
-TQ3Matrix4x4  		stashMatrix,transform;
-
-				/*******************************/
-				/* SEE IF ACCUMULATE TRANSFORM */
-				/*******************************/
-				
-	if (Q3Object_IsType(obj,kQ3ShapeTypeTransform))
-	{
-  		Q3Transform_GetMatrix(obj,&transform);
-  		Q3Matrix4x4_Multiply(&transform,&gWorkMatrix,&gWorkMatrix);
- 	}
-	else
-
-				/*************************/
-				/* SEE IF FOUND GEOMETRY */
-				/*************************/
-
-	if (Q3Object_IsType(obj,kQ3ShapeTypeGeometry))
-	{
-		oType = Q3Geometry_GetType(obj);									// get geometry type
-		if (oType == kQ3GeometryTypeTriMesh)
-		{
-			GetTrianglesFromTriMesh(obj);
-		}
-	}
-	else
-	
-			/* SEE IF RECURSE SUB-GROUP */
-
-	if (Q3Object_IsType(obj,kQ3ShapeTypeGroup))
- 	{
-  		stashMatrix = gWorkMatrix;										// push matrix
-  		for (Q3Group_GetFirstPosition(obj, &position); position != nil;
-  			 Q3Group_GetNextPosition(obj, &position))					// scan all objects in group
- 		{
-   			Q3Group_GetPositionObject (obj, position, &object);			// get object from group
-			if (object != NULL)
-   			{
-    			ScanForTriangles_Recurse(object);						// sub-recurse this object
-    			Q3Object_Dispose(object);								// dispose local ref
-   			}
-  		}
-  		gWorkMatrix = stashMatrix;										// pop matrix  		
-	}
-}
-#endif
-
-
 /************************ GET TRIANGLES FROM TRIMESH ****************************/
 
 static void GetTrianglesFromTriMesh(TQ3TriMeshData* triMeshDataPtr, const TQ3Matrix4x4* transform)
@@ -980,115 +921,6 @@ void DisposeCollisionTriangleMemory(ObjNode *theNode)
 }
 
 #pragma mark ------------ POINT COLLISION -----------------
-
-/****************** IS POINT IN POLY ****************************/
-/*
- * Quadrants:
- *    1 | 0
- *    -----
- *    2 | 3
- */
-//
-//	INPUT:	pt_x,pt_y	:	point x,y coords
-//			cnt			:	# points in poly
-//			polypts		:	ptr to array of 2D points
-//
-
-Boolean IsPointInPoly2D(float pt_x, float pt_y, Byte numVerts, TQ3Point2D *polypts)
-{
-Byte 		oldquad,newquad;
-float 		thispt_x,thispt_y,lastpt_x,lastpt_y;
-signed char	wind;										// current winding number 
-Byte		i;
-
-			/************************/
-			/* INIT STARTING VALUES */
-			/************************/
-			
-	wind = 0;
-    lastpt_x = polypts[numVerts-1].x;  					// get last point's coords  
-    lastpt_y = polypts[numVerts-1].y;    
-    
-	if (lastpt_x < pt_x)								// calc quadrant of the last point
-	{
-    	if (lastpt_y < pt_y)
-    		oldquad = 2;
- 		else
- 			oldquad = 1;
- 	}
- 	else
-    {
-    	if (lastpt_y < pt_y)
-    		oldquad = 3;
- 		else
- 			oldquad = 0;
-	}
-    
-
-			/***************************/
-			/* WIND THROUGH ALL POINTS */
-			/***************************/
-    
-    for (i=0; i<numVerts; i++)
-    {
-   			/* GET THIS POINT INFO */
-    			
-		thispt_x = polypts[i].x;						// get this point's coords
-		thispt_y = polypts[i].y;
-
-		if (thispt_x < pt_x)							// calc quadrant of this point
-		{
-	    	if (thispt_y < pt_y)
-	    		newquad = 2;
-	 		else
-	 			newquad = 1;
-	 	}
-	 	else
-	    {
-	    	if (thispt_y < pt_y)
-	    		newquad = 3;
-	 		else
-	 			newquad = 0;
-		}
-
-				/* SEE IF QUADRANT CHANGED */
-				
-        if (oldquad != newquad)
-        {
-			if (((oldquad+1)&3) == newquad)				// see if advanced
-            	wind++;
-			else
-        	if (((newquad+1)&3) == oldquad)				// see if backed up
-				wind--;
-    		else
-			{
-				float	a,b;
-				
-             		/* upper left to lower right, or upper right to lower left.
-             		   Determine direction of winding  by intersection with x==0. */
-                                             
-    			a = (lastpt_y - thispt_y) * (pt_x - lastpt_x);			
-                b = lastpt_x - thispt_x;
-                a += lastpt_y * b;
-                b *= pt_y;
-
-				if (a > b)
-                	wind += 2;
- 				else
-                	wind -= 2;
-    		}
-  		}
-  		
-  				/* MOVE TO NEXT POINT */
-  				
-   		lastpt_x = thispt_x;
-   		lastpt_y = thispt_y;
-   		oldquad = newquad;
-	}
-	
-
-	return(wind); 										// non zero means point in poly
-}
 
 
 
@@ -1582,27 +1414,4 @@ static void AddTriangleCollision(ObjNode *thisNode, float x, float y, float z, f
 		}
 	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

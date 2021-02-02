@@ -240,9 +240,6 @@ float	fps = gFramesPerSecondFrac;
 /********************** CALC CAMERA MATRIX INFO ************************/
 
 void CalcCameraMatrixInfo(QD3DSetupOutputType *setupInfo)
-#if 0
-{ DoFatalAlert2("TODO noquesa", __func__); }
-#else
 {
 	int temp, w, h;
 	QD3D_GetCurrentViewport(setupInfo, &temp, &temp, &w, &h);
@@ -301,7 +298,6 @@ void CalcCameraMatrixInfo(QD3DSetupOutputType *setupInfo)
 
 	CHECK_GL_ERROR();
 }
-#endif
 
 
 /**************** MOVE CAMERA: MANUAL ********************/

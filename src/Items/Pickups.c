@@ -303,11 +303,9 @@ float	iScale;
 		matrix.value[3][0] = 0;							// trans x
 		matrix.value[3][1] = 0;							// trans y
 		matrix.value[3][2] = -55;						// trans z
-				
+
 		FindJointFullMatrix(holderObj,limbNum,&matrix2);						// get full matrix for mouth
 		Q3Matrix4x4_Multiply(&matrix,&matrix2,&theNode->BaseTransformMatrix);	// concat final matrix
-
-		SetObjectTransformMatrix(theNode);										// update object with transform	
 	}
 	
 			/*****************/

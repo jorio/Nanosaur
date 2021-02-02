@@ -387,10 +387,6 @@ TQ3Matrix4x4	matrix,matrix2,matrix3;
 			/* TRANSFORM TO WORLD COORDINATES */
 
 	Q3Matrix4x4_Multiply(&matrix,&gCameraAdjustMatrix,&theNode->BaseTransformMatrix);
-	
-				/* USE THIS MATRIX */
-				
-	SetObjectTransformMatrix(theNode);	
 }
 
 

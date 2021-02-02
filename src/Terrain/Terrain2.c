@@ -493,30 +493,4 @@ TQ3Vector3D		lookAt,upVector,theXAxis;
 		Q3Matrix4x4_Multiply(&matrix2, matrix, matrix);
 
 	}
-
-	SetObjectTransformMatrix(theNode);							// update the matrix
-
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

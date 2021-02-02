@@ -31,7 +31,6 @@ typedef struct CollisionRec CollisionRec;
 extern	void CollisionDetect(ObjNode *baseNode,unsigned long CType);
 extern	Byte HandleCollisions(ObjNode *theNode, unsigned long	cType);
 extern	ObjNode *IsPointInPickupCollisionSphere(TQ3Point3D *thePt);
-extern	Boolean IsPointInPoly2D( float,  float ,  Byte ,  TQ3Point2D *);
 extern	Boolean IsPointInTriangle(float pt_x, float pt_y, float x0, float y0, float x1, float y1, float x2, float y2);
 extern	short DoSimplePointCollision(TQ3Point3D *thePoint, UInt32 cType);
 extern	void DisposeCollisionTriangleMemory(ObjNode *theNode);

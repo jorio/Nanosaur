@@ -831,18 +831,16 @@ TQ3Point3D	pt2;
 	FindJointFullMatrix(playerObj, MYGUY_LIMB_BODY, &jointMat);				// get transform matrix for joint
 	Q3Matrix4x4_Multiply(&scaleMat,&transMat,&mat);							// concat the matrices
 	Q3Matrix4x4_Multiply(&mat,&jointMat,&theNode->BaseTransformMatrix);		// concat the matrices
-	SetObjectTransformMatrix(theNode);										// udpate as object's new matrix
 
 
 				/* HANDLE LEFT FLAME */
-				
+
 	scaleMat.value[2][2] = RandomFloat()+.5;								// modify scale matrix
 	transMat.value[3][0] = -10;												// modify trans matrix
 	Q3Matrix4x4_Multiply(&scaleMat,&transMat,&mat);							// concat the matrices
 	Q3Matrix4x4_Multiply(&mat,&jointMat,&leftObj->BaseTransformMatrix);		// concat the matrices
-	SetObjectTransformMatrix(leftObj);										// udpate as object's new matrix
-	
-	
+
+
 				/* MAKE EXHAUST */
 				
 	theNode->ExhaustTimer += gFramesPerSecondFrac;

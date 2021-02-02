@@ -30,9 +30,6 @@
 #include	"GamePatches.h"
 
 extern	short			gMainAppRezFile;
-extern  TQ3Object		gObjectGroupList[MAX_3DMF_GROUPS][MAX_OBJECTS_IN_GROUP];
-extern  short			gNumObjectsInGroupList[MAX_3DMF_GROUPS];
-extern	short		gNumItems;
 extern	short	gPrefsFolderVRefNum;
 extern	long	gPrefsFolderDirID,gNumTerrainTextureTiles,gNumTileAnims;
 extern	Ptr		gTerrainPtr,gTerrainHeightMapPtrs[];

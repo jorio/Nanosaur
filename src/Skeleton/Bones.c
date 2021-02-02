@@ -28,8 +28,6 @@
 /****************************/
 
 static void DecomposeATriMesh(TQ3TriMeshData* triMeshData);
-static void DecompRefMo_Recurse(TQ3Object inObj);
-static void DecomposeReferenceModel(TQ3Object theModel);
 static void UpdateSkinnedGeometry_Recurse(short joint);
 
 
@@ -61,16 +59,8 @@ static	TQ3Vector3D			gTransformedNormals[MAX_DECOMPOSED_NORMALS];	// temporary b
 
 void LoadBonesReferenceModel(FSSpec	*inSpec, SkeletonDefType *skeleton)
 {
-#if 1	// NOQUESA
 	Pomme3DMF_FileHandle the3DMFFile = Pomme3DMF_LoadModelFile(inSpec);
 	GAME_ASSERT(the3DMFFile);
-#else
-TQ3Object		newModel;
-
-	newModel = Load3DMFModel(inSpec);
-	if (newModel == nil)
-		DoFatalAlert("LoadBonesReferenceModel: cant load 3dmf file!");
-#endif
 
 #if 0	// TODO noquesa (might not be needed anymore)
 	PatchSkeleton3DMF(inSpec->cName, newModel);		// patch 3DMF (add alpha test)
@@ -78,7 +68,6 @@ TQ3Object		newModel;
 
 	gCurrentSkeleton = skeleton;
 
-#if 1	// NOQUESA
 			/* DECOMPOSE REFERENCE MODEL */
 
 	gCurrentSkeleton->numDecomposedTriMeshes	= 0;
@@ -90,84 +79,17 @@ TQ3Object		newModel;
 	{
 		DecomposeATriMesh(meshList.meshes[i]);
 	}
-#else
-	DecomposeReferenceModel(newModel);
-
-	Q3Object_Dispose(newModel);			// dont need original 3DMF anymore
-#endif
 }
-
-
-/****************** DECOMPOSE REFERENCE MODEL ************************/
-
-static void DecomposeReferenceModel(TQ3Object theModel)
-{
-	gCurrentSkeleton->numDecomposedTriMeshes = 0;
-	gCurrentSkeleton->numDecomposedPoints = 0;
-	gCurrentSkeleton->numDecomposedNormals = 0;
-
-
-		/* DO SUBRECURSIVE SCAN */
-		
-	DecompRefMo_Recurse(theModel);
-
-}
-
-
-/***************** DECOM REF MO: RECURSE ***************************/
-
-static void DecompRefMo_Recurse(TQ3Object inObj)
-#if 1	// TODO noquesa
-{ DoFatalAlert2("TODO noquesa", __func__); }
-#else
-{
-TQ3GroupPosition	position;
-TQ3Object   		newObj;
-TQ3ObjectType		oType;
-
-				/* SEE IF FOUND GEOMETRY */
-
-	if (Q3Object_IsType(inObj,kQ3ShapeTypeGeometry))
-	{
-		oType = Q3Geometry_GetType(inObj);									// get geometry type
-		switch(oType)
-		{
-			case	kQ3GeometryTypeTriMesh:
-					DecomposeATriMesh(inObj);
-					break;
-		}
-	}
-	else
-	
-			/* SEE IF RECURSE SUB-GROUP */
-
-	if (Q3Object_IsType(inObj,kQ3ShapeTypeGroup))
- 	{
-  		for (Q3Group_GetFirstPosition(inObj, &position); position != nil;	// scan all objects in group
-  			 Q3Group_GetNextPosition(inObj, &position))	
- 		{
-   			Q3Group_GetPositionObject (inObj, position, &newObj);			// get object from group
-			if (newObj != NULL)
-   			{
-    			DecompRefMo_Recurse(newObj);								// sub-recurse this object
-    			Q3Object_Dispose(newObj);									// dispose local ref
-   			}
-  		}
-	}
-}
-#endif
 
 
 /******************* DECOMPOSE A TRIMESH ***********************/
 
 static void DecomposeATriMesh(TQ3TriMeshData* triMeshData)
 {
-//TQ3Status			status;				// NOQUESA
-unsigned long		numVertecies,vertNum;
+long 				numVertices;
 TQ3Point3D			*vertexList;
 long				i,n,refNum,pointNum;
 TQ3Vector3D			*normalPtr;
-//TQ3TriMeshData		*triMeshData;	// NOQUESA
 DecomposedPointType	*decomposedPoint;
 
 	n = gCurrentSkeleton->numDecomposedTriMeshes;												// get index into list of trimeshes
@@ -175,29 +97,18 @@ DecomposedPointType	*decomposedPoint;
 
 			/* GET TRIMESH DATA */
 
-#if 1	// NOQUESA
-	gCurrentSkeleton->decomposedTriMeshPtrs[n] = triMeshData;
-#else
-	status = Q3TriMesh_GetData(theTriMesh, &gCurrentSkeleton->decomposedTriMeshes[n]);			// get trimesh data
-	if (status != kQ3Success) 
-		DoFatalAlert("PreTransformTriMesh: Q3TriMesh_GetData failed!");
-		
-	triMeshData = &gCurrentSkeleton->decomposedTriMeshes[n];
-#endif
-		
-	numVertecies = triMeshData->numPoints;														// get # verts in trimesh
+	gCurrentSkeleton->decomposedTriMeshPtrs[n] = triMeshData;									// get trimesh data
+	GAME_ASSERT(triMeshData);
+
+	numVertices = triMeshData->numPoints;														// get # verts in trimesh
 	vertexList = triMeshData->points;															// point to vert list
-#if 1	// NOQUESA
 	normalPtr  = triMeshData->vertexNormals;													// point to normals
-#else
-	normalPtr  = (TQ3Vector3D *)(triMeshData->vertexAttributeTypes[0].data); 					// point to normals
-#endif
 
 				/*******************************/
 				/* EXTRACT VERTECIES & NORMALS */
 				/*******************************/
-				
-	for (vertNum = 0; vertNum < numVertecies; vertNum++)
+
+	for (long vertNum = 0; vertNum < numVertices; vertNum++)
 	{				
 			/* SEE IF THIS POINT IS ALREADY IN DECOMPOSED LIST */
 				

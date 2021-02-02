@@ -9,12 +9,10 @@
 /*    EXTERNALS             */
 /****************************/
 
-#include <Headers/QD3DCompat/Pomme3DMF.h>
+#include <Pomme3DMF.h>
 #include "globals.h"
 #include "misc.h"
 #include "3dmf.h"
-#include "sound2.h"
-#include "qd3d_support.h"
 #include "qd3d_geometry.h"
 #include "GamePatches.h"
 
@@ -25,13 +23,10 @@ extern	QD3DSetupOutputType		*gGameViewInfoPtr;
 /*    PROTOTYPES            */
 /****************************/
 
-static TQ3Status MyRead3DMFModel(TQ3FileObject file, TQ3Object *model);
-static TQ3FileObject	Create3DMFFileObject(FSSpec *myFSSpec);
 
 /****************************/
 /*    CONSTANTS             */
 /****************************/
-
 
 
 /*********************/
@@ -59,199 +54,6 @@ short	i;
 
 }
 
-/*************** LOAD 3DMF MODEL **************/
-//
-// INPUT: inFile = nil if use Standard File Dialog, else FSSpec of file to load
-//
-// OUTPUT: nil = didnt happen
-//
-
-TQ3Object	Load3DMFModel(FSSpec *inFile)
-#if 1
-{ DoFatalAlert2("TODO noquesa", __func__); return nil; }
-#else
-{
-TQ3FileObject		fileObj;
-TQ3Object			theModel;
-
-	gLast3DMF_FSSpec = *inFile;								// also keep a global copy
-
-
-			/* CREATE A FILE OBJECT */
-				
-	fileObj = Create3DMFFileObject(inFile);
-	if (fileObj == nil)
-		theModel = nil;
-	else
-	{
-
-			/* READ THE 3DMF FILE */
-			
-		if (MyRead3DMFModel(fileObj, &theModel) == kQ3Failure)
-			theModel = nil;
-	}
-	
-	Q3File_Close(fileObj);
-	Q3Object_Dispose(fileObj);
-	return(theModel);
-}
-#endif
-
-
-/*************** CREATE 3DMF FILE OBJECT ****************/
-//
-// Creates and returns a File Object which contains the 3DMF file.
-//
-// INPUT: myFSSpec = file to create object for
-//
-
-static TQ3FileObject	Create3DMFFileObject(FSSpec *myFSSpec)
-#if 1
-{ DoFatalAlert2("TODO noquesa", __func__); return nil; }
-#else
-{
-TQ3FileObject		myFileObj;
-TQ3StorageObject	myStorageObj;
-		
-		/* CREATE NEW STORAGE OBJECT WHICH IS THE 3DMF FILE */
-			
-	myStorageObj = Q3FSSpecStorage_New(myFSSpec);
-	if (myStorageObj == nil)
-	{
-		DoFatalAlert("Error calling Q3FSSpecStorage_New");
-		return(nil);
-	}
-	
-	
-			/* CREATE NEW FILE OBJECT */
-			
-	myFileObj = Q3File_New();
-	if (myFileObj == nil)
-	{
-		DoFatalAlert("Error calling Q3File_New");
-		Q3Object_Dispose(myStorageObj);
-		return(nil);
-	}
-	
-			/* SET THE STORAGE FOR THE FILE OBJECT */
-			
-	if (Q3File_SetStorage(myFileObj, myStorageObj) != kQ3Success)
-	{
-		DoAlert("Error Q3File_SetStorage");
-		return(nil);
-	}
-	Q3Object_Dispose(myStorageObj);
-			
-	return(myFileObj);
-}
-#endif
-
-
-
-/***************** READ 3DMF MODEL ************************/
-//
-// Reads the 3DMF file and saves into new TQ3Object.
-//
-// INPUT:  file = File Object containing reference to 3DMF file
-//
-// OUTPUT: model =object containing all the important data in the 3DMF file
-//
-//
-
-static TQ3Status MyRead3DMFModel(TQ3FileObject file, TQ3Object *model)
-#if 1
-{ DoFatalAlert2("TODO noquesa", __func__); return kQ3Failure; }
-#else
-{
-TQ3GroupObject	myGroup;
-TQ3Object		myObject;
-
-		/* INIT MODEL TO BE RETURNED */
-		
-	*model = nil;												// assume return nothing
-	myGroup = myObject = nil;
-	
-
-		/* OPEN THE FILE OBJECT & EXIT GRACEFULLY IF UNSUCCESSFUL */
-
-	if (Q3File_OpenRead(file,nil) != kQ3Success)							// open the file
-		DoFatalAlert("Reading 3DMF file failed!");
-	
-				/**************************************/
-				/* READ ALL THE OBJECTS FROM THE FILE */
-				/**************************************/
-	do
-	{	
-			/* READ A METAFILE OBJECT FROM THE FILE OBJECT */
-
-		TQ3ObjectType objtype = Q3File_GetNextObjectType(file);
-
-		myObject = Q3File_ReadObject(file);
-		if (myObject == nil)
-		{
-#if 1
-//			printf("%s: Failed to ReadObject %s\n", __func__, Pomme::FourCCString(objtype).c_str());
-			QD3D_ShowRecentError();
-			continue;
-#else
-			if (myGroup)
-				Q3Object_Dispose(myGroup);
-
-			DoAlert("MyRead3DMFModel: Q3File_ReadObject Failed!");
-			QD3D_ShowRecentError();
-			break;
-#endif
-		}
-
-		/* ADD ANY DRAWABLE OBJECTS TO A GROUP */
-		
-		if (Q3Object_IsDrawable(myObject))								// see if is a drawable object
-		{
-			if (myGroup)												// if group exists
-				Q3Group_AddObject(myGroup,myObject);					// add object to group
-			else
-			if (*model == nil)											// if no model data yet / this is first
-			{
-				*model = myObject;										// set model to this object
-				myObject = nil;											// clear this object
-			}
-			else														// this isn't the first & only object, so add to group
-			{
-				myGroup = Q3DisplayGroup_New();							// make new group
-				if (myGroup == nil)
-					DoFatalAlert("MyRead3DMFModel: Q3DisplayGroup_New failed!");
-				
-				Q3Group_AddObject(myGroup,*model);						// add existing model to group
-				Q3Group_AddObject(myGroup,myObject);					// add object to group
-				Q3Object_Dispose(*model);								// dispose extra ref
-				*model = myGroup;										// set return value to the new group
-			}
-		}
-		
-		if (myObject != nil)											// dispose extra ref
-			Q3Object_Dispose(myObject);
-			
-	} while(!Q3File_IsEndOfFile(file));
-	
-	
-			/* SEE IF ANYTHING WENT WRONG */
-			
-	if (Q3Error_Get(nil) != kQ3ErrorNone)
-	{
-		if (*model != nil)
-		{
-			Q3Object_Dispose(*model);
-			*model = nil;
-		}		
-		return(kQ3Failure);
-	}
-	
-	return(kQ3Success);
-}
-#endif
-	
-	
-	
 /******************** LOAD GROUPED 3DMF ***********************/
 //
 // Loads and registers a grouped 3DMF file by reading each element out of the file into
@@ -306,13 +108,7 @@ void LoadGrouped3DMF(FSSpec *spec, Byte groupNum)
 /******************** DELETE 3DMF GROUP **************************/
 
 void Free3DMFGroup(Byte groupNum)
-#if 0	// TODO noquesa
-{ DoFatalAlert2("TODO noquesa", __func__); }
-#else
 {
-short	i;
-
-#if 1	// NOQUESA
 	if (gObjectGroupFile[groupNum] != nil)
 	{
 		Pomme3DMF_DisposeModelFile(gObjectGroupFile[groupNum]);
@@ -320,23 +116,9 @@ short	i;
 	}
 
 	memset(gObjectGroupList[groupNum], 0, sizeof(gObjectGroupList[groupNum]));
-#else
-	for (i = 0; i < gNumObjectsInGroupList[groupNum]; i++)			// dispose of old objects (or at least this reference)
-	{
-		if (gObjectGroupList[groupNum][i] != nil)
-		{
-			Q3Object_Dispose(gObjectGroupList[groupNum][i]);
-			gObjectGroupList[groupNum][i] = nil;
-		}
-	}
-
-	for (i = 0; i < MAX_OBJECTS_IN_GROUP; i++)						// make sure to init the entire list to be safe
-		gObjectGroupList[groupNum][i] = nil;
-#endif
 
 	gNumObjectsInGroupList[groupNum] = 0;
 }
-#endif
 
 
 /******************* DELETE ALL 3DMF GROUPS ************************/
@@ -351,9 +133,3 @@ short	i;
 			Free3DMFGroup(i);
 	}
 }
-
-
-
-
-
-

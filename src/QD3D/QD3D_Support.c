@@ -93,35 +93,17 @@ static TQ3FogStyleData			gQD3D_FogStyleData;
 // water patches all appear darker than they would on original hardware.
 static TQ3Boolean gQD3D_AngleAffectsAlpha = kQ3False;
 
-Boolean			gQD3DInitialized = false;
-
 static Boolean gQD3D_FreshDrawContext = false;
 
 
 /******************** QD3D: BOOT ******************************/
-//
-// NOTE: The QuickDraw3D libraries should be included in the project as a "WEAK LINK" so that I can
-// 		get an error if the library can't load.  Otherwise, the Finder reports a useless error to the user.
-//
 
 void QD3D_Boot(void)
 {
-#if 0 // TODO noquesa
-TQ3Status	myStatus;
-
-
 				/* LET 'ER RIP! */
-				
-	myStatus = Q3Initialize();
-	if ( myStatus == kQ3Failure )
-		DoFatalAlert("Q3Initialize returned failure.");	
-#endif
-
-	gQD3DInitialized = true;
-
 
 			/* MAKE THAT SHADOW THING */
-			
+
 	MakeShadowTexture();
 }
 
