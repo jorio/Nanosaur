@@ -22,11 +22,17 @@ struct Q3MetaFile_Texture
 	uint32_t						rowBytes;
 	uint32_t						offset;
 	std::vector<unsigned char>		buffer;
-	uint32_t						textureName;
+	uint32_t						glTextureName;
 
 	~Q3MetaFile_Texture()
 	{
 		cookie = 'DEAD';
+
+		if (glTextureName != 0)
+		{
+			glDeleteTextures(1, &glTextureName);
+			glTextureName = 0;
+		}
 	}
 };
 

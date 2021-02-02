@@ -4,6 +4,12 @@
 #include "Pomme3DMF.h"
 #include "Pomme3DMF_Internal.h"
 
+#if __APPLE__
+	#include <OpenGL/glu.h>
+#else
+	#include <GL/glu.h>
+#endif
+
 #define ALLOCATOR_HEADER_BYTES 16
 
 // TODO: use __Q3Alloc for C++ classes as well
@@ -21,6 +27,23 @@ static void Assert(bool condition, const char* message)
 		throw std::runtime_error(message);
 	}
 }
+
+static void ThrowGLError(GLenum error, const char* func, int line)
+{
+	char message[512];
+
+	snprintf(message, sizeof(message), "OpenGL error 0x%x in %s:%d (\"%s\")",
+				error, func, line, (const char*) gluErrorString(error));
+
+	throw std::runtime_error(message);
+}
+
+#define CHECK_GL_ERROR()												\
+	do {					 											\
+		GLenum error = glGetError();									\
+		if (error != GL_NO_ERROR)										\
+			ThrowGLError(error, __func__, __LINE__);					\
+	} while(0)
 
 struct __Q3AllocatorCookie
 {
@@ -98,6 +121,46 @@ Pomme3DMF_FileHandle Pomme3DMF_LoadModelFile(const FSSpec* spec)
 	auto& fileStream = Pomme::Files::GetStream(refNum);
 	Q3MetaFileParser(fileStream, *metaFile).Parse3DMF();
 	FSClose(refNum);
+
+	//-------------------------------------------------------------------------
+	// Load textures
+
+	for (auto& textureDef : metaFile->textures)
+	{
+		Assert(textureDef.glTextureName == 0, "texture already allocated");
+
+		GLuint textureName;
+
+		glGenTextures(1, &textureName);
+		CHECK_GL_ERROR();
+
+		printf("Loading GL texture #%d\n", textureName);
+
+		textureDef.glTextureName = textureName;
+
+		glBindTexture(GL_TEXTURE_2D, textureName);				// this is now the currently active texture
+		CHECK_GL_ERROR();
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+//			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+//			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+		glTexImage2D(GL_TEXTURE_2D,
+					 0,										// mipmap level
+					 GL_RGBA,								// format in OpenGL
+					 textureDef.width,						// width in pixels
+					 textureDef.height,						// height in pixels
+					 0,										// border
+					 GL_RGBA,								// what my format is
+					 GL_UNSIGNED_BYTE,						// size of each r,g,b
+					 textureDef.buffer.data());				// pointer to the actual texture pixels
+		CHECK_GL_ERROR();
+	}
+
+	//-------------------------------------------------------------------------
+	// Done
 
 	return (Pomme3DMF_FileHandle) metaFile;
 }

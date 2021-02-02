@@ -455,7 +455,7 @@ uint32_t Q3MetaFileParser::Parse_txmm(uint32_t chunkSize)
 	currentMesh->internalTextureID = internalTextureID;
 	currentMesh->hasTexture = true;
 
-	texture.textureName		= 0;
+	texture.glTextureName	= 0;
 	texture.useMipMapping	= useMipmapping;
 	texture.pixelType		= pixelType;
 	texture.bitOrder		= bitOrder;
