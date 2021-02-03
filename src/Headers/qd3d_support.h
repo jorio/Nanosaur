@@ -89,6 +89,7 @@ typedef struct
 	float					hither,yon;
 	float					fov;
 	TQ3CameraPlacement		cameraPlacement;
+	QD3DLightDefType		lights;
 }QD3DSetupOutputType;
 
 

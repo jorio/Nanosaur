@@ -236,6 +236,8 @@ QD3DSetupOutputType	*outputPtr;
 	outputPtr->cameraPlacement.pointOfInterest		= setupDefPtr->camera.to;
 	outputPtr->cameraPlacement.cameraLocation		= setupDefPtr->camera.from;
 
+	outputPtr->lights = setupDefPtr->lights;
+
 	outputPtr->isActive = true;							// it's now an active structure
 
 	QD3D_MoveCameraFromTo(outputPtr,&v,&v);				// call this to set outputPtr->currentCameraCoords & camera matrix
