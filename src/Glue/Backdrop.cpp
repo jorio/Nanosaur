@@ -15,7 +15,6 @@ extern PrefsType gGamePrefs;
 }
 
 constexpr const bool ALLOW_BACKDROP_TEXTURE = false;
-std::unique_ptr<GLBackdrop> glBackdrop = nullptr;
 
 static SDL_GLContext exclusiveGLContext = nullptr;
 static bool exclusiveGLContextValid = false;
@@ -49,7 +48,10 @@ static UInt32* GetBackdropPixPtr()
 
 static bool IsBackdropAllocated()
 {
+	return false;
+#if 0
 	return glBackdrop != nullptr;
+#endif
 }
 
 void AllocBackdropTexture()
@@ -62,10 +64,12 @@ void AllocBackdropTexture()
 
 	PortGuard portGuard;
 
+#if 0
 	glBackdrop = std::make_unique<GLBackdrop>(
 		GAME_VIEW_WIDTH,
 		GAME_VIEW_HEIGHT,
 		(unsigned char*) GetBackdropPixPtr());
+#endif
 
 	ClearPortDamage();
 }
@@ -96,7 +100,9 @@ void DisposeBackdropTexture()
 		return;
 	}
 
+#if 0
 	glBackdrop.reset(nullptr);
+#endif
 }
 
 void SetBackdropClipRegion(int regionWidth, int regionHeight)
@@ -107,7 +113,9 @@ void SetBackdropClipRegion(int regionWidth, int regionHeight)
 		return;
 	}
 
+#if 0
 	glBackdrop->SetClipRegion(regionWidth, regionHeight);
+#endif
 }
 
 void RenderBackdropQuad(int fit)
@@ -118,6 +126,7 @@ void RenderBackdropQuad(int fit)
 		return;
 	}
 
+#if 0
 	PortGuard portGuard;
 
 	int windowWidth, windowHeight;
@@ -147,6 +156,7 @@ void RenderBackdropQuad(int fit)
 
 	glEnable(GL_SCISSOR_TEST);
 	glViewport(vp[0], vp[1], (GLsizei) vp[2], (GLsizei) vp[3]);
+#endif
 }
 
 void ExclusiveOpenGLMode_Begin()

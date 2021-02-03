@@ -140,16 +140,12 @@ set(GAME_GLUE_SOURCES
 	${GAME_SRCDIR}/Glue/EdgePadding.cpp
 	${GAME_SRCDIR}/Glue/FrustumCulling.c
 	${GAME_SRCDIR}/Glue/GamePatches.cpp
-	${GAME_SRCDIR}/Glue/GLBackdrop.cpp
-	${GAME_SRCDIR}/Glue/GLFunctions.cpp
 	${GAME_SRCDIR}/Glue/Patch3DMFModels.c
 	${GAME_SRCDIR}/Glue/ProMode.c
 	${GAME_SRCDIR}/Glue/SettingsScreen.cpp
 	${GAME_SRCDIR}/Glue/Pomme3DMF_API.cpp
 	${GAME_SRCDIR}/Glue/Pomme3DMF_Parser.cpp
 	${GAME_SRCDIR}/Headers/Glue/GamePatches.h
-	${GAME_SRCDIR}/Headers/Glue/GLBackdrop.h
-	${GAME_SRCDIR}/Headers/Glue/GLFunctions.h
 	${GAME_SRCDIR}/Headers/QD3DCompat/QD3D.h
 	${GAME_SRCDIR}/Headers/QD3DCompat/QD3DMath.h
 	${GAME_SRCDIR}/Headers/QD3DCompat/Pomme3DMF.h
