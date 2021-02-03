@@ -231,8 +231,10 @@ float	fps = gFramesPerSecondFrac;
 									
 						
 	}
-	
+
+#if 0	// noquesa - MoveCamera_Manual and MoveCamera_FirstPerson ultimately set the camera matrix
 	CalcCameraMatrixInfo(gGameViewInfoPtr);
+#endif
 
 
 }
