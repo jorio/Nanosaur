@@ -9,6 +9,7 @@
 /*    EXTERNALS             */
 /****************************/
 
+#include <SDL.h>
 #include <QD3D.h>
 #include <QD3DMath.h>
 
@@ -41,11 +42,7 @@ extern	long		gNodesDrawn;
 /*    PROTOTYPES            */
 /****************************/
 
-static void CreateDrawContext(QD3DViewDefType *viewDefPtr);
-static void SetStyles(QD3DStyleDefType *styleDefPtr);
-static void CreateCamera(QD3DSetupInputType *setupDefPtr);
 static void CreateLights(QD3DLightDefType *lightDefPtr);
-static void CreateView(QD3DSetupInputType *setupDefPtr);
 #if 0 // TODO noquesa
 static void DrawPICTIntoMipmap(PicHandle pict,long width, long height, TQ3Mipmap *mipmap);
 static void Data16ToMipmap(Ptr data, short width, short height, TQ3Mipmap *mipmap);
@@ -63,16 +60,6 @@ static TQ3Area GetAdjustedPane(int windowWidth, int windowHeight, Rect paneClip)
 /*    VARIABLES      */
 /*********************/
 
-#if 0	// NOQUESA
-static TQ3CameraObject			gQD3D_CameraObject;
-TQ3GroupObject			gQD3D_LightGroup;
-static TQ3ViewObject			gQD3D_ViewObject;
-static TQ3RendererObject		gQD3D_RendererObject;
-static TQ3ShaderObject			gQD3D_ShaderObject,gQD3D_NullShaderObject;
-static	TQ3StyleObject			gQD3D_BackfacingStyle;
-static	TQ3StyleObject			gQD3D_FillStyle;
-static	TQ3StyleObject			gQD3D_InterpolationStyle;
-#endif
 SDL_GLContext					gGLContext;
 
 TQ3ShaderObject					gQD3D_gShadowTexture = nil;
@@ -84,14 +71,6 @@ float	gAdditionalClipping = 0;
 
 short			gFogMode;
 static TQ3FogStyleData			gQD3D_FogStyleData;
-
-// Source port addition: this is a Quesa feature, enabled by default,
-// that renders translucent materials more accurately at an angle.
-// However, it looks "off" in the game -- shadow quads, shield spheres,
-// water patches all appear darker than they would on original hardware.
-static TQ3Boolean gQD3D_AngleAffectsAlpha = kQ3False;
-
-static Boolean gQD3D_FreshDrawContext = false;
 
 
 /******************** QD3D: BOOT ******************************/
@@ -176,57 +155,22 @@ TQ3Vector3D			fillDirection2 = { -1, -1, .2 };
 /************** SETUP QD3D WINDOW *******************/
 
 void QD3D_SetupWindow(QD3DSetupInputType *setupDefPtr, QD3DSetupOutputType **outputHandle)
-#if 0	// TODO noquesa
-{ DoFatalAlert2("TODO noquesa", __func__); }
-#else
 {
-TQ3Vector3D	v = {0,0,0};
-TQ3Status	status;
 QD3DSetupOutputType	*outputPtr;
 
 			/* ALLOC MEMORY FOR OUTPUT DATA */
 
 	*outputHandle = (QD3DSetupOutputType *)AllocPtr(sizeof(QD3DSetupOutputType));
-	if (*outputHandle == nil)
-		DoFatalAlert("QD3D_SetupWindow: AllocPtr failed");
+	GAME_ASSERT(*outputHandle);
 	outputPtr = *outputHandle;
 
-				/* SETUP */
+			/* CREATE & SET DRAW CONTEXT */
 
-	CreateView(setupDefPtr);
-	
-	CreateCamera(setupDefPtr);										// create new CAMERA object
-	CreateLights(&setupDefPtr->lights);
-	SetStyles(&setupDefPtr->styles);	
-	
+	gGLContext = SDL_GL_CreateContext(gSDLWindow);									// also makes it current
+	GAME_ASSERT(gGLContext);
 
-				/* DISPOSE OF EXTRA REFERENCES */
-
-#if 1
-	printf("TODO noquesa %s():%d\n", __func__, __LINE__);
-#else
-	status = Q3Object_Dispose(gQD3D_RendererObject);				// (is contained w/in gQD3D_ViewObject)
-	if (status == kQ3Failure)
-		DoFatalAlert("QD3D_SetupWindow: Q3Object_Dispose failed!");
-#endif
-	
-
-	
 				/* PASS BACK INFO */
-#if 1
-	printf("TODO noquesa %s():%d\n", __func__, __LINE__);
-#else
-	outputPtr->viewObject = gQD3D_ViewObject;
-	outputPtr->interpolationStyle = gQD3D_InterpolationStyle;
-	outputPtr->fillStyle = gQD3D_FillStyle;
-	outputPtr->backfacingStyle = gQD3D_BackfacingStyle;
-	outputPtr->shaderObject = gQD3D_ShaderObject;
-	outputPtr->nullShaderObject = gQD3D_NullShaderObject;
-	outputPtr->cameraObject = gQD3D_CameraObject;
-	outputPtr->lightGroup = gQD3D_LightGroup;
-	outputPtr->drawContext = gQD3D_DrawContext;
-	outputPtr->window = setupDefPtr->view.displayWindow;		// remember which window
-#endif
+
 	outputPtr->paneClip = setupDefPtr->view.paneClip;
 	outputPtr->hither = setupDefPtr->camera.hither;				// remember hither/yon
 	outputPtr->yon = setupDefPtr->camera.yon;
@@ -240,22 +184,24 @@ QD3DSetupOutputType	*outputPtr;
 
 	outputPtr->isActive = true;							// it's now an active structure
 
+	TQ3Point3D v = {0, 0, 0};
 	QD3D_MoveCameraFromTo(outputPtr,&v,&v);				// call this to set outputPtr->currentCameraCoords & camera matrix
 
-#if 0	// TODO noquesa
-	Q3DrawContext_SetClearImageColor(gQD3D_DrawContext, &setupDefPtr->view.clearColor); // (source port fix)
-#endif
+			/* SET UP OPENGL RENDERER PROPERTIES NOW THAT WE HAVE A CONTEXT */
+
+	SDL_GL_SetSwapInterval(gGamePrefs.vsync ? 1 : 0);
+
+	AllocBackdropTexture();
 
 			/* FOG */
-			
+
 	if (setupDefPtr->lights.useFog)
 	{
 		QD3D_SetRaveFog(outputPtr,setupDefPtr->lights.fogHither,setupDefPtr->lights.fogYon,
 						&setupDefPtr->view.clearColor,setupDefPtr->lights.fogMode);
 	}
 
-
-			/* SET UP SOME OPENGL RENDERER PROPERTIES */
+	CreateLights(&setupDefPtr->lights);
 
 	glEnable(GL_DEPTH_TEST);
 
@@ -269,7 +215,6 @@ QD3DSetupOutputType	*outputPtr;
 
 	SDL_GL_SwapWindow(gSDLWindow);
 }
-#endif
 
 
 /***************** QD3D_DisposeWindowSetup ***********************/
@@ -312,252 +257,12 @@ QD3DSetupOutputType	*data;
 }
 
 
-/******************* CREATE GAME VIEW *************************/
-
-static void CreateView(QD3DSetupInputType *setupDefPtr)
-#if 0	// TODO noquesa
-{ DoFatalAlert2("TODO noquesa", __func__); }
-#else
-{
-TQ3Status	status;
-#if 0 // Source port removal
-TQ3Uns32	hints;
-#endif
-
-#if 0	// TODO noquesa
-				/* CREATE NEW VIEW OBJECT */
-				
-	gQD3D_ViewObject = Q3View_New();
-	if (gQD3D_ViewObject == nil)
-		DoFatalAlert("Q3View_New failed!");
-#endif
-
-
-			/* CREATE & SET DRAW CONTEXT */
-
-#if 1	// TODO noquesa
-	gGLContext = SDL_GL_CreateContext(gSDLWindow);									// also makes it current
-	GAME_ASSERT(gGLContext);
-
-	gQD3D_FreshDrawContext = true;
-#else
-	CreateDrawContext(&setupDefPtr->view); 											// init draw context
-
-	status = Q3View_SetDrawContext(gQD3D_ViewObject, gQD3D_DrawContext);			// assign context to view
-	if (status == kQ3Failure)
-		DoFatalAlert("Q3View_SetDrawContext Failed!");
-#endif
-
-
-#if 0	// TODO noquesa
-			/* CREATE & SET RENDERER */
-
-
-	gQD3D_RendererObject = Q3Renderer_NewFromType(setupDefPtr->view.rendererType);	// create new RENDERER object
-	if (gQD3D_RendererObject == nil)
-	{
-		DoFatalAlert("Q3Renderer_NewFromType Failed!");
-	}
-
-#if 0 // Source port removal - deprecated by Quesa
-	status = Q3InteractiveRenderer_SetPreferences(gQD3D_RendererObject, kQAVendor_BestChoice, kQAEngine_AppleHW);
-	if (status == kQ3Failure)
-		DoFatalAlert("Q3InteractiveRenderer_SetPreferences Failed!");
-#endif
-	
-	status = Q3View_SetRenderer(gQD3D_ViewObject, gQD3D_RendererObject);				// assign renderer to view
-	if (status == kQ3Failure)
-		DoFatalAlert("Q3View_SetRenderer Failed!");
-		
-		
-		/* SET RENDERER FEATURES */
-		
-#if 0 // Source port note: not needed with modern Quesa. Except for 16-bit dithering if we want perfect accuracy.
-	Q3InteractiveRenderer_GetRAVEContextHints(gQD3D_RendererObject, &hints);
-	hints &= ~kQAContext_NoZBuffer; 				// Z buffer is on 
-	hints &= ~kQAContext_DeepZ; 					// shallow z
-	hints &= ~kQAContext_NoDither; 					// yes-dither
-	Q3InteractiveRenderer_SetRAVEContextHints(gQD3D_RendererObject, hints);	
-#endif
-
-	// Source port addition: turn off Quesa's angle affect on alpha to preserve the original look of shadows, water, shields etc.
-	Q3Object_SetProperty(gQD3D_RendererObject, kQ3RendererPropertyAngleAffectsAlpha,
-	                     sizeof(gQD3D_AngleAffectsAlpha), &gQD3D_AngleAffectsAlpha);
-	
-	Q3InteractiveRenderer_SetRAVETextureFilter(gQD3D_RendererObject,kQATextureFilter_Fast);	// texturing
-#if 0 // Source port removal - deprecated by Quesa
-	Q3InteractiveRenderer_SetDoubleBufferBypass(gQD3D_RendererObject,kQ3True);
-#endif
-
-#endif
-}
-#endif
-
-
-/**************** CREATE DRAW CONTEXT *********************/
-
-static void CreateDrawContext(QD3DViewDefType *viewDefPtr)
-#if 1	// TODO noquesa
-{ DoFatalAlert2("TODO noquesa", __func__); }
-#else
-{
-TQ3DrawContextData		drawContexData;
-TQ3SDLDrawContextData	myMacDrawContextData;
-extern SDL_Window*		gSDLWindow;
-	int ww, wh;
-	SDL_GL_GetDrawableSize(gSDLWindow, &ww, &wh);
-
-
-			/* FILL IN DRAW CONTEXT DATA */
-
-	drawContexData.clearImageMethod = kQ3ClearMethodWithColor;				// how to clear
-	drawContexData.clearImageColor = viewDefPtr->clearColor;				// color to clear to
-	drawContexData.pane = GetAdjustedPane(ww, wh, viewDefPtr->paneClip);
-	
-	
-	drawContexData.paneState = kQ3True;										// use bounds?
-	drawContexData.maskState = kQ3False;									// no mask
-	drawContexData.doubleBufferState = kQ3True;								// double buffering
-
-	myMacDrawContextData.drawContextData = drawContexData;					// set MAC specifics
-	myMacDrawContextData.sdlWindow = gSDLWindow;							// assign window to draw to
-
-
-			/* CREATE DRAW CONTEXT */
-
-	gQD3D_DrawContext = Q3SDLDrawContext_New(&myMacDrawContextData);
-	if (gQD3D_DrawContext == nil)
-		DoFatalAlert("Q3MacDrawContext_New Failed!");
-
-
-	gQD3D_FreshDrawContext = true;
-}
-#endif
-
-
-
 
 /**************** SET STYLES ****************/
 //
 // Creates style objects which define how the scene is to be rendered.
 // It also sets the shader object.
 //
-
-static void SetStyles(QD3DStyleDefType *styleDefPtr)
-#if 1	// TODO noquesa
-{ printf("TODO noquesa: %s\n", __func__); }
-#else
-{
-
-				/* SET INTERPOLATION (FOR SHADING) */
-					
-	gQD3D_InterpolationStyle = Q3InterpolationStyle_New(styleDefPtr->interpolation);
-	if (gQD3D_InterpolationStyle == nil)
-		DoFatalAlert("Q3InterpolationStyle_New Failed!");
-
-					/* SET BACKFACING */
-
-	gQD3D_BackfacingStyle = Q3BackfacingStyle_New(styleDefPtr->backfacing);
-	if (gQD3D_BackfacingStyle == nil )
-		DoFatalAlert("Q3BackfacingStyle_New Failed!");
-
-
-				/* SET POLYGON FILL STYLE */
-						
-	gQD3D_FillStyle = Q3FillStyle_New(styleDefPtr->fill);
-	if ( gQD3D_FillStyle == nil )
-		DoFatalAlert(" Q3FillStyle_New Failed!");
-
-
-					/* SET THE SHADER TO USE */
-
-	if (styleDefPtr->usePhong)
-	{
-		gQD3D_ShaderObject = Q3PhongIllumination_New();
-		if ( gQD3D_ShaderObject == nil )
-			DoFatalAlert(" Q3PhongIllumination_New Failed!");
-	}
-	else
-	{
-		gQD3D_ShaderObject = Q3LambertIllumination_New();
-		if ( gQD3D_ShaderObject == nil )
-			DoFatalAlert(" Q3LambertIllumination_New Failed!");
-	}
-
-
-			/* ALSO MAKE NULL SHADER FOR SPECIAL PURPOSES */
-			
-	gQD3D_NullShaderObject = Q3NULLIllumination_New();
-
-}
-#endif
-
-
-
-/****************** CREATE CAMERA *********************/
-
-static void CreateCamera(QD3DSetupInputType *setupDefPtr)
-#if 1	// TODO noquesa
-{ printf("TODO noquesa: %s\n", __func__); }
-#else
-{
-TQ3CameraData					myCameraData;
-TQ3ViewAngleAspectCameraData	myViewAngleCameraData;
-TQ3Area							pane;
-TQ3Status						status;
-TQ3Status	myErr;
-QD3DCameraDefType 				*cameraDefPtr;
-
-	cameraDefPtr = &setupDefPtr->camera;
-
-		/* GET PANE */
-		//
-		// Note: Q3DrawContext_GetPane seems to return garbage on pixmaps so, rig it.
-		//
-		
-	if (setupDefPtr->view.useWindow)
-	{
-		status = Q3DrawContext_GetPane(gQD3D_DrawContext,&pane);				// get window pane info
-		if (status == kQ3Failure)
-			DoFatalAlert("Q3DrawContext_GetPane Failed!");
-	}
-	else
-	{
-		DoFatalAlert("CreateCamera: offscreen view unsupported");
-#if 0
-		pane.max.x = setupDefPtr->view.gworld->portRect.right;
-		pane.max.y = setupDefPtr->view.gworld->portRect.bottom;
-#endif
-	}
-
-
-				/* FILL IN CAMERA DATA */
-				
-	myCameraData.placement.cameraLocation = cameraDefPtr->from;			// set camera coords
-	myCameraData.placement.pointOfInterest = cameraDefPtr->to;			// set target coords
-	myCameraData.placement.upVector = cameraDefPtr->up;					// set a vector that's "up"
-	myCameraData.range.hither = cameraDefPtr->hither;					// set frontmost Z dist
-	myCameraData.range.yon = cameraDefPtr->yon;							// set farthest Z dist
-	myCameraData.viewPort.origin.x = -1.0;								// set view origins?
-	myCameraData.viewPort.origin.y = 1.0;
-	myCameraData.viewPort.width = 2.0;
-	myCameraData.viewPort.height = 2.0;
-
-	myViewAngleCameraData.cameraData = myCameraData;
-	myViewAngleCameraData.fov = cameraDefPtr->fov;						// larger = more fisheyed
-	myViewAngleCameraData.aspectRatioXToY =
-				(pane.max.x-pane.min.x)/(pane.max.y-pane.min.y);
-
-	gQD3D_CameraObject = Q3ViewAngleAspectCamera_New(&myViewAngleCameraData);	 // create new camera
-	if (gQD3D_CameraObject == nil)
-		DoFatalAlert("Q3ViewAngleAspectCamera_New failed!");
-		
-	myErr = Q3View_SetCamera(gQD3D_ViewObject, gQD3D_CameraObject);		// assign camera to view
-	if (myErr == kQ3Failure)
-		DoFatalAlert("Q3View_SetCamera Failed!");
-}
-#endif
-
 
 /********************* CREATE LIGHTS ************************/
 
@@ -699,17 +404,6 @@ void QD3D_DrawScene(QD3DSetupOutputType *setupInfo, void (*drawRoutine)(QD3DSetu
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
-	if (gQD3D_FreshDrawContext)
-	{
-		SDL_GL_SetSwapInterval(gGamePrefs.vsync ? 1 : 0);
-
-		AllocBackdropTexture(); // Source port addition - alloc GL backdrop texture
-		// (must be after StartRendering so we have a valid GL context)
-
-		gQD3D_FreshDrawContext = false;
-	}
-
-
 
 			/* PREPARE FRUSTUM PLANES FOR SPHERE VISIBILITY CHECKS */
 			// (Source port addition)
@@ -815,215 +509,6 @@ void QD3D_MoveCameraFromTo(QD3DSetupOutputType *setupInfo, TQ3Vector3D *moveVect
 
 	CalcCameraMatrixInfo(setupInfo);									// update matrices
 }
-
-
-
-
-//=======================================================================================================
-//=============================== LIGHTS STUFF ==========================================================
-//=======================================================================================================
-
-#pragma mark ---------- lights -------------
-
-
-/********************* QD3D ADD POINT LIGHT ************************/
-
-TQ3GroupPosition QD3D_AddPointLight(QD3DSetupOutputType *setupInfo,TQ3Point3D *point, TQ3ColorRGB *color, float brightness)
-#if 1
-{ DoFatalAlert2("TODO noquesa", __func__); return nil; }
-#else
-{
-TQ3GroupPosition		myGroupPosition;
-TQ3LightData			myLightData;
-TQ3PointLightData		myPointLightData;
-TQ3LightObject			myLight;
-
-
-	myLightData.isOn = kQ3True;											// light is ON
-	
-	myLightData.color = *color;											// set color of light
-	myLightData.brightness = brightness;								// set brightness
-	myPointLightData.lightData = myLightData;							// refer to general light info
-	myPointLightData.castsShadows = kQ3False;							// no shadows
-	myPointLightData.location = *point;									// set coords
-	
-	myPointLightData.attenuation = kQ3AttenuationTypeNone;// kQ3AttenuationTypeInverseDistance;	// set attenuation
-	myLight = Q3PointLight_New(&myPointLightData);				// make it
-	if ( myLight == nil )
-		DoFatalAlert(" Q3DirectionalLight_New Failed!");
-
-	myGroupPosition = Q3Group_AddObject(setupInfo->lightGroup, myLight);		// add to light group
-	if ( myGroupPosition == 0 )
-		DoFatalAlert(" Q3Group_AddObject Failed!");
-
-	Q3Object_Dispose(myLight);											// dispose of light
-
-	return(myGroupPosition);
-
-}
-#endif
-
-
-/****************** QD3D SET POINT LIGHT COORDS ********************/
-
-void QD3D_SetPointLightCoords(QD3DSetupOutputType *setupInfo, TQ3GroupPosition lightPosition, TQ3Point3D *point)
-#if 1
-{ DoFatalAlert2("TODO noquesa", __func__); }
-#else
-{
-TQ3PointLightData	pointLightData;
-TQ3LightObject		light;
-TQ3Status			status;
-
-	status = Q3Group_GetPositionObject(setupInfo->lightGroup, lightPosition, &light);	// get point light object from light group
-	if (status == kQ3Failure)
-		DoFatalAlert("Q3Group_GetPositionObject Failed!");
-
-
-	status =  Q3PointLight_GetData(light, &pointLightData);				// get light data
-	if (status == kQ3Failure)
-		DoFatalAlert("Q3PointLight_GetData Failed!");
-
-	pointLightData.location = *point;									// set coords
-
-	status = Q3PointLight_SetData(light, &pointLightData);				// update light data
-	if (status == kQ3Failure)
-		DoFatalAlert("Q3PointLight_SetData Failed!");
-		
-	Q3Object_Dispose(light);
-}
-#endif
-
-
-/****************** QD3D SET POINT LIGHT BRIGHTNESS ********************/
-
-void QD3D_SetPointLightBrightness(QD3DSetupOutputType *setupInfo, TQ3GroupPosition lightPosition, float bright)
-#if 1
-{ DoFatalAlert2("TODO noquesa", __func__); }
-#else
-{
-TQ3LightObject		light;
-TQ3Status			status;
-
-	status = Q3Group_GetPositionObject(setupInfo->lightGroup, lightPosition, &light);	// get point light object from light group
-	if (status == kQ3Failure)
-		DoFatalAlert("Q3Group_GetPositionObject Failed!");
-
-	status = Q3Light_SetBrightness(light, bright);
-	if (status == kQ3Failure)
-		DoFatalAlert("Q3Light_SetBrightness Failed!");
-
-	Q3Object_Dispose(light);
-}
-#endif
-
-
-
-/********************* QD3D ADD FILL LIGHT ************************/
-
-TQ3GroupPosition QD3D_AddFillLight(QD3DSetupOutputType *setupInfo,TQ3Vector3D *fillVector, TQ3ColorRGB *color, float brightness)
-#if 1
-{ DoFatalAlert2("TODO noquesa", __func__); return nil; }
-#else
-{
-TQ3GroupPosition		myGroupPosition;
-TQ3LightData			myLightData;
-TQ3LightObject			myLight;
-TQ3DirectionalLightData	myDirectionalLightData;
-
-
-	myLightData.isOn = kQ3True;									// light is ON
-	
-	myLightData.color = *color;									// set color of light
-	myLightData.brightness = brightness;						// set brightness
-	myDirectionalLightData.lightData = myLightData;				// refer to general light info
-	myDirectionalLightData.castsShadows = kQ3False;				// no shadows
-	myDirectionalLightData.direction = *fillVector;				// set vector
-	
-	myLight = Q3DirectionalLight_New(&myDirectionalLightData);	// make it
-	if ( myLight == nil )
-		DoFatalAlert(" Q3DirectionalLight_New Failed!");
-	
-	myGroupPosition = Q3Group_AddObject(setupInfo->lightGroup, myLight);	// add to light group
-	if ( myGroupPosition == 0 )
-		DoFatalAlert(" Q3Group_AddObject Failed!");
-
-	Q3Object_Dispose(myLight);												// dispose of light
-	return(myGroupPosition);
-}
-#endif
-
-/********************* QD3D ADD AMBIENT LIGHT ************************/
-
-TQ3GroupPosition QD3D_AddAmbientLight(QD3DSetupOutputType *setupInfo, TQ3ColorRGB *color, float brightness)
-#if 1
-{ DoFatalAlert2("TODO noquesa", __func__); return nil; }
-#else
-{
-TQ3GroupPosition		myGroupPosition;
-TQ3LightData			myLightData;
-TQ3LightObject			myLight;
-
-
-
-	myLightData.isOn = kQ3True;									// light is ON
-	myLightData.color = *color;									// set color of light
-	myLightData.brightness = brightness;						// set brightness
-	
-	myLight = Q3AmbientLight_New(&myLightData);					// make it
-	if ( myLight == nil )
-		DoFatalAlert("Q3AmbientLight_New Failed!");
-
-	myGroupPosition = Q3Group_AddObject(setupInfo->lightGroup, myLight);		// add to light group
-	if ( myGroupPosition == 0 )
-		DoFatalAlert(" Q3Group_AddObject Failed!");
-
-	Q3Object_Dispose(myLight);									// dispose of light
-	
-	return(myGroupPosition);
-}
-#endif
-
-
-
-
-/****************** QD3D DELETE LIGHT ********************/
-
-void QD3D_DeleteLight(QD3DSetupOutputType *setupInfo, TQ3GroupPosition lightPosition)
-#if 1
-{ DoFatalAlert2("TODO noquesa", __func__); }
-#else
-{
-TQ3LightObject		light;
-
-	light = Q3Group_RemovePosition(setupInfo->lightGroup, lightPosition);
-	if (light == nil)
-		DoFatalAlert("Q3Group_RemovePosition Failed!");
-
-	Q3Object_Dispose(light);
-}
-#endif
-
-
-/****************** QD3D DELETE ALL LIGHTS ********************/
-//
-// Deletes ALL lights from the light group, including the ambient light.
-//
-
-void QD3D_DeleteAllLights(QD3DSetupOutputType *setupInfo)
-#if 1
-{ DoFatalAlert2("TODO noquesa", __func__); }
-#else
-{
-TQ3Status				status;
-
-	status = Q3Group_EmptyObjects(setupInfo->lightGroup);
-	if (status == kQ3Failure)
-		DoFatalAlert("QD3D_DeleteAllLights: Q3Group_EmptyObjects Failed!");
-
-}
-#endif
-
 
 
 
@@ -1755,58 +1240,6 @@ void QD3D_SetTextureFilter(unsigned long textureMode)
 #endif
 }
 #endif
-
-
-
-#if 0 // Source port removal - unsupported
-/************************ SET TRIANGLE CACHE MODE *****************************/
-//
-// For ATI driver, sets triangle caching flag for xparent triangles
-//
-
-void QD3D_SetTriangleCacheMode(Boolean isOn)
-{
-	if (!gRaveDrawContext)
-		return;
-
-	QASetInt(gRaveDrawContext, (TQATagInt)kATITriCache, isOn);
-}	
-#endif
-				
-
-#if 0 // Source port removal - use Q3Shader_SetUBoundary instead
-/************************ SET TEXTURE WRAP MODE ************************/
-//
-// INPUT: mode = kQAGL_Clamp or kQAGL_Repeat
-//
-
-void QD3D_SetTextureWrapMode(int mode)
-{
-	if (!gRaveDrawContext)
-		return;
-
-	QASetInt(gRaveDrawContext, kQATagGL_TextureWrapU, mode);
-	QASetInt(gRaveDrawContext, kQATagGL_TextureWrapV, mode);
-}
-#endif
-
-
-/************************ SET BLENDING MODE ************************/
-
-#if 0 // Source port removal - not required anymore (was used to toggle between interpolate/premultiply)
-void QD3D_SetBlendingMode(int mode)
-{
-	if (gATIis431)							// only do this for ATI driver version 4.30 or newer
-	{
-		if (!gRaveDrawContext)
-			return;
-
-		QASetInt(gRaveDrawContext,kQATag_Blend, mode);
-	}
-}
-#endif
-
-
 
 
 

@@ -38,8 +38,6 @@ void QD3D_CalcObjectBoundingBox(int numMeshes, TQ3TriMeshData** meshList, TQ3Bou
 extern	void QD3D_ExplodeGeometry(ObjNode *theNode, float boomForce, Byte particleMode, long particleDensity, float particleDecaySpeed);
 extern	void QD3D_ReplaceGeometryTexture(TQ3Object obj, TQ3SurfaceShaderObject theShader);
 extern	void QD3D_ScrollUVs(TQ3Object theObject, float du, float dv);
-extern	void QD3D_DuplicateTriMeshData(TQ3TriMeshData *inData, TQ3TriMeshData *outData);
-extern	void QD3D_FreeDuplicateTriMeshData(TQ3TriMeshData *inData);
 extern	void QD3D_InitParticles(void);
 extern	void QD3D_MoveParticles(void);
 extern	void QD3D_DrawParticles(QD3DSetupOutputType *setupInfo);

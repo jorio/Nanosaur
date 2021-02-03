@@ -9,6 +9,7 @@
 
 
 
+#include <stdio.h>
 #include <math.h>
 #include <QD3D.h>
 #include <QD3DMath.h>
@@ -44,16 +45,6 @@
 
 
 #define	CHAR_RETURN			0x0d	/* ASCII code for Return key */
-#define CHAR_UP				0x1e
-#define CHAR_DOWN			0x1f
-#define	CHAR_LEFT			0x1c
-#define	CHAR_RIGHT			0x1d
-#define	CHAR_DELETE			0x08
-
-
-
-				
-#define	CHAR_RETURN			0x0d				// ASCII codes 
 #define CHAR_UP				0x1e
 #define CHAR_DOWN			0x1f
 #define	CHAR_LEFT			0x1c
@@ -147,13 +138,5 @@ enum
 #include "structs.h"
 
 #endif
-
-
-
-
-
-
-
-
 
 

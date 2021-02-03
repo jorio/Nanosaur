@@ -9,6 +9,7 @@
 /* EXTERNALS   */
 /***************/
 
+
 #include "globals.h"
 
 #include "QD3D.h"
@@ -79,8 +80,6 @@ NewObjectDefinitionType	gNewObjectDefinition;
 TQ3Point3D	gCoord;
 TQ3Vector3D	gDelta;
 
-TQ3Object	gKeepBackfaceStyleObject = nil;
-
 long		gNumObjsInDeleteQueue = 0;
 ObjNode		*gObjectDeleteQueue[OBJ_DEL_Q_SIZE];
 
@@ -107,22 +106,6 @@ void InitObjectManager(void)
 					/* CLEAR ENTIRE OBJECT LIST */
 		
 	gFirstNodePtr = nil;									// no node yet
-
-#if 1
-	printf("TODO noquesa: Make Backface Style Object\n");
-#else
-			/* MAKE BACKFACE STYLE OBJECT */
-			
-	if (gKeepBackfaceStyleObject == nil)
-	{
-		gKeepBackfaceStyleObject = Q3BackfacingStyle_New(kQ3BackfacingStyleBoth);
-		if (gKeepBackfaceStyleObject == nil)
-			DoFatalAlert("InitObjectManager: Q3BackfacingStyle_New failed!");
-	}
-	else
-		DoFatalAlert("InitObjectManager: gKeepBackfaceStyleObject != nil");
-
-#endif
 }
 
 
