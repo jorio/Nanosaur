@@ -42,6 +42,21 @@ extern "C" {
 #define __Q3Memory_Clear(ptr, size) memset((ptr), 0, (size))
 
 
+
+
+#define __Q3Float_Swap(_a, _b)													\
+				do																\
+					{															\
+					float _temp;												\
+																				\
+					_temp = (_a);												\
+					(_a)  = (_b);												\
+					(_b)  = _temp;												\
+					}															\
+				while (0)
+
+
+
 #define __Q3FastVector2D_Set(_v, _x, _y)									\
 	do																		\
 		{																	\
@@ -1011,6 +1026,28 @@ Q3Matrix4x4_SetRotate_XYZ(
 	return(matrix4x4);
 }
 
+static TQ3Matrix4x4* Q3Matrix4x4_Transpose(const TQ3Matrix4x4 *matrix4x4, TQ3Matrix4x4 *result)
+{
+	int i, j;
+
+	if (result != matrix4x4)
+	{
+		for (i = 0; i < 4; ++i)
+			for (j = 0; j < 4; ++j)
+				result->value[i][j] = matrix4x4->value[j][i];
+	}
+	else
+	{
+		__Q3Float_Swap(result->value[1][0], result->value[0][1]);
+		__Q3Float_Swap(result->value[2][0], result->value[0][2]);
+		__Q3Float_Swap(result->value[3][0], result->value[0][3]);
+		__Q3Float_Swap(result->value[2][1], result->value[1][2]);
+		__Q3Float_Swap(result->value[3][1], result->value[1][3]);
+		__Q3Float_Swap(result->value[2][3], result->value[3][2]);
+	}
+	return(result);
+}
+
 
 static void Q3Matrix4x4_Invert(const TQ3Matrix4x4 *inMatrix, TQ3Matrix4x4 *result)
 {
@@ -1215,6 +1252,58 @@ Q3Point3D_Transform(
 	}
 
 	return(result);
+}
+
+static TQ3Point3D *
+Q3Point3D_TransformAffine(const TQ3Point3D *point3D, const TQ3Matrix4x4 *matrix4x4,
+						  TQ3Point3D *result)
+{
+	// Save input to avoid problems when result is same as input
+	float x = point3D->x;
+	float y = point3D->y;
+	float z = point3D->z;
+
+#define M(x,y) matrix4x4->value[x][y]
+	result->x = x*M(0,0) + y*M(1,0) + z*M(2,0) + M(3,0);
+	result->y = x*M(0,1) + y*M(1,1) + z*M(2,1) + M(3,1);
+	result->z = x*M(0,2) + y*M(1,2) + z*M(2,2) + M(3,2);
+#undef M
+
+	return(result);
+}
+
+static void
+Q3Point3D_To3DTransformArray(const TQ3Point3D		*inPoints3D,
+							 const TQ3Matrix4x4		*matrix4x4,
+							 TQ3Point3D				*outPoints3D,
+							 TQ3Uns32				numPoints)
+{
+	TQ3Uns32 i;
+
+	// In the common case of the last column of the matrix being (0, 0, 0, 1),
+	// we can avoid some divisions and conditionals inside the loop.
+	if ( (matrix4x4->value[3][3] == 1.0f) &&
+		 (matrix4x4->value[0][3] == 0.0f) &&
+		 (matrix4x4->value[1][3] == 0.0f) &&
+		 (matrix4x4->value[2][3] == 0.0f) )
+	{
+		for (i = 0; i < numPoints; ++i)
+		{
+			Q3Point3D_TransformAffine( inPoints3D, matrix4x4, outPoints3D );
+			inPoints3D++;
+			outPoints3D++;
+		}
+	}
+	else
+	{
+		// Transform the points - will be in-lined in release builds
+		for (i = 0; i < numPoints; ++i)
+		{
+			Q3Point3D_Transform(inPoints3D, matrix4x4, outPoints3D);
+			inPoints3D++;
+			outPoints3D++;
+		}
+	}
 }
 
 

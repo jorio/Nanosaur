@@ -48,6 +48,8 @@ extern	ObjNode		*gPlayerObj;
 extern	QD3DSetupOutputType		*gGameViewInfoPtr;
 extern	PrefsType	gGamePrefs;
 
+extern TQ3Vector3D				gEnvMapNormals[];
+extern TQ3Param2D				gEnvMapUVs[];
 
 /****************************/
 /*    PROTOTYPES            */
@@ -419,15 +421,18 @@ ObjNode		*thisNodePtr;
 
 /**************************** DRAW OBJECTS ***************************/
 
-static void DrawTriMeshList(int numMeshes, TQ3TriMeshData** meshList)
+static void DrawTriMeshList(int numMeshes, TQ3TriMeshData** meshList, bool envMap, const TQ3Matrix4x4* transform)
 {
 	for (int i = 0; i < numMeshes; i++)
 	{
 		const TQ3TriMeshData* mesh = meshList[i];
 
+		if (envMap)
+			EnvironmentMapTriMesh(mesh, transform);
+
 		glVertexPointer(3, GL_FLOAT, 0, mesh->points);
-		glNormalPointer(GL_FLOAT, 0, mesh->vertexNormals);
 		glColorPointer(4, GL_FLOAT, 0, mesh->vertexColors);
+		glNormalPointer(GL_FLOAT, 0, envMap? gEnvMapNormals: mesh->vertexNormals);
 		CHECK_GL_ERROR();
 
 		if (mesh->hasTexture)
@@ -435,7 +440,7 @@ static void DrawTriMeshList(int numMeshes, TQ3TriMeshData** meshList)
 			glEnable(GL_TEXTURE_2D);
 			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 			glBindTexture(GL_TEXTURE_2D, mesh->glTextureName);
-			glTexCoordPointer(2, GL_FLOAT, 0, mesh->vertexUVs);
+			glTexCoordPointer(2, GL_FLOAT, 0, envMap? gEnvMapUVs: mesh->vertexUVs);
 			CHECK_GL_ERROR();
 		}
 		else
@@ -453,18 +458,10 @@ static void DrawTriMeshList(int numMeshes, TQ3TriMeshData** meshList)
 	}
 }
 
-	void DrawObjects(QD3DSetupOutputType *setupInfo)
+void DrawObjects(QD3DSetupOutputType *setupInfo)
 {
 ObjNode		*theNode;
 unsigned long	statusBits;
-#if 0	// NOQUESA
-TQ3Status	myStatus;
-short		i,numTriMeshes;
-TQ3ViewObject	view = setupInfo->viewObject;
-#if 0 // Source port removal: completely removed triangle caching
-Boolean			cacheMode;
-#endif
-#endif
 
 	gNodesDrawn = 0;
 	gTrianglesDrawn = 0;
@@ -506,14 +503,6 @@ Boolean			cacheMode;
 			/***********************/			
 	do
 	{
-#if 1	// NOQUESA -- TODO: nuke this
-		if (theNode->StatusBits & STATUS_BIT_REFLECTIONMAP)
-		{
-			theNode->StatusBits &= ~STATUS_BIT_REFLECTIONMAP;
-			printf("TODO noquesa: %s:%d: I'm killing the reflectionmap flag for now\n", __func__, __LINE__);
-		}
-#endif
-
 		statusBits = theNode->StatusBits;						// get obj's status bits
 
 		if (statusBits & STATUS_BIT_ISCULLED)					// see if is culled
@@ -542,8 +531,6 @@ Boolean			cacheMode;
 #endif
 
 
-		if (!(statusBits & STATUS_BIT_REFLECTIONMAP))
-		{
 #if 0   // Source port removal
 				/* CHECK TEXTURE FILTERING */
 				
@@ -565,31 +552,39 @@ Boolean			cacheMode;
 		
 				/* CHECK NULL SHADER */
 
-			if (statusBits & STATUS_BIT_NULLSHADER)
+		if (statusBits & STATUS_BIT_NULLSHADER)
 #if 1	// NOQUESA
 				printf("TODO noquesa: %s:%d: submit null shader\n", __func__, __LINE__);
 #else
 				Q3Shader_Submit(setupInfo->nullShaderObject, view);
 #endif
-		
-			switch(theNode->Genre)
-			{
-				case	SKELETON_GENRE:
-						GetModelCurrentPosition(theNode->Skeleton);
-						UpdateSkinnedGeometry(theNode);
-						// Don't mult matrix with BaseTransformMatrix -- skeleton code already does it
-						DrawTriMeshList(theNode->Skeleton->skeletonDefinition->numDecomposedTriMeshes, theNode->Skeleton->localTriMeshPtrs);
-						gNodesDrawn++;
-						break;
 
-				case	DISPLAY_GROUP_GENRE:
-						glPushMatrix();
-						glMultMatrixf(&theNode->BaseTransformMatrix.value[0][0]);
-						DrawTriMeshList(theNode->NumMeshes, theNode->MeshList);
-						glPopMatrix();
-						gNodesDrawn++;
-						break;
-			}
+		switch (theNode->Genre)
+		{
+			case	SKELETON_GENRE:
+					GetModelCurrentPosition(theNode->Skeleton);
+					UpdateSkinnedGeometry(theNode);
+					// Don't mult matrix with BaseTransformMatrix -- skeleton code already does it
+					DrawTriMeshList(
+							theNode->Skeleton->skeletonDefinition->numDecomposedTriMeshes,
+							theNode->Skeleton->localTriMeshPtrs,
+							statusBits & STATUS_BIT_REFLECTIONMAP,
+							&theNode->BaseTransformMatrix);
+					gNodesDrawn++;
+					break;
+
+			case	DISPLAY_GROUP_GENRE:
+					glPushMatrix();
+					glMultMatrixf(&theNode->BaseTransformMatrix.value[0][0]);
+					DrawTriMeshList(
+							theNode->NumMeshes,
+							theNode->MeshList,
+							statusBits & STATUS_BIT_REFLECTIONMAP,
+							&theNode->BaseTransformMatrix);
+					glPopMatrix();
+					gNodesDrawn++;
+					break;
+		}
 
 					/* UNDO STATUS MODES */
 								
@@ -598,7 +593,7 @@ Boolean			cacheMode;
 				QD3D_SetTextureFilter(kQATextureFilter_Fast);				// undo nice textures			
 #endif
 
-			if (statusBits & STATUS_BIT_NULLSHADER)							// undo NULL shader
+		if (statusBits & STATUS_BIT_NULLSHADER)								// undo NULL shader
 #if 1	// NOQUESA
 				printf("TODO noquesa: %s:%d: undo null shader\n", __func__, __LINE__);
 #else
@@ -609,14 +604,10 @@ Boolean			cacheMode;
 			if (statusBits & STATUS_BIT_BLEND_INTERPOLATE)
 				ONCE(TODOMINOR2("QD3D_SetBlendingMode(kQABlend_PreMultiply);"));						// premul is normal
 #endif
-				
-		}
-		
+
 next:
 		theNode = (ObjNode *)theNode->NextNode;
 	}while (theNode != nil);
-
-	SubmitReflectionMapQueue(setupInfo);				// draw anything in the reflection map queue
 }
 
 
@@ -646,7 +637,6 @@ void DeleteAllObjects(void)
 		DeleteObject(gFirstNodePtr);
 		
 	FlushObjectDeleteQueue();
-	InitReflectionMapQueue();						// also purge data from here
 }
 
 

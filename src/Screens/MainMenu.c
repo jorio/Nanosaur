@@ -195,8 +195,7 @@ do_again:
 				
 		GenerateFallingEgg();
 		MoveObjects();
-		CalcEnvironmentMappingCoords(&gGameViewInfoPtr->cameraPlacement.cameraLocation);
-		QD3D_DrawScene(gGameViewInfoPtr,DrawObjects);	
+		QD3D_DrawScene(gGameViewInfoPtr,DrawObjects);
 		QD3D_CalcFramesPerSecond();					
 		
 				/* CHECK FOR KEY INPUT */
@@ -443,8 +442,7 @@ Boolean	stop;
 				
 		QD3D_CalcFramesPerSecond();					
 		MoveObjects();
-		CalcEnvironmentMappingCoords(&gGameViewInfoPtr->cameraPlacement.cameraLocation);
-		QD3D_DrawScene(gGameViewInfoPtr,DrawObjects);		
+		QD3D_DrawScene(gGameViewInfoPtr,DrawObjects);
 		ReadKeyboard();
 		
 	} while (!stop);

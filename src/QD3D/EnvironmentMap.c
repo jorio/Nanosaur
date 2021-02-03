@@ -19,423 +19,106 @@
 #include "objects.h"
 #include "3dmath.h"
 
-extern	TQ3Matrix4x4 		gWorkMatrix;
-extern	ObjNode			*gFirstNodePtr;
 extern	QD3DSetupOutputType		*gGameViewInfoPtr;
-extern	long				gNodesDrawn;
 
 /****************************/
 /*    PROTOTYPES            */
 /****************************/
 
-static inline void ReflectVector(float viewX, float viewY, float viewZ, TQ3Vector3D *N, TQ3Vector3D *out);
-static void CalcEnvMap_Recurse(TQ3Object obj);
-static void EnvironmentMapTriMesh(TQ3Object theTriMesh, TQ3TriMeshData *inData);
-
 /****************************/
 /*    CONSTANTS             */
 /****************************/
 
-#define	MAX_REFLECTIONMAP_QUEUESIZE	60
-
-
+#define ENVMAP_MAX_VERTICES_PER_MESH	5000
 
 /*********************/
 /*    VARIABLES      */
 /*********************/
 
-
-static short			gReflectionMapQueueSize = 0;
-static TQ3TriMeshData	gReflectionMapQueue[MAX_REFLECTIONMAP_QUEUESIZE];
-static TQ3TriMeshData	*gReflectionMapQueue2[MAX_REFLECTIONMAP_QUEUESIZE];		// ptr to skeleton's trimesh data
-static TQ3Point3D	gCamCoord = {0,0,0};
-
-
-/******************* INIT REFLECTION MAP QUEUE ************************/
-
-void InitReflectionMapQueue(void)
-#if 1	// TODO noquesa
-{ printf("TODO noquesa: %s\n", __func__); }
-#else
-{
-short	i;
-
-	for (i=0; i < gReflectionMapQueueSize; i++)								// free the data
-	{
-		if (gReflectionMapQueue2[i] == nil)									// if no skeleton stuff...
-			Q3TriMesh_EmptyData(&gReflectionMapQueue[i]);					// ... then nuke non-skeleton tm data
-	}
-
-	gReflectionMapQueueSize = 0;
-}
-#endif
-
-
-/******************* SUBMIT REFLECTION MAP QUEUE ************************/
-
-void SubmitReflectionMapQueue(QD3DSetupOutputType *viewInfo)
-{
-short	i;
-TQ3Status	status;
-
-#if 0	// NOQUESA
-	QD3D_SetTextureFilter(kQATextureFilter_Mid);						// set nice textures
-#endif
-
-	for (i=0; i < gReflectionMapQueueSize; i++)
-	{
-#if 1	// NOQUESA
-		printf("TODO noquesa: %s\n", __func__);
-#else
-		if (gReflectionMapQueue2[i])									// is skeleton?
-			status = Q3TriMesh_Submit(gReflectionMapQueue2[i], viewInfo->viewObject);			
-		else
-			status = Q3TriMesh_Submit(&gReflectionMapQueue[i], viewInfo->viewObject);	
-		if (status != kQ3Success)
-			DoFatalAlert("SubmitReflectionMapQueue: Q3TriMesh_Submit failed!");
-#endif
-		gNodesDrawn++;
-	}
-
-#if 0	// NOQUESA
-	QD3D_SetTextureFilter(kQATextureFilter_Fast);						// set normal textures
-#endif
-}
-
-
-
-/************ CALC ENVIRONMENT MAPPING COORDS ************/
-
-void CalcEnvironmentMappingCoords(TQ3Point3D *camCoord)
-#if 1	// TODO noquesa
-{ printf("TODO noquesa: %s\n", __func__); }
-#else
-{
-ObjNode	*thisNodePtr;
-
-	gCamCoord = *camCoord;
-
-	InitReflectionMapQueue();	
-
-				/****************************************/
-				/* UPDATE OBJECTS WITH ENVIRONMENT MAPS */
-				/****************************************/
-
-	thisNodePtr = gFirstNodePtr;
-	do
-	{
-		if (thisNodePtr->StatusBits & STATUS_BIT_REFLECTIONMAP)
-		{
-			short	n,i;
-			
-			switch(thisNodePtr->Genre)
-			{
-				case	SKELETON_GENRE:			
-						n = thisNodePtr->Skeleton->skeletonDefinition->numDecomposedTriMeshes;
-						for (i = 0; i < n; i++)
-							EnvironmentMapTriMesh(nil,&thisNodePtr->Skeleton->localTriMeshes[i]);
-						break;
-		
-				default:					
-						Q3Matrix4x4_SetIdentity(&gWorkMatrix);					// init to identity matrix
-						CalcEnvMap_Recurse(thisNodePtr->BaseGroup);				// recurse this one
-			}
-		}
-			
-		thisNodePtr = thisNodePtr->NextNode;									// next node
-	}
-	while (thisNodePtr != nil);
-
-
-}
-#endif
-
-
-
-/****************** CALC ENV MAP_RECURSE *********************/
-
-static void CalcEnvMap_Recurse(TQ3Object obj)
-#if 1	// TODO noquesa
-{ DoFatalAlert2("TODO noquesa", __func__); }
-#else
-{
-TQ3Matrix4x4		transform;
-TQ3GroupPosition	position;
-TQ3Object   		object;
-TQ3Matrix4x4  		stashMatrix;
-
-
-				/*******************************/
-				/* SEE IF ACCUMULATE TRANSFORM */
-				/*******************************/
-				
-	if (Q3Object_IsType(obj,kQ3ShapeTypeTransform))
-	{
-  		Q3Transform_GetMatrix(obj,&transform);
-  		Q3Matrix4x4_Multiply(&transform,&gWorkMatrix,&gWorkMatrix);
- 	}
-				/*************************/
-				/* SEE IF FOUND GEOMETRY */
-				/*************************/
-
-	else
-	if (Q3Object_IsType(obj,kQ3ShapeTypeGeometry))
-	{
-		if (Q3Geometry_GetType(obj) == kQ3GeometryTypeTriMesh)
-			EnvironmentMapTriMesh(obj,nil);									// map this trimesh
-	}
-	
-			/****************************/
-			/* SEE IF RECURSE SUB-GROUP */
-			/****************************/
-
-	else
-	if (Q3Object_IsType(obj,kQ3ShapeTypeGroup))
- 	{
-  		stashMatrix = gWorkMatrix;										// push matrix
-  		
-  		
-  		Q3Group_GetFirstPosition(obj, &position);						// get 1st object in group
-  		while(position != nil)											// scan all objects in group
- 		{
-   			Q3Group_GetPositionObject (obj, position, &object);			// get object from group
-			if (object != nil)
-   			{
-					/* RECURSE THIS OBJ */
-					
-				CalcEnvMap_Recurse(object);								// recurse this object    			
-    			Q3Object_Dispose(object);								// dispose local ref
-   			}
-   			Q3Group_GetNextPosition(obj, &position);					// get next object in group
-  		}
-  		gWorkMatrix = stashMatrix;										// pop matrix
-	}
-}
-#endif
-
-
+TQ3Vector3D				gEnvMapNormals[ENVMAP_MAX_VERTICES_PER_MESH];
+TQ3Param2D				gEnvMapUVs[ENVMAP_MAX_VERTICES_PER_MESH];
 
 /****************************** ENVIRONMENT MAP TRI MESH *****************************************/
 //
 // NOTE:  This assumes no face normals, thus if there are face normals, they won't be transformed and weird things will happen.
 //
-// INPUT:	inData = if set, then input data is coming from already transformed skeleton.
-//
+// After calling this function, draw your trimesh using:
+//		- gEnvMapNormals as vertex normals (instead of the trimesh's actual normals)
+//		- gEnvMapUVs as texture coordinates (instead of the trimesh's actual UVs)
 
-static void EnvironmentMapTriMesh(TQ3Object theTriMesh, TQ3TriMeshData *inData)
-#if 1	// TODO noquesa
-{ DoFatalAlert2("TODO noquesa", __func__); }
-#else
+void EnvironmentMapTriMesh(
+		const TQ3TriMeshData *triMeshDataPtr,
+		const TQ3Matrix4x4* transform)
 {
-TQ3Status			status;
-long				numVertecies,vertNum,numFaceAttribTypes,faceNum,numFaces;
-TQ3Point3D			*vertexList = nil;
-TQ3TriMeshData		*triMeshDataPtr = nil;
-TQ3TriMeshAttributeData	*attribList = nil, *faceAttribList = nil;
-short				numVertAttribTypes,a;
-TQ3Vector3D			*normals = nil, reflectedVector, *normals2 = nil;
-TQ3Param2D			*uvList = nil;
-Boolean				hasUVs = true;
-TQ3Matrix4x4		tempm,invTranspose;
+TQ3Matrix4x4		invTranspose;
+const TQ3Point3D*	camCoord = &gGameViewInfoPtr->cameraPlacement.cameraLocation;
 
-			/* GET POINTER TO TRIMESH DATA STRUCTURE */
-			
-	if (gReflectionMapQueueSize >= MAX_REFLECTIONMAP_QUEUESIZE)
-		DoFatalAlert("EnvironmentMapTriMesh: gReflectionMapQueueSize >= MAX_REFLECTIONMAP_QUEUESIZE");
-		
 				/* GET TRIMESH INFO */
-				
-	if (inData)
-	{
-		gReflectionMapQueue2[gReflectionMapQueueSize] = inData;
-		triMeshDataPtr = inData;
-	}
-	else
-	{
-		triMeshDataPtr = &gReflectionMapQueue[gReflectionMapQueueSize];
-		gReflectionMapQueue2[gReflectionMapQueueSize] = nil;
-		
-		status = Q3TriMesh_GetData(theTriMesh, triMeshDataPtr);						// get trimesh data
-		if (status != kQ3Success) 
-			DoFatalAlert("EnvironmentMapTriMesh: Q3TriMesh_GetData failed!");
-	}		
-	
-	numFaces 		= triMeshDataPtr->numTriangles;
-	numVertecies 	= triMeshDataPtr->numPoints;										// get # verts
-	vertexList 		= triMeshDataPtr->points;											// point to vert list
-	attribList 		= triMeshDataPtr->vertexAttributeTypes;								// point to vert attib list
-	numVertAttribTypes = triMeshDataPtr->numVertexAttributeTypes;
-	numFaceAttribTypes = triMeshDataPtr->numTriangleAttributeTypes;
-	faceAttribList 	= triMeshDataPtr->triangleAttributeTypes;
 
-				/* FIND UV ATTRIBUTE LIST */
-				
-	for (a = 0; a < numVertAttribTypes; a++)									// scan for uv
-	{
-		if ((attribList[a].attributeType == kQ3AttributeTypeSurfaceUV) || 
-			(attribList[a].attributeType == kQ3AttributeTypeShadingUV))
-		{
-			uvList = (TQ3Param2D*)attribList[a].data;										// point to list of normals
-			goto got_uv;
-		}
-	}
-	hasUVs = false;																// no uv's
+	int numVertices = triMeshDataPtr->numPoints;						// get # verts
+	GAME_ASSERT(numVertices <= ENVMAP_MAX_VERTICES_PER_MESH);
 
-got_uv:
-
-#if 0
-	// SOURCE PORT NOTE: This caused the background to disappear at specific angles in the menu.
-	// Fixed below (after transforming vertex coords).
-
-			/* TRANSFORM BOUNDING BOX */
-			
-	Q3Point3D_To3DTransformArray(&triMeshDataPtr->bBox.min, &gWorkMatrix, &triMeshDataPtr->bBox.min, 2,
-							 sizeof(TQ3Point3D), sizeof(TQ3Point3D));				
-	
-#endif
-
-				/* TRANSFORM VERTEX COORDS */
-				
-	Q3Point3D_To3DTransformArray(vertexList, &gWorkMatrix, vertexList, numVertecies,
-								 sizeof(TQ3Point3D), sizeof(TQ3Point3D));				
-
-
-				/* TRANSFORM BOUNDING BOX */
-
-	// Source port fix
-	Q3BoundingBox_SetFromPoints3D(&triMeshDataPtr->bBox, vertexList, numVertecies, sizeof(TQ3Point3D));
-
-	
 				/* TRANSFORM VERTEX NORMALS */
 
-	Q3Matrix4x4_Invert(&gWorkMatrix, &tempm);							// calc inverse-transpose matrix
-	Q3Matrix4x4_Transpose(&tempm,&invTranspose);			
+	Q3Matrix4x4_Invert(transform, &invTranspose);						// calc inverse-transpose matrix
+	Q3Matrix4x4_Transpose(&invTranspose, &invTranspose);
 
-
-	for (a = 0; a < numVertAttribTypes; a++)									// scan for normals
+	GAME_ASSERT(triMeshDataPtr->vertexNormals);
+	for (int vertNum = 0; vertNum < numVertices; vertNum++)				// transform all normals
 	{
-		if (attribList[a].attributeType == kQ3AttributeTypeNormal)
-		{
-			normals = (TQ3Vector3D*)attribList[a].data;										// point to list of normals
-
-			for (vertNum = 0; vertNum < numVertecies; vertNum++)				// transform all normals
-			{				
-				Q3Vector3D_Transform(&normals[vertNum], &invTranspose, &normals[vertNum]);
-				Q3Vector3D_Normalize(&normals[vertNum], &normals[vertNum]);
-			}
-			break;
-		}
+		Q3Vector3D_Transform(&triMeshDataPtr->vertexNormals[vertNum], &invTranspose, &gEnvMapNormals[vertNum]);
+		Q3Vector3D_Normalize(&gEnvMapNormals[vertNum], &gEnvMapNormals[vertNum]);
 	}
-
 
 				/* TRANSFORM FACE NORMALS */
 
-	for (a = 0; a < numFaceAttribTypes; a++)								// scan for normals
+#if 0	// NOQUESA: no face normals in structure
+	if (triMeshDataPtr->faceNormals)
 	{
-		if (faceAttribList[a].attributeType == kQ3AttributeTypeNormal)
+		for (long faceNum = 0; faceNum < numFaces; faceNum++)				// transform all normals
 		{
-			normals2 = (TQ3Vector3D*)faceAttribList[a].data;								// point to list of normals
-
-			for (faceNum = 0; faceNum < numFaces; faceNum++)				// transform all normals
-			{			
-				Q3Vector3D_Transform(&normals2[faceNum], &invTranspose, &normals2[faceNum]);
-				Q3Vector3D_Normalize(&normals2[faceNum], &normals2[faceNum]);
-			}
-			break;
+			Q3Vector3D_Transform(&triMeshDataPtr->faceNormals[faceNum], &invTranspose, &normals2[faceNum]);
+			Q3Vector3D_Normalize(&normals2[faceNum], &normals2[faceNum]);
 		}
 	}
-
-
+#endif
 
 		/****************************/
 		/* CALC UVS FOR EACH VERTEX */
 		/****************************/	
 
-	if (hasUVs)																	// only if has UV's
+	if (triMeshDataPtr->hasTexture)											// only if has UV's
 	{
-		float	camX,camY,camZ;
-		
-		camX = gCamCoord.x;
-		camY = gCamCoord.y;
-		camZ = gCamCoord.z;
-		
-		for (vertNum = 0; vertNum < numVertecies; vertNum++)
+		for (int vertNum = 0; vertNum < numVertices; vertNum++)
 		{
-			float	eyeVectorX,eyeVectorY,eyeVectorZ;
-			
+			const TQ3Point3D* point = &triMeshDataPtr->points[vertNum];
+			const TQ3Vector3D* surfaceNormal = &gEnvMapNormals[vertNum];
+
 					/* CALC VECTOR TO VERTEX */
-					
-			eyeVectorX = vertexList[vertNum].x - camX;
-			eyeVectorY = vertexList[vertNum].y - camY;
-			eyeVectorZ = vertexList[vertNum].z - camZ;
 
-		
+			TQ3Vector3D eyeVector;
+			Q3Vector3D_Transform((TQ3Vector3D*)point, transform, &eyeVector);
+			eyeVector.x -= camCoord->x;
+			eyeVector.y -= camCoord->y;
+			eyeVector.z -= camCoord->z;
+
 					/* REFLECT VECTOR AROUND VERTEX NORMAL */
-		
-			ReflectVector(eyeVectorX, eyeVectorY, eyeVectorZ,
-							&normals[vertNum],&reflectedVector);
-		
-		
-						/* CALC UV */
-				
-			uvList[vertNum].u = (reflectedVector.x * .5f) + .5f;
-			uvList[vertNum].v = (-reflectedVector.y * .5f) + .5f;	
+			// Reflection vector: N(2(N.V)) - V
+			// N - Surface Normal
+			// V - View Direction
+			float dot = 2.0f * Q3Vector3D_Dot(surfaceNormal, &eyeVector);	// compute 2(N.V)
+			TQ3Vector3D reflectedVector =
+			{
+				surfaceNormal->x * dot - eyeVector.x,
+				surfaceNormal->y * dot - eyeVector.y,
+				surfaceNormal->z * dot - eyeVector.z,
+			};
+			Q3Vector3D_Normalize(&reflectedVector, &reflectedVector);		// normalize result
 
-		
+						/* CALC UV */
+
+			gEnvMapUVs[vertNum].u = (reflectedVector.x * .5f) + .5f;
+			gEnvMapUVs[vertNum].v = (reflectedVector.y * .5f) + .5f;
 		}
 	}
-	
-	gReflectionMapQueueSize++;		
 }
-#endif
-
-
-
-/*********************** REFLECT VECTOR *************************/
-//
-// compute reflection vector 
-// which is N(2(N.V)) - V 
-// N - Surface Normal 
-// V - View Direction 
-//
-//
-
-inline void ReflectVector(float viewX, float viewY, float viewZ, TQ3Vector3D *N, TQ3Vector3D *out)
-{
-float	normalX,normalY,normalZ;
-float	dotProduct,reflectedX,reflectedZ,reflectedY;
-
-	normalX = N->x;
-	normalY = N->y;
-	normalZ = N->z;
-							
-	/* compute NxV */
-	dotProduct = normalX * viewX;
-	dotProduct += normalY * viewY;
-	dotProduct += normalZ * viewZ;
-	
-	/* compute 2(NxV) */
-	dotProduct += dotProduct;
-	
-	/* compute final vector */
-	reflectedX = normalX * dotProduct - viewX;
-	reflectedY = normalY * dotProduct - viewY;
-	reflectedZ = normalZ * dotProduct - viewZ;
-	
-	/* Normalize the result */
-		
-	FastNormalizeVector(reflectedX,reflectedY,reflectedZ,out);	
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
