@@ -680,18 +680,12 @@ TQ3Status	myErr;
 
 void QD3D_DrawScene(QD3DSetupOutputType *setupInfo, void (*drawRoutine)(QD3DSetupOutputType *))
 {
-#if 0	// NOQUESA
-TQ3Status				myStatus;
-TQ3ViewStatus			myViewStatus;
-#endif
-
 	GAME_ASSERT(setupInfo);
 	GAME_ASSERT(setupInfo->isActive);							// make sure it's legit
 
 
 			/* START RENDERING */
 
-#if 1	// NOQUESA
 	int mkc = SDL_GL_MakeCurrent(gSDLWindow, gGLContext);
 	GAME_ASSERT_MESSAGE(mkc == 0, SDL_GetError());
 
@@ -702,15 +696,6 @@ TQ3ViewStatus			myViewStatus;
 
 	glClearColor(0, 0.5f, 0.5f, 1);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-#else
-	myStatus = Q3View_StartRendering(setupInfo->viewObject);
-	if ( myStatus == kQ3Failure )
-	{
-		DoAlert("ERROR: Q3View_StartRendering Failed!");
-		QD3D_ShowRecentError();
-	}
-#endif
 
 
 	if (gQD3D_FreshDrawContext)
@@ -725,14 +710,10 @@ TQ3ViewStatus			myViewStatus;
 
 
 
-#if 1	// NOQUESA
-	printf("TODO noquesa: %s: update frustum planes\n", __func__);
-#else
 			/* PREPARE FRUSTUM PLANES FOR SPHERE VISIBILITY CHECKS */
 			// (Source port addition)
 
-	UpdateFrustumPlanes(setupInfo->viewObject);
-#endif
+	UpdateFrustumPlanes();
 
 
 			/***************/

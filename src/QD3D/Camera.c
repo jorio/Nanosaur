@@ -71,6 +71,7 @@ Byte		gCameraMode;
 float		gCameraViewYAngle = 0;
 
 TQ3Matrix4x4	gCameraWorldToViewMatrix,gCameraViewToFrustumMatrix,gCameraAdjustMatrix;
+TQ3Matrix4x4	gCameraWorldToFrustumMatrix;
 
 float		gCameraLookAtAccel,gCameraFromAccelY,gCameraFromAccel;
 float		gCameraDistFromMe, gCameraHeightFactor,gCameraLookAtYOff;
@@ -276,7 +277,7 @@ void CalcCameraMatrixInfo(QD3DSetupOutputType *setupInfo)
 #if 1	// TODO noquesa
 	glGetFloatv(GL_MODELVIEW_MATRIX, (GLfloat *)&gCameraWorldToViewMatrix);				// get camera's world to view matrix
 	glGetFloatv(GL_PROJECTION_MATRIX, (GLfloat *)&gCameraViewToFrustumMatrix);			// get camera's view to frustrum matrix (to calc screen coords)
-//	Q3Matrix4x4_Multiply(&gCameraWorldToViewMatrix, &gCameraViewToFrustumMatrix, &gCameraWorldToFrustumMatrix);		// (from otto)
+	Q3Matrix4x4_Multiply(&gCameraWorldToViewMatrix, &gCameraViewToFrustumMatrix, &gCameraWorldToFrustumMatrix);		// calc world to frustum matrix
 
 //	OGLMatrix4x4_GetFrustumToWindow(setupInfo, &gFrustumToWindowMatrix);		// (from otto)
 //	OGLMatrix4x4_Multiply(&gWorldToFrustumMatrix, &gFrustumToWindowMatrix, &gWorldToWindowMatrix);		// (from otto)

@@ -1762,16 +1762,12 @@ TQ3Status	myStatus;
 		}
 #endif		
 
-#if 1	// NOQUESA
-		printf("TODO noquesa: %s: IsSphereInFrustum_XZ\n", __func__);
-#else
 		if (!IsSphereInFrustum_XZ(										// make sure it's visible
 				&gSuperTileMemoryList[i].coord,
 				1.25f*gSuperTileMemoryList[i].radius))
 		{
 			continue;
 		}
-#endif
 
 			/* DRAW THE TRIMESH IN THIS SUPERTILE */
 

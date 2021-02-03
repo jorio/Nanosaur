@@ -10,7 +10,7 @@ enum
 	kFrustumPlaneFar	= 5,
 };
 
-void UpdateFrustumPlanes(TQ3ViewObject viewObject);
+void UpdateFrustumPlanes(void);
 
 bool IsSphereInFrustum_XZ(const TQ3Point3D* sphereWorldOrigin, float sphereRadius);
 

@@ -517,12 +517,8 @@ Boolean			cacheMode;
 		statusBits = theNode->StatusBits;						// get obj's status bits
 
 		if (statusBits & STATUS_BIT_ISCULLED)					// see if is culled
-#if 1	// NOQUESA
-			printf("TODO noquesa: %s: node %p might be culled? check radius calculation / frustum culling first!\n", __func__, theNode);
-#else
 			goto next;
-#endif
-									
+
 		if (statusBits & STATUS_BIT_HIDDEN)						// see if is hidden
 			goto next;		
 

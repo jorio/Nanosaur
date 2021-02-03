@@ -11,21 +11,16 @@
 #include "misc.h"	// DoFatalAlert2 -- TODO noquesa
 
 static TQ3RationalPoint4D gFrustumPlanes[6];
+extern TQ3Matrix4x4 gCameraWorldToFrustumMatrix;
 
 /*************** FRUSTUM CALCS ***************/
 // Planes 0,1: X axis. Right, left
 // Planes 2,3: Y axis. Top, bottom
 // Planes 4,5: Z axis. Near, far
 
-void UpdateFrustumPlanes(TQ3ViewObject viewObject)
-#if 1	// TODO noquesa
-{ DoFatalAlert2("TODO noquesa", __func__); }
-#else
+void UpdateFrustumPlanes(void)
 {
-	TQ3Matrix4x4 worldToFrustum;
-	Q3View_GetWorldToFrustumMatrixState(viewObject, &worldToFrustum);
-
-#define M(a,b) worldToFrustum.value[a][b]
+#define M(a,b) gCameraWorldToFrustumMatrix.value[a][b]
 
 	for (int plane = 0; plane < 6; plane++)
 	{
@@ -46,7 +41,6 @@ void UpdateFrustumPlanes(TQ3ViewObject viewObject)
 
 #undef M
 }
-#endif
 
 static inline bool IsSphereFacingFrustumPlane(const TQ3Point3D* worldPt, float radius, int plane)
 {
