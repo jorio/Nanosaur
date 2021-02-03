@@ -1784,7 +1784,7 @@ TQ3Status	myStatus;
 		glNormalPointer(GL_FLOAT, 0, mesh->vertexNormals);
 		glColorPointer(4, GL_FLOAT, 0, mesh->vertexColors);
 
-		glDrawElements(GL_TRIANGLES, mesh->numTriangles*3, GL_UNSIGNED_INT, mesh->triangles);
+		glDrawRangeElements(GL_TRIANGLES, 0, mesh->numPoints-1, mesh->numTriangles*3, GL_UNSIGNED_SHORT, mesh->triangles);
 //		CHECK_GL_ERROR();
 
 		gTrianglesDrawn += mesh->numTriangles;

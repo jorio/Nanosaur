@@ -445,7 +445,7 @@ static void DrawTriMeshList(int numMeshes, TQ3TriMeshData** meshList)
 			CHECK_GL_ERROR();
 		}
 
-		glDrawElements(GL_TRIANGLES, mesh->numTriangles*3, GL_UNSIGNED_INT, mesh->triangles);
+		glDrawRangeElements(GL_TRIANGLES, 0, mesh->numPoints-1, mesh->numTriangles*3, GL_UNSIGNED_SHORT, mesh->triangles);
 		CHECK_GL_ERROR();
 
 		gTrianglesDrawn += mesh->numTriangles;

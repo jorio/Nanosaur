@@ -315,7 +315,18 @@ void Q3MetaFileParser::Parse_tmsh(uint32_t chunkSize)
 	}
 	else
 	{
-		ReadTriangleVertexIndices<uint32_t>(f, numTriangles, currentMesh);
+		static_assert(sizeof(TQ3TriMeshTriangleData::pointIndices[0]) == 2);
+		Assert(false, "Meshes exceeding 65535 vertices are not supported");
+		//ReadTriangleVertexIndices<uint32_t>(f, numTriangles, currentMesh);
+	}
+
+	// Ensure all vertex indices are in the expected range
+	for (uint32_t i = 0; i < numTriangles; i++)
+	{
+		for (auto index : currentMesh->triangles[i].pointIndices)
+		{
+			Assert(index < numVertices, "3DMF parser: vertex index out of range");
+		}
 	}
 
 
