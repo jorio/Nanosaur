@@ -125,8 +125,9 @@ Pomme3DMF_FileHandle Pomme3DMF_LoadModelFile(const FSSpec* spec)
 	//-------------------------------------------------------------------------
 	// Load textures
 
-	for (auto& textureDef : metaFile->textures)
+	for (uint32_t i = 0; i < metaFile->textures.size(); i++)
 	{
+		auto& textureDef = metaFile->textures[i];
 		Assert(textureDef.glTextureName == 0, "texture already allocated");
 
 		GLuint textureName;
@@ -157,6 +158,16 @@ Pomme3DMF_FileHandle Pomme3DMF_LoadModelFile(const FSSpec* spec)
 					 GL_UNSIGNED_BYTE,						// size of each r,g,b
 					 textureDef.buffer.data());				// pointer to the actual texture pixels
 		CHECK_GL_ERROR();
+
+
+		// Set glTextureName on meshes
+		for (auto mesh : metaFile->meshes)
+		{
+			if (mesh->hasTexture && mesh->internalTextureID == i)
+			{
+				mesh->glTextureName = textureName;
+			}
+		}
 	}
 
 	//-------------------------------------------------------------------------

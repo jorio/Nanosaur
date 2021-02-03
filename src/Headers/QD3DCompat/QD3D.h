@@ -253,6 +253,7 @@ typedef struct TQ3TriMeshData
 	bool										hasTransparency;
 	bool										hasTexture;
 	uint32_t									internalTextureID;
+	uint32_t									glTextureName;
 } TQ3TriMeshData;
 
 // This structure does not exist in QD3D.

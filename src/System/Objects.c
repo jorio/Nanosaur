@@ -428,6 +428,22 @@ static void DrawTriMeshList(int numMeshes, TQ3TriMeshData** meshList)
 		glVertexPointer(3, GL_FLOAT, 0, mesh->points);
 		glNormalPointer(GL_FLOAT, 0, mesh->vertexNormals);
 		glColorPointer(4, GL_FLOAT, 0, mesh->vertexColors);
+		CHECK_GL_ERROR();
+
+		if (mesh->hasTexture)
+		{
+			glEnable(GL_TEXTURE_2D);
+			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+			glBindTexture(GL_TEXTURE_2D, mesh->glTextureName);
+			glTexCoordPointer(2, GL_FLOAT, 0, mesh->vertexUVs);
+			CHECK_GL_ERROR();
+		}
+		else
+		{
+			glDisable(GL_TEXTURE_2D);
+			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+			CHECK_GL_ERROR();
+		}
 
 		glDrawElements(GL_TRIANGLES, mesh->numTriangles*3, GL_UNSIGNED_INT, mesh->triangles);
 		CHECK_GL_ERROR();

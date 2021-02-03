@@ -742,6 +742,9 @@ TQ3ViewStatus			myViewStatus;
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_COLOR_ARRAY);
 	glEnableClientState(GL_NORMAL_ARRAY);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+	glEnable(GL_CULL_FACE);
 
 #if 1	// NOQUESA
 	if (drawRoutine)
