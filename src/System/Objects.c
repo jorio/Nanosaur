@@ -506,12 +506,14 @@ unsigned long	statusBits;
 			case	SKELETON_GENRE:
 					GetModelCurrentPosition(theNode->Skeleton);
 					UpdateSkinnedGeometry(theNode);
-					// Don't mult matrix with BaseTransformMatrix -- skeleton code already does it
+					glPushMatrix();
+					glMultMatrixf(&theNode->BaseTransformMatrix.value[0][0]);
 					QD3D_DrawTriMeshList(
 							theNode->Skeleton->skeletonDefinition->numDecomposedTriMeshes,
 							theNode->Skeleton->localTriMeshPtrs,
 							statusBits & STATUS_BIT_REFLECTIONMAP,
 							&theNode->BaseTransformMatrix);
+					glPopMatrix();
 					gNodesDrawn++;
 					break;
 
