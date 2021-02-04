@@ -69,9 +69,6 @@ float	gFramesPerSecondFrac = 1/DEFAULT_FPS;
 
 float	gAdditionalClipping = 0;
 
-short			gFogMode;
-static TQ3FogStyleData			gQD3D_FogStyleData;
-
 
 /******************** QD3D: BOOT ******************************/
 
@@ -193,15 +190,31 @@ QD3DSetupOutputType	*outputPtr;
 
 	AllocBackdropTexture();
 
-			/* FOG */
+	CreateLights(&setupDefPtr->lights);
 
 	if (setupDefPtr->lights.useFog)
 	{
-		QD3D_SetRaveFog(outputPtr,setupDefPtr->lights.fogHither,setupDefPtr->lights.fogYon,
-						&setupDefPtr->view.clearColor,setupDefPtr->lights.fogMode);
+		float camHither = setupDefPtr->camera.hither;
+		float camYon	= setupDefPtr->camera.yon;
+		float fogHither	= setupDefPtr->lights.fogHither;
+		float fogYon	= setupDefPtr->lights.fogYon;
+		glEnable(GL_FOG);
+		glHint(GL_FOG_HINT,		GL_FASTEST);
+		glFogi(GL_FOG_MODE,		GL_LINEAR);
+		glFogf(GL_FOG_START,	camHither + fogHither * (camYon - camHither));
+		glFogf(GL_FOG_END,		camHither + fogYon    * (camYon - camHither));
+		glFogfv(GL_FOG_COLOR,	(float *)&setupDefPtr->view.clearColor);
+		//glFogf(GL_FOG_DENSITY,	0.5f);
 	}
+	else
+		glDisable(GL_FOG);
 
-	CreateLights(&setupDefPtr->lights);
+	glAlphaFunc(GL_NOTEQUAL, 0);
+	glEnable(GL_ALPHA_TEST);
+
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
+	glFrontFace(GL_CCW);									// CCW is front face
 
 	glEnable(GL_DEPTH_TEST);
 
@@ -419,8 +432,6 @@ void QD3D_DrawScene(QD3DSetupOutputType *setupInfo, void (*drawRoutine)(QD3DSetu
 	glEnableClientState(GL_COLOR_ARRAY);
 	glEnableClientState(GL_NORMAL_ARRAY);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-
-	glEnable(GL_CULL_FACE);
 
 #if 1	// NOQUESA
 	if (drawRoutine)
@@ -1204,21 +1215,6 @@ UInt32		*buffer,*pixelPtr,pixmapRowbytes,size,sizeRead;
 #endif
 
 #pragma mark ---------- fog & settings -------------
-
-/********************** SET RAVE FOG ******************************/
-
-// Source port change: this function was originally dependent on RAVE extensions for ATI Rage Pro cards.
-void QD3D_SetRaveFog(QD3DSetupOutputType *setupInfo, float fogHither, float fogYon, TQ3ColorARGB *fogColor, TQ3FogMode fogMode)
-{
-	gQD3D_FogStyleData.state        = gGamePrefs.canDoFog? kQ3On: kQ3Off;
-	gQD3D_FogStyleData.mode         = kQ3FogModePlaneBasedLinear;
-	gQD3D_FogStyleData.color        = *fogColor;
-	gQD3D_FogStyleData.fogStart     = setupInfo->hither + fogHither * (setupInfo->yon - setupInfo->hither);
-	gQD3D_FogStyleData.fogEnd       = setupInfo->hither + fogYon    * (setupInfo->yon - setupInfo->hither);
-	gQD3D_FogStyleData.density      = 0.5f;  // Ignored for linear fog
-}
-
-
 
 /************************ SET TEXTURE FILTER **************************/
 
