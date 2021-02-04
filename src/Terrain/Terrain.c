@@ -27,6 +27,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "qd3d_geometry.h"
+#include "renderer.h"
 
 extern	ObjNode		*gThisNodePtr;
 extern	ObjNode		*gFirstNodePtr;
@@ -36,8 +37,6 @@ extern	Ptr			gTileFilePtr;
 extern	NewObjectDefinitionType	gNewObjectDefinition;
 extern	TQ3Point3D		gMyCoord;
 
-extern	long		gTrianglesDrawn;
-extern	long		gMeshesDrawn;
 
 
 
@@ -1744,12 +1743,9 @@ static inline void ReleaseSuperTileObject(short superTileNum)
 
 void DrawTerrain(QD3DSetupOutputType *setupInfo)
 {
-short	i;
-TQ3Status	myStatus;
-			
-				/* DRAW STUFF */
+				/* DRAW SUPERTILE TRIMESHES */
 
-	for (i = 0; i < MAX_SUPERTILES; i++)
+	for (int i = 0; i < MAX_SUPERTILES; i++)
 	{
 		if (gSuperTileMemoryList[i].mode != SUPERTILE_MODE_USED)		// if supertile is being used, then draw it
 			continue;
@@ -1771,33 +1767,11 @@ TQ3Status	myStatus;
 
 			/* DRAW THE TRIMESH IN THIS SUPERTILE */
 
-#if 1	// NOQUESA
 		TQ3TriMeshData* mesh = gSuperTileMemoryList[i].isFlat
 				? gSuperTileMemoryList[i].triMeshPtr2
 				: gSuperTileMemoryList[i].triMeshPtr;
 
-		glVertexPointer(3, GL_FLOAT, 0, mesh->points);
-		glNormalPointer(GL_FLOAT, 0, mesh->vertexNormals);
-		glColorPointer(4, GL_FLOAT, 0, mesh->vertexColors);
-
-		glDrawRangeElements(GL_TRIANGLES, 0, mesh->numPoints-1, mesh->numTriangles*3, GL_UNSIGNED_SHORT, mesh->triangles);
-//		CHECK_GL_ERROR();
-
-		gTrianglesDrawn += mesh->numTriangles;
-		gMeshesDrawn++;
-
-#else
-		if (gSuperTileMemoryList[i].isFlat)
-			myStatus = Q3Object_Submit(gSuperTileMemoryList[i].triMesh2,setupInfo->viewObject);
-		else
-			myStatus = Q3Object_Submit(gSuperTileMemoryList[i].triMesh,setupInfo->viewObject);
-
-		if ( myStatus == kQ3Failure )
-		{
-			DoAlert("DrawTerrain: Q3Object_Submit failed!");	
-			QD3D_ShowRecentError();	
-		}
-#endif
+		Render_DrawTriMeshList(1, &mesh, false, nil);
 	}
 
 

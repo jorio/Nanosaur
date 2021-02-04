@@ -53,6 +53,8 @@ void EnvironmentMapTriMesh(
 TQ3Matrix4x4		invTranspose;
 const TQ3Point3D*	camCoord = &gGameViewInfoPtr->cameraPlacement.cameraLocation;
 
+	GAME_ASSERT(transform);
+
 				/* GET TRIMESH INFO */
 
 	int numVertices = triMeshDataPtr->numPoints;						// get # verts

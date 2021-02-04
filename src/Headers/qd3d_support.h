@@ -116,8 +116,6 @@ extern	void QD3D_OnWindowResized(int windowWidth, int windowHeight);
 
 void QD3D_GetCurrentViewport(const QD3DSetupOutputType *setupInfo, int *x, int *y, int *w, int *h);
 
-void QD3D_DrawTriMeshList(int numMeshes, TQ3TriMeshData** meshList, bool envMap, const TQ3Matrix4x4* transform);
-
 
 
 #endif

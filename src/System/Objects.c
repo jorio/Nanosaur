@@ -39,6 +39,7 @@
 #include "mobjtypes.h"
 #include "bones.h"
 #include "collision.h"
+#include "renderer.h"
 
 extern	TQ3TriMeshFlatGroup	gObjectGroupList[MAX_3DMF_GROUPS][MAX_OBJECTS_IN_GROUP];
 extern	float		gObjectGroupRadiusList[MAX_3DMF_GROUPS][MAX_OBJECTS_IN_GROUP];
@@ -508,7 +509,7 @@ unsigned long	statusBits;
 					UpdateSkinnedGeometry(theNode);
 					// fall through to next case
 			case	DISPLAY_GROUP_GENRE:
-					QD3D_DrawTriMeshList(
+					Render_DrawTriMeshList(
 							theNode->NumMeshes,
 							theNode->MeshList,
 							statusBits & STATUS_BIT_REFLECTIONMAP,

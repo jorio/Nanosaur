@@ -11,6 +11,7 @@ extern "C" {
 #include "movie.h" // PlayAMovie
 #include "misc.h" // DrawPictureToScreen
 #include "windows_nano.h" // GAME_VIEW_WIDTH, GAME_VIEW_HEIGHT
+#include "renderer.h"
 }
 
 #include "GamePatches.h"
@@ -24,9 +25,7 @@ extern "C" {
 #include <fstream>
 
 extern "C" {
-extern long gNodesDrawn;
-extern long gTrianglesDrawn;
-extern long gMeshesDrawn;
+extern RenderStats gRenderStats;
 extern SDL_Window* gSDLWindow;
 extern float gFramesPerSecond;
 extern PrefsType gGamePrefs;
@@ -237,7 +236,7 @@ void DumpGLPixels(const char* outFN)
 static struct
 {
 	UInt32 lastUpdateAt = 0;
-	const UInt32 updateInterval = 250;
+	const UInt32 updateInterval = 50;
 	UInt32 frameAccumulator = 0;
 	char titleBuffer[1024];
 } debugText;
@@ -263,7 +262,13 @@ void DoSDLMaintenance()
 	UInt32 ticksElapsed = now - debugText.lastUpdateAt;
 	if (ticksElapsed >= debugText.updateInterval) {
 		float fps = 1000 * debugText.frameAccumulator / (float)ticksElapsed;
-		snprintf(debugText.titleBuffer, 1024, "nsaur - %d fps - %ld nodes drawn - %ld tris drawn - %ld meshes drawn", (int)round(fps), gNodesDrawn, gTrianglesDrawn, gMeshesDrawn);
+		snprintf(debugText.titleBuffer, sizeof(debugText.titleBuffer),
+		   "Nanosaur - %d fps - %d nodes - %d tris - %d meshes - %d bsc",
+		   (int)round(fps),
+		   gRenderStats.nodesDrawn,
+		   gRenderStats.trianglesDrawn,
+		   gRenderStats.meshesDrawn,
+		   gRenderStats.batchedStateChanges);
 		SDL_SetWindowTitle(gSDLWindow, debugText.titleBuffer);
 		debugText.frameAccumulator = 0;
 		debugText.lastUpdateAt = now;

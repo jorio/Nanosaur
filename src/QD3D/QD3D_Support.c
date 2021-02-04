@@ -32,18 +32,13 @@
 #include "environmentmap.h"
 
 #include "GamePatches.h" // Source port addition - for backdrop quad
+#include "renderer.h"
 
 extern	SDL_Window	*gSDLWindow;
 extern	long		gScreenXOffset,gScreenYOffset;
 extern	PrefsType	gGamePrefs;
 extern	QD3DSetupOutputType		*gGameViewInfoPtr;
-extern	long		gNodesDrawn;
 
-extern TQ3Vector3D				gEnvMapNormals[];
-extern TQ3Param2D				gEnvMapUVs[];
-
-extern long		gTrianglesDrawn;
-extern long		gMeshesDrawn;
 
 /****************************/
 /*    PROTOTYPES            */
@@ -68,6 +63,7 @@ static TQ3Area GetAdjustedPane(int windowWidth, int windowHeight, Rect paneClip)
 /*********************/
 
 SDL_GLContext					gGLContext;
+RenderStats						gRenderStats;
 
 TQ3ShaderObject					gQD3D_gShadowTexture = nil;
 
@@ -217,16 +213,13 @@ QD3DSetupOutputType	*outputPtr;
 		glDisable(GL_FOG);
 
 	glAlphaFunc(GL_NOTEQUAL, 0);
-	glEnable(GL_ALPHA_TEST);
 
-	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CCW);									// CCW is front face
 
-	glEnable(GL_DEPTH_TEST);
-
 	glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
-	glEnable(GL_COLOR_MATERIAL);
+
+	Render_InitState();
 
 	glClearColor(setupDefPtr->view.clearColor.r, setupDefPtr->view.clearColor.g, setupDefPtr->view.clearColor.b, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -252,7 +245,6 @@ QD3DSetupOutputType	*data;
 
 	DisposeBackdropTexture(); // Source port addition - release backdrop GL texture
 
-	gNodesDrawn = 0;  // Source port addition - reset debug "nodes drawn" counter
 
 #if 1	// NOQUESA
 	printf("TODO noquesa: %s\n", __func__);
@@ -435,10 +427,7 @@ void QD3D_DrawScene(QD3DSetupOutputType *setupInfo, void (*drawRoutine)(QD3DSetu
 			/* RENDER LOOP */
 			/***************/
 
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_COLOR_ARRAY);
-	glEnableClientState(GL_NORMAL_ARRAY);
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	memset(&gRenderStats, 0, sizeof(gRenderStats));
 
 #if 1	// NOQUESA
 	if (drawRoutine)
@@ -1311,50 +1300,4 @@ void QD3D_GetCurrentViewport(const QD3DSetupOutputType *setupInfo, int *x, int *
 	*y = t;
 	*w = gameWindowWidth-l-r;
 	*h = gameWindowHeight-t-b;
-}
-
-
-
-#pragma mark -
-
-void QD3D_DrawTriMeshList(int numMeshes, TQ3TriMeshData** meshList, bool envMap, const TQ3Matrix4x4* transform)
-{
-	glPushMatrix();
-	glMultMatrixf((float*) transform->value);
-
-	for (int i = 0; i < numMeshes; i++)
-	{
-		const TQ3TriMeshData* mesh = meshList[i];
-
-		if (envMap)
-			EnvironmentMapTriMesh(mesh, transform);
-
-		glVertexPointer(3, GL_FLOAT, 0, mesh->points);
-		glColorPointer(4, GL_FLOAT, 0, mesh->vertexColors);
-		glNormalPointer(GL_FLOAT, 0, envMap? gEnvMapNormals: mesh->vertexNormals);
-		CHECK_GL_ERROR();
-
-		if (mesh->hasTexture)
-		{
-			glEnable(GL_TEXTURE_2D);
-			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-			glBindTexture(GL_TEXTURE_2D, mesh->glTextureName);
-			glTexCoordPointer(2, GL_FLOAT, 0, envMap? gEnvMapUVs: mesh->vertexUVs);
-			CHECK_GL_ERROR();
-		}
-		else
-		{
-			glDisable(GL_TEXTURE_2D);
-			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-			CHECK_GL_ERROR();
-		}
-
-		glDrawRangeElements(GL_TRIANGLES, 0, mesh->numPoints-1, mesh->numTriangles*3, GL_UNSIGNED_SHORT, mesh->triangles);
-		CHECK_GL_ERROR();
-
-		gTrianglesDrawn += mesh->numTriangles;
-		gMeshesDrawn++;
-	}
-
-	glPopMatrix();
 }

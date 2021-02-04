@@ -18,6 +18,7 @@
 #include "qd3d_support.h"
 #include "objects.h"
 #include "terrain.h"
+#include "renderer.h"
 
 extern	float				gFramesPerSecondFrac;
 extern	TQ3Point3D			gCoord;
@@ -476,6 +477,7 @@ void QD3D_DrawParticles(QD3DSetupOutputType *setupInfo)
 	if (gNumParticles == 0)												// quick check if any particles at all
 		return;
 
+	// TODO: notify renderer that we changed cull face state
 	glDisable(GL_CULL_FACE);											// draw particles both backfaces
 
 	for (int i = 0; i < MAX_PARTICLES; i++)
@@ -484,7 +486,7 @@ void QD3D_DrawParticles(QD3DSetupOutputType *setupInfo)
 		if (!particle->isUsed)
 			continue;
 
-		QD3D_DrawTriMeshList(1, &particle->mesh, false, &particle->matrix);
+		Render_DrawTriMeshList(1, &particle->mesh, false, &particle->matrix);
 	}
 
 	glEnable(GL_CULL_FACE);

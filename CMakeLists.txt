@@ -85,6 +85,7 @@ set(GAME_CORE_SOURCES
 	${GAME_SRCDIR}/QD3D/QD3D_Geometry.c
 	${GAME_SRCDIR}/QD3D/3DMF.c
 	${GAME_SRCDIR}/QD3D/3DMath.c
+	${GAME_SRCDIR}/QD3D/Renderer.c
 	${GAME_SRCDIR}/Screens/Infobar.c
 	${GAME_SRCDIR}/Screens/Title.c
 	${GAME_SRCDIR}/Screens/MainMenu.c
