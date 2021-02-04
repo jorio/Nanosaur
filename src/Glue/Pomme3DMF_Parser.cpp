@@ -145,7 +145,7 @@ uint32_t Q3MetaFileParser::Parse1Chunk()
 				float g = f.Read<float>();
 				float b = f.Read<float>();
 				printf("%.3f %.3f %.3f\t", r, g, b);
-				for (uint32_t i = 0; i < currentMesh->numPoints; i++)
+				for (int i = 0; i < currentMesh->numPoints; i++)
 				{
 					currentMesh->vertexColors[i].r = r;
 					currentMesh->vertexColors[i].g = g;
@@ -165,7 +165,7 @@ uint32_t Q3MetaFileParser::Parse1Chunk()
 				float a = r;
 				printf("%.3f %.3f %.3f\t", r, g, b);
 				Assert(r == g && g == b, "kxpr: expecting all components to be equal");
-				for (uint32_t i = 0; i < currentMesh->numPoints; i++)
+				for (int i = 0; i < currentMesh->numPoints; i++)
 				{
 					currentMesh->vertexColors[i].a = a;
 				}
@@ -386,7 +386,7 @@ void Q3MetaFileParser::Parse_atar(uint32_t chunkSize)
 	{
 		printf("vertex UVs");
 		Assert(currentMesh->vertexUVs, "current mesh has no vertex UV array");
-		for (uint32_t i = 0; i < currentMesh->numPoints; i++)
+		for (int i = 0; i < currentMesh->numPoints; i++)
 		{
 			float u = f.Read<float>();
 			float v = f.Read<float>();
@@ -398,7 +398,7 @@ void Q3MetaFileParser::Parse_atar(uint32_t chunkSize)
 		printf("vertex normals");
 		Assert(positionInArray == 0, "PIA must be 0 for normals");
 		Assert(currentMesh->vertexNormals, "current mesh has no vertex normal array");
-		for (uint32_t i = 0; i < currentMesh->numPoints; i++)
+		for (int i = 0; i < currentMesh->numPoints; i++)
 		{
 			currentMesh->vertexNormals[i].x = f.Read<float>();
 			currentMesh->vertexNormals[i].y = f.Read<float>();
@@ -410,7 +410,7 @@ void Q3MetaFileParser::Parse_atar(uint32_t chunkSize)
 		printf("vertex diffuse");
 //		Assert(positionInArray == 0, "PIA must be 0 for colors");
 		Assert(currentMesh->vertexNormals, "current mesh has no vertex color array");
-		for (uint32_t i = 0; i < currentMesh->numPoints; i++)
+		for (int i = 0; i < currentMesh->numPoints; i++)
 		{
 			currentMesh->vertexColors[i].r = f.Read<float>();
 			currentMesh->vertexColors[i].g = f.Read<float>();

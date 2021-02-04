@@ -240,10 +240,10 @@ typedef struct TQ3TriMeshTriangleData
 // This structure differs from QD3D.
 typedef struct TQ3TriMeshData
 {
-	uint32_t									numTriangles;
+	int											numTriangles;
 	TQ3TriMeshTriangleData						*triangles;
 
-	uint32_t									numPoints;
+	int											numPoints;
 	TQ3Point3D									*points;
 	TQ3Param2D									*vertexUVs;
 	TQ3Vector3D									*vertexNormals;
