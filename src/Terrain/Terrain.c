@@ -1038,9 +1038,9 @@ TQ3PlaneEquation	planeEq;
 static void DrawTileIntoMipmap(UInt16 tile, short row, short col, UInt16 *buffer)
 {
 UInt16		texMapNum,flipRotBits;
-double		*tileData;		
+UInt64		*tileData;
 Byte		y;	
-double		*dPtr;
+UInt64		*dPtr;
 UInt16		*sPtr,*tileDataS;
 
 			/* EXTRACT BITS INFO FROM TILE */
@@ -1056,7 +1056,7 @@ UInt16		*sPtr,*tileDataS;
 				/* CALC PTRS */
 				
 	buffer += ((row * OREOMAP_TILE_SIZE) * (SUPERTILE_SIZE * OREOMAP_TILE_SIZE)) + (col * OREOMAP_TILE_SIZE);		// get dest
-	tileData = (double *)(gTileDataPtr + (texMapNum * OREOMAP_TILE_SIZE * OREOMAP_TILE_SIZE));						// get src
+	tileData = (UInt64 *)(gTileDataPtr + (texMapNum * OREOMAP_TILE_SIZE * OREOMAP_TILE_SIZE));						// get src
 
 
 
@@ -1068,7 +1068,7 @@ UInt16		*sPtr,*tileDataS;
 
 		case	0:
 		case	TILE_FLIPXY_MASK | TILE_ROT2:
-				dPtr = (double *)buffer;
+				dPtr = (UInt64 *)buffer;
 				for (y =  0; y < OREOMAP_TILE_SIZE; y++)
 				{
 					dPtr[0] = tileData[0];
@@ -1137,7 +1137,7 @@ UInt16		*sPtr,*tileDataS;
 
 		case	TILE_FLIPY_MASK:
 		case	TILE_FLIPX_MASK | TILE_ROT2:
-				dPtr = (double *)buffer;
+				dPtr = (UInt64 *)buffer;
 				tileData += (OREOMAP_TILE_SIZE*(OREOMAP_TILE_SIZE-1)*2)/8;
 				for (y =  0; y < OREOMAP_TILE_SIZE; y++)
 				{
