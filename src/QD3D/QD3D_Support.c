@@ -29,6 +29,7 @@
 #include "windows_nano.h"
 #include "camera.h"
 #include "3dmath.h"
+#include "environmentmap.h"
 
 #include "GamePatches.h" // Source port addition - for backdrop quad
 
@@ -37,6 +38,12 @@ extern	long		gScreenXOffset,gScreenYOffset;
 extern	PrefsType	gGamePrefs;
 extern	QD3DSetupOutputType		*gGameViewInfoPtr;
 extern	long		gNodesDrawn;
+
+extern TQ3Vector3D				gEnvMapNormals[];
+extern TQ3Param2D				gEnvMapUVs[];
+
+extern long		gTrianglesDrawn;
+extern long		gMeshesDrawn;
 
 /****************************/
 /*    PROTOTYPES            */
@@ -181,7 +188,7 @@ QD3DSetupOutputType	*outputPtr;
 
 	outputPtr->isActive = true;							// it's now an active structure
 
-	TQ3Point3D v = {0, 0, 0};
+	TQ3Vector3D v = {0, 0, 0};
 	QD3D_MoveCameraFromTo(outputPtr,&v,&v);				// call this to set outputPtr->currentCameraCoords & camera matrix
 
 			/* SET UP OPENGL RENDERER PROPERTIES NOW THAT WE HAVE A CONTEXT */
@@ -1304,4 +1311,46 @@ void QD3D_GetCurrentViewport(const QD3DSetupOutputType *setupInfo, int *x, int *
 	*y = t;
 	*w = gameWindowWidth-l-r;
 	*h = gameWindowHeight-t-b;
+}
+
+
+
+#pragma mark -
+
+// WARNING: transform is only used for Environment Map. Make sure to load the matrix beforehand if you need it!
+void QD3D_DrawTriMeshList(int numMeshes, TQ3TriMeshData** meshList, bool envMap, const TQ3Matrix4x4* transform)
+{
+	for (int i = 0; i < numMeshes; i++)
+	{
+		const TQ3TriMeshData* mesh = meshList[i];
+
+		if (envMap)
+			EnvironmentMapTriMesh(mesh, transform);
+
+		glVertexPointer(3, GL_FLOAT, 0, mesh->points);
+		glColorPointer(4, GL_FLOAT, 0, mesh->vertexColors);
+		glNormalPointer(GL_FLOAT, 0, envMap? gEnvMapNormals: mesh->vertexNormals);
+		CHECK_GL_ERROR();
+
+		if (mesh->hasTexture)
+		{
+			glEnable(GL_TEXTURE_2D);
+			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+			glBindTexture(GL_TEXTURE_2D, mesh->glTextureName);
+			glTexCoordPointer(2, GL_FLOAT, 0, envMap? gEnvMapUVs: mesh->vertexUVs);
+			CHECK_GL_ERROR();
+		}
+		else
+		{
+			glDisable(GL_TEXTURE_2D);
+			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+			CHECK_GL_ERROR();
+		}
+
+		glDrawRangeElements(GL_TRIANGLES, 0, mesh->numPoints-1, mesh->numTriangles*3, GL_UNSIGNED_SHORT, mesh->triangles);
+		CHECK_GL_ERROR();
+
+		gTrianglesDrawn += mesh->numTriangles;
+		gMeshesDrawn++;
+	}
 }
