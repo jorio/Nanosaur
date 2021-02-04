@@ -19,19 +19,14 @@
 #include "objects.h"
 #include "terrain.h"
 
-extern	NewObjectDefinitionType	gNewObjectDefinition;
-extern	ObjNode				*gCurrentNode;
 extern	float				gFramesPerSecondFrac;
 extern	TQ3Point3D			gCoord;
-extern	TQ3Object	gKeepBackfaceStyleObject;
 
 /****************************/
 /*    PROTOTYPES            */
 /****************************/
 
-static void CalcRadius_Recurse(TQ3Object obj);
-static void ExplodeTriMesh(TQ3Object theTriMesh, TQ3TriMeshData *inData);
-static void ExplodeGeometry_Recurse(TQ3Object obj);
+static void ExplodeTriMesh(const TQ3TriMeshData *mesh, const TQ3Matrix4x4* transform);
 static void ScrollUVs_Recurse(TQ3Object obj);
 static void ScrollUVs_TriMesh(TQ3Object theTriMesh);
 
@@ -214,55 +209,18 @@ TQ3Matrix4x4  		stashMatrix;
 /********************** QD3D: INIT PARTICLES **********************/
 
 void QD3D_InitParticles(void)
-#if 1
 {
-	printf("TODO noquesa: %s\n", __func__);
-	gNumParticles = 0;
-}
-#else
-{
-long	i;
-
 	gNumParticles = 0;
 
-	for (i = 0; i < MAX_PARTICLES; i++)
+	for (int i = 0; i < MAX_PARTICLES; i++)
 	{
-			/* INIT TRIMESH DATA */
-			
-		gParticles[i].isUsed = false;
-		gParticles[i].triMesh.triMeshAttributeSet = nil;
-		gParticles[i].triMesh.numTriangles = 1;
-		gParticles[i].triMesh.triangles = &gParticles[i].triangle;
-		gParticles[i].triMesh.numTriangleAttributeTypes = 0;
-		gParticles[i].triMesh.triangleAttributeTypes = nil;
-		gParticles[i].triMesh.numEdges = 0;
-		gParticles[i].triMesh.edges = nil;
-		gParticles[i].triMesh.numEdgeAttributeTypes = 0;
-		gParticles[i].triMesh.edgeAttributeTypes = nil;
-		gParticles[i].triMesh.numPoints = 3;
-		gParticles[i].triMesh.points = &gParticles[i].points[0];
-		gParticles[i].triMesh.numVertexAttributeTypes = 2;
-		gParticles[i].triMesh.vertexAttributeTypes = &gParticles[i].vertAttribs[0];
-		gParticles[i].triMesh.bBox.isEmpty = kQ3True;
-
-			/* INIT TRIANGLE */
-
-		gParticles[i].triangle.pointIndices[0] = 0;
-		gParticles[i].triangle.pointIndices[1] = 1;
-		gParticles[i].triangle.pointIndices[2] = 2;
-
-			/* INIT VERTEX ATTRIB LIST */
-
-		gParticles[i].vertAttribs[0].attributeType = kQ3AttributeTypeNormal;
-		gParticles[i].vertAttribs[0].data = &gParticles[i].vertNormals[0];
-		gParticles[i].vertAttribs[0].attributeUseArray = nil;
-
-		gParticles[i].vertAttribs[1].attributeType = kQ3AttributeTypeShadingUV;
-		gParticles[i].vertAttribs[1].data = &gParticles[i].uvs[0];
-		gParticles[i].vertAttribs[1].attributeUseArray = nil;
+		ParticleType* particle = &gParticles[i];
+		particle->isUsed = false;
+		particle->mesh = Q3TriMeshData_New(1, 3);
+		for (int v = 0; v < 3; v++)
+			particle->mesh->triangles[0].pointIndices[v] = v;
 	}
 }
-#endif
 
 
 /********************* FIND FREE PARTICLE ***********************/
@@ -292,12 +250,7 @@ long	i;
 //
 
 void QD3D_ExplodeGeometry(ObjNode *theNode, float boomForce, Byte particleMode, long particleDensity, float particleDecaySpeed)
-#if 1	// TODO noquesa
-{ printf("TODO noquesa: %s\n", __func__); }
-#else
 {
-TQ3Object theObject;
-
 	if (theNode->CType == INVALID_NODE_FLAG)				// make sure the node is valid
 		return;
 
@@ -307,197 +260,95 @@ TQ3Object theObject;
 	gParticleDensity = particleDensity;
 	gParticleDecaySpeed = particleDecaySpeed;
 	gParticleParentObj = theNode;
-	Q3Matrix4x4_SetIdentity(&gWorkMatrix);					// init to identity matrix
 
+		/* EXPLODE EACH TRIMESH INDIVIDUALLY */
 
-		/* SEE IF EXPLODING SKELETON OR PLAIN GEOMETRY */
-		
-	if (theNode->Genre == SKELETON_GENRE)
+	for (int i = 0; i < theNode->NumMeshes; i++)
 	{
-		short	numTriMeshes,i;
-		
-		numTriMeshes = theNode->Skeleton->skeletonDefinition->numDecomposedTriMeshes;
-		for (i = 0; i < numTriMeshes; i++)
-		{
-			ExplodeTriMesh(nil,&theNode->Skeleton->localTriMeshes[i]);				// explode each trimesh individually
-		}
-	}
-	else
-	{
-		theObject = theNode->BaseGroup;						// get TQ3Object from ObjNode
-		ExplodeGeometry_Recurse(theObject);	
+		ExplodeTriMesh(theNode->MeshList[i], &theNode->BaseTransformMatrix);
 	}
 }
-#endif
-
-
-/****************** EXPLODE GEOMETRY - RECURSE ***********************/
-
-static void ExplodeGeometry_Recurse(TQ3Object obj)
-#if 1	// TODO noquesa
-{ DoFatalAlert2("TODO noquesa", __func__); }
-#else
-{
-TQ3GroupPosition	position;
-TQ3Object   		object;
-TQ3ObjectType		oType;
-TQ3Matrix4x4		transform;
-TQ3Matrix4x4  		stashMatrix;
-
-				/*******************************/
-				/* SEE IF ACCUMULATE TRANSFORM */
-				/*******************************/
-				
-	if (Q3Object_IsType(obj,kQ3ShapeTypeTransform))
-	{
-  		Q3Transform_GetMatrix(obj,&transform);
-  		Q3Matrix4x4_Multiply(&transform,&gWorkMatrix,&gWorkMatrix);
- 	}
-	else
-
-				/*************************/
-				/* SEE IF FOUND GEOMETRY */
-				/*************************/
-
-	if (Q3Object_IsType(obj,kQ3ShapeTypeGeometry))
-	{
-		oType = Q3Geometry_GetType(obj);									// get geometry type
-		switch(oType)
-		{
-					/* MUST BE TRIMESH */
-					
-			case	kQ3GeometryTypeTriMesh:
-					ExplodeTriMesh(obj,nil);
-					break;
-		}
-	}
-	else
-	
-			/* SEE IF RECURSE SUB-GROUP */
-
-	if (Q3Object_IsType(obj,kQ3ShapeTypeGroup))
- 	{
-  		stashMatrix = gWorkMatrix;										// push matrix
-  		for (Q3Group_GetFirstPosition(obj, &position); position != nil;
-  			 Q3Group_GetNextPosition(obj, &position))					// scan all objects in group
- 		{
-   			Q3Group_GetPositionObject (obj, position, &object);			// get object from group
-			if (object != NULL)
-   			{
-    			ExplodeGeometry_Recurse(object);						// sub-recurse this object
-    			Q3Object_Dispose(object);								// dispose local ref
-   			}
-  		}
-  		gWorkMatrix = stashMatrix;										// pop matrix  		
-	}
-}
-#endif
 
 
 /********************** EXPLODE TRIMESH *******************************/
-//
-// INPUT: 	theTriMesh = trimesh object if input is object (nil if inData)
-//			inData = trimesh data if input is raw data (nil if above)
-//
 
-static void ExplodeTriMesh(TQ3Object theTriMesh, TQ3TriMeshData *inData)
-#if 1	// TODO noquesa
-{ DoFatalAlert2("TODO noquesa", __func__); }
-#else
+static void ExplodeTriMesh(const TQ3TriMeshData *inMesh, const TQ3Matrix4x4* transform)
 {
-TQ3TriMeshData		triMeshData;
 TQ3Point3D			centerPt = {0,0,0};
-TQ3Vector3D			vertNormals[3],*normalPtr;
-unsigned long		ind[3],t;
-TQ3Param2D			*uvPtr;
-long				i;
-
-	if (inData)
-		triMeshData = *inData;												// use input data
-	else
-		Q3TriMesh_GetData(theTriMesh,&triMeshData);							// get trimesh data	
 
 			/*******************************/
 			/* SCAN THRU ALL TRIMESH FACES */
 			/*******************************/
 					
-	for (t = 0; t < triMeshData.numTriangles; t += gParticleDensity)	// scan thru all faces
+	for (int t = 0; t < inMesh->numTriangles; t += gParticleDensity)	// scan thru all faces
 	{
 				/* GET FREE PARTICLE INDEX */
-				
-		i = FindFreeParticle();
-		if (i == -1)													// see if all out
+
+		long particleIndex = FindFreeParticle();
+		if (particleIndex == -1)													// see if all out
 			break;
-		
+
+		ParticleType* particle = &gParticles[particleIndex];
+		TQ3TriMeshData* pMesh = particle->mesh;
+
+		const uint16_t* ind = inMesh->triangles[t].pointIndices;						// get indices of 3 points
+
 				/*********************/
 				/* INIT TRIMESH DATA */
 				/*********************/
- 
-		gParticles[i].triMesh.triMeshAttributeSet = triMeshData.triMeshAttributeSet;	// set illegal ref to the original attribute set			
-		gParticles[i].triMesh.numVertexAttributeTypes = triMeshData.numVertexAttributeTypes;	// match attribute quantities
-		
+
 				/* DO POINTS */
 
-		ind[0] = triMeshData.triangles[t].pointIndices[0];								// get indecies of 3 points
-		ind[1] = triMeshData.triangles[t].pointIndices[1];			
-		ind[2] = triMeshData.triangles[t].pointIndices[2];
-				
-		gParticles[i].points[0] = triMeshData.points[ind[0]];							// get coords of 3 points
-		gParticles[i].points[1] = triMeshData.points[ind[1]];			
-		gParticles[i].points[2] = triMeshData.points[ind[2]];
-		
+		for (int v = 0; v < 3; v++)
+		{
+			Q3Point3D_Transform(&inMesh->points[ind[v]], transform, &pMesh->points[v]);		// transform points
+		}
 
-		Q3Point3D_Transform(&gParticles[i].points[0],&gWorkMatrix,&gParticles[i].points[0]);		// transform points
-		Q3Point3D_Transform(&gParticles[i].points[1],&gWorkMatrix,&gParticles[i].points[1]);					
-		Q3Point3D_Transform(&gParticles[i].points[2],&gWorkMatrix,&gParticles[i].points[2]);
-	
-		centerPt.x = (gParticles[i].points[0].x + gParticles[i].points[1].x + gParticles[i].points[2].x) * 0.3333f;		// calc center of polygon
-		centerPt.y = (gParticles[i].points[0].y + gParticles[i].points[1].y + gParticles[i].points[2].y) * 0.3333f;				
-		centerPt.z = (gParticles[i].points[0].z + gParticles[i].points[1].z + gParticles[i].points[2].z) * 0.3333f;				
-		gParticles[i].points[0].x -= centerPt.x;											// offset coords to be around center
-		gParticles[i].points[0].y -= centerPt.y;
-		gParticles[i].points[0].z -= centerPt.z;
-		gParticles[i].points[1].x -= centerPt.x;											// offset coords to be around center
-		gParticles[i].points[1].y -= centerPt.y;
-		gParticles[i].points[1].z -= centerPt.z;
-		gParticles[i].points[2].x -= centerPt.x;											// offset coords to be around center
-		gParticles[i].points[2].y -= centerPt.y;
-		gParticles[i].points[2].z -= centerPt.z;
-		
-#if 1
-		// Source port addition: Quesa won't render the mesh if its bounding box is empty
-		Q3BoundingBox_SetFromPoints3D(&gParticles[i].triMesh.bBox, gParticles[i].points, 3, sizeof(TQ3Point3D));
-#endif
-		
+		centerPt.x = (pMesh->points[0].x + pMesh->points[1].x + pMesh->points[2].x) * 0.3333f;		// calc center of polygon
+		centerPt.y = (pMesh->points[0].y + pMesh->points[1].y + pMesh->points[2].y) * 0.3333f;
+		centerPt.z = (pMesh->points[0].z + pMesh->points[1].z + pMesh->points[2].z) * 0.3333f;
+
+		for (int v = 0; v < 3; v++)
+		{
+			pMesh->points[v].x -= centerPt.x;											// offset coords to be around center
+			pMesh->points[v].y -= centerPt.y;
+			pMesh->points[v].z -= centerPt.z;
+		}
+
+		pMesh->bBox.min = pMesh->bBox.max = centerPt;
+		pMesh->bBox.isEmpty = kQ3False;
+
 				/* DO VERTEX NORMALS */
-				
-		if (triMeshData.vertexAttributeTypes[0].attributeType != kQ3AttributeTypeNormal)
-			DoFatalAlert("Bleep2!");
-				
-		normalPtr = (TQ3Vector3D*)triMeshData.vertexAttributeTypes[0].data;			// assume vert attrib #0 == vertex normals
-		vertNormals[0] = normalPtr[ind[0]];								// get vertex normals
-		vertNormals[1] = normalPtr[ind[1]];
-		vertNormals[2] = normalPtr[ind[2]];
-		
-		Q3Vector3D_Transform(&vertNormals[0],&gWorkMatrix,&vertNormals[0]);		// transform normals
-		Q3Vector3D_Transform(&vertNormals[1],&gWorkMatrix,&vertNormals[1]);		// transform normals
-		Q3Vector3D_Transform(&vertNormals[2],&gWorkMatrix,&vertNormals[2]);		// transform normals
-		Q3Vector3D_Normalize(&vertNormals[0],&gParticles[i].vertNormals[0]);	// normalize normals & place in structure
-		Q3Vector3D_Normalize(&vertNormals[1],&gParticles[i].vertNormals[1]);
-		Q3Vector3D_Normalize(&vertNormals[2],&gParticles[i].vertNormals[2]);
 
+		for (int v = 0; v < 3; v++)
+		{
+			Q3Vector3D_Transform(&inMesh->vertexNormals[ind[v]], transform, &pMesh->vertexNormals[v]);		// transform normals
+			Q3Vector3D_Normalize(&pMesh->vertexNormals[v], &pMesh->vertexNormals[v]);						// normalize normals
+		}
 
 				/* DO VERTEX UV'S */
-					
-		if (triMeshData.numVertexAttributeTypes > 1)					// see if also has UV (assumed to be attrib #1)
+
+		pMesh->hasTexture = inMesh->hasTexture;
+		if (inMesh->hasTexture)											// see if also has UV
 		{
-			if (triMeshData.vertexAttributeTypes[1].attributeType != kQ3AttributeTypeShadingUV)
-				DoFatalAlert("Bleep3!");
-		
-			uvPtr = (TQ3Param2D*)triMeshData.vertexAttributeTypes[1].data;	
-			gParticles[i].uvs[0] = uvPtr[ind[0]];									// get vertex u/v's
-			gParticles[i].uvs[1] = uvPtr[ind[1]];								
-			gParticles[i].uvs[2] = uvPtr[ind[2]];								
+			for (int v = 0; v < 3; v++)									// get vertex u/v's
+			{
+				pMesh->vertexUVs[v] = inMesh->vertexUVs[ind[v]];
+			}
+			pMesh->glTextureName = inMesh->glTextureName;
+			pMesh->internalTextureID = inMesh->internalTextureID;
+		}
+
+
+				/* DO VERTEX COLORS */
+
+		//pMesh->hasVertexColors = inMesh->hasVertexColors;
+		//if (inMesh->hasVertexColors)
+		{
+			for (int v = 0; v < 3; v++)									// get vertex u/v's
+			{
+				pMesh->vertexColors[v] = inMesh->vertexColors[ind[v]];
+			}
 		}
 
 
@@ -505,33 +356,29 @@ long				i;
 			/* SET PHYSICS STUFF */
 			/*********************/
 
-		gParticles[i].coord = centerPt;
-		gParticles[i].rot.x = gParticles[i].rot.y = gParticles[i].rot.z = 0;
-		gParticles[i].scale = 1.0;
+		particle->coord = centerPt;
+		particle->rot = (TQ3Vector3D) {0,0,0};
+		particle->scale = 1.0f;
 		
-		gParticles[i].coordDelta.x = (RandomFloat() - 0.5) * gBoomForce;
-		gParticles[i].coordDelta.y = (RandomFloat() - 0.5) * gBoomForce;
-		gParticles[i].coordDelta.z = (RandomFloat() - 0.5) * gBoomForce;
+		particle->coordDelta.x = (RandomFloat() - 0.5f) * gBoomForce;
+		particle->coordDelta.y = (RandomFloat() - 0.5f) * gBoomForce;
+		particle->coordDelta.z = (RandomFloat() - 0.5f) * gBoomForce;
 		if (gParticleMode & PARTICLE_MODE_UPTHRUST)
-			gParticles[i].coordDelta.y += 1.5 * gBoomForce;
-		
-		gParticles[i].rotDelta.x = (RandomFloat() - 0.5) * 4;			// random rotation deltas
-		gParticles[i].rotDelta.y = (RandomFloat() - 0.5) * 4;
-		gParticles[i].rotDelta.z = (RandomFloat() - 0.5) * 4;
-		
-		gParticles[i].decaySpeed = gParticleDecaySpeed;
-		gParticles[i].mode = gParticleMode;
+			particle->coordDelta.y += 1.5f * gBoomForce;
+
+		particle->rotDelta.x = (RandomFloat() - 0.5f) * 4.0f;			// random rotation deltas
+		particle->rotDelta.y = (RandomFloat() - 0.5f) * 4.0f;
+		particle->rotDelta.z = (RandomFloat() - 0.5f) * 4.0f;
+
+		particle->decaySpeed = gParticleDecaySpeed;
+		particle->mode = gParticleMode;
 
 				/* SET VALID & INC COUNTER */
-				
-		gParticles[i].isUsed = true;
+
+		particle->isUsed = true;
 		gNumParticles++;
 	}
-
-	if (theTriMesh)
-		Q3TriMesh_EmptyData(&triMeshData);
 }
-#endif
 
 
 /************************** QD3D: MOVE PARTICLES ****************************/
@@ -552,22 +399,24 @@ TQ3Matrix4x4	matrix,matrix2;
 		if (!gParticles[i].isUsed)										// source port fix
 			continue;
 
+		ParticleType* particle = &gParticles[i];
+
 				/* ROTATE IT */
 
-		gParticles[i].rot.x += gParticles[i].rotDelta.x * fps;
-		gParticles[i].rot.y += gParticles[i].rotDelta.y * fps;
-		gParticles[i].rot.z += gParticles[i].rotDelta.z * fps;
+		particle->rot.x += particle->rotDelta.x * fps;
+		particle->rot.y += particle->rotDelta.y * fps;
+		particle->rot.z += particle->rotDelta.z * fps;
 					
 					/* MOVE IT */
 					
-		if (gParticles[i].mode & PARTICLE_MODE_HEAVYGRAVITY)
-			gParticles[i].coordDelta.y -= fps * GRAVITY_CONSTANT/2;		// gravity
+		if (particle->mode & PARTICLE_MODE_HEAVYGRAVITY)
+			particle->coordDelta.y -= fps * GRAVITY_CONSTANT/2;		// gravity
 		else
-			gParticles[i].coordDelta.y -= fps * GRAVITY_CONSTANT/3;		// gravity
+			particle->coordDelta.y -= fps * GRAVITY_CONSTANT/3;		// gravity
 			
-		x = (gParticles[i].coord.x += gParticles[i].coordDelta.x * fps);	
-		y = (gParticles[i].coord.y += gParticles[i].coordDelta.y * fps);	
-		z = (gParticles[i].coord.z += gParticles[i].coordDelta.z * fps);	
+		x = (particle->coord.x += particle->coordDelta.x * fps);
+		y = (particle->coord.y += particle->coordDelta.y * fps);
+		z = (particle->coord.z += particle->coordDelta.z * fps);
 		
 		
 					/* SEE IF BOUNCE */
@@ -575,12 +424,12 @@ TQ3Matrix4x4	matrix,matrix2;
 		ty = GetTerrainHeightAtCoord_Quick(x,z);				// get terrain height here
 		if (y <= ty)
 		{
-			if (gParticles[i].mode & PARTICLE_MODE_BOUNCE)
+			if (particle->mode & PARTICLE_MODE_BOUNCE)
 			{
-				gParticles[i].coord.y  = ty;
-				gParticles[i].coordDelta.y *= -0.5;
-				gParticles[i].coordDelta.x *= 0.9;
-				gParticles[i].coordDelta.z *= 0.9;
+				particle->coord.y  = ty;
+				particle->coordDelta.y *= -0.5;
+				particle->coordDelta.x *= 0.9;
+				particle->coordDelta.z *= 0.9;
 			}
 			else
 				goto del;
@@ -588,12 +437,12 @@ TQ3Matrix4x4	matrix,matrix2;
 		
 					/* SCALE IT */
 					
-		gParticles[i].scale -= gParticles[i].decaySpeed * fps;
-		if (gParticles[i].scale <= 0.0f)
+		particle->scale -= particle->decaySpeed * fps;
+		if (particle->scale <= 0.0f)
 		{
 				/* DEACTIVATE THIS PARTICLE */
 	del:	
-			gParticles[i].isUsed = false;
+			particle->isUsed = false;
 			gNumParticles--;
 			continue;
 		}
@@ -605,17 +454,17 @@ TQ3Matrix4x4	matrix,matrix2;
 
 				/* SET SCALE MATRIX */
 
-		Q3Matrix4x4_SetScale(&gParticles[i].matrix, gParticles[i].scale,	gParticles[i].scale, gParticles[i].scale);
+		Q3Matrix4x4_SetScale(&particle->matrix, particle->scale,	particle->scale, particle->scale);
 	
 					/* NOW ROTATE IT */
 
-		Q3Matrix4x4_SetRotate_XYZ(&matrix, gParticles[i].rot.x, gParticles[i].rot.y, gParticles[i].rot.z);
-		Q3Matrix4x4_Multiply(&gParticles[i].matrix,&matrix, &matrix2);
+		Q3Matrix4x4_SetRotate_XYZ(&matrix, particle->rot.x, particle->rot.y, particle->rot.z);
+		Q3Matrix4x4_Multiply(&particle->matrix,&matrix, &matrix2);
 	
 					/* NOW TRANSLATE IT */
 
-		Q3Matrix4x4_SetTranslate(&matrix, gParticles[i].coord.x, gParticles[i].coord.y, gParticles[i].coord.z);
-		Q3Matrix4x4_Multiply(&matrix2,&matrix, &gParticles[i].matrix);
+		Q3Matrix4x4_SetTranslate(&matrix, particle->coord.x, particle->coord.y, particle->coord.z);
+		Q3Matrix4x4_Multiply(&matrix2,&matrix, &particle->matrix);
 	}
 }
 
@@ -623,35 +472,23 @@ TQ3Matrix4x4	matrix,matrix2;
 /************************* QD3D: DRAW PARTICLES ****************************/
 
 void QD3D_DrawParticles(QD3DSetupOutputType *setupInfo)
-#if 1	// TODO noquesa
-{ printf("TODO noquesa: %s\n", __func__); }
-#else
 {
-long	i;
-TQ3ViewObject	view = setupInfo->viewObject;
-
 	if (gNumParticles == 0)												// quick check if any particles at all
 		return;
 
-	Q3Push_Submit(view);												// save this state
+	glDisable(GL_CULL_FACE);											// draw particles both backfaces
 
-	Q3Object_Submit(gKeepBackfaceStyleObject,view);						// draw particles both backfaces
-
-	for (i=0; i < MAX_PARTICLES; i++)
+	for (int i = 0; i < MAX_PARTICLES; i++)
 	{
-		if (gParticles[i].isUsed)
-		{
-			Q3MatrixTransform_Submit(&gParticles[i].matrix, view);		// submit matrix
-			Q3TriMesh_Submit(&gParticles[i].triMesh, view);				// submit geometry
-			Q3ResetTransform_Submit(view);								// reset matrix
-		}
+		ParticleType* particle = &gParticles[i];
+		if (!particle->isUsed)
+			continue;
+
+		QD3D_DrawTriMeshList(1, &particle->mesh, false, &particle->matrix);
 	}
-	
-	// Source port fix: this used to be Q3Push_Submit, which I think is a mistake, even though it seems to work either way (???)
-	Q3Pop_Submit(view);													// restore state
-	
+
+	glEnable(GL_CULL_FACE);
 }
-#endif
 
 
 
@@ -855,4 +692,3 @@ TQ3TriMeshData		triMeshData;
 	}
 }
 #endif
-

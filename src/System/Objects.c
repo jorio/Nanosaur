@@ -508,14 +508,11 @@ unsigned long	statusBits;
 					UpdateSkinnedGeometry(theNode);
 					// fall through to next case
 			case	DISPLAY_GROUP_GENRE:
-					glPushMatrix();
-					glMultMatrixf(&theNode->BaseTransformMatrix.value[0][0]);
 					QD3D_DrawTriMeshList(
 							theNode->NumMeshes,
 							theNode->MeshList,
 							statusBits & STATUS_BIT_REFLECTIONMAP,
 							&theNode->BaseTransformMatrix);
-					glPopMatrix();
 					gNodesDrawn++;
 					break;
 		}

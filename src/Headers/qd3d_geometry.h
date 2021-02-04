@@ -23,14 +23,7 @@ typedef struct
 	float					decaySpeed,scale;
 	Byte					mode;
 	TQ3Matrix4x4			matrix;
-	
-	TQ3TriMeshData			triMesh;
-	TQ3Point3D				points[3];
-	TQ3TriMeshTriangleData	triangle;
-	TQ3Param2D				uvs[3];
-	TQ3Vector3D				vertNormals[3],faceNormal;
-	TQ3TriMeshAttributeData	vertAttribs[2];
-
+	TQ3TriMeshData			*mesh;
 }ParticleType;
 
 float QD3D_CalcObjectRadius(int numMeshes, TQ3TriMeshData** meshList);

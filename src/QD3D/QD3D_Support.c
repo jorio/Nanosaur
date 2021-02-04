@@ -1317,9 +1317,11 @@ void QD3D_GetCurrentViewport(const QD3DSetupOutputType *setupInfo, int *x, int *
 
 #pragma mark -
 
-// WARNING: transform is only used for Environment Map. Make sure to load the matrix beforehand if you need it!
 void QD3D_DrawTriMeshList(int numMeshes, TQ3TriMeshData** meshList, bool envMap, const TQ3Matrix4x4* transform)
 {
+	glPushMatrix();
+	glMultMatrixf((float*) transform->value);
+
 	for (int i = 0; i < numMeshes; i++)
 	{
 		const TQ3TriMeshData* mesh = meshList[i];
@@ -1353,4 +1355,6 @@ void QD3D_DrawTriMeshList(int numMeshes, TQ3TriMeshData** meshList, bool envMap,
 		gTrianglesDrawn += mesh->numTriangles;
 		gMeshesDrawn++;
 	}
+
+	glPopMatrix();
 }
