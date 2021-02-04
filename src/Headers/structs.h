@@ -15,7 +15,6 @@
 #define	MAX_CHILDREN		(MAX_JOINTS-1)
 #define	MAX_LIMBS			MAX_JOINTS
 
-#define MAX_MESHHANDLES_IN_OBJNODE		8
 #define MAX_FLAGS_IN_OBJNODE			4		// # flags in ObjNode
 
 
@@ -132,13 +131,13 @@ typedef struct
 
 	Byte				numChildren[MAX_JOINTS];		// # children each joint has
 	Byte				childIndecies[MAX_JOINTS][MAX_CHILDREN];	// index to each child
-	
+
 	Byte				NumAnims;						// # animations in this skeleton object
 	Byte				*NumAnimEvents;					// ptr to array containing the # of animevents for each anim
 	AnimEventType		**AnimEventsList;				// 2 dimensional array which holds a anim event list for each anim AnimEventsList[anim#][event#]
 
 	BoneDefinitionType	*Bones;							// data which describes bone heirarachy
-	
+
 	long				numDecomposedTriMeshes;			// # trimeshes in skeleton
 	TQ3TriMeshData		**decomposedTriMeshPtrs;		// array of triMeshData
 
@@ -180,13 +179,7 @@ typedef struct
 
 	TQ3Matrix4x4	jointTransformMatrix[MAX_JOINTS];	// holds matrix xform for each joint
 
-	SkeletonDefType	*skeletonDefinition;						// point to skeleton's common/shared data
-#if 1	// NOQUESA
-	// TODO noquesa: could probably be merged into ObjNode's trimesh list
-	TQ3TriMeshData	*localTriMeshPtrs[MAX_DECOMPOSED_TRIMESHES];	// the triMeshes to submit for this ObjNode
-#else
-	TQ3TriMeshData	localTriMeshes[MAX_DECOMPOSED_TRIMESHES];	// the triMeshes to submit for this ObjNode
-#endif
+	const SkeletonDefType	*skeletonDefinition;	// point to skeleton's common/shared data
 }SkeletonObjDataType;
 
 
@@ -269,7 +262,7 @@ struct ObjNode
 	TQ3Object			BaseGroup;				// group containing all geometry,etc. for this object (for drawing)
 #else
 	int						NumMeshes;
-	TQ3TriMeshData*			MeshList[MAX_MESHHANDLES_IN_OBJNODE];
+	TQ3TriMeshData*			MeshList[MAX_DECOMPOSED_TRIMESHES];
 #endif
 	float				Radius;					// radius use for object culling calculation
 

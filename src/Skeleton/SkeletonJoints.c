@@ -138,7 +138,7 @@ TQ3Matrix4x4	matrix;
 
 void FindJointFullMatrix(ObjNode *theNode, long jointNum, TQ3Matrix4x4 *outMatrix)
 {
-SkeletonDefType		*skeletonDefPtr;
+const SkeletonDefType *skeletonDefPtr;
 SkeletonObjDataType	*skeletonPtr;
 BoneDefinitionType	*bonePtr;
 
@@ -149,9 +149,7 @@ BoneDefinitionType	*bonePtr;
 	skeletonPtr =  theNode->Skeleton;									// point to skeleton
 	skeletonDefPtr = skeletonPtr->skeletonDefinition;					// point to skeleton defintion
 
-	if ((jointNum >= skeletonDefPtr->NumBones)	||						// check for illegal joints
-		(jointNum < 0))
-		DoFatalAlert("FindJointFullMatrix: illegal jointNum!");
+	GAME_ASSERT(jointNum >= 0 && jointNum < skeletonDefPtr->NumBones);	// check for illegal joints
 
 	bonePtr = skeletonDefPtr->Bones;									// point to bones list
 

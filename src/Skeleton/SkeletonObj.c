@@ -26,7 +26,6 @@
 #include "bones.h"
 
 extern	NewObjectDefinitionType	gNewObjectDefinition;
-extern	ObjNode				*gPlayerNode[];
 extern	QD3DSetupOutputType		*gGameViewInfoPtr;
 
 
@@ -34,7 +33,6 @@ extern	QD3DSetupOutputType		*gGameViewInfoPtr;
 /*    PROTOTYPES            */
 /****************************/
 
-static SkeletonObjDataType *MakeNewSkeletonBaseData(short sourceSkeletonNum);
 static void DisposeSkeletonDefinitionMemory(SkeletonDefType *skeleton);
 
 
@@ -115,74 +113,80 @@ short	i;
 ObjNode	*MakeNewSkeletonObject(NewObjectDefinitionType *newObjDef)
 {
 ObjNode	*newNode;
-short	n,i;
 TQ3BoundingBox *bbox;
-float	max,originX,originY,originZ;
 
 			/* CREATE NEW OBJECT NODE */
-			
+
 	newObjDef->flags |= STATUS_BIT_HIGHFILTER;
 	newObjDef->genre = SKELETON_GENRE;
-	newNode = MakeNewObject(newObjDef);		
+	newNode = MakeNewObject(newObjDef);
 	if (newNode == nil)
 		return(nil);
-		
-	newNode->StatusBits |= STATUS_BIT_ANIM;						// turn on animation		
-		
-			/* LOAD SKELETON FILE INTO OBJECT */
-			
-	newNode->Skeleton = MakeNewSkeletonBaseData(newObjDef->type);	// alloc & set skeleton data
-	if (newNode->Skeleton == nil)
-		DoFatalAlert("MakeNewSkeletonObject: MakeNewSkeletonBaseData == nil");
+
+	newNode->StatusBits |= STATUS_BIT_ANIM;						// turn on animation
+
+
+			/* GET MASTER SKELETON DEFINITION */
+
+	short sourceSkeletonNum = newObjDef->type;
+
+	const SkeletonDefType* skeletonDef = gLoadedSkeletonsList[sourceSkeletonNum];				// get ptr to source skeleton definition info
+	GAME_ASSERT_MESSAGE(skeletonDef, "Skeleton data isn't loaded!");
+
+
+			/* ALLOC MEMORY FOR NEW SKELETON OBJECT DATA STRUCTURE */
+
+	newNode->Skeleton = (SkeletonObjDataType *)AllocPtr(sizeof(SkeletonObjDataType));
+	GAME_ASSERT(newNode->Skeleton);
+
+
+			/* INIT NEW SKELETON */
+
+	newNode->Skeleton->skeletonDefinition = skeletonDef;						// point to source animation data
+	newNode->Skeleton->AnimSpeed = 1.0;
+
+
+			/* MAKE COPY OF TRIMESHES FOR LOCAL USE */
+
+	newNode->NumMeshes = skeletonDef->numDecomposedTriMeshes;
+
+	for (int i = 0; i < skeletonDef->numDecomposedTriMeshes; i++)
+	{
+		newNode->MeshList[i] = Q3TriMeshData_Duplicate(skeletonDef->decomposedTriMeshPtrs[i]);
+	}
+
+
+				/*  SET INITIAL DEFAULT POSITION */
 
 	UpdateObjectTransforms(newNode);
 
-				/*  SET INITIAL DEFAULT POSITION */
-				
-	SetSkeletonAnim(newNode->Skeleton, newObjDef->animNum);		
+	SetSkeletonAnim(newNode->Skeleton, newObjDef->animNum);
 	UpdateSkeletonAnimation(newNode);
 	GetModelCurrentPosition(newNode->Skeleton);					// set positions of all joints
 	UpdateSkinnedGeometry(newNode);								// prime the trimesh
 
+
 				/* CALC RADIUS OF OBJECT */
 				//
 				// find largest extent of bounding boxes and use as radius
-				
-	max = 0.0f;
-	n = newNode->Skeleton->skeletonDefinition->numDecomposedTriMeshes;
-	originX = newNode->Coord.x;
-	originY = newNode->Coord.y;
-	originZ = newNode->Coord.z;
-	
-	for (i = 0; i < n; i++)
+
+	float max = 0.0f;
+
+	for (int i = 0; i < newNode->NumMeshes; i++)
 	{
 		float	d;
 
-		bbox = &newNode->Skeleton->localTriMeshPtrs[i]->bBox;
-		d = fabs(originX - bbox->min.x);			// left
-		if (d > max)
-			max = d;		
-		d = fabs(originX - bbox->max.x);			// right
-		if (d > max)
-			max = d;
+		bbox = &newNode->MeshList[i]->bBox;
 
-		d = fabs(originZ - bbox->max.z);			// front
-		if (d > max)
-			max = d;
-		d = fabs(originZ - bbox->min.z);			// back
-		if (d > max)
-			max = d;
-
-		d = fabs(originY - bbox->max.y);			// top
-		if (d > max)
-			max = d;
-		d = fabs(originY - bbox->min.y);			// bottom
-		if (d > max)
-			max = d;
-			
+		d = fabsf(newNode->Coord.x - bbox->min.x);	if (d > max) max = d;		// left
+		d = fabsf(newNode->Coord.x - bbox->max.x);	if (d > max) max = d;		// right
+		d = fabsf(newNode->Coord.y - bbox->max.y);	if (d > max) max = d;		// top
+		d = fabsf(newNode->Coord.y - bbox->min.y);	if (d > max) max = d;		// bottom
+		d = fabsf(newNode->Coord.z - bbox->max.z);	if (d > max) max = d;		// front
+		d = fabsf(newNode->Coord.z - bbox->min.z);	if (d > max) max = d;		// back
 	}
 	newNode->Radius = max;
-			
+
 
 	return(newNode);
 }
@@ -293,20 +297,10 @@ short	i,j,numAnims,numJoints;
 			/* DISPOSE DECOMPOSED DATA ARRAYS */
 
 	for (j = 0; j < skeleton->numDecomposedTriMeshes; j++)			// first dispose of the trimesh data in there
-#if 1	// NOQUESA
 	{
 		Q3TriMeshData_Dispose(skeleton->decomposedTriMeshPtrs[j]);
 		skeleton->decomposedTriMeshPtrs[j] = nil;
 	}
-#else
-		Q3TriMesh_EmptyData(&skeleton->decomposedTriMeshes[j]);
-			
-	if (skeleton->decomposedTriMeshes)
-	{
-		DisposePtr((Ptr)skeleton->decomposedTriMeshes);
-		skeleton->decomposedTriMeshes = nil;
-	}
-#endif
 
 	if (skeleton->decomposedPointList)
 	{
@@ -327,88 +321,11 @@ short	i,j,numAnims,numJoints;
 
 
 
-/****************** MAKE NEW SKELETON OBJECT DATA *********************/
-//
-// Allocates & inits the Skeleton data for an ObjNode.
-//
-
-static SkeletonObjDataType *MakeNewSkeletonBaseData(short sourceSkeletonNum)
-{
-SkeletonDefType		*skeletonDefPtr;
-SkeletonObjDataType	*skeletonData;
-short				i;
-
-	skeletonDefPtr = gLoadedSkeletonsList[sourceSkeletonNum];				// get ptr to source skeleton definition info
-	GAME_ASSERT_MESSAGE(skeletonDefPtr, "Skeleton data isn't loaded!");
-
-
-			/* ALLOC MEMORY FOR NEW SKELETON OBJECT DATA STRUCTURE */
-			
-	skeletonData = (SkeletonObjDataType *)AllocPtr(sizeof(SkeletonObjDataType));
-	GAME_ASSERT(skeletonData);
-
-
-			/* INIT NEW SKELETON */
-
-	skeletonData->skeletonDefinition = skeletonDefPtr;						// point to source animation data
-	skeletonData->AnimSpeed = 1.0;
-
-
-			/****************************************/
-			/* MAKE COPY OF TRIMESHES FOR LOCAL USE */
-			/****************************************/
-			
-	for (i=0; i < skeletonDefPtr->numDecomposedTriMeshes; i++)
-#if 1	// NOQUESA
-	{
-		skeletonData->localTriMeshPtrs[i] = Q3TriMeshData_Duplicate(skeletonDefPtr->decomposedTriMeshPtrs[i]);
-	}
-#else
-		QD3D_DuplicateTriMeshData(&skeletonDefPtr->decomposedTriMeshes[i],&skeletonData->localTriMeshes[i]);
-#endif
-
-	return(skeletonData);
-}
-
-
 /************************ FREE SKELETON BASE DATA ***************************/
 
 void FreeSkeletonBaseData(SkeletonObjDataType *data)
 {
-short	i;
-
-			/* FREE ALL LOCAL TRIMESH DATA */
-		
-	for (i=0; i < data->skeletonDefinition->numDecomposedTriMeshes; i++)
-#if 1	// NOQUESA
-	{
-		Q3TriMeshData_Dispose(data->localTriMeshPtrs[i]);
-		data->localTriMeshPtrs[i] = nil;
-	}
-#else
-		QD3D_FreeDuplicateTriMeshData(&data->localTriMeshes[i]);
-#endif
-	
-	
 			/* FREE THE SKELETON DATA */
-			
-	DisposePtr((Ptr)data);			
+
+	DisposePtr((Ptr)data);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

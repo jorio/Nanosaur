@@ -289,7 +289,7 @@ void AttachGeometryToDisplayGroupObject(ObjNode* theNode, int numMeshes, TQ3TriM
 		int nodeMeshIndex = theNode->NumMeshes;
 
 		theNode->NumMeshes++;
-		GAME_ASSERT(theNode->NumMeshes <= MAX_MESHHANDLES_IN_OBJNODE);
+		GAME_ASSERT(theNode->NumMeshes <= MAX_DECOMPOSED_TRIMESHES);
 
 		theNode->MeshList[nodeMeshIndex] = meshList[i];
 	}
@@ -506,17 +506,7 @@ unsigned long	statusBits;
 			case	SKELETON_GENRE:
 					GetModelCurrentPosition(theNode->Skeleton);
 					UpdateSkinnedGeometry(theNode);
-					glPushMatrix();
-					glMultMatrixf(&theNode->BaseTransformMatrix.value[0][0]);
-					QD3D_DrawTriMeshList(
-							theNode->Skeleton->skeletonDefinition->numDecomposedTriMeshes,
-							theNode->Skeleton->localTriMeshPtrs,
-							statusBits & STATUS_BIT_REFLECTIONMAP,
-							&theNode->BaseTransformMatrix);
-					glPopMatrix();
-					gNodesDrawn++;
-					break;
-
+					// fall through to next case
 			case	DISPLAY_GROUP_GENRE:
 					glPushMatrix();
 					glMultMatrixf(&theNode->BaseTransformMatrix.value[0][0]);
@@ -824,12 +814,7 @@ TQ3Matrix4x4	matrix;
 					/* DO X->Y->Z */
 	else
 	{
-//		SetQuickRotationMatrix_XYZ(&matrix, theNode->Rot.x, theNode->Rot.y, theNode->Rot.z);
-//		Q3Matrix4x4_Multiply(&theNode->BaseTransformMatrix,&matrix, &theNode->BaseTransformMatrix);
-	
-		Q3Matrix4x4_SetRotate_XYZ(&matrix,													// init rotation matrix
-								 theNode->Rot.x, theNode->Rot.y,
-								 theNode->Rot.z);
+		Q3Matrix4x4_SetRotate_XYZ(&matrix, theNode->Rot.x, theNode->Rot.y, theNode->Rot.z);		// init rotation matrix
 		Q3Matrix4x4_Multiply(&theNode->BaseTransformMatrix,&matrix, &theNode->BaseTransformMatrix);
 	}
 	

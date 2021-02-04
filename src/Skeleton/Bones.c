@@ -27,8 +27,8 @@
 /*    PROTOTYPES            */
 /****************************/
 
-static void DecomposeATriMesh(TQ3TriMeshData* triMeshData);
-static void UpdateSkinnedGeometry_Recurse(short joint);
+static void DecomposeATriMesh(SkeletonDefType* gCurrentSkeleton, TQ3TriMeshData* triMeshData);
+static void UpdateSkinnedGeometry_Recurse(ObjNode* skelNode, short joint);
 
 
 /****************************/
@@ -41,9 +41,6 @@ static void UpdateSkinnedGeometry_Recurse(short joint);
 /*    VARIABLES      */
 /*********************/
 
-
-SkeletonDefType		*gCurrentSkeleton;
-SkeletonObjDataType	*gCurrentSkelObjData;
 
 static	TQ3Matrix4x4		gMatrix;
 
@@ -66,25 +63,23 @@ void LoadBonesReferenceModel(FSSpec	*inSpec, SkeletonDefType *skeleton)
 	PatchSkeleton3DMF(inSpec->cName, newModel);		// patch 3DMF (add alpha test)
 #endif
 
-	gCurrentSkeleton = skeleton;
-
 			/* DECOMPOSE REFERENCE MODEL */
 
-	gCurrentSkeleton->numDecomposedTriMeshes	= 0;
-	gCurrentSkeleton->numDecomposedPoints		= 0;
-	gCurrentSkeleton->numDecomposedNormals		= 0;
+	skeleton->numDecomposedTriMeshes	= 0;
+	skeleton->numDecomposedPoints		= 0;
+	skeleton->numDecomposedNormals		= 0;
 
 	TQ3TriMeshFlatGroup meshList = Pomme3DMF_GetAllMeshes(the3DMFFile);
 	for (int i = 0; i < meshList.numMeshes; i++)
 	{
-		DecomposeATriMesh(meshList.meshes[i]);
+		DecomposeATriMesh(skeleton, meshList.meshes[i]);
 	}
 }
 
 
 /******************* DECOMPOSE A TRIMESH ***********************/
 
-static void DecomposeATriMesh(TQ3TriMeshData* triMeshData)
+static void DecomposeATriMesh(SkeletonDefType* gCurrentSkeleton, TQ3TriMeshData* triMeshData)
 {
 long 				numVertices;
 TQ3Point3D			*vertexList;
@@ -189,9 +184,6 @@ added_norm:
 
 void UpdateSkinnedGeometry(ObjNode *theNode)
 {	
-long	numTriMeshes,i;
-SkeletonObjDataType	*currentSkelObjData;
-
 			/* MAKE SURE OBJNODE IS STILL VALID */
 			//
 			// It's possible that Deleting a Skeleton and then creating a new
@@ -203,13 +195,12 @@ SkeletonObjDataType	*currentSkelObjData;
 			
 	if (theNode->CType == INVALID_NODE_FLAG)
 		return;
-	gCurrentSkelObjData = currentSkelObjData = theNode->Skeleton;
-	if (gCurrentSkelObjData == nil)
+
+	if (theNode->Skeleton == nil)
 		return;
-	
-	gCurrentSkeleton = currentSkelObjData->skeletonDefinition;
-	if (gCurrentSkeleton == nil)
-		DoFatalAlert("UpdateSkinnedGeometry: gCurrentSkeleton is invalid!");
+
+	const SkeletonDefType* skeletonDef = theNode->Skeleton->skeletonDefinition;
+	GAME_ASSERT(skeletonDef);
 
 	// Source port note: the original game used to start from the node's BaseTransformMatrix.
 	// I'm starting from the identity instead, which removes the need to differentiate
@@ -217,22 +208,22 @@ SkeletonObjDataType	*currentSkelObjData;
 	// The bbox's is also now centered around 0,0,0 rather than Coord.
 	Q3Matrix4x4_SetIdentity(&gMatrix);
 	gBBox.min =	gBBox.max = (TQ3Point3D){0,0,0};										// init bounding box calc
-	
-	if (gCurrentSkeleton->Bones[0].parentBone != NO_PREVIOUS_JOINT)
-		DoFatalAlert("UpdateSkinnedGeometry: joint 0 isnt base - fix code Brian!");
-	UpdateSkinnedGeometry_Recurse(0);													// start @ base
+
+			/* RECURSIVELY UPDATE GEOMETRY STARTING FROM BASE JOINT */
+
+	GAME_ASSERT_MESSAGE(skeletonDef->Bones[0].parentBone == NO_PREVIOUS_JOINT, "joint 0 isnt base - fix code Brian!");
+	UpdateSkinnedGeometry_Recurse(theNode, 0);											// start @ base
 	
 			/* UPDATE ALL TRIMESH BBOXES */
 			
-	numTriMeshes = currentSkelObjData->skeletonDefinition->numDecomposedTriMeshes;
-	for (i = 0; i < numTriMeshes; i++)
-		currentSkelObjData->localTriMeshPtrs[i]->bBox = gBBox;							// apply to local copy of trimesh
+	for (int i = 0; i < theNode->NumMeshes; i++)
+		theNode->MeshList[i]->bBox = gBBox;							// apply to local copy of trimesh
 }
 
 
 /******************** UPDATE SKINNED GEOMETRY: RECURSE ************************/
 
-static void UpdateSkinnedGeometry_Recurse(short joint)
+static void UpdateSkinnedGeometry_Recurse(ObjNode* skelNode, short joint)
 {
 long			numChildren,numPoints,p,i,numRefs,r,triMeshNum,p2,c,numNormals,n;
 TQ3Matrix4x4	oldM;
@@ -241,13 +232,13 @@ BoneDefinitionType	*bonePtr;
 float			minX,maxX,maxY,minY,maxZ,minZ;
 float			m00,m01,m02,m10,m11,m12,m20,m21,m22,m30,m31,m32;
 float			newX,newY,newZ;
-SkeletonObjDataType	*currentSkelObjData = gCurrentSkelObjData;
-SkeletonDefType		*currentSkeleton = gCurrentSkeleton;
+SkeletonObjDataType	*currentSkelObjData = skelNode->Skeleton;
+const SkeletonDefType *currentSkeleton = skelNode->Skeleton->skeletonDefinition;
 float				*jointMat = &currentSkelObjData->jointTransformMatrix[joint].value[0][0];
 float				*matPtr = &gMatrix.value[0][0];
 float				x,y,z;
-DecomposedPointType	*decomposedPointList = currentSkeleton->decomposedPointList;
-TQ3TriMeshData		**localTriMeshPtrs = currentSkelObjData->localTriMeshPtrs;
+const DecomposedPointType	*decomposedPointList = currentSkeleton->decomposedPointList;
+TQ3TriMeshData		**localTriMeshPtrs = skelNode->MeshList;
 
 	minX = minY = minZ = 1000000000;
 	maxX = maxY = maxZ = -minX;									// calc local bbox with registers for speed
@@ -465,7 +456,7 @@ TQ3TriMeshData		**localTriMeshPtrs = currentSkelObjData->localTriMeshPtrs;
 	for (c = 0; c < numChildren; c++)
 	{
 		oldM = gMatrix;																	// push matrix
-		UpdateSkinnedGeometry_Recurse(currentSkeleton->childIndecies[joint][c]);
+		UpdateSkinnedGeometry_Recurse(skelNode, currentSkeleton->childIndecies[joint][c]);
 		gMatrix = oldM;																	// pop matrix
 	}
 

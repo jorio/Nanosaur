@@ -93,7 +93,7 @@ void SetSkeletonAnim(SkeletonObjDataType *skeleton, long animNum)
 void MorphToSkeletonAnim(SkeletonObjDataType *skeleton, long animNum, float speed)
 {
 long	j;
-SkeletonDefType	*skeletonDef;
+const SkeletonDefType	*skeletonDef;
 
 			/* SET THE USUAL STUFF FIRST */	
 
@@ -137,7 +137,7 @@ Byte	eventType,animDirection,eventValue,loopCount;
 short	animNum,animEventIndex;
 float	currentTime,eventTime,loopbackTime;
 SkeletonObjDataType	*skeleton;
-SkeletonDefType	*skeletonDef;
+const SkeletonDefType	*skeletonDef;
 float	d,fps;
 long	volume;
 
@@ -354,7 +354,7 @@ long			keyFrameNum;
 JointKeyframeType	*kfPtr;
 long			animNum;
 float			currentAnimTime;
-SkeletonDefType	*skeletonDef;
+const SkeletonDefType	*skeletonDef;
 
 
 	animNum = skeleton->AnimNum;								// get anim # currently running
