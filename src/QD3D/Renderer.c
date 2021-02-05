@@ -7,7 +7,9 @@
 /*    EXTERNALS             */
 /****************************/
 
+#include <SDL.h>
 #include <SDL_opengl.h>
+#include <SDL_opengl_glext.h>
 #include <QD3D.h>
 #include "misc.h"	// assertions
 #include "environmentmap.h"
@@ -50,6 +52,7 @@ typedef struct RendererState
 
 static RendererState gState;
 
+static PFNGLDRAWRANGEELEMENTSPROC __glDrawRangeElements;
 
 /****************************/
 /*    MACROS/HELPERS        */
@@ -136,8 +139,17 @@ static inline void __DisableClientState(GLenum stateEnum, bool* stateFlagPtr)
 /*    API IMPLEMENTATION    */
 /****************************/
 
+void Render_GetGLProcAddresses(void)
+{
+	__glDrawRangeElements = (PFNGLDRAWRANGEELEMENTSPROC)SDL_GL_GetProcAddress("glDrawRangeElements");  // missing link with something...?
+	GAME_ASSERT(__glDrawRangeElements);
+}
+
 void Render_InitState(void)
 {
+	// On Windows, proc addresses are only valid for the current context, so we must get fetch everytime we recreate the context.
+	Render_GetGLProcAddresses();
+
 	SetInitialClientState(GL_VERTEX_ARRAY,				true);
 	SetInitialClientState(GL_NORMAL_ARRAY,				true);
 	SetInitialClientState(GL_COLOR_ARRAY,				true);
@@ -149,7 +161,7 @@ void Render_InitState(void)
 	SetInitialState(GL_TEXTURE_2D,		false);
 //	SetInitialState(GL_FOG,				true);
 
-	gState.boundTexture = -1;
+	gState.boundTexture = 0;
 }
 
 void Render_DrawTriMeshList(int numMeshes, TQ3TriMeshData** meshList, bool envMap, const TQ3Matrix4x4* transform)
@@ -196,7 +208,7 @@ void Render_DrawTriMeshList(int numMeshes, TQ3TriMeshData** meshList, bool envMa
 			CHECK_GL_ERROR();
 		}
 
-		glDrawRangeElements(GL_TRIANGLES, 0, mesh->numPoints-1, mesh->numTriangles*3, GL_UNSIGNED_SHORT, mesh->triangles);
+		__glDrawRangeElements(GL_TRIANGLES, 0, mesh->numPoints-1, mesh->numTriangles*3, GL_UNSIGNED_SHORT, mesh->triangles);
 		CHECK_GL_ERROR();
 
 		gRenderStats.trianglesDrawn += mesh->numTriangles;

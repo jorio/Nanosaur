@@ -225,7 +225,7 @@ TQ3TriMeshData* Q3TriMeshData_New(int numTriangles,	int numPoints)
 
 	for (int i = 0; i < 2; i++)
 	{
-#define SETPTR(lhs, n) do { if (i != 0) { (lhs) = (typeof((lhs))) base; } base += sizeof((lhs)[0]) * (n); } while(0)
+#define SETPTR(lhs, n) do { if (i != 0) { (lhs) = (decltype((lhs))) base; } base += sizeof((lhs)[0]) * (n); } while(0)
 		SETPTR(triMeshData,						1);
 		SETPTR(triMeshData->triangles,			numTriangles);
 		SETPTR(triMeshData->points,				numPoints);

@@ -27,7 +27,7 @@ extern "C"
 	extern int PRO_MODE;
 
 	// Tell Windows graphics driver that we prefer running on a dedicated GPU if available
-#if _WIN32
+#if 0 //_WIN32
 	__declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
 	__declspec(dllexport) unsigned long NvOptimusEnablement = 1;
 #endif
@@ -77,10 +77,8 @@ int CommonMain(int argc, const char** argv)
 
 	// Create window
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
-#ifndef _WIN32
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
-#endif
 //	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
 //	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
 	gSDLWindow = SDL_CreateWindow(
