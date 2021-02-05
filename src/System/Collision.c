@@ -794,7 +794,6 @@ static void GetTrianglesFromTriMesh(TQ3TriMeshData* triMeshDataPtr, const TQ3Mat
 TQ3Point3D			*points;		// transformed points
 float				nX,nY,nZ,x,y,z;
 TQ3PlaneEquation 	*plane;
-TQ3Vector3D			vv;
 
 		/* TRANSFORM ALL POINTS */
 
@@ -813,6 +812,7 @@ TQ3Vector3D			vv;
 		uint32_t i1 = triMeshDataPtr->triangles[t].pointIndices[1];
 		uint32_t i2 = triMeshDataPtr->triangles[t].pointIndices[2];
 		
+		TQ3Point3D vv;
 		Q3Point3D_CrossProductTri(&points[i0],&points[i1],&points[i2], &vv);	// calc face normal		
 		nY = vv.y;
 
