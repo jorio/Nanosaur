@@ -1071,15 +1071,8 @@ UInt16		*sPtr,*tileDataS;
 				dPtr = (UInt64 *)buffer;
 				for (y =  0; y < OREOMAP_TILE_SIZE; y++)
 				{
-					dPtr[0] = tileData[0];
-					dPtr[1] = tileData[1];
-					dPtr[2] = tileData[2];
-					dPtr[3] = tileData[3];
-					dPtr[4] = tileData[4];
-					dPtr[5] = tileData[5];
-					dPtr[6] = tileData[6];
-					dPtr[7] = tileData[7];
-						
+					memcpy(dPtr, tileData, 8 * sizeof(UInt64));
+
 					dPtr += (OREOMAP_TILE_SIZE/4)*SUPERTILE_SIZE;			// next line in dest
 					tileData += (OREOMAP_TILE_SIZE/4);						// next line in src
 				}
@@ -1094,39 +1087,9 @@ UInt16		*sPtr,*tileDataS;
 				tileDataS = (UInt16 *)tileData;
 				for (y =  0; y < OREOMAP_TILE_SIZE; y++)
 				{
-					sPtr[0] = tileDataS[31];
-					sPtr[1] = tileDataS[30];
-					sPtr[2] = tileDataS[29];
-					sPtr[3] = tileDataS[28];
-					sPtr[4] = tileDataS[27];
-					sPtr[5] = tileDataS[26];
-					sPtr[6] = tileDataS[25];
-					sPtr[7] = tileDataS[24];
-					sPtr[8] = tileDataS[23];
-					sPtr[9] = tileDataS[22];
-					sPtr[10] = tileDataS[21];
-					sPtr[11] = tileDataS[20];
-					sPtr[12] = tileDataS[19];
-					sPtr[13] = tileDataS[18];
-					sPtr[14] = tileDataS[17];
-					sPtr[15] = tileDataS[16];
-					sPtr[16] = tileDataS[15];
-					sPtr[17] = tileDataS[14];
-					sPtr[18] = tileDataS[13];
-					sPtr[19] = tileDataS[12];
-					sPtr[20] = tileDataS[11];
-					sPtr[21] = tileDataS[10];
-					sPtr[22] = tileDataS[9];
-					sPtr[23] = tileDataS[8];
-					sPtr[24] = tileDataS[7];
-					sPtr[25] = tileDataS[6];
-					sPtr[26] = tileDataS[5];
-					sPtr[27] = tileDataS[4];
-					sPtr[28] = tileDataS[3];
-					sPtr[29] = tileDataS[2];
-					sPtr[30] = tileDataS[1];
-					sPtr[31] = tileDataS[0];
-						
+					for (int x = 0; x < 32; x++)
+						sPtr[x] = tileDataS[31-x];
+
 					sPtr += OREOMAP_TILE_SIZE * SUPERTILE_SIZE;		// next line in dest
 					tileDataS += OREOMAP_TILE_SIZE;					// next line in src
 				}
@@ -1141,15 +1104,8 @@ UInt16		*sPtr,*tileDataS;
 				tileData += (OREOMAP_TILE_SIZE*(OREOMAP_TILE_SIZE-1)*2)/8;
 				for (y =  0; y < OREOMAP_TILE_SIZE; y++)
 				{
-					dPtr[0] = tileData[0];
-					dPtr[1] = tileData[1];
-					dPtr[2] = tileData[2];
-					dPtr[3] = tileData[3];
-					dPtr[4] = tileData[4];
-					dPtr[5] = tileData[5];
-					dPtr[6] = tileData[6];
-					dPtr[7] = tileData[7];
-						
+					memcpy(dPtr, tileData, 8 * sizeof(uint64_t));
+
 					dPtr += (OREOMAP_TILE_SIZE/4)*SUPERTILE_SIZE;			// next line in dest
 					tileData -= (OREOMAP_TILE_SIZE*2/8);					// next line in src
 				}
@@ -1165,39 +1121,9 @@ UInt16		*sPtr,*tileDataS;
 				tileDataS = (UInt16 *)(tileData + (OREOMAP_TILE_SIZE*(OREOMAP_TILE_SIZE-1)*2)/8);
 				for (y =  0; y < OREOMAP_TILE_SIZE; y++)
 				{
-					sPtr[0] = tileDataS[31];
-					sPtr[1] = tileDataS[30];
-					sPtr[2] = tileDataS[29];
-					sPtr[3] = tileDataS[28];
-					sPtr[4] = tileDataS[27];
-					sPtr[5] = tileDataS[26];
-					sPtr[6] = tileDataS[25];
-					sPtr[7] = tileDataS[24];
-					sPtr[8] = tileDataS[23];
-					sPtr[9] = tileDataS[22];
-					sPtr[10] = tileDataS[21];
-					sPtr[11] = tileDataS[20];
-					sPtr[12] = tileDataS[19];
-					sPtr[13] = tileDataS[18];
-					sPtr[14] = tileDataS[17];
-					sPtr[15] = tileDataS[16];
-					sPtr[16] = tileDataS[15];
-					sPtr[17] = tileDataS[14];
-					sPtr[18] = tileDataS[13];
-					sPtr[19] = tileDataS[12];
-					sPtr[20] = tileDataS[11];
-					sPtr[21] = tileDataS[10];
-					sPtr[22] = tileDataS[9];
-					sPtr[23] = tileDataS[8];
-					sPtr[24] = tileDataS[7];
-					sPtr[25] = tileDataS[6];
-					sPtr[26] = tileDataS[5];
-					sPtr[27] = tileDataS[4];
-					sPtr[28] = tileDataS[3];
-					sPtr[29] = tileDataS[2];
-					sPtr[30] = tileDataS[1];
-					sPtr[31] = tileDataS[0];
-						
+					for (int x = 0; x < 32; x++)
+						sPtr[x] = tileDataS[31-x];
+
 					sPtr += (OREOMAP_TILE_SIZE/4)*SUPERTILE_SIZE*4;			// next line in dest
 					tileDataS -= (OREOMAP_TILE_SIZE*2/2);					// next line in src
 				}
@@ -1212,38 +1138,8 @@ UInt16		*sPtr,*tileDataS;
 				tileDataS = (UInt16 *)tileData;
 				for (y =  0; y < OREOMAP_TILE_SIZE; y++)
 				{
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*0] = tileDataS[0];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*1] = tileDataS[1];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*2] = tileDataS[2];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*3] = tileDataS[3];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*4] = tileDataS[4];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*5] = tileDataS[5];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*6] = tileDataS[6];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*7] = tileDataS[7];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*8] = tileDataS[8];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*9] = tileDataS[9];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*10] = tileDataS[10];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*11] = tileDataS[11];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*12] = tileDataS[12];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*13] = tileDataS[13];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*14] = tileDataS[14];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*15] = tileDataS[15];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*16] = tileDataS[16];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*17] = tileDataS[17];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*18] = tileDataS[18];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*19] = tileDataS[19];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*20] = tileDataS[20];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*21] = tileDataS[21];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*22] = tileDataS[22];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*23] = tileDataS[23];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*24] = tileDataS[24];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*25] = tileDataS[25];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*26] = tileDataS[26];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*27] = tileDataS[27];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*28] = tileDataS[28];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*29] = tileDataS[29];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*30] = tileDataS[30];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*31] = tileDataS[31];
+					for (int x = 0; x < 32; x++)
+						sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*x] = tileDataS[x];
 						
 					sPtr--;											// prev col in dest
 					tileDataS += OREOMAP_TILE_SIZE;					// next line in src
@@ -1259,39 +1155,9 @@ UInt16		*sPtr,*tileDataS;
 				tileDataS = (UInt16 *)tileData;
 				for (y =  0; y < OREOMAP_TILE_SIZE; y++)
 				{
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*31] = tileDataS[0];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*30] = tileDataS[1];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*29] = tileDataS[2];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*28] = tileDataS[3];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*27] = tileDataS[4];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*26] = tileDataS[5];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*25] = tileDataS[6];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*24] = tileDataS[7];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*23] = tileDataS[8];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*22] = tileDataS[9];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*21] = tileDataS[10];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*20] = tileDataS[11];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*19] = tileDataS[12];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*18] = tileDataS[13];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*17] = tileDataS[14];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*16] = tileDataS[15];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*15] = tileDataS[16];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*14] = tileDataS[17];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*13] = tileDataS[18];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*12] = tileDataS[19];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*11] = tileDataS[20];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*10] = tileDataS[21];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*9] = tileDataS[22];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*8] = tileDataS[23];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*7] = tileDataS[24];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*6] = tileDataS[25];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*5] = tileDataS[26];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*4] = tileDataS[27];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*3] = tileDataS[28];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*2] = tileDataS[29];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*1] = tileDataS[30];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*0] = tileDataS[31];
-						
+					for (int x = 0; x < 32; x++)
+						sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*(31-x)] = tileDataS[x];		// backwards
+
 					sPtr++;											// next col in dest
 					tileDataS += OREOMAP_TILE_SIZE;					// next line in src
 				}
@@ -1306,39 +1172,9 @@ UInt16		*sPtr,*tileDataS;
 				tileDataS = (UInt16 *)tileData;
 				for (y =  0; y < OREOMAP_TILE_SIZE; y++)
 				{
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*31] = tileDataS[0];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*30] = tileDataS[1];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*29] = tileDataS[2];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*28] = tileDataS[3];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*27] = tileDataS[4];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*26] = tileDataS[5];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*25] = tileDataS[6];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*24] = tileDataS[7];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*23] = tileDataS[8];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*22] = tileDataS[9];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*21] = tileDataS[10];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*20] = tileDataS[11];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*19] = tileDataS[12];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*18] = tileDataS[13];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*17] = tileDataS[14];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*16] = tileDataS[15];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*15] = tileDataS[16];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*14] = tileDataS[17];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*13] = tileDataS[18];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*12] = tileDataS[19];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*11] = tileDataS[20];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*10] = tileDataS[21];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*9] = tileDataS[22];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*8] = tileDataS[23];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*7] = tileDataS[24];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*6] = tileDataS[25];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*5] = tileDataS[26];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*4] = tileDataS[27];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*3] = tileDataS[28];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*2] = tileDataS[29];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*1] = tileDataS[30];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*0] = tileDataS[31];
-						
+					for (int x = 0; x < 32; x++)
+						sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*(31-x)] = tileDataS[x];		// backwards
+
 					sPtr--;											// next col in dest
 					tileDataS += OREOMAP_TILE_SIZE;					// next line in src
 				}
@@ -1353,39 +1189,9 @@ UInt16		*sPtr,*tileDataS;
 				tileDataS = (UInt16 *)tileData;
 				for (y =  0; y < OREOMAP_TILE_SIZE; y++)
 				{
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*0] = tileDataS[0];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*1] = tileDataS[1];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*2] = tileDataS[2];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*3] = tileDataS[3];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*4] = tileDataS[4];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*5] = tileDataS[5];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*6] = tileDataS[6];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*7] = tileDataS[7];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*8] = tileDataS[8];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*9] = tileDataS[9];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*10] = tileDataS[10];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*11] = tileDataS[11];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*12] = tileDataS[12];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*13] = tileDataS[13];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*14] = tileDataS[14];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*15] = tileDataS[15];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*16] = tileDataS[16];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*17] = tileDataS[17];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*18] = tileDataS[18];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*19] = tileDataS[19];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*20] = tileDataS[20];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*21] = tileDataS[21];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*22] = tileDataS[22];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*23] = tileDataS[23];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*24] = tileDataS[24];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*25] = tileDataS[25];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*26] = tileDataS[26];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*27] = tileDataS[27];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*28] = tileDataS[28];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*29] = tileDataS[29];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*30] = tileDataS[30];
-					sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*31] = tileDataS[31];
-						
+					for (int x = 0; x < 32; x++)
+						sPtr[OREOMAP_TILE_SIZE*SUPERTILE_SIZE*x] = tileDataS[x];
+
 					sPtr++;											// prev col in dest
 					tileDataS += OREOMAP_TILE_SIZE;					// next line in src
 				}
