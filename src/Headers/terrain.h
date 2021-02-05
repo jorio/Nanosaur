@@ -145,8 +145,11 @@ struct SuperTileMemoryType
 	TQ3PlaneEquation	tilePlanes2[SUPERTILE_SIZE][SUPERTILE_SIZE];		// plane equation for each tile poly B
 	
 	float				radius;									// radius of this supertile
-	
+
 	Boolean				isFlat;
+
+	uint16_t			*textureData;
+	uint32_t 			glTextureName;
 };
 typedef struct SuperTileMemoryType SuperTileMemoryType;
 

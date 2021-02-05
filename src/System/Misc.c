@@ -258,18 +258,7 @@ OSErr	err;
 
 Ptr	AllocPtr(long size)
 {
-Ptr	pr;
-
-	pr = NewPtr(size);						// alloc in Application
-	if (pr == nil)
-	{
-		pr = NewPtrSys(size);				// alloc in SYS
-		if (pr == nil)
-			DoFatalAlert("AllocPtr: failed!");	
-		return(pr);
-	}
-	else
-		return(pr);
+	return NewPtr(size);
 }
 
 

@@ -31,13 +31,12 @@
 
 extern	short			gMainAppRezFile;
 extern	short	gPrefsFolderVRefNum;
-extern	long	gPrefsFolderDirID,gNumTerrainTextureTiles,gNumTileAnims;
+extern	long	gPrefsFolderDirID,gNumTerrainTextureTiles;
 extern	Ptr		gTerrainPtr,gTerrainHeightMapPtrs[];
 extern	long	gTerrainTileWidth,gTerrainTileDepth,gTerrainUnitWidth,gTerrainUnitDepth;		
 extern	long	gNumSuperTilesDeep,gNumSuperTilesWide;
 extern	UInt16	**gTerrainTextureLayer,**gTerrainHeightMapLayer,**gTerrainPathLayer,*gTileDataPtr;
 extern	TileAttribType	*gTileAttributes;
-extern	short	*gTileAnimEntryList[];
 extern	long	gCurrentSuperTileRow,gCurrentSuperTileCol;
 extern	long	gMyStartX,gMyStartZ;
 extern	FSSpec	gDataSpec;
@@ -53,8 +52,6 @@ static void ReadDataFromSkeletonFile(SkeletonDefType *skeleton, FSSpec *fsSpec);
 /****************************/
 /*    CONSTANTS             */
 /****************************/
-
-#define	PICT_HEADER_SIZE	512
 
 #define	SKELETON_FILE_VERS_NUM	0x0110			// v1.1
 
@@ -510,7 +507,7 @@ long				count;
 
 /********************** LOAD A FILE **************************/
 
-Ptr	LoadAFile(FSSpec *fsSpec)
+Ptr	LoadAFile(FSSpec* fsSpec, long* outSize)
 {
 OSErr	iErr;
 short 	fRefNum;
@@ -519,40 +516,41 @@ Ptr		data;
 
 
 			/* OPEN FILE */
-			
+
 	iErr = FSpOpenDF(fsSpec, fsRdPerm, &fRefNum);
-	if (iErr != noErr)
-	{
-		DoFatalAlert2("LoadAFile: FSpOpenDF failed!", fsSpec->cName);
-	}
+	GAME_ASSERT_MESSAGE(iErr == noErr, fsSpec->cName);
+
 
 			/* GET SIZE OF FILE */
-			
+
 	iErr = GetEOF(fRefNum, &size);
-	if (iErr != noErr)
-		DoFatalAlert("LoadAFile: GetEOF failed!");
+	GAME_ASSERT(iErr == noErr);
 
 
 			/* ALLOC MEMORY FOR FILE */
-			
+
 	data = AllocPtr(size);	
-	if (data == nil)
-		DoFatalAlert("LoadAFile: AllocPtr failed!");
-	
-	
+	GAME_ASSERT(data);
+
+
 			/* READ DATA */
 
 	iErr = FSRead(fRefNum, &size, data);
-	if (iErr != noErr)
-		DoFatalAlert("LoadAFile: FSRead failed!");
+	GAME_ASSERT(iErr == noErr);
 
 
 		/*  CLOSE THE FILE */
-				
+
 	iErr = FSClose(fRefNum);
-	if (iErr != noErr)
-		DoFatalAlert("LoadAFile: FSClose failed!");
-	
+	GAME_ASSERT(iErr == noErr);
+
+
+			/*  STORE SIZE IN OUTPUT PARAM  */
+
+	if (outSize)
+		*outSize = size;
+
+
 	return(data);
 }
 
@@ -563,12 +561,12 @@ Ptr		data;
 void LoadTerrainTileset(FSSpec *fsSpec)
 {
 SInt32		*longPtr;
+long		fileSize;
 
 			/* LOAD THE FILE */
 			
-	gTileFilePtr = LoadAFile(fsSpec);
-	if (gTileFilePtr == nil)
-		DoFatalAlert("LoadTerrainTileset: LoadAFile failed!");
+	gTileFilePtr = LoadAFile(fsSpec, &fileSize);
+	GAME_ASSERT(gTileFilePtr);
 
 
 			/*********************/
@@ -576,21 +574,22 @@ SInt32		*longPtr;
 			/*********************/
 
 	longPtr = (SInt32 *)gTileFilePtr;
-	
+
 				/* GET # TEXTURES */
-				
+
 	SInt32 numTerrainTextureTiles =  *longPtr++;												// get # texture tiles
 	ByteswapInts(sizeof(SInt32), 1, &numTerrainTextureTiles);
 	gNumTerrainTextureTiles = numTerrainTextureTiles;
-	if (gNumTerrainTextureTiles > MAX_TERRAIN_TILES)
-		DoFatalAlert("LoadTerrainTileset: gNumTerrainTextureTiles > MAX_TERRAIN_TILES");
+	GAME_ASSERT(gNumTerrainTextureTiles <= MAX_TERRAIN_TILES);
 
-	// SOURCE PORT NOTE: don't swap bytes of gTileDataPtr, this garbles the textures
-	// (I guess the game tells quesa that the textures are big endian somewhere else)
 	gTileDataPtr = (UInt16 *)longPtr;															// point to tile data
 
+				/* CONVERT TEXTURES TO LITTLE-ENDIAN */
 
-//	ExtractTileData();
+	int numTexels = gNumTerrainTextureTiles * OREOMAP_TILE_SIZE * OREOMAP_TILE_SIZE;
+	GAME_ASSERT(numTexels*2 == fileSize-4);
+
+	ByteswapInts(sizeof(UInt16), numTexels, gTileDataPtr);
 }
 
 
@@ -613,7 +612,7 @@ long		dummy1,dummy2;
 
 			/* LOAD THE TERRAIN FILE */
 			
-	gTerrainPtr = LoadAFile(fsSpec);
+	gTerrainPtr = LoadAFile(fsSpec, nil);
 	if (gTerrainPtr == nil)
 		DoAlert("Error loading Terrain file!");
 
@@ -725,28 +724,6 @@ long		dummy1,dummy2;
 		}
 	}
 
-#if 0
-			/**********************/
-			/* GET TILE_ANIM_DATA */
-			/**********************/
-
-	offset = *((SInt32 *)(gTerrainPtr+36));						// get offset to TILE_ANIM_DATA
-	longPtr = (SInt32 *)(gTerrainPtr+offset);	  					// calc ptr to TILE_ANIM_DATA
-
-	gQuickTileAnimListPtr = gTerrainPtr + (*longPtr++);			// calc ptr to TILE_ANIM_QUICKLIST
-	gNumTileAnims = *longPtr++;									// get # tile anims
-
-	if (gNumTileAnims > MAX_TILE_ANIMS)
-		DoAlert("Too many tile anims!");
-
-	for (i=0; i < gNumTileAnims; i++)
-	{
-		offset = *longPtr++;									// get offset to TILE_ANIM_ENTRY(n)
-		gTileAnimEntryList[i] = (short *)(gTerrainPtr + offset);// keep ptr to TILE_ANIM_ENTRY(n)
-	}
-
-	InitTileAnims();
-#endif
 
 				/* BUILD ITEM LIST */
 
@@ -765,47 +742,6 @@ long		dummy1,dummy2;
 			/* INIT THE SCROLL BUFFER */
 
 	ClearScrollBuffer();		
-}
-
-
-
-
-
-/**************** LOAD A PICT ***********************/
-
-PicHandle LoadAPict(FSSpec *specPtr)
-{
-PicHandle			picture;
-long				pictSize,headerSize;
-OSErr				iErr;
-short				fRefNum;
-char				pictHeader[PICT_HEADER_SIZE];
-
-	iErr = FSpOpenDF(specPtr,fsCurPerm,&fRefNum);
-	if (iErr)
-		DoFatalAlert("LoadAPict: FSpOpenDF failed!");
-
-	if	(GetEOF(fRefNum,&pictSize) != noErr)								// get size of file		
-		DoFatalAlert("LoadAPict:  GetEOF failed");
-			
-	headerSize = PICT_HEADER_SIZE;										// check the header					
-	if (FSRead(fRefNum,&headerSize,pictHeader) != noErr)
-		DoFatalAlert("LoadAPict:  FSRead failed!!");
-
-	if ((pictSize -= PICT_HEADER_SIZE) <= 0)
-		DoFatalAlert("Error reading PICT file!");
-		
-	if ((picture = (PicHandle)AllocHandle(pictSize)) == nil)
-		DoFatalAlert("LoadAPict: enough memory to read PICT file!");
-	HLock((Handle)picture);
-		
-	if (FSRead(fRefNum,&pictSize,(Ptr)*picture) != noErr)
-		DoFatalAlert("LoadAPict: reading PICT file!");
-		
-	FSClose(fRefNum);	
-	
-	
-	return(picture);	
 }
 
 
@@ -870,14 +806,4 @@ FSSpec	spec;
 				DoFatalAlert("LoadLevelArt: unsupported level #");
 	}
 }
-
-
-
-
-
-
-
-
-
-
 

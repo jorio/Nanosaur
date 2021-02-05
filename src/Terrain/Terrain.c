@@ -29,14 +29,14 @@
 #include "qd3d_geometry.h"
 #include "renderer.h"
 
-extern	ObjNode		*gThisNodePtr;
-extern	ObjNode		*gFirstNodePtr;
-extern	ObjNode		*gMyNodePtr;
 extern	TerrainItemEntryType	**gTerrainItemLookupTableX;
 extern	Ptr			gTileFilePtr;
 extern	NewObjectDefinitionType	gNewObjectDefinition;
 extern	TQ3Point3D		gMyCoord;
 
+#define TILE_TEXTURE_INTERNAL_FORMAT	GL_RGB
+#define TILE_TEXTURE_FORMAT				GL_BGRA_EXT
+#define TILE_TEXTURE_TYPE				GL_UNSIGNED_SHORT_1_5_5_5_REV
 
 
 
@@ -184,7 +184,7 @@ void InitTerrainManager(void)
 			/* ALLOC TEMP TEXTURE BUFF */
 			
 	if (gTempTextureBuffer == nil)
-		gTempTextureBuffer = (UInt16 *)AllocPtr(TEMP_TEXTURE_BUFF_SIZE * TEMP_TEXTURE_BUFF_SIZE * sizeof(UInt16 *));
+		gTempTextureBuffer = (UInt16 *)AllocPtr(TEMP_TEXTURE_BUFF_SIZE * TEMP_TEXTURE_BUFF_SIZE * sizeof(UInt16));
 }
 
 
@@ -250,6 +250,14 @@ void DisposeTerrain(void)
 
 	if (gSuperTileMemoryList != nil)						// release all supertiles (source port addition)
 	{
+		for (int i = 0; i < MAX_SUPERTILES; i++)
+		{
+			if (gSuperTileMemoryList[i].textureData)
+			{
+				DisposePtr((Ptr) gSuperTileMemoryList[i].textureData);
+				gSuperTileMemoryList[i].textureData = nil;
+			}
+		}
 		DisposePtr((Ptr) gSuperTileMemoryList);
 		gSuperTileMemoryList = nil;
 	}
@@ -277,7 +285,6 @@ TQ3Param2D				uvs[NUM_VERTICES_IN_SUPERTILE];
 TQ3Param2D				uvs2[4] = {{0,1},  {1,1},   {0,0},   {1,0}};
 
 Ptr						blankTexPtr;
-TQ3SurfaceShaderObject	blankTexObject;
 
 
 			/**********************************/
@@ -358,30 +365,37 @@ TQ3SurfaceShaderObject	blankTexObject;
 
 	for (i = 0; i < MAX_SUPERTILES; i++)
 	{
+		blankTexPtr = AllocPtr(SUPERTILE_TEXMAP_SIZE * SUPERTILE_TEXMAP_SIZE * sizeof(uint16_t));
+		GAME_ASSERT(blankTexPtr);
+
+		GLuint textureName;
+		glGenTextures(1, &textureName);
+		CHECK_GL_ERROR();
+		GAME_ASSERT(textureName);
+		glBindTexture(GL_TEXTURE_2D, textureName);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexImage2D(
+				GL_TEXTURE_2D,
+				0,
+				TILE_TEXTURE_INTERNAL_FORMAT,
+				SUPERTILE_TEXMAP_SIZE,
+				SUPERTILE_TEXMAP_SIZE,
+				0,
+				TILE_TEXTURE_FORMAT,
+				TILE_TEXTURE_TYPE,
+				blankTexPtr);
+		CHECK_GL_ERROR();
+
 					/* SET DATA */
-
-#if 0	// NOQUESA
-		triangleAttribs.attributeType = kQ3AttributeTypeNormal;					// set attribute Type
-		triangleAttribs.data = &faceNormals;									// point to attribute data
-		triangleAttribs.attributeUseArray = nil;								// (not used)
-		
-		vertAttribs[0].attributeType = kQ3AttributeTypeNormal;					// set attrib type == normal
-		vertAttribs[0].data = &vertexNormals[0];								// point to vertex normals
-		vertAttribs[0].attributeUseArray = nil;									// (not used)
-
-		vertAttribs[1].attributeType = kQ3AttributeTypeShadingUV;				// set attrib type == shading UV
-		vertAttribs[1].data = &uvs[0];											// point to vertex UV's
-		vertAttribs[1].attributeUseArray = nil;									// (not used)		
-#endif
 
 		gSuperTileMemoryList[i].mode = SUPERTILE_MODE_FREE;						// it's free for use
 
-#if 1	// NOQUESA
 
-		// TODO: create texture!
-		printf("TODO noquesa: Create Terrain Trimesh Texture\n");
+		gSuperTileMemoryList[i].textureData = (uint16_t*) blankTexPtr;
+		gSuperTileMemoryList[i].glTextureName = textureName;
 
-		// TODO: do we need face normals at all?
+		// TODO NOQUESA: do we need face normals at all?
 
 					/* CREATE THE TRIMESH OBJECT */
 
@@ -405,80 +419,14 @@ TQ3SurfaceShaderObject	blankTexObject;
 		tmd->bBox.min.x = tmd->bBox.min.y = tmd->bBox.min.z = 0;
 		tmd->bBox.max.x = tmd->bBox.max.y = tmd->bBox.max.z = TERRAIN_SUPERTILE_UNIT_SIZE;
 
-
-#else
-
-					/* MAKE BLANK TEXTURE */
-
-		blankTexPtr = AllocPtr(SUPERTILE_TEXMAP_SIZE * SUPERTILE_TEXMAP_SIZE * sizeof(short));		// alloc memory for texture
-		if (blankTexPtr == nil)
-			DoFatalAlert("CreateSuperTileMemoryList: AllocPtr failed!");
-
-		blankTexObject = QD3D_Data16ToTexture_NoMip(blankTexPtr, SUPERTILE_TEXMAP_SIZE, SUPERTILE_TEXMAP_SIZE);
-		GAME_ASSERT(blankTexObject);
-
-		DisposePtr(blankTexPtr);																	// free memory
-	
-		Q3Shader_SetUBoundary(blankTexObject, kQ3ShaderUVBoundaryClamp);		// source port addition
-		Q3Shader_SetVBoundary(blankTexObject, kQ3ShaderUVBoundaryClamp);		// source port addition
-	
-					/* CREATE GEOMETRY'S ATTRIBUTE SET */
-						
-		geometryAttribSet = Q3AttributeSet_New();
-		if (geometryAttribSet == nil)
-			DoFatalAlert("CreateSuperTileMemoryList: Q3AttributeSet_New failed!");
-		
-		status = Q3AttributeSet_Add(geometryAttribSet, kQ3AttributeTypeSurfaceShader, &blankTexObject);	
-		if (status == kQ3Failure)
-			DoFatalAlert("CreateSuperTileMemoryList: Q3AttributeSet_Add failed!");
-
-		Q3Object_Dispose(blankTexObject);						// free extra ref to shader
+		tmd->hasTexture = true;
+		tmd->glTextureName = textureName;
 
 
-				/* CREATE AN EMPTY TRIMESH STRUCTURE */
-				 
-		
-		triMeshData.triMeshAttributeSet = geometryAttribSet;	
-		triMeshData.numTriangles = NUM_POLYS_IN_SUPERTILE;		// n triangles in each trimesh
-		triMeshData.triangles = &newTriangle[0];				// point to triangle list
-
-		triMeshData.numTriangleAttributeTypes = 1;				// all triangles share the same attribs
-		triMeshData.triangleAttributeTypes = &triangleAttribs;
-
-		triMeshData.numEdges = 0;								// our trimesh doesnt have any edge info
-		triMeshData.edges = nil;
-		triMeshData.numEdgeAttributeTypes = 0;						
-		triMeshData.edgeAttributeTypes = nil;
-
-		triMeshData.numPoints = NUM_VERTICES_IN_SUPERTILE;		// set n # vertices
-		triMeshData.points = &p[0];								// point to bogus temp point list
-
-		triMeshData.numVertexAttributeTypes = 2;				// 2 attrib types: uv's & normals
-		triMeshData.vertexAttributeTypes = &vertAttribs[0];
-
-		triMeshData.bBox.isEmpty = kQ3False;					// calc bounding box			
-		triMeshData.bBox.min.x = triMeshData.bBox.min.y = triMeshData.bBox.min.z = 0;
-		triMeshData.bBox.max.x = triMeshData.bBox.max.y = triMeshData.bBox.max.z = TERRAIN_SUPERTILE_UNIT_SIZE;
-		
-
-
-
-				/* CREATE THE TRIMESH OBJECT */
-					
-		gSuperTileMemoryList[i].triMesh = Q3TriMesh_New(&triMeshData);
-		if (gSuperTileMemoryList[i].triMesh == nil)
-		{
-			DoAlert("CreateSuperTileMemoryList: Q3TriMesh_New failed!");
-			QD3D_ShowRecentError();
-		}
-#endif
-	
-	
 			/****************************************************/
 			/* NOW CREATE SECONDARY TRIMESH FOR FLAT SUPERTILES */
 			/****************************************************/
 
-#if 1	// NOQUESA
 		TQ3TriMeshData* tmdFlat = Q3TriMeshData_New(2, 4);			// only 2 triangles in a flat supertile, 4 vertices
 		GAME_ASSERT(tmdFlat);
 
@@ -509,44 +457,8 @@ TQ3SurfaceShaderObject	blankTexObject;
 		tmdFlat->bBox.min.x = tmdFlat->bBox.min.y = tmdFlat->bBox.min.z = 0;
 		tmdFlat->bBox.max.x = tmdFlat->bBox.max.y = tmdFlat->bBox.max.z = TERRAIN_SUPERTILE_UNIT_SIZE;
 
-#else
-					/* MODIFY THE UV ATTRIBS */
-					
-		vertAttribs[1].data = &uvs2[0];								
-
-
-				/* CREATE THE 2 TRIANGLES */
-				
-		// SOURCE PORT NOTE: changed first tri's winding to 0-2-1. Second tri doesn't need to change.
-		newTriangle[0].pointIndices[0] = 0;
-		newTriangle[0].pointIndices[1] = 2;
-		newTriangle[0].pointIndices[2] = 1;
-		newTriangle[1].pointIndices[0] = 1;
-		newTriangle[1].pointIndices[1] = 2;
-		newTriangle[1].pointIndices[2] = 3;
-			
-
-				/* MODIFY SOME INFO FOR THE NEW TRIMESH */
-				 
-		triMeshData.numTriangles = 2;							// only 2 triangles in a flat supertile
-		triMeshData.numPoints = 4;								// set 4 vertices
-
-		triMeshData.numVertexAttributeTypes = 2;				// 2 attrib types: uv's & normals
-		triMeshData.vertexAttributeTypes = &vertAttribs[0];
-
-				/* CREATE THE TRIMESH OBJECT */
-	
-					
-		gSuperTileMemoryList[i].triMesh2 = Q3TriMesh_New(&triMeshData);
-		if (gSuperTileMemoryList[i].triMesh2 == nil)
-		{
-			DoAlert("CreateSuperTileMemoryList: Q3TriMesh_New #2 failed!");
-			QD3D_ShowRecentError();
-		}
-	
-				
-		Q3Object_Dispose(geometryAttribSet);					// free extra ref to attribs
-#endif
+		tmdFlat->hasTexture = true;
+		tmdFlat->glTextureName = textureName;
 	}
 }
 
@@ -603,7 +515,6 @@ short				h1,h2,h3,h4;
 TQ3Point3D			*pointList;
 TQ3TriMeshTriangleData	*triangleList;
 TQ3StorageObject	mipmapStorage;
-unsigned char		*buffer;
 UInt32				validSize,bufferSize;
 SuperTileMemoryType	*superTilePtr;
 
@@ -913,25 +824,25 @@ SuperTileMemoryType	*superTilePtr;
 			/* UPDATE TEXTURE */
 			/******************/
 
-#if 1	// NOQUESA
-	printf("TODO noquesa: update supertile texture\n");
-#else
 			/* GET MIPMAP BUFFER */
 
-	mipmapStorage = QD3D_GetMipmapStorageObjectFromAttrib(triMeshData.triMeshAttributeSet);	// get storage object
-	status = Q3MemoryStorage_GetBuffer(mipmapStorage, &buffer, &validSize, &bufferSize);	// get ptr to the buffer
-			
-	ShrinkSuperTileTextureMap(gTempTextureBuffer,(UInt16 *)buffer);						// shrink to 128x128
-			
-	status = Q3MemoryStorage_SetBuffer(mipmapStorage, buffer, validSize, bufferSize);
-	Q3Object_Dispose(mipmapStorage);												// nuke the mipmap storage object
+	ShrinkSuperTileTextureMap(gTempTextureBuffer, superTilePtr->textureData);		// shrink to 128x128
 
 				/* UPDATE THE TRIMESH */
-			
-	Q3TriMesh_SetData(theTriMesh,&triMeshData);										// update the trimesh with new info
-	Q3TriMesh_EmptyData(&triMeshData);												// free the trimesh data
 
-#endif
+	glBindTexture(GL_TEXTURE_2D, superTilePtr->glTextureName);
+	glTexSubImage2D(
+			GL_TEXTURE_2D,
+			0,
+			0,
+			0,
+			SUPERTILE_TEXMAP_SIZE,
+			SUPERTILE_TEXMAP_SIZE,
+			TILE_TEXTURE_FORMAT,
+			TILE_TEXTURE_TYPE,
+			superTilePtr->textureData);
+	CHECK_GL_ERROR();
+
 
 	return(superTileNum);
 }
@@ -949,7 +860,6 @@ TQ3Status			status;
 long				row2,col2,row,col;
 UInt32				validSize,bufferSize;
 UInt16				tile;
-unsigned char		*buffer;
 TQ3PlaneEquation	planeEq;
 
 			/*********************************/
@@ -1010,25 +920,22 @@ TQ3PlaneEquation	planeEq;
 		}
 	}
 
-#if 1	// TODO noquesa
-	printf("TODO noquesa: %s: texture\n", __func__);
-#else
 				/* UPDATE TEXTURE */
-				
-	mipmapStorage = QD3D_GetMipmapStorageObjectFromAttrib(triMeshData.triMeshAttributeSet);	// get storage object
-	status = Q3MemoryStorage_GetBuffer(mipmapStorage, &buffer, &validSize, &bufferSize);	// get ptr to the buffer
 
-	ShrinkSuperTileTextureMap(gTempTextureBuffer,(UInt16 *)buffer);						// shrink to 128x128
-				
-	status = Q3MemoryStorage_SetBuffer(mipmapStorage, buffer, validSize, bufferSize);
-	Q3Object_Dispose(mipmapStorage);														// nuke the mipmap storage object
+	ShrinkSuperTileTextureMap(gTempTextureBuffer, superTilePtr->textureData);		// shrink to 128x128
 
-
-				/* UPDATE THE TRIMESH */
-			
-	Q3TriMesh_SetData(theTriMesh,&triMeshData);										// update the trimesh with new info
-	Q3TriMesh_EmptyData(&triMeshData);												// free the trimesh data
-#endif
+	glBindTexture(GL_TEXTURE_2D, superTilePtr->glTextureName);
+	glTexSubImage2D(
+			GL_TEXTURE_2D,
+			0,
+			0,
+			0,
+			SUPERTILE_TEXMAP_SIZE,
+			SUPERTILE_TEXMAP_SIZE,
+			TILE_TEXTURE_FORMAT,
+			TILE_TEXTURE_TYPE,
+			superTilePtr->textureData);
+	CHECK_GL_ERROR();
 }
 
 

@@ -53,12 +53,10 @@ extern	SkeletonDefType *LoadSkeletonFile(short skeletonType);
 extern	void	OpenGameFile(Str255 filename,short *fRefNumPtr, Str255 errString);
 extern	OSErr LoadPrefs(PrefsType *prefBlock);
 extern	void SavePrefs(PrefsType *prefs);
-extern	Ptr	LoadAFile(FSSpec *fsSpec);
+extern	Ptr	LoadAFile(FSSpec* fsSpec, long* outSize);
 
 extern	void LoadTerrainTileset(FSSpec *fsSpec);
 extern	void LoadTerrain(FSSpec *fsSpec);
-
-extern	PicHandle LoadAPict(FSSpec *specPtr);
 
 extern	void LoadLevelArt(short levelNum);
 

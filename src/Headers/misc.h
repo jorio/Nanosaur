@@ -3,6 +3,13 @@
 //
 
 
+#if __APPLE__
+	#include <OpenGL/glu.h>		// gluErrorString
+#else
+	#include <GL/glu.h>			// gluErrorString
+#endif
+
+
 extern	void ShowSystemErr(long err);
 extern void	DoAlert(const char*);
 extern void DoAssert(const char* msg, const char* file, int line);
