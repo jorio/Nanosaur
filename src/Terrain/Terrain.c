@@ -282,7 +282,7 @@ TQ3TriMeshTriangleData	newTriangle[NUM_POLYS_IN_SUPERTILE];
 TQ3Vector3D				faceNormals[NUM_POLYS_IN_SUPERTILE];
 TQ3Vector3D				vertexNormals[NUM_VERTICES_IN_SUPERTILE];
 TQ3Param2D				uvs[NUM_VERTICES_IN_SUPERTILE];
-TQ3Param2D				uvs2[4] = {{0,1},  {1,1},   {0,0},   {1,0}};
+TQ3Param2D				uvs2[4] = {{0,0}, {1,0}, {0,1}, {1,1}};
 
 Ptr						blankTexPtr;
 
@@ -326,7 +326,7 @@ Ptr						blankTexPtr;
 		for (u = 0; u <= SUPERTILE_SIZE; u++)
 		{
 			uvs[i].u = (float)u / (float)SUPERTILE_SIZE;
-			uvs[i].v = 1- ((float)v / (float)SUPERTILE_SIZE);		
+			uvs[i].v = (float)v / (float)SUPERTILE_SIZE;
 			i++;
 		}	
 	}
@@ -375,6 +375,8 @@ Ptr						blankTexPtr;
 		glBindTexture(GL_TEXTURE_2D, textureName);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		glTexImage2D(
 				GL_TEXTURE_2D,
 				0,
@@ -405,8 +407,6 @@ Ptr						blankTexPtr;
 		gSuperTileMemoryList[i].triMeshPtr = tmd;
 
 		memcpy(tmd->triangles,		newTriangle,	sizeof(tmd->triangles[0]) * NUM_POLYS_IN_SUPERTILE);
-//		memcpy(tmd->points,			p,				sizeof(tmd->points[0]) * NUM_VERTICES_IN_SUPERTILE);
-//		memcpy(tmd->vertexNormals,	vertexNormals,	sizeof(tmd->vertexNormals[0]) * NUM_VERTICES_IN_SUPERTILE);
 		memcpy(tmd->vertexUVs,		uvs,			sizeof(tmd->vertexUVs[0]) * NUM_VERTICES_IN_SUPERTILE);
 		for (int pointIndex = 0; pointIndex < NUM_VERTICES_IN_SUPERTILE; pointIndex++)
 		{
@@ -447,9 +447,6 @@ Ptr						blankTexPtr;
 			tmdFlat->vertexNormals[pointIndex] = (TQ3Vector3D) {0, 1, 0 };		// set dummy vertex normals (point up)
 		}
 
-//		memcpy(tmd2->triangles,		newTriangle,	2 * sizeof(tmd->triangles[0]));
-//		memcpy(tmd2->points,			p,			4 * sizeof(tmd2->points[0]));
-//		memcpy(tmd2->vertexNormals,	vertexNormals,	4 * sizeof(tmd2->vertexNormals[0]));
 		memcpy(tmdFlat->vertexUVs, uvs2, 4 * sizeof(tmdFlat->vertexUVs[0]));
 		// TODO: face normals?
 
