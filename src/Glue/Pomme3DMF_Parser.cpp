@@ -159,7 +159,7 @@ uint32_t Q3MetaFileParser::Parse1Chunk()
 		case 'txmm':    // MipmapTexture
 		{
 			uint32_t internalTextureID;
-			if (knownTextures.contains(chunkOffset))
+			if (knownTextures.find(chunkOffset) != knownTextures.end())
 			{
 				printf("Texture already seen!");
 				f.Skip(chunkSize);
