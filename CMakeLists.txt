@@ -7,8 +7,8 @@ set(CMAKE_CXX_STANDARD 20)
 
 set(CMAKE_OSX_DEPLOYMENT_TARGET "10.11" CACHE STRING "Minimum OS X deployment version")
 
-project(Nanosaur_NoQuesa
-	VERSION 1.4.1
+project(Nanosaur
+	VERSION 1.4.2
 	LANGUAGES C CXX
 )
 
@@ -221,6 +221,7 @@ add_compile_definitions(
 
 target_compile_definitions(${GAME_TARGET} PRIVATE
 	SOURCE_PORT_ENHANCEMENTS
+	GL_SILENCE_DEPRECATION
 )
 
 if(WIN32)
