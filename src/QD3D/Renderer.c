@@ -42,6 +42,7 @@ typedef struct RendererState
 	bool		hasState_GL_DEPTH_TEST;
 	bool		hasState_GL_COLOR_MATERIAL;
 	bool		hasState_GL_TEXTURE_2D;
+	bool		hasState_GL_BLEND;
 //	bool		hasState_GL_FOG;
 } RendererState;
 
@@ -159,6 +160,7 @@ void Render_InitState(void)
 	SetInitialState(GL_DEPTH_TEST,		true);
 	SetInitialState(GL_COLOR_MATERIAL,	true);
 	SetInitialState(GL_TEXTURE_2D,		false);
+	SetInitialState(GL_BLEND,			false);
 //	SetInitialState(GL_FOG,				true);
 
 	gState.boundTexture = 0;
@@ -179,6 +181,15 @@ void Render_DrawTriMeshList(int numMeshes, TQ3TriMeshData** meshList, bool envMa
 		if (envMap)
 		{
 			EnvironmentMapTriMesh(mesh, transform);
+		}
+
+		if (mesh->textureHasTransparency || mesh->diffuseColor.a < .999f)
+		{
+			EnableState(GL_BLEND);
+		}
+		else
+		{
+			DisableState(GL_BLEND);
 		}
 
 		glVertexPointer(3, GL_FLOAT, 0, mesh->points);

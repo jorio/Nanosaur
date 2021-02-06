@@ -214,6 +214,8 @@ QD3DSetupOutputType	*outputPtr;
 
 	glAlphaFunc(GL_NOTEQUAL, 0);
 
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 	// Normalize normal vectors. Required so lighting looks correct on scaled meshes.
 	glEnable(GL_NORMALIZE);
 
