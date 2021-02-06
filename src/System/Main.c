@@ -131,7 +131,12 @@ OSErr		iErr;
 	gGamePrefs.opaqueWater = false;
 	gGamePrefs.extreme = false;
 				
+#if 1	// NOQUESA - remove me when done testing
+	gGamePrefs.extreme = true;
+	gGamePrefs.fullscreen = false;
+#else
 	LoadPrefs(&gGamePrefs);							// attempt to read from prefs file
+#endif
 	SetFullscreenMode();
 	SetProModeSettings(gGamePrefs.extreme);
 

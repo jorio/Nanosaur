@@ -12,6 +12,7 @@ extern "C" {
 #include "misc.h" // DrawPictureToScreen
 #include "windows_nano.h" // GAME_VIEW_WIDTH, GAME_VIEW_HEIGHT
 #include "renderer.h"
+#include "version.h"
 }
 
 #include "GamePatches.h"
@@ -264,8 +265,9 @@ void DoSDLMaintenance()
 	if (ticksElapsed >= debugText.updateInterval) {
 		float fps = 1000 * debugText.frameAccumulator / (float)ticksElapsed;
 		snprintf(debugText.titleBuffer, sizeof(debugText.titleBuffer),
-			"%s - fps:%d tris:%d nodes:%d meshes:%d bsc:%d ",
+			"%s %s - fps:%d tris:%d nodes:%d meshes:%d bsc:%d ",
 			PRO_MODE ? "Nanosaur Extreme" : "Nanosaur",
+			PROJECT_VERSION,
 			(int)round(fps),
 			gRenderStats.trianglesDrawn,
 			gRenderStats.nodesDrawn,
