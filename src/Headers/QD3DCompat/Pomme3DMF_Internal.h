@@ -99,7 +99,6 @@ private:
 	int currentDepth = 0;
 
 	TQ3TriMeshData* currentMesh;
-	int numTexturesDumpedToTGA = 0;
 
 	std::map<uint32_t, uint64_t> referenceTOC;
 	std::map<std::streampos, uint32_t> knownTextures;

@@ -1,6 +1,7 @@
 #include "Pomme3DMF.h"
 #include "Pomme3DMF_Internal.h"
 #include "PommeDebug.h"
+#include "Pomme.h"
 
 #include <stack>
 #include <fstream>
@@ -23,22 +24,6 @@ static void Assert(bool condition, const char* message)
 		throw std::runtime_error(message);
 	}
 }
-
-static void DumpTGA_RGBA(const char* path, short width, short height, const char* rgbaData)
-{
-	std::ofstream tga(path);
-	uint16_t tgaHdr[] = {0, 2, 0, 0, 0, 0, (uint16_t) width, (uint16_t) height, 0x2820};
-	tga.write((const char*) tgaHdr, sizeof(tgaHdr));
-	for (int i = 0; i < 4 * width * height; i += 4)
-	{
-		tga.put(rgbaData[i + 2]); //b
-		tga.put(rgbaData[i + 1]); //g
-		tga.put(rgbaData[i + 0]); //r
-		tga.put(rgbaData[i + 3]); //a
-	}
-	tga.close();
-}
-
 
 template<typename T>
 static void ReadTriangleVertexIndices(Pomme::BigEndianIStream& f, int numTriangles, TQ3TriMeshData* currentMesh)
@@ -478,96 +463,29 @@ uint32_t Q3MetaFileParser::Parse_txmm(uint32_t chunkSize)
 
 	Assert(offset == 0, "unsupported texture offset");
 	Assert(bitOrder == kQ3EndianBig, "unsupported bit order");
-	Assert(byteOrder == kQ3EndianBig, "unsupported byte order");
 
-	//texture.buffer			= f.ReadBytes(texture.rowBytes * height);
+	// Find bytes per pixel
+	int bytesPerPixel = 0;
+	if (pixelType == kQ3PixelTypeRGB16 || pixelType == kQ3PixelTypeARGB16)
+		bytesPerPixel = 2;
+	else if (pixelType == kQ3PixelTypeRGB32 || pixelType == kQ3PixelTypeARGB32)
+		bytesPerPixel = 4;
+	else
+		Assert(false, "unrecognized pixel type");
 
-	// Convert it to ARGB
-	//uint8_t* inData = texture.buffer.data();
+	// Trim padding at end of rows
 	texture.buffer.clear();
-	texture.buffer.reserve(4 * width * height);
-	switch (pixelType)
+	texture.rowBytes = bytesPerPixel * width;
+	texture.buffer.resize(texture.rowBytes * height);
+	for (uint32_t y = 0; y < height; y++)
 	{
-		case kQ3PixelTypeRGB16:
-		{
-			for (uint32_t y = 0; y < height; y++)
-			{
-				for (uint32_t x = 0; x < width; x++)
-				{
-					uint16_t pixel = f.Read<uint16_t>();
-
-					// 0 RRRRR GGGGG BBBBB
-					uint8_t r = ((pixel & 0b0111110000000000) >> 10) * 255 / 31;
-					uint8_t g = ((pixel & 0b0000001111100000) >>  5) * 255 / 31;
-					uint8_t b = ((pixel & 0b0000000000011111)      ) * 255 / 31;
-
-					texture.buffer.push_back(r);
-					texture.buffer.push_back(g);
-					texture.buffer.push_back(b);
-					texture.buffer.push_back(255);
-				}
-
-				f.Skip(rowBytes - width * 2);
-			}
-			break;
-		}
-
-		case kQ3PixelTypeARGB16:
-		{
-			for (uint32_t y = 0; y < height; y++)
-			{
-				for (uint32_t x = 0; x < width; x++)
-				{
-					uint16_t pixel = f.Read<uint16_t>();
-
-					// A RRRRR GGGGG BBBBB
-					uint8_t r = ((pixel & 0b0111110000000000) >> 10) * 255 / 31;
-					uint8_t g = ((pixel & 0b0000001111100000) >>  5) * 255 / 31;
-					uint8_t b = ((pixel & 0b0000000000011111)      ) * 255 / 31;
-
-					texture.buffer.push_back(r);
-					texture.buffer.push_back(g);
-					texture.buffer.push_back(b);
-					texture.buffer.push_back(pixel == 0? 0 : 255);
-				}
-
-				f.Skip(rowBytes - width * 2);
-			}
-			break;
-		}
-
-		case kQ3PixelTypeARGB32:
-		{
-			for (uint32_t y = 0; y < height; y++)
-			{
-				for (uint32_t x = 0; x < width; x++)
-				{
-					texture.buffer.push_back(f.Read<uint8_t>()); // r
-					texture.buffer.push_back(f.Read<uint8_t>()); // g
-					texture.buffer.push_back(f.Read<uint8_t>()); // b
-					texture.buffer.push_back(f.Read<uint8_t>()); // a
-				}
-
-				f.Skip(rowBytes - width * 4);
-			}
-			break;
-		}
-
-		default:
-			Assert(false, "unrecognized pixel type");
+		f.Read((Ptr) texture.buffer.data() + y*texture.rowBytes, texture.rowBytes);
+		f.Skip(rowBytes - width * bytesPerPixel);
 	}
 
-	texture.pixelType = kQ3PixelTypeARGB32;
-	texture.rowBytes = 4 * width;
-	texture.offset = 0;
-
-
-	char outname[256];
-	snprintf(outname, sizeof(outname), "/tmp/3dmftex%d.tga", numTexturesDumpedToTGA);
-	DumpTGA_RGBA(outname, width, height, (const char*)texture.buffer.data());
-	printf("   (wrote %s)", outname);
-	numTexturesDumpedToTGA++;
-
+	// Make every pixel little-endian (especially to avoid breaking 16-bit 1-5-5-5 ARGB textures)
+	if (byteOrder == kQ3EndianBig)
+		ByteswapInts(bytesPerPixel, width*height, texture.buffer.data());
 
 	return internalTextureID;
 }

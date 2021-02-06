@@ -148,17 +148,35 @@ Pomme3DMF_FileHandle Pomme3DMF_LoadModelFile(const FSSpec* spec)
 //			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 //			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
+		GLenum internalFormat;
+		GLenum format;
+		GLenum type;
+		switch (textureDef.pixelType)
+		{
+			case kQ3PixelTypeRGB16:
+				internalFormat = GL_RGB;
+				format = GL_BGRA_EXT;
+				type = GL_UNSIGNED_SHORT_1_5_5_5_REV;
+				break;
+			case kQ3PixelTypeARGB16:
+				internalFormat = GL_RGBA;
+				format = GL_BGRA_EXT;
+				type = GL_UNSIGNED_SHORT_1_5_5_5_REV;
+				break;
+			default:
+				throw std::runtime_error("3DMF texture: Unsupported kQ3PixelType");
+		}
+
 		glTexImage2D(GL_TEXTURE_2D,
 					 0,										// mipmap level
-					 GL_RGBA,								// format in OpenGL
+					 internalFormat,						// format in OpenGL
 					 textureDef.width,						// width in pixels
 					 textureDef.height,						// height in pixels
 					 0,										// border
-					 GL_RGBA,								// what my format is
-					 GL_UNSIGNED_BYTE,						// size of each r,g,b
+					 format,								// what my format is
+					 type,									// size of each r,g,b
 					 textureDef.buffer.data());				// pointer to the actual texture pixels
 		CHECK_GL_ERROR();
-
 
 		// Set glTextureName on meshes
 		for (auto mesh : metaFile->meshes)
