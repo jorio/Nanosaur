@@ -28,8 +28,6 @@ extern	TQ3Point3D			gCoord;
 /****************************/
 
 static void ExplodeTriMesh(const TQ3TriMeshData *mesh, const TQ3Matrix4x4* transform);
-static void ScrollUVs_Recurse(TQ3Object obj);
-static void ScrollUVs_TriMesh(TQ3Object theTriMesh);
 
 
 /****************************/
@@ -45,8 +43,6 @@ float		gBoomForce,gParticleDecaySpeed;
 Byte		gParticleMode;
 long		gParticleDensity;
 ObjNode		*gParticleParentObj;
-
-TQ3Matrix3x3		gUVTransformMatrix;
 
 long				gNumParticles = 0;
 ParticleType		gParticles[MAX_PARTICLES];
@@ -510,122 +506,26 @@ void QD3D_DrawParticles(QD3DSetupOutputType *setupInfo)
 // Given any object as input this will scroll any u/v coordinates by the given amount
 //
 
-void QD3D_ScrollUVs(TQ3Object theObject, float du, float dv)
+void QD3D_ScrollUVs(int numMeshes, TQ3TriMeshData** meshList, float rawDeltaU, float rawDeltaV)
 {
-	Q3Matrix3x3_SetTranslate(&gUVTransformMatrix, du, dv);		// make the matrix
-
-#if 0	// TODO noquesa -- we removed gWorkMatrixmaybe we won't need this anymore
-	Q3Matrix4x4_SetIdentity(&gWorkMatrix);						// init to identity matrix
-#endif
-	ScrollUVs_Recurse(theObject);	
-}
-
-
-/****************** SCROLL UVs - RECURSE ***********************/
-
-static void ScrollUVs_Recurse(TQ3Object obj)
-#if 1	// TODO noquesa
-{ printf("TODO noquesa: %s\n", __func__); }
-#else
-{
-TQ3GroupPosition	position;
-TQ3Object   		object;
-TQ3ObjectType		oType;
-TQ3Matrix4x4		transform;
-TQ3Matrix4x4  		stashMatrix;
-
-				/*******************************/
-				/* SEE IF ACCUMULATE TRANSFORM */
-				/*******************************/
-				
-	if (Q3Object_IsType(obj,kQ3ShapeTypeTransform))
+	for (int i = 0; i < numMeshes; i++)
 	{
-  		Q3Transform_GetMatrix(obj,&transform);
-  		Q3Matrix4x4_Multiply(&transform,&gWorkMatrix,&gWorkMatrix);
- 	}
-	else
-				/*************************/
-				/* SEE IF FOUND GEOMETRY */
-				/*************************/
+		TQ3TriMeshData* mesh = meshList[i];
 
-	if (Q3Object_IsType(obj,kQ3ShapeTypeGeometry))
-	{
-		oType = Q3Geometry_GetType(obj);									// get geometry type
-		switch(oType)
+				/* SEE IF HAS A TEXTURE */
+
+		if (!mesh->hasTexture)
+			continue;
+
+		GAME_ASSERT(mesh->vertexUVs);
+
+		for (int j = 0; j < mesh->numPoints; j++)
 		{
-					/* MUST BE TRIMESH */
-					
-			case	kQ3GeometryTypeTriMesh:
-					ScrollUVs_TriMesh(obj);
-					break;
+			mesh->vertexUVs[j].u += rawDeltaU;
+			mesh->vertexUVs[j].v -= rawDeltaV;
 		}
 	}
-	else
-
-				/***********************/
-				/* SEE IF FOUND SHADER */
-				/***********************/
-
-	if (Q3Object_IsType(obj,kQ3ShapeTypeShader))
-	{	
-		if (Q3Shader_GetType(obj) == kQ3ShaderTypeSurface)				// must be texture surface shader
-		{
-			Q3Shader_SetUVTransform(obj, &gUVTransformMatrix);
-		}
-	}
-	else
-	
-			/* SEE IF RECURSE SUB-GROUP */
-
-	if (Q3Object_IsType(obj,kQ3ShapeTypeGroup))
- 	{
-  		stashMatrix = gWorkMatrix;										// push matrix
-  		for (Q3Group_GetFirstPosition(obj, &position); position != nil;
-  			 Q3Group_GetNextPosition(obj, &position))					// scan all objects in group
- 		{
-   			Q3Group_GetPositionObject (obj, position, &object);			// get object from group
-			if (object != NULL)
-   			{
-    			ScrollUVs_Recurse(object);								// sub-recurse this object
-    			Q3Object_Dispose(object);								// dispose local ref
-   			}
-  		}
-  		gWorkMatrix = stashMatrix;										// pop matrix  		
-	}
 }
-#endif
-
-
-
-
-
-/********************** SCROLL UVS: TRIMESH *******************************/
-
-static void ScrollUVs_TriMesh(TQ3Object theTriMesh)
-#if 1	// TODO noquesa
-{ DoFatalAlert2("TODO noquesa", __func__); }
-#else
-{
-TQ3TriMeshData		triMeshData;
-TQ3SurfaceShaderObject	shader;
-
-	Q3TriMesh_GetData(theTriMesh,&triMeshData);							// get trimesh data	
-	
-	
-			/* SEE IF HAS A TEXTURE */
-			
-	if (triMeshData.triMeshAttributeSet)
-	{
-		if (Q3AttributeSet_Contains(triMeshData.triMeshAttributeSet, kQ3AttributeTypeSurfaceShader))
-		{
-			Q3AttributeSet_Get(triMeshData.triMeshAttributeSet, kQ3AttributeTypeSurfaceShader, &shader);
-			Q3Shader_SetUVTransform(shader, &gUVTransformMatrix);
-			Q3Object_Dispose(shader);
-		}
-	}
-	Q3TriMesh_EmptyData(&triMeshData);
-}
-#endif
 
 
 

@@ -68,12 +68,10 @@ static void MoveTree(ObjNode *theNode);
 
 #define FireballPuffTimer	SpecialF[0]
 
-static float gLavaU, gLavaV;				// uv offsets values for lava
 static short gNumLavaPatches;
 short 	gLavaSoundChannel = -1;
 float	gMinLavaDist = 10000000;
 
-static float gWaterU, gWaterV;				// uv offsets values for Water
 static short gNumWaterPatches;
 
 
@@ -88,10 +86,8 @@ float	gMinSteamDist = 10000000;
 
 void InitItemsManager(void)
 {
-	gLavaU = gLavaV = 0.0f;
 	gNumLavaPatches = 0;
 	
-	gWaterU = gWaterV = 0.0f;
 	gNumWaterPatches = 0;
 	
 	
@@ -309,16 +305,15 @@ ObjNode	*puff;
 
 void UpdateLavaTextureAnimation(void)
 {
-	if (gNumLavaPatches)
-	{
+	if (gNumLavaPatches == 0)
+		return;
+
 					/* MOVE UVS */
-					
-		QD3D_ScrollUVs(gObjectGroupList[LEVEL0_MGroupNum_LavaPatch][LEVEL0_MObjType_LavaPatch],
-						gLavaU,gLavaV);
-		
-		gLavaU += .07*gFramesPerSecondFrac;
-		gLavaV += .03*gFramesPerSecondFrac;
-	}
+
+	TQ3TriMeshFlatGroup* lavaMeshList = &gObjectGroupList[LEVEL0_MGroupNum_LavaPatch][LEVEL0_MObjType_LavaPatch];
+
+	QD3D_ScrollUVs(lavaMeshList->numMeshes, lavaMeshList->meshes,
+				.07f*gFramesPerSecondFrac, .03f*gFramesPerSecondFrac);
 }
 
 
@@ -405,16 +400,13 @@ static void MoveWaterPatch(ObjNode *theNode)
 
 void UpdateWaterTextureAnimation(void)
 {
-	if (gNumWaterPatches)  
-	{
-					/* MOVE UVS */
-					
-		QD3D_ScrollUVs(gObjectGroupList[LEVEL0_MGroupNum_WaterPatch][LEVEL0_MObjType_WaterPatch],
-						gWaterU,gWaterV);
-		
-		gWaterU -= .04*gFramesPerSecondFrac;
-		gWaterV += .08*gFramesPerSecondFrac;
-	}
+	if (gNumWaterPatches == 0)
+		return;
+
+	TQ3TriMeshFlatGroup* waterMeshList = &gObjectGroupList[LEVEL0_MGroupNum_WaterPatch][LEVEL0_MObjType_WaterPatch];
+
+	QD3D_ScrollUVs(waterMeshList->numMeshes, waterMeshList->meshes,
+				-.04f*gFramesPerSecondFrac, .08f*gFramesPerSecondFrac);
 }
 
 
