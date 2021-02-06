@@ -214,6 +214,9 @@ QD3DSetupOutputType	*outputPtr;
 
 	glAlphaFunc(GL_NOTEQUAL, 0);
 
+	// Normalize normal vectors. Required so lighting looks correct on scaled meshes.
+	glEnable(GL_NORMALIZE);
+
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CCW);									// CCW is front face
 
