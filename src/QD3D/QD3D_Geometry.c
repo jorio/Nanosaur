@@ -343,10 +343,12 @@ TQ3Point3D			centerPt = {0,0,0};
 
 				/* DO VERTEX COLORS */
 
-		//pMesh->hasVertexColors = inMesh->hasVertexColors;
-		//if (inMesh->hasVertexColors)
+		pMesh->diffuseColor = inMesh->diffuseColor;
+
+		pMesh->hasVertexColors = inMesh->hasVertexColors;				// has per-vertex colors?
+		if (inMesh->hasVertexColors)
 		{
-			for (int v = 0; v < 3; v++)									// get vertex u/v's
+			for (int v = 0; v < 3; v++)									// get per-vertex colors
 			{
 				pMesh->vertexColors[v] = inMesh->vertexColors[ind[v]];
 			}

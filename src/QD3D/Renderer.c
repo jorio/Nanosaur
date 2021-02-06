@@ -152,7 +152,7 @@ void Render_InitState(void)
 
 	SetInitialClientState(GL_VERTEX_ARRAY,				true);
 	SetInitialClientState(GL_NORMAL_ARRAY,				true);
-	SetInitialClientState(GL_COLOR_ARRAY,				true);
+	SetInitialClientState(GL_COLOR_ARRAY,				false);
 	SetInitialClientState(GL_TEXTURE_COORD_ARRAY,		true);
 	SetInitialState(GL_CULL_FACE,		true);
 	SetInitialState(GL_ALPHA_TEST,		true);
@@ -182,7 +182,6 @@ void Render_DrawTriMeshList(int numMeshes, TQ3TriMeshData** meshList, bool envMa
 		}
 
 		glVertexPointer(3, GL_FLOAT, 0, mesh->points);
-		glColorPointer(4, GL_FLOAT, 0, mesh->vertexColors);
 		glNormalPointer(GL_FLOAT, 0, mesh->vertexNormals);
 		CHECK_GL_ERROR();
 
@@ -207,6 +206,18 @@ void Render_DrawTriMeshList(int numMeshes, TQ3TriMeshData** meshList, bool envMa
 			DisableClientState(GL_TEXTURE_COORD_ARRAY);
 			CHECK_GL_ERROR();
 		}
+
+		if (mesh->hasVertexColors)
+		{
+			EnableClientState(GL_COLOR_ARRAY);
+			glColorPointer(4, GL_FLOAT, 0, mesh->vertexColors);
+		}
+		else
+		{
+			DisableClientState(GL_COLOR_ARRAY);
+		}
+
+		glColor4fv(&mesh->diffuseColor.r);
 
 		__glDrawRangeElements(GL_TRIANGLES, 0, mesh->numPoints-1, mesh->numTriangles*3, GL_UNSIGNED_SHORT, mesh->triangles);
 		CHECK_GL_ERROR();

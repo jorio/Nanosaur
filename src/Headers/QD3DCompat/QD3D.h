@@ -245,16 +245,20 @@ typedef struct TQ3TriMeshData
 
 	int											numPoints;
 	TQ3Point3D									*points;
-	TQ3Param2D									*vertexUVs;
 	TQ3Vector3D									*vertexNormals;
-	TQ3ColorRGBA								*vertexColors;
+	TQ3Param2D									*vertexUVs;			// automatically allocated by constructor
+	TQ3ColorRGBA								*vertexColors;		// may be null if mesh doesn't need per-vertex colors (Nanosaur never does)
 
 	TQ3BoundingBox								bBox;
 
-	bool										hasTransparency;
 	bool										hasTexture;
+	bool										textureHasTransparency;		// TODO
 	uint32_t									internalTextureID;
 	uint32_t									glTextureName;
+
+	bool										hasVertexColors;
+
+	TQ3ColorRGBA								diffuseColor;
 } TQ3TriMeshData;
 
 // This structure does not exist in QD3D.

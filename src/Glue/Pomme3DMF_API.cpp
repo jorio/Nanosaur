@@ -54,9 +54,9 @@ struct __Q3AllocatorCookie
 static_assert(sizeof(__Q3AllocatorCookie) <= ALLOCATOR_HEADER_BYTES);
 
 template<typename T>
-static T* __Q3Alloc(size_t payloadBytes, uint32_t classID)
+static T* __Q3Alloc(size_t count, uint32_t classID)
 {
-	size_t totalBytes = ALLOCATOR_HEADER_BYTES + payloadBytes;
+	size_t totalBytes = ALLOCATOR_HEADER_BYTES + count*sizeof(T);
 
 	uint8_t* block = (uint8_t*) calloc(totalBytes, 1);
 
@@ -86,6 +86,9 @@ static __Q3AllocatorCookie* __Q3GetCookie(const void* sourcePayload, uint32_t cl
 template<typename T>
 static T* __Q3Copy(const T* sourcePayload, uint32_t classID)
 {
+	if (!sourcePayload)
+		return nullptr;
+
 	__Q3AllocatorCookie* sourceCookie = __Q3GetCookie(sourcePayload, classID);
 
 	uint8_t* block = (uint8_t*) calloc(sourceCookie->blockSize, 1);
@@ -103,6 +106,16 @@ static void __Q3Dispose(void* object, uint32_t classID)
 	cookie->classID = 'DEAD';
 
 	free(cookie);
+}
+
+template<typename T>
+static void __Q3DisposeArray(T** arrayPtr, uint32_t cookie)
+{
+	if (*arrayPtr)
+	{
+		__Q3Dispose(*arrayPtr, cookie);
+		*arrayPtr = nullptr;
+	}
 }
 
 Pomme3DMF_FileHandle Pomme3DMF_LoadModelFile(const FSSpec* spec)
@@ -238,46 +251,46 @@ TQ3TriMeshFlatGroup Pomme3DMF_GetTopLevelMeshGroup(Pomme3DMF_FileHandle the3DMFF
 
 TQ3TriMeshData* Q3TriMeshData_New(int numTriangles,	int numPoints)
 {
-	uint8_t* base = 0;
-	TQ3TriMeshData* triMeshData = nullptr;
+	TQ3TriMeshData* mesh	= __Q3Alloc<TQ3TriMeshData>(1, 'TMSH');
 
-	for (int i = 0; i < 2; i++)
-	{
-#define SETPTR(lhs, n) do { if (i != 0) { (lhs) = (decltype((lhs))) base; } base += sizeof((lhs)[0]) * (n); } while(0)
-		SETPTR(triMeshData,						1);
-		SETPTR(triMeshData->triangles,			numTriangles);
-		SETPTR(triMeshData->points,				numPoints);
-		SETPTR(triMeshData->vertexNormals,		numPoints);
-		SETPTR(triMeshData->vertexColors,		numPoints);
-		SETPTR(triMeshData->vertexUVs,			numPoints);
-#undef SETPTR
-
-		if (i == 0)
-		{
-			triMeshData = __Q3Alloc<TQ3TriMeshData>((ptrdiff_t) base, 'TMSH');
-			base = (uint8_t*) triMeshData;
-		}
-	}
-
-	triMeshData->numTriangles = numTriangles;
-	triMeshData->numPoints = numPoints;
+	mesh->numTriangles		= numTriangles;
+	mesh->numPoints			= numPoints;
+	mesh->points			= __Q3Alloc<TQ3Point3D>(numPoints, 'TMpt');
+	mesh->triangles			= __Q3Alloc<TQ3TriMeshTriangleData>(numTriangles, 'TMtr');
+	mesh->vertexNormals		= __Q3Alloc<TQ3Vector3D>(numPoints, 'TMvn');
+	mesh->vertexUVs			= __Q3Alloc<TQ3Param2D>(numPoints, 'TMuv');
+	mesh->vertexColors		= nullptr;
+	mesh->diffuseColor		= {1, 1, 1, 1};
+	mesh->hasTexture		= false;
+	mesh->textureHasTransparency = false;
 
 	for (int i = 0; i < numPoints; i++)
 	{
-		triMeshData->vertexNormals[i] = {0, 1, 0};
-		triMeshData->vertexColors[i] = {1, 1, 1, 1};
-		triMeshData->vertexUVs[i] = {.5f, .5f};
+		mesh->vertexNormals[i] = {0, 1, 0};
+		mesh->vertexUVs[i] = {.5f, .5f};
+//		triMeshData->vertexColors[i] = {1, 1, 1, 1};
 	}
 
-	return triMeshData;
+	return mesh;
 }
 
 TQ3TriMeshData* Q3TriMeshData_Duplicate(const TQ3TriMeshData* source)
 {
-	return __Q3Copy(source, 'TMSH');
+	TQ3TriMeshData* mesh	= __Q3Copy(source, 'TMSH');
+	mesh->points			= __Q3Copy(source->points,			'TMpt');
+	mesh->triangles			= __Q3Copy(source->triangles,		'TMtr');
+	mesh->vertexNormals		= __Q3Copy(source->vertexNormals,	'TMvn');
+	mesh->vertexColors		= __Q3Copy(source->vertexColors,	'TMvc');
+	mesh->vertexUVs			= __Q3Copy(source->vertexUVs,		'TMuv');
+	return mesh;
 }
 
-void Q3TriMeshData_Dispose(TQ3TriMeshData* triMeshData)
+void Q3TriMeshData_Dispose(TQ3TriMeshData* mesh)
 {
-	__Q3Dispose(triMeshData, 'TMSH');
+	__Q3DisposeArray(&mesh->points,				'TMpt');
+	__Q3DisposeArray(&mesh->triangles,			'TMtr');
+	__Q3DisposeArray(&mesh->vertexNormals,		'TMvn');
+	__Q3DisposeArray(&mesh->vertexColors,		'TMvc');
+	__Q3DisposeArray(&mesh->vertexUVs,			'TMuv');
+	__Q3Dispose(mesh, 'TMSH');
 }

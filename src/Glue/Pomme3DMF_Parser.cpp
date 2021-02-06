@@ -126,16 +126,9 @@ uint32_t Q3MetaFileParser::Parse1Chunk()
 			Assert(currentMesh, "stray kdif");
 			{
 				static_assert(sizeof(float) == 4);
-				float r = f.Read<float>();
-				float g = f.Read<float>();
-				float b = f.Read<float>();
-				printf("%.3f %.3f %.3f\t", r, g, b);
-				for (int i = 0; i < currentMesh->numPoints; i++)
-				{
-					currentMesh->vertexColors[i].r = r;
-					currentMesh->vertexColors[i].g = g;
-					currentMesh->vertexColors[i].b = b;
-				}
+				currentMesh->diffuseColor.r = f.Read<float>();
+				currentMesh->diffuseColor.g = f.Read<float>();
+				currentMesh->diffuseColor.b = f.Read<float>();
 			}
 			break;
 
@@ -150,11 +143,7 @@ uint32_t Q3MetaFileParser::Parse1Chunk()
 				float a = r;
 				printf("%.3f %.3f %.3f\t", r, g, b);
 				Assert(r == g && g == b, "kxpr: expecting all components to be equal");
-				for (int i = 0; i < currentMesh->numPoints; i++)
-				{
-					currentMesh->vertexColors[i].a = a;
-				}
-				currentMesh->hasTransparency = true;
+				currentMesh->diffuseColor.a = a;
 			}
 			break;
 
@@ -163,20 +152,28 @@ uint32_t Q3MetaFileParser::Parse1Chunk()
 			break;
 
 		case 'txmm':    // MipmapTexture
+		{
+			uint32_t internalTextureID;
 			if (knownTextures.contains(chunkOffset))
 			{
 				printf("Texture already seen!");
 				f.Skip(chunkSize);
-				Assert(!currentMesh->hasTexture, "txmm: current mesh already has a texture");
-				currentMesh->hasTexture = true;
-				currentMesh->internalTextureID = knownTextures[chunkOffset];
 			}
 			else
 			{
-				uint32_t internalTextureID = Parse_txmm(chunkSize);
+				internalTextureID = Parse_txmm(chunkSize);
 				knownTextures[chunkOffset] = internalTextureID;
 			}
+
+			if (currentMesh)
+			{
+				Assert(!currentMesh->hasTexture, "txmm: current mesh already has a texture");
+				currentMesh->internalTextureID = internalTextureID;
+				currentMesh->hasTexture = true;
+			}
+
 			break;
+		}
 
 		case 'rfrn':    // Reference (into TOC)
 		{
@@ -392,6 +389,8 @@ void Q3MetaFileParser::Parse_atar(uint32_t chunkSize)
 	}
 	else if (isVertexAttribute && attributeType == kQ3AttributeTypeDiffuseColor)	// used in Bugdom's Global_Models2.3dmf
 	{
+		Assert(false, "per-vertex diffuse color not supported in Nanosaur");
+#if 0
 		printf("vertex diffuse");
 //		Assert(positionInArray == 0, "PIA must be 0 for colors");
 		Assert(currentMesh->vertexNormals, "current mesh has no vertex color array");
@@ -401,6 +400,7 @@ void Q3MetaFileParser::Parse_atar(uint32_t chunkSize)
 			currentMesh->vertexColors[i].g = f.Read<float>();
 			currentMesh->vertexColors[i].b = f.Read<float>();
 		}
+#endif
 	}
 	else if (isTriangleAttribute && attributeType == kQ3AttributeTypeNormal)		// face normals
 	{
@@ -415,8 +415,6 @@ void Q3MetaFileParser::Parse_atar(uint32_t chunkSize)
 
 uint32_t Q3MetaFileParser::Parse_txmm(uint32_t chunkSize)
 {
-	Assert(currentMesh, "no current mesh");
-	Assert(!currentMesh->hasTexture, "current mesh already has a texture");
 	Assert(chunkSize >= 8*4, "incorrect chunk header size");
 
 	uint32_t useMipmapping	= f.Read<uint32_t>();
@@ -448,8 +446,6 @@ uint32_t Q3MetaFileParser::Parse_txmm(uint32_t chunkSize)
 	uint32_t internalTextureID = metaFile.textures.size();
 	metaFile.textures.push_back({});
 	Q3MetaFile_Texture& texture = metaFile.textures[internalTextureID];
-	currentMesh->internalTextureID = internalTextureID;
-	currentMesh->hasTexture = true;
 
 	texture.glTextureName	= 0;
 	texture.useMipMapping	= useMipmapping;
