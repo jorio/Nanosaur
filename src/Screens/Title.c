@@ -50,7 +50,6 @@ extern	const int	PRO_MODE;
 
 static void MoveTitleText(ObjNode *theNode);
 static void MovePangeaLogoPart(ObjNode *theNode);
-static void DoPangeaLogo(void);
 static void MoveTitleBG(ObjNode *theNode);
 
 
@@ -76,24 +75,10 @@ static const float	kBackgroundLength			= 300.0f;
 
 void DoTitleScreen(void)
 {
+FSSpec spec;
 QD3DSetupInputType		viewDef;
 ObjNode			*dinoObj;
 TQ3Point3D		cameraFrom = { 110, 90, 190.0 };
-
-			/************************/
-			/* DO PANGEA LOGO INTRO */
-			/************************/
-			//
-			// note: this also loads the required art for the title sequence
-			//
-			
-	DoPangeaLogo();
-
-
-
-			/* LOAD ADDITIONAL ART */
-			
-	LoadASkeleton(SKELETON_TYPE_REX);
 
 
 
@@ -132,8 +117,21 @@ TQ3Point3D		cameraFrom = { 110, 90, 190.0 };
 	
 	QD3D_SetupWindow(&viewDef, &gGameViewInfoPtr);
 
+
+
+			/* LOAD ART */
+
+	FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":Models:Title.3dmf", &spec);		// load other models
+	LoadGrouped3DMF(&spec,MODEL_GROUP_TITLE);
+
+	LoadASkeleton(SKELETON_TYPE_REX);
+
+
+
+
 	if (!gSongPlayingFlag)						// make sure music is going
 		PlaySong(1,true);
+
 
 
 			/* MAKE SKELETON 1 */
@@ -251,7 +249,7 @@ static void MoveTitleText(ObjNode *theNode)
 
 /********************** DO PANGEA LOGO **********************************/
 
-static void DoPangeaLogo(void)
+void DoPangeaLogo(void)
 {
 ObjNode		*backObj;
 TQ3Point3D			cameraFrom = { 0, 0, 70.0 };

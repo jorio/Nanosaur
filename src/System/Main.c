@@ -415,6 +415,7 @@ unsigned long	someLong;
 
 	while(true)
 	{
+		DoPangeaLogo();
 		DoTitleScreen();
 		DoMainMenu();
 		PlayLevel();
