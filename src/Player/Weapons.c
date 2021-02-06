@@ -405,7 +405,7 @@ float	r,fps;
 					
 		gNewObjectDefinition.group = GLOBAL_MGroupNum_SonicScream;	
 		gNewObjectDefinition.type = GLOBAL_MObjType_SonicScream;	
-		gNewObjectDefinition.flags = 0;
+		gNewObjectDefinition.flags = STATUS_BIT_KEEPBACKFACES;
 		gNewObjectDefinition.slot = PLAYER_SLOT-1;						// dont update till next loop
 		gNewObjectDefinition.moveCall = MoveSonicScream;
 		gNewObjectDefinition.rot = r = theNode->Rot.y;
@@ -423,7 +423,6 @@ float	r,fps;
 		newObj->Delta.x = (-sin(r) * SONIC_SCREAM_SPEED) + gDelta.x;	// calc deltas
 		newObj->Delta.z = (-cos(r) * SONIC_SCREAM_SPEED) + gDelta.z;
 
-		MakeObjectKeepBackfaces(newObj);								// trans & backfaces
 		MakeObjectTransparent(newObj, newObj->Health);
 		
 		

@@ -10,8 +10,17 @@ typedef struct RenderStats
 	int 		batchedStateChanges;
 } RenderStats;
 
+typedef struct RenderModifiers
+{
+	uint32_t 				statusBits;
+	TQ3ColorRGBA			diffuseColor;
+} RenderModifiers;
 
 void Render_InitState(void);
 
-void Render_DrawTriMeshList(int numMeshes, TQ3TriMeshData** meshList, bool envMap, const TQ3Matrix4x4* transform);
+void Render_DrawTriMeshList(
+		int numMeshes,
+		TQ3TriMeshData** meshList,
+		const TQ3Matrix4x4* transform,
+		const RenderModifiers* mods);
 

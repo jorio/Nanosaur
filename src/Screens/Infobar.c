@@ -681,7 +681,7 @@ static TQ3Point3D				points[4] = { { -GPS_DISPLAY_SIZE,  GPS_DISPLAY_SIZE, 0 },
 	gNewObjectDefinition.coord.x = 8.5;
 	gNewObjectDefinition.coord.y = 5;
 	gNewObjectDefinition.coord.z = INFOBAR_Z;
-	gNewObjectDefinition.flags = STATUS_BIT_DONTCULL|STATUS_BIT_NULLSHADER|STATUS_BIT_HIGHFILTER;
+	gNewObjectDefinition.flags = STATUS_BIT_DONTCULL|STATUS_BIT_NULLSHADER|STATUS_BIT_HIGHFILTER|STATUS_BIT_KEEPBACKFACES;
 	gNewObjectDefinition.slot = INFOBAR_SLOT;
 	gNewObjectDefinition.moveCall = MoveGPS;
 	gNewObjectDefinition.rot = 0;
@@ -690,7 +690,6 @@ static TQ3Point3D				points[4] = { { -GPS_DISPLAY_SIZE,  GPS_DISPLAY_SIZE, 0 },
 	CreateBaseGroup(gGPSObj);								// create group object
 	AttachGeometryToDisplayGroupObject(gGPSObj,gGPSTriMesh);
 
-	MakeObjectKeepBackfaces(gGPSObj);
 	MakeObjectTransparent(gGPSObj,.75);						// make xparent
 
 			/* INIT TRACKING THING */

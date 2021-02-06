@@ -396,7 +396,7 @@ float	scale;
 	gNewObjectDefinition.coord.x = x;
 	gNewObjectDefinition.coord.y = GetTerrainHeightAtCoord_Quick(x,z);
 	gNewObjectDefinition.coord.z = z;
-	gNewObjectDefinition.flags = 0;
+	gNewObjectDefinition.flags = STATUS_BIT_KEEPBACKFACES;
 	gNewObjectDefinition.slot = TRIGGER_SLOT;
 	gNewObjectDefinition.moveCall = MoveCrystal;
 	gNewObjectDefinition.rot = 0;
@@ -408,7 +408,6 @@ float	scale;
 	newObj->TerrainItemPtr = itemPtr;			// keep ptr to item list
 		
 	MakeObjectTransparent(newObj,.7);
-	MakeObjectKeepBackfaces(newObj);
 
 			/* SET TRIGGER STUFF */
 

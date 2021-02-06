@@ -145,8 +145,6 @@ float	y;
 
 	newObj->TerrainItemPtr = itemPtr;								// keep ptr to item list
 
-	MakeObjectKeepBackfaces(newObj);								// no bother to remove these
-
 	newObj->StatusBits |= STATUS_BIT_HIGHFILTER|STATUS_BIT_HIGHFILTER2;	// make it look nice
 
 	newObj->UndulationIndex = 1;
@@ -348,7 +346,7 @@ float	y;
 	gNewObjectDefinition.coord.x = x;
 	gNewObjectDefinition.coord.y = y;
 	gNewObjectDefinition.coord.z = z;
-	gNewObjectDefinition.flags = STATUS_BIT_HIGHFILTER|STATUS_BIT_NOTRICACHE;
+	gNewObjectDefinition.flags = STATUS_BIT_HIGHFILTER|STATUS_BIT_NOTRICACHE|STATUS_BIT_KEEPBACKFACES;
 	gNewObjectDefinition.slot = SLOT_OF_DUMB;
 	gNewObjectDefinition.moveCall = MoveWaterPatch;
 	gNewObjectDefinition.rot = 0;
@@ -359,11 +357,7 @@ float	y;
 
 	newObj->TerrainItemPtr = itemPtr;								// keep ptr to item list
 
-	if (!gGamePrefs.opaqueWater)
-	{
 	MakeObjectTransparent(newObj, .8);
-	MakeObjectKeepBackfaces(newObj);								// no bother to remove these
-	}
 
 	newObj->UndulationIndex = 1;
 
@@ -659,7 +653,7 @@ ObjNode	*newObj;
 	gNewObjectDefinition.coord.x = x;
 	gNewObjectDefinition.coord.y = GetTerrainHeightAtCoord_Planar(x,z);
 	gNewObjectDefinition.coord.z = z;
-	gNewObjectDefinition.flags = STATUS_BIT_NULLSHADER|STATUS_BIT_NOTRICACHE;
+	gNewObjectDefinition.flags = STATUS_BIT_NULLSHADER|STATUS_BIT_NOTRICACHE|STATUS_BIT_KEEPBACKFACES;
 	gNewObjectDefinition.slot = SLOT_OF_DUMB;
 	gNewObjectDefinition.moveCall = MoveGasVent;
 	gNewObjectDefinition.rot = 0;
@@ -671,8 +665,7 @@ ObjNode	*newObj;
 	newObj->TerrainItemPtr = itemPtr;			// keep ptr to item list
 
 	MakeObjectTransparent(newObj,.7);
-	MakeObjectKeepBackfaces(newObj);
-	
+
 
 	newObj->VentHasLimit = itemPtr->parm[3] & 1;		// get flag if has limit
 	

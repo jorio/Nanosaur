@@ -1064,7 +1064,7 @@ void StartMyShield(ObjNode *theNode)
 		gNewObjectDefinition.group = GLOBAL_MGroupNum_Shield;	
 		gNewObjectDefinition.type = GLOBAL_MObjType_Shield;	
 		gNewObjectDefinition.coord = gMyCoord;
-		gNewObjectDefinition.flags = 0;
+		gNewObjectDefinition.flags = STATUS_BIT_KEEPBACKFACES;
 		gNewObjectDefinition.slot = SLOT_OF_DUMB;
 		gNewObjectDefinition.moveCall = MoveShield;
 		gNewObjectDefinition.rot = 0;
@@ -1073,7 +1073,6 @@ void StartMyShield(ObjNode *theNode)
 		if (gMyShield)
 		{
 			MakeObjectTransparent(gMyShield,.3);
-			MakeObjectKeepBackfaces(gMyShield);	
 		}
 	}
 	

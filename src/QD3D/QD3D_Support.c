@@ -285,7 +285,7 @@ QD3DSetupOutputType	*data;
 
 static void CreateLights(QD3DLightDefType *lightDefPtr)
 {
-	glEnable(GL_LIGHTING);
+//	glEnable(GL_LIGHTING);	// controlled by renderer.c
 
 			/************************/
 			/* CREATE AMBIENT LIGHT */

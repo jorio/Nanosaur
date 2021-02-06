@@ -369,9 +369,9 @@ short		i;
 	gNewObjectDefinition.coord.y = 0;
 	gNewObjectDefinition.coord.z = 0;
 	gNewObjectDefinition.moveCall = MoveCursor;
+	gNewObjectDefinition.flags = STATUS_BIT_KEEPBACKFACES;
 	gCursorObj = MakeNewDisplayGroupObject(&gNewObjectDefinition);
-	MakeObjectKeepBackfaces(gCursorObj);
-	
+
 	for (i=0; i < MAX_NAME_LENGTH; i++)					// init name to blank
 	{
 		gNewName.name[i] = ' ';

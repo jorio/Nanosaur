@@ -130,8 +130,8 @@ enum
 	STATUS_BIT_NULLSHADER	 =  (1<<13),	// used when want to render object will NULL shading (no lighting)
 	STATUS_BIT_ALWAYSCULL	 =  (1<<14),	// to force a cull-check
 	STATUS_BIT_BLEND_INTERPOLATE =  (1<<15), // to use interpolation blending
-	// Source port note: STATUS_BIT_NOTRICACHE is ignored
-	STATUS_BIT_NOTRICACHE 	 =  (1<<16) 	// set if want to disable triangle caching when drawing this xparent obj
+	STATUS_BIT_NOTRICACHE 	 =  (1<<16), 	// set if want to disable triangle caching when drawing this xparent obj
+	STATUS_BIT_KEEPBACKFACES =	(1<<17),	// set if want to render both front and back faces
 };
 
 

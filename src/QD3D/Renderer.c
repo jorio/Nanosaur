@@ -14,6 +14,7 @@
 #include "misc.h"	// assertions
 #include "environmentmap.h"
 #include "renderer.h"
+#include "globals.h"	// status bits
 
 #if __APPLE__
 	#include <OpenGL/glu.h>
@@ -21,7 +22,6 @@
 	#include <GL/glu.h>
 #endif
 
-extern TQ3Vector3D				gEnvMapNormals[];
 extern TQ3Param2D				gEnvMapUVs[];
 extern RenderStats				gRenderStats;
 
@@ -43,9 +43,19 @@ typedef struct RendererState
 	bool		hasState_GL_COLOR_MATERIAL;
 	bool		hasState_GL_TEXTURE_2D;
 	bool		hasState_GL_BLEND;
+	bool		hasState_GL_LIGHTING;
 //	bool		hasState_GL_FOG;
 } RendererState;
 
+/****************************/
+/*    CONSTANTS             */
+/****************************/
+
+static const RenderModifiers kDefaultRenderMods =
+{
+	.statusBits = 0,
+	.diffuseColor = {1,1,1,1},
+};
 
 /****************************/
 /*    VARIABLES             */
@@ -161,13 +171,25 @@ void Render_InitState(void)
 	SetInitialState(GL_COLOR_MATERIAL,	true);
 	SetInitialState(GL_TEXTURE_2D,		false);
 	SetInitialState(GL_BLEND,			false);
+	SetInitialState(GL_LIGHTING,		true);
 //	SetInitialState(GL_FOG,				true);
 
 	gState.boundTexture = 0;
 }
 
-void Render_DrawTriMeshList(int numMeshes, TQ3TriMeshData** meshList, bool envMap, const TQ3Matrix4x4* transform)
+void Render_DrawTriMeshList(
+		int numMeshes,
+		TQ3TriMeshData** meshList,
+		const TQ3Matrix4x4* transform,
+		const RenderModifiers* mods)
 {
+	if (mods == nil)
+	{
+		mods = &kDefaultRenderMods;
+	}
+
+	bool envMap = mods->statusBits & STATUS_BIT_REFLECTIONMAP;
+
 	if (transform)
 	{
 		glPushMatrix();
@@ -183,13 +205,33 @@ void Render_DrawTriMeshList(int numMeshes, TQ3TriMeshData** meshList, bool envMa
 			EnvironmentMapTriMesh(mesh, transform);
 		}
 
-		if (mesh->textureHasTransparency || mesh->diffuseColor.a < .999f)
+		if (mesh->textureHasTransparency || mesh->diffuseColor.a < .999f || mods->diffuseColor.a < .999f)
 		{
 			EnableState(GL_BLEND);
+			DisableState(GL_ALPHA_TEST);
 		}
 		else
 		{
 			DisableState(GL_BLEND);
+			EnableState(GL_ALPHA_TEST);
+		}
+
+		if (mods->statusBits & STATUS_BIT_KEEPBACKFACES)
+		{
+			DisableState(GL_CULL_FACE);
+		}
+		else
+		{
+			EnableState(GL_CULL_FACE);
+		}
+
+		if (mods->statusBits & STATUS_BIT_NULLSHADER)
+		{
+			DisableState(GL_LIGHTING);
+		}
+		else
+		{
+			EnableState(GL_LIGHTING);
 		}
 
 		glVertexPointer(3, GL_FLOAT, 0, mesh->points);
@@ -208,7 +250,7 @@ void Render_DrawTriMeshList(int numMeshes, TQ3TriMeshData** meshList, bool envMa
 			else
 				gRenderStats.batchedStateChanges++;
 
-			glTexCoordPointer(2, GL_FLOAT, 0, envMap? gEnvMapUVs: mesh->vertexUVs);
+			glTexCoordPointer(2, GL_FLOAT, 0, envMap ? gEnvMapUVs : mesh->vertexUVs);
 			CHECK_GL_ERROR();
 		}
 		else
@@ -228,7 +270,12 @@ void Render_DrawTriMeshList(int numMeshes, TQ3TriMeshData** meshList, bool envMa
 			DisableClientState(GL_COLOR_ARRAY);
 		}
 
-		glColor4fv(&mesh->diffuseColor.r);
+		glColor4f(
+				mesh->diffuseColor.r * mods->diffuseColor.r,
+				mesh->diffuseColor.g * mods->diffuseColor.g,
+				mesh->diffuseColor.b * mods->diffuseColor.b,
+				mesh->diffuseColor.a * mods->diffuseColor.a
+				);
 
 		__glDrawRangeElements(GL_TRIANGLES, 0, mesh->numPoints-1, mesh->numTriangles*3, GL_UNSIGNED_SHORT, mesh->triangles);
 		CHECK_GL_ERROR();

@@ -484,7 +484,7 @@ void QD3D_DrawParticles(QD3DSetupOutputType *setupInfo)
 		if (!particle->isUsed)
 			continue;
 
-		Render_DrawTriMeshList(1, &particle->mesh, false, &particle->matrix);
+		Render_DrawTriMeshList(1, &particle->mesh, &particle->matrix, nil);
 	}
 
 	glEnable(GL_CULL_FACE);

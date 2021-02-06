@@ -181,7 +181,10 @@ long	slot;
 	newNodePtr->TerrainItemPtr = nil;					// assume not a terrain item
 
 	newNodePtr->Skeleton = nil;
-	
+
+	newNodePtr->RenderModifiers.statusBits = 0;
+	newNodePtr->RenderModifiers.diffuseColor = (TQ3ColorRGBA) { 1,1,1,1 };
+
 			/* MAKE SURE SCALE != 0 */
 			
 	if (newNodePtr->Scale.x == 0.0f)
@@ -415,27 +418,6 @@ unsigned long	statusBits;
 	theNode = gFirstNodePtr;
 
 
-
-#if 0
-			/* TURN ON TRIANGLE CACHING */
-			
-	QD3D_SetTriangleCacheMode(true);
-	cacheMode = true;
-#endif
-
-
-#if 0	// NOQUESA
-				/* SET TEXTURE FILTER FOR ALL NODES */
-	// Source port change: the original game used to default to nearest-neighbor texturing.
-	// You had to enable texture filtering by setting STATUS_BIT_HIGHFILTER in the statusBits of
-	// individual nodes. However, this was applied inconsistently -- some props (mushrooms,
-	// trees etc.) didn't have this status bit and therefore always used NN. I assume this was
-	// unintentional, so I'm setting texture filtering for ALL nodes here, rather than per-node.
-	QD3D_SetTextureFilter(gGamePrefs.highQualityTextures
-			? kQATextureFilter_Best
-			: kQATextureFilter_Fast);
-#endif
-
 			/***********************/
 			/* MAIN NODE TASK LOOP */
 			/***********************/			
@@ -452,50 +434,7 @@ unsigned long	statusBits;
 		if (theNode->CType == INVALID_NODE_FLAG)				// see if already deleted
 			goto next;		
 
-#if 0
-				/* CHECK TRIANGLE CACHING */
-				
-		if (statusBits & STATUS_BIT_NOTRICACHE)					// see if disable caching
-		{
-			if (cacheMode)										// only disable if currently on
-			{
-				QD3D_SetTriangleCacheMode(false);
-				cacheMode = false;
-			}
-		}
-		else
-		if (!cacheMode)											// if caching disabled, reenable it
-			QD3D_SetTriangleCacheMode(true);
-#endif
-
-
-#if 0   // Source port removal
-				/* CHECK TEXTURE FILTERING */
-				
-			if (statusBits & STATUS_BIT_HIGHFILTER)
-			{
-				if (statusBits & STATUS_BIT_HIGHFILTER2)
-					QD3D_SetTextureFilter(kQATextureFilter_Best);			// set best textures
-				else
-					QD3D_SetTextureFilter(kQATextureFilter_Mid);			// set nice textures
-			}
-		
-#endif
-#if 0   // Source port removal
-				/* CHECK BLENDING */
-				
-			if (statusBits & STATUS_BIT_BLEND_INTERPOLATE)
-				ONCE(TODOMINOR2("QD3D_SetBlendingMode(kQABlend_Interpolate);"));
-#endif
-		
-				/* CHECK NULL SHADER */
-
-		if (statusBits & STATUS_BIT_NULLSHADER)
-#if 1	// NOQUESA
-				printf("TODO noquesa: %s:%d: submit null shader\n", __func__, __LINE__);
-#else
-				Q3Shader_Submit(setupInfo->nullShaderObject, view);
-#endif
+		theNode->RenderModifiers.statusBits = statusBits;
 
 		switch (theNode->Genre)
 		{
@@ -507,33 +446,14 @@ unsigned long	statusBits;
 					Render_DrawTriMeshList(
 							theNode->NumMeshes,
 							theNode->MeshList,
-							statusBits & STATUS_BIT_REFLECTIONMAP,
-							&theNode->BaseTransformMatrix);
+							&theNode->BaseTransformMatrix,
+							&theNode->RenderModifiers);
 					gRenderStats.nodesDrawn++;
 					break;
 		}
 
-					/* UNDO STATUS MODES */
-								
-#if 0   // Source port removal
-			if (statusBits & STATUS_BIT_HIGHFILTER)
-				QD3D_SetTextureFilter(kQATextureFilter_Fast);				// undo nice textures			
-#endif
-
-		if (statusBits & STATUS_BIT_NULLSHADER)								// undo NULL shader
-#if 1	// NOQUESA
-				printf("TODO noquesa: %s:%d: undo null shader\n", __func__, __LINE__);
-#else
-				Q3Shader_Submit(setupInfo->shaderObject, view);
-#endif
-				
-#if 0   // Source port removal
-			if (statusBits & STATUS_BIT_BLEND_INTERPOLATE)
-				ONCE(TODOMINOR2("QD3D_SetBlendingMode(kQABlend_PreMultiply);"));						// premul is normal
-#endif
-
 next:
-		theNode = (ObjNode *)theNode->NextNode;
+		theNode = theNode->NextNode;
 	}while (theNode != nil);
 }
 
@@ -807,38 +727,6 @@ TQ3Matrix4x4	matrix;
 }
 
 
-/********************* MAKE OBJECT KEEP BACKFACES ***********************/
-//
-// Puts a backfacing style object in the base group.
-//
-
-void MakeObjectKeepBackfaces(ObjNode *theNode)
-#if 1	// TODO noquesa
-{ printf("TODO noquesa: %s\n", __func__); }
-#else
-{
-TQ3GroupPosition	position;
-TQ3Status			status;
-TQ3ObjectType		oType;
-
-	if (theNode->BaseGroup == nil)
-		DoFatalAlert("MakeObjectKeepBackfaces: BaseGroup == nil");
-
-	oType = Q3Group_GetType(theNode->BaseGroup);
-	if (oType == kQ3ObjectTypeInvalid)
-		DoFatalAlert("MakeObjectKeepBackfaces: BaseGroup is not a Group Object!");
-
-	status = Q3Group_GetFirstPosition(theNode->BaseGroup, &position);
-	if ((status == kQ3Failure) || (position == nil))
-		DoFatalAlert("MakeObjectKeepBackfaces: Q3Group_GetFirstPosition failed!");
-	
-	if (Q3Group_AddObjectBefore(theNode->BaseGroup, position, gKeepBackfaceStyleObject) == nil)
-		DoFatalAlert("MakeObjectKeepBackfaces: Q3Group_AddObjectBefore failed!");
-}
-#endif
-
-
-
 
 /********************* MAKE OBJECT TRANSPARENT ***********************/
 //
@@ -848,8 +736,5 @@ TQ3ObjectType		oType;
 
 void MakeObjectTransparent(ObjNode *theNode, float transPercent)
 {
-	GAME_ASSERT(theNode->MeshList);
-
-	for (int i = 0; i < theNode->NumMeshes; i++)
-		theNode->MeshList[i]->diffuseColor.a = transPercent;
+	theNode->RenderModifiers.diffuseColor.a = transPercent;
 }

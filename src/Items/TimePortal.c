@@ -192,7 +192,7 @@ float	y;
 			gNewObjectDefinition.coord.y = theNode->Coord.y + 15;
 		
 		gNewObjectDefinition.coord.z = theNode->Coord.z;
-		gNewObjectDefinition.flags = 0;
+		gNewObjectDefinition.flags = STATUS_BIT_KEEPBACKFACES;
 		gNewObjectDefinition.slot = SLOT_OF_DUMB;
 		gNewObjectDefinition.moveCall = MoveTimePortalRing;
 		gNewObjectDefinition.rot = 0;
@@ -225,7 +225,6 @@ float	y;
 			}
 			else
 				newObj->Delta.y = 50;
-			MakeObjectKeepBackfaces(newObj);
 			MakeObjectTransparent(newObj,1);
 		}
 	}

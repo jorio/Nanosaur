@@ -8,6 +8,7 @@
 
 #include <Pomme3DMF.h>
 #include "globals.h"
+#include "renderer.h"
 
 #define	MAX_ANIMS			20
 #define	MAX_KEYFRAMES		15
@@ -257,14 +258,13 @@ struct ObjNode
 	short				StreamingEffect;		// streaming effect (-1 = none)
 	
 	TQ3Matrix4x4		BaseTransformMatrix;	// matrix which contains all of the transforms for the object as a whole
-#if 0	// NOQUESA
-	TQ3TransformObject	BaseTransformObject;	// extra LEGAL object ref to BaseTransformMatrix (other legal ref is kept in BaseGroup)
-	TQ3Object			BaseGroup;				// group containing all geometry,etc. for this object (for drawing)
-#else
+
 	int						NumMeshes;
 	TQ3TriMeshData*			MeshList[MAX_DECOMPOSED_TRIMESHES];
 	bool					OwnsMeshMemory[MAX_DECOMPOSED_TRIMESHES];
-#endif
+
+	RenderModifiers			RenderModifiers;
+
 	float				Radius;					// radius use for object culling calculation
 
 	SkeletonObjDataType	*Skeleton;				// pointer to skeleton record data
