@@ -35,7 +35,7 @@ extern	QD3DSetupOutputType		*gGameViewInfoPtr;
 /*    VARIABLES      */
 /*********************/
 
-TQ3Vector3D				gEnvMapNormals[ENVMAP_MAX_VERTICES_PER_MESH];
+static TQ3Vector3D		gEnvMapNormals[ENVMAP_MAX_VERTICES_PER_MESH];
 TQ3Param2D				gEnvMapUVs[ENVMAP_MAX_VERTICES_PER_MESH];
 
 /****************************** ENVIRONMENT MAP TRI MESH *****************************************/

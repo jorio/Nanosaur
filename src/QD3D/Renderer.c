@@ -183,7 +183,7 @@ void Render_DrawTriMeshList(int numMeshes, TQ3TriMeshData** meshList, bool envMa
 
 		glVertexPointer(3, GL_FLOAT, 0, mesh->points);
 		glColorPointer(4, GL_FLOAT, 0, mesh->vertexColors);
-		glNormalPointer(GL_FLOAT, 0, envMap? gEnvMapNormals: mesh->vertexNormals);
+		glNormalPointer(GL_FLOAT, 0, mesh->vertexNormals);
 		CHECK_GL_ERROR();
 
 		if (mesh->hasTexture)
