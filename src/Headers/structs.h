@@ -147,7 +147,7 @@ typedef struct
 	short				numDecomposedNormals ;			// # shared normal vectors
 	TQ3Vector3D			*decomposedNormalsList;			// array of shared normals
 
-
+	TQ3MetaFile			*associated3DMF;					// associated 3DMF file
 }SkeletonDefType;
 
 
@@ -263,6 +263,7 @@ struct ObjNode
 #else
 	int						NumMeshes;
 	TQ3TriMeshData*			MeshList[MAX_DECOMPOSED_TRIMESHES];
+	bool					OwnsMeshMemory[MAX_DECOMPOSED_TRIMESHES];
 #endif
 	float				Radius;					// radius use for object culling calculation
 

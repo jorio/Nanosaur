@@ -56,12 +56,14 @@ static	TQ3Vector3D			gTransformedNormals[MAX_DECOMPOSED_NORMALS];	// temporary b
 
 void LoadBonesReferenceModel(FSSpec	*inSpec, SkeletonDefType *skeleton)
 {
-	Pomme3DMF_FileHandle the3DMFFile = Pomme3DMF_LoadModelFile(inSpec);
+	TQ3MetaFile* the3DMFFile = Q3MetaFile_Load3DMF(inSpec);
 	GAME_ASSERT(the3DMFFile);
 
 #if 0	// TODO noquesa (might not be needed anymore)
 	PatchSkeleton3DMF(inSpec->cName, newModel);		// patch 3DMF (add alpha test)
 #endif
+
+	skeleton->associated3DMF = the3DMFFile;
 
 			/* DECOMPOSE REFERENCE MODEL */
 
@@ -69,10 +71,9 @@ void LoadBonesReferenceModel(FSSpec	*inSpec, SkeletonDefType *skeleton)
 	skeleton->numDecomposedPoints		= 0;
 	skeleton->numDecomposedNormals		= 0;
 
-	TQ3TriMeshFlatGroup meshList = Pomme3DMF_GetAllMeshes(the3DMFFile);
-	for (int i = 0; i < meshList.numMeshes; i++)
+	for (int i = 0; i < the3DMFFile->numMeshes; i++)
 	{
-		DecomposeATriMesh(skeleton, meshList.meshes[i]);
+		DecomposeATriMesh(skeleton, the3DMFFile->meshes[i]);
 	}
 }
 

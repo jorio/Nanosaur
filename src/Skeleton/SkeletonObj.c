@@ -148,11 +148,16 @@ TQ3BoundingBox *bbox;
 
 			/* MAKE COPY OF TRIMESHES FOR LOCAL USE */
 
+	GAME_ASSERT(newNode->NumMeshes == 0);
+
 	newNode->NumMeshes = skeletonDef->numDecomposedTriMeshes;
 
 	for (int i = 0; i < skeletonDef->numDecomposedTriMeshes; i++)
 	{
+		GAME_ASSERT_MESSAGE(!newNode->MeshList[i], "Node already had a mesh at that index!");
+
 		newNode->MeshList[i] = Q3TriMeshData_Duplicate(skeletonDef->decomposedTriMeshPtrs[i]);
+		newNode->OwnsMeshMemory[i] = true;
 	}
 
 
@@ -296,10 +301,12 @@ short	i,j,numAnims,numJoints;
 
 			/* DISPOSE DECOMPOSED DATA ARRAYS */
 
-	for (j = 0; j < skeleton->numDecomposedTriMeshes; j++)			// first dispose of the trimesh data in there
+	// DON'T call Q3TriMeshData_Dispose on every decomposedTriMeshPtrs as they're just pointers
+	// to trimeshes in the 3DMF. We dispose of the 3DMF at the end.
+	if (skeleton->decomposedTriMeshPtrs)
 	{
-		Q3TriMeshData_Dispose(skeleton->decomposedTriMeshPtrs[j]);
-		skeleton->decomposedTriMeshPtrs[j] = nil;
+		DisposePtr((Ptr)skeleton->decomposedTriMeshPtrs);
+		skeleton->decomposedTriMeshPtrs = nil;
 	}
 
 	if (skeleton->decomposedPointList)
@@ -312,6 +319,15 @@ short	i,j,numAnims,numJoints;
 	{
 		DisposePtr((Ptr)skeleton->decomposedNormalsList);
 		skeleton->decomposedNormalsList = nil;
+	}
+
+
+			/* DISPOSE OF 3DMF */
+
+	if (skeleton->associated3DMF)
+	{
+		Q3MetaFile_Dispose(skeleton->associated3DMF);
+		skeleton->associated3DMF = nil;
 	}
 
 			/* DISPOSE OF MASTER DEFINITION BLOCK */

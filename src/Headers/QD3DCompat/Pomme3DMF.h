@@ -9,19 +9,15 @@ extern "C"
 
 #include "QD3D.h"
 
-typedef void*				Pomme3DMF_FileHandle;
+#pragma mark -
+
+TQ3MetaFile* Q3MetaFile_Load3DMF(const FSSpec* spec);
+
+void Q3MetaFile_Dispose(TQ3MetaFile* the3DMFFile);
 
 #pragma mark -
 
-Pomme3DMF_FileHandle Pomme3DMF_LoadModelFile(const FSSpec* spec);
-
-void Pomme3DMF_DisposeModelFile(Pomme3DMF_FileHandle the3DMFFile);
-
-TQ3TriMeshFlatGroup Pomme3DMF_GetAllMeshes(Pomme3DMF_FileHandle the3DMFFile);
-
-int Pomme3DMF_CountTopLevelMeshGroups(Pomme3DMF_FileHandle the3DMFFile);
-
-TQ3TriMeshFlatGroup Pomme3DMF_GetTopLevelMeshGroup(Pomme3DMF_FileHandle the3DMFFile, int groupNumber);
+void Q3Pixmap_Dispose(TQ3Pixmap*);
 
 #pragma mark -
 

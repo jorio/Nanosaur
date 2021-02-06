@@ -34,7 +34,6 @@ void AttachGeometryToDisplayGroupObject(ObjNode* theNode, int numMeshes, TQ3TriM
 extern	void CreateBaseGroup(ObjNode *theNode);
 extern	void UpdateObjectTransforms(ObjNode *theNode);
 extern	void MakeObjectKeepBackfaces(ObjNode *theNode);
-extern	void DisposeObjectBaseGroup(ObjNode *theNode);
 extern	void MakeObjectTransparent(ObjNode *theNode, float transPercent);
 
 extern	void MoveStaticObject(ObjNode *theNode);

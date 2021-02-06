@@ -14,9 +14,6 @@
 #include "misc.h"
 #include "3dmf.h"
 #include "qd3d_geometry.h"
-#include "GamePatches.h"
-
-extern	QD3DSetupOutputType		*gGameViewInfoPtr;
 
 
 /****************************/
@@ -33,7 +30,7 @@ extern	QD3DSetupOutputType		*gGameViewInfoPtr;
 /*    VARIABLES      */
 /*********************/
 
-Pomme3DMF_FileHandle		gObjectGroupFile[MAX_3DMF_GROUPS];
+TQ3MetaFile*				gObjectGroupFile[MAX_3DMF_GROUPS];
 TQ3TriMeshFlatGroup			gObjectGroupList[MAX_3DMF_GROUPS][MAX_OBJECTS_IN_GROUP];
 float			gObjectGroupRadiusList[MAX_3DMF_GROUPS][MAX_OBJECTS_IN_GROUP];
 TQ3BoundingBox 	gObjectGroupBBoxList[MAX_3DMF_GROUPS][MAX_OBJECTS_IN_GROUP];
@@ -73,20 +70,20 @@ void LoadGrouped3DMF(FSSpec *spec, Byte groupNum)
 
 			/* LOAD NEW GEOMETRY */
 
-	Pomme3DMF_FileHandle the3DMFFile = Pomme3DMF_LoadModelFile(spec);
+	TQ3MetaFile* the3DMFFile = Q3MetaFile_Load3DMF(spec);
 	GAME_ASSERT(the3DMFFile);
 
 	gObjectGroupFile[groupNum] = the3DMFFile;
 
 			/* BUILD OBJECT LIST */
 
-	int nObjects = Pomme3DMF_CountTopLevelMeshGroups(the3DMFFile);
+	int nObjects = the3DMFFile->numTopLevelGroups;
 	GAME_ASSERT(nObjects > 0);
 	GAME_ASSERT(nObjects <= MAX_OBJECTS_IN_GROUP);
 
 	for (int i = 0; i < nObjects; i++)
 	{
-		TQ3TriMeshFlatGroup meshList = Pomme3DMF_GetTopLevelMeshGroup(the3DMFFile, i);
+		TQ3TriMeshFlatGroup meshList = the3DMFFile->topLevelGroups[i];
 		gObjectGroupList[groupNum][i] = meshList;
 		GAME_ASSERT(0 != meshList.numMeshes);
 		GAME_ASSERT(nil != meshList.meshes);
@@ -111,7 +108,7 @@ void Free3DMFGroup(Byte groupNum)
 {
 	if (gObjectGroupFile[groupNum] != nil)
 	{
-		Pomme3DMF_DisposeModelFile(gObjectGroupFile[groupNum]);
+		Q3MetaFile_Dispose(gObjectGroupFile[groupNum]);
 		gObjectGroupFile[groupNum] = nil;
 	}
 
@@ -125,11 +122,6 @@ void Free3DMFGroup(Byte groupNum)
 
 void DeleteAll3DMFGroups(void)
 {
-short	i;
-
-	for (i=0; i < MAX_3DMF_GROUPS; i++)
-	{
-		if (gNumObjectsInGroupList[i])				// see if this group empty
-			Free3DMFGroup(i);
-	}
+	for (int i = 0; i < MAX_3DMF_GROUPS; i++)
+		Free3DMFGroup(i);
 }

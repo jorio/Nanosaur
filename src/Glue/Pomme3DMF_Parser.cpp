@@ -4,7 +4,6 @@
 #include "Pomme.h"
 
 #include <stack>
-#include <fstream>
 
 //#define printf(...) do{}while(0)
 
@@ -37,7 +36,7 @@ static void ReadTriangleVertexIndices(Pomme::BigEndianIStream& f, int numTriangl
 	}
 }
 
-Q3MetaFileParser::Q3MetaFileParser(std::istream& theBaseStream, Q3MetaFile& dest)
+Q3MetaFileParser::Q3MetaFileParser(std::istream& theBaseStream, TQ3MetaFile& dest)
 		: metaFile(dest)
 		, baseStream(theBaseStream)
 		, f(baseStream)
@@ -76,7 +75,8 @@ uint32_t Q3MetaFileParser::Parse1Chunk()
 		case 'cntr':    // Container
 		{
 			if (currentDepth == 1)
-				metaFile.topLevelMeshGroups.push_back({});
+				__Q3EnlargeArray<TQ3TriMeshFlatGroup>(metaFile.topLevelGroups, metaFile.numTopLevelGroups, 'GLST');
+
 			currentDepth++;
 			auto limit = f.Tell() + (std::streamoff) chunkSize;
 			while (f.Tell() != limit)
@@ -88,7 +88,7 @@ uint32_t Q3MetaFileParser::Parse1Chunk()
 
 		case 'bgng':
 			if (currentDepth == 1)
-				metaFile.topLevelMeshGroups.push_back({});
+				__Q3EnlargeArray<TQ3TriMeshFlatGroup>(metaFile.topLevelGroups, metaFile.numTopLevelGroups, 'GLST');
 			currentDepth++;
 			f.Skip(chunkSize);		// bgng itself typically contains dspg, dgst
 			while ('endg' != Parse1Chunk())
@@ -108,8 +108,13 @@ uint32_t Q3MetaFileParser::Parse1Chunk()
 			Assert(!currentMesh, "nested meshes not supported");
 			Parse_tmsh(chunkSize);
 			Assert(currentMesh, "currentMesh wasn't get set by Parse_tmsh?");
-			if (!metaFile.topLevelMeshGroups.empty())
-				metaFile.topLevelMeshGroups.back().push_back(currentMesh);
+
+			if (metaFile.numTopLevelGroups == 0)
+				__Q3EnlargeArray<TQ3TriMeshFlatGroup>(metaFile.topLevelGroups, metaFile.numTopLevelGroups, 'GLST');
+
+			TQ3TriMeshFlatGroup* group = &metaFile.topLevelGroups[metaFile.numTopLevelGroups-1];
+			__Q3EnlargeArray(group->meshes, group->numMeshes, 'GMSH');
+			group->meshes[group->numMeshes-1] = currentMesh;
 			break;
 		}
 
@@ -284,7 +289,8 @@ void Q3MetaFileParser::Parse_tmsh(uint32_t chunkSize)
 
 	currentMesh = Q3TriMeshData_New(numTriangles, numVertices);
 
-	metaFile.meshes.push_back(currentMesh);
+	__Q3EnlargeArray(metaFile.meshes, metaFile.numMeshes, 'MLST');
+	metaFile.meshes[metaFile.numMeshes-1] = currentMesh;
 
 	// Triangles
 	if (numVertices <= 0xFF)
@@ -442,21 +448,6 @@ uint32_t Q3MetaFileParser::Parse_txmm(uint32_t chunkSize)
 	else
 		printf(" UNKNOWN_PIXELTYPE");
 
-
-	uint32_t internalTextureID = metaFile.textures.size();
-	metaFile.textures.push_back({});
-	Q3MetaFile_Texture& texture = metaFile.textures[internalTextureID];
-
-	texture.glTextureName	= 0;
-	texture.useMipMapping	= useMipmapping;
-	texture.pixelType		= pixelType;
-	texture.bitOrder		= bitOrder;
-	texture.byteOrder		= byteOrder;
-	texture.width			= width;
-	texture.height			= height;
-	texture.rowBytes		= rowBytes;
-	texture.offset			= offset;
-
 	Assert(offset == 0, "unsupported texture offset");
 	Assert(bitOrder == kQ3EndianBig, "unsupported bit order");
 
@@ -469,19 +460,37 @@ uint32_t Q3MetaFileParser::Parse_txmm(uint32_t chunkSize)
 	else
 		Assert(false, "unrecognized pixel type");
 
+	int trimmedRowBytes = bytesPerPixel * width;
+
+
+
+	uint32_t newTextureID = metaFile.numTextures;
+
+	__Q3EnlargeArray<TQ3Pixmap*>(metaFile.textures, metaFile.numTextures, 'TLST');
+
+	metaFile.textures[newTextureID] = __Q3Alloc<TQ3Pixmap>(1, 'PXMP');
+	TQ3Pixmap& texture = *metaFile.textures[newTextureID];
+
+	texture.glTextureName	= 0;
+	texture.pixelType		= pixelType;
+	texture.bitOrder		= bitOrder;
+	texture.byteOrder		= byteOrder;
+	texture.width			= width;
+	texture.height			= height;
+	texture.pixelSize		= bytesPerPixel * 8;
+	texture.rowBytes		= trimmedRowBytes;
+	texture.image			= __Q3Alloc<uint8_t>(trimmedRowBytes * height, 'IMAG');
+
 	// Trim padding at end of rows
-	texture.buffer.clear();
-	texture.rowBytes = bytesPerPixel * width;
-	texture.buffer.resize(texture.rowBytes * height);
 	for (uint32_t y = 0; y < height; y++)
 	{
-		f.Read((Ptr) texture.buffer.data() + y*texture.rowBytes, texture.rowBytes);
+		f.Read((Ptr) texture.image + y*texture.rowBytes, texture.rowBytes);
 		f.Skip(rowBytes - width * bytesPerPixel);
 	}
 
 	// Make every pixel little-endian (especially to avoid breaking 16-bit 1-5-5-5 ARGB textures)
 	if (byteOrder == kQ3EndianBig)
-		ByteswapInts(bytesPerPixel, width*height, texture.buffer.data());
+		ByteswapInts(bytesPerPixel, width*height, texture.image);
 
-	return internalTextureID;
+	return newTextureID;
 }

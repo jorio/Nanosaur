@@ -10,16 +10,6 @@
 	#include <GL/glu.h>
 #endif
 
-#define ALLOCATOR_HEADER_BYTES 16
-
-// TODO: use __Q3Alloc for C++ classes as well
-#define CHECK_COOKIE(obj)												\
-	do																	\
-	{																	\
-		if ( (obj).cookie != (obj).COOKIE )								\
-			throw std::runtime_error("Pomme3DMF: illegal cookie");		\
-	} while (0)
-
 static void Assert(bool condition, const char* message)
 {
 	if (!condition)
@@ -45,80 +35,7 @@ static void ThrowGLError(GLenum error, const char* func, int line)
 			ThrowGLError(error, __func__, __LINE__);					\
 	} while(0)
 
-struct __Q3AllocatorCookie
-{
-	uint32_t		classID;
-	uint32_t		blockSize;		// including header cookie
-};
-
-static_assert(sizeof(__Q3AllocatorCookie) <= ALLOCATOR_HEADER_BYTES);
-
-template<typename T>
-static T* __Q3Alloc(size_t count, uint32_t classID)
-{
-	size_t totalBytes = ALLOCATOR_HEADER_BYTES + count*sizeof(T);
-
-	uint8_t* block = (uint8_t*) calloc(totalBytes, 1);
-
-	__Q3AllocatorCookie* cookie = (__Q3AllocatorCookie*) block;
-
-	cookie->classID		= classID;
-	cookie->blockSize	= totalBytes;
-
-	return (T*) (block + ALLOCATOR_HEADER_BYTES);
-}
-
-static __Q3AllocatorCookie* __Q3GetCookie(const void* sourcePayload, uint32_t classID)
-{
-	if (!sourcePayload)
-		throw std::runtime_error("__Q3GetCookie: got null pointer");
-
-	uint8_t* block = ((uint8_t*) sourcePayload) - ALLOCATOR_HEADER_BYTES;
-
-	__Q3AllocatorCookie* cookie = (__Q3AllocatorCookie*) block;
-
-	if (classID != cookie->classID)
-		throw std::runtime_error("__Q3GetCookie: incorrect cookie");
-
-	return cookie;
-}
-
-template<typename T>
-static T* __Q3Copy(const T* sourcePayload, uint32_t classID)
-{
-	if (!sourcePayload)
-		return nullptr;
-
-	__Q3AllocatorCookie* sourceCookie = __Q3GetCookie(sourcePayload, classID);
-
-	uint8_t* block = (uint8_t*) calloc(sourceCookie->blockSize, 1);
-	memcpy(block, sourceCookie, sourceCookie->blockSize);
-
-	return (T*) (block + ALLOCATOR_HEADER_BYTES);
-}
-
-static void __Q3Dispose(void* object, uint32_t classID)
-{
-	if (!object)
-		return;
-
-	auto cookie = __Q3GetCookie(object, classID);
-	cookie->classID = 'DEAD';
-
-	free(cookie);
-}
-
-template<typename T>
-static void __Q3DisposeArray(T** arrayPtr, uint32_t cookie)
-{
-	if (*arrayPtr)
-	{
-		__Q3Dispose(*arrayPtr, cookie);
-		*arrayPtr = nullptr;
-	}
-}
-
-Pomme3DMF_FileHandle Pomme3DMF_LoadModelFile(const FSSpec* spec)
+TQ3MetaFile* Q3MetaFile_Load3DMF(const FSSpec* spec)
 {
 	short refNum;
 	OSErr err;
@@ -129,7 +46,7 @@ Pomme3DMF_FileHandle Pomme3DMF_LoadModelFile(const FSSpec* spec)
 
 	printf("========== LOADING 3DMF: %s ===========\n", spec->cName);
 
-	Q3MetaFile* metaFile = new Q3MetaFile();
+	TQ3MetaFile* metaFile = __Q3Alloc<TQ3MetaFile>(1, '3DMF');
 
 	auto& fileStream = Pomme::Files::GetStream(refNum);
 	Q3MetaFileParser(fileStream, *metaFile).Parse3DMF();
@@ -138,10 +55,10 @@ Pomme3DMF_FileHandle Pomme3DMF_LoadModelFile(const FSSpec* spec)
 	//-------------------------------------------------------------------------
 	// Load textures
 
-	for (uint32_t i = 0; i < metaFile->textures.size(); i++)
+	for (int i = 0; i < metaFile->numTextures; i++)
 	{
-		auto& textureDef = metaFile->textures[i];
-		Assert(textureDef.glTextureName == 0, "texture already allocated");
+		TQ3Pixmap* textureDef = metaFile->textures[i];
+		Assert(textureDef->glTextureName == 0, "texture already allocated");
 
 		GLuint textureName;
 
@@ -150,7 +67,7 @@ Pomme3DMF_FileHandle Pomme3DMF_LoadModelFile(const FSSpec* spec)
 
 		printf("Loading GL texture #%d\n", textureName);
 
-		textureDef.glTextureName = textureName;
+		textureDef->glTextureName = textureName;
 
 		glBindTexture(GL_TEXTURE_2D, textureName);				// this is now the currently active texture
 		CHECK_GL_ERROR();
@@ -164,7 +81,7 @@ Pomme3DMF_FileHandle Pomme3DMF_LoadModelFile(const FSSpec* spec)
 		GLenum internalFormat;
 		GLenum format;
 		GLenum type;
-		switch (textureDef.pixelType)
+		switch (textureDef->pixelType)
 		{
 			case kQ3PixelTypeRGB16:
 				internalFormat = GL_RGB;
@@ -183,20 +100,20 @@ Pomme3DMF_FileHandle Pomme3DMF_LoadModelFile(const FSSpec* spec)
 		glTexImage2D(GL_TEXTURE_2D,
 					 0,										// mipmap level
 					 internalFormat,						// format in OpenGL
-					 textureDef.width,						// width in pixels
-					 textureDef.height,						// height in pixels
+					 textureDef->width,						// width in pixels
+					 textureDef->height,					// height in pixels
 					 0,										// border
 					 format,								// what my format is
 					 type,									// size of each r,g,b
-					 textureDef.buffer.data());				// pointer to the actual texture pixels
+					 textureDef->image);					// pointer to the actual texture pixels
 		CHECK_GL_ERROR();
 
 		// Set glTextureName on meshes
-		for (auto mesh : metaFile->meshes)
+		for (int j = 0; j < metaFile->numMeshes; j++)
 		{
-			if (mesh->hasTexture && mesh->internalTextureID == i)
+			if (metaFile->meshes[j]->hasTexture && metaFile->meshes[j]->internalTextureID == i)
 			{
-				mesh->glTextureName = textureName;
+				metaFile->meshes[j]->glTextureName = textureName;
 			}
 		}
 	}
@@ -204,54 +121,45 @@ Pomme3DMF_FileHandle Pomme3DMF_LoadModelFile(const FSSpec* spec)
 	//-------------------------------------------------------------------------
 	// Done
 
-	return (Pomme3DMF_FileHandle) metaFile;
+	return metaFile;
 }
 
-void Pomme3DMF_DisposeModelFile(Pomme3DMF_FileHandle the3DMFFile)
+void Q3MetaFile_Dispose(TQ3MetaFile* metaFile)
 {
-	if (!the3DMFFile)
-		return;
+	__Q3GetCookie(metaFile, '3DMF');
 
-	auto metaFile = (Q3MetaFile*) the3DMFFile;
-	CHECK_COOKIE(*metaFile);
-	delete metaFile;
+	for (int i = 0; i < metaFile->numTextures; i++)
+	{
+		if (metaFile->textures[i]->glTextureName)
+			glDeleteTextures(1, &metaFile->textures[i]->glTextureName);
+		Q3Pixmap_Dispose(metaFile->textures[i]);
+	}
+
+	for (int i = 0; i < metaFile->numMeshes; i++)
+		Q3TriMeshData_Dispose(metaFile->meshes[i]);
+
+	for (int i = 0; i < metaFile->numTopLevelGroups; i++)
+		__Q3Dispose(metaFile->topLevelGroups[i].meshes, 'GMSH');
+
+	__Q3Dispose(metaFile->textures,				'TLST');
+	__Q3Dispose(metaFile->meshes,				'MLST');
+	__Q3Dispose(metaFile->topLevelGroups,		'GLST');
+	__Q3Dispose(metaFile,						'3DMF');
 }
 
-TQ3TriMeshFlatGroup Pomme3DMF_GetAllMeshes(Pomme3DMF_FileHandle the3DMFFile)
+#pragma -
+
+void Q3Pixmap_Dispose(TQ3Pixmap* pixmap)
 {
-	auto& metaFile = *(Q3MetaFile*) the3DMFFile;
-	CHECK_COOKIE(metaFile);
-
-	TQ3TriMeshFlatGroup list;
-	list.numMeshes		= metaFile.meshes.size();
-	list.meshes			= metaFile.meshes.data();
-	return list;
+	__Q3Dispose(pixmap->image,					'IMAG');
+	__Q3Dispose(pixmap,							'PXMP');
 }
 
-int Pomme3DMF_CountTopLevelMeshGroups(Pomme3DMF_FileHandle the3DMFFile)
-{
-	auto& metaFile = *(Q3MetaFile*) the3DMFFile;
-	CHECK_COOKIE(metaFile);
-
-	return metaFile.topLevelMeshGroups.size();
-}
-
-TQ3TriMeshFlatGroup Pomme3DMF_GetTopLevelMeshGroup(Pomme3DMF_FileHandle the3DMFFile, int groupNumber)
-{
-	auto& metaFile = *(Q3MetaFile*) the3DMFFile;
-	CHECK_COOKIE(metaFile);
-
-	auto& internalGroup = metaFile.topLevelMeshGroups.at(groupNumber);
-
-	TQ3TriMeshFlatGroup group;
-	group.numMeshes = internalGroup.size();
-	group.meshes = internalGroup.data();
-	return group;
-}
+#pragma -
 
 TQ3TriMeshData* Q3TriMeshData_New(int numTriangles,	int numPoints)
 {
-	TQ3TriMeshData* mesh	= __Q3Alloc<TQ3TriMeshData>(1, 'TMSH');
+	TQ3TriMeshData* mesh	= __Q3Alloc<TQ3TriMeshData>(1, 'MESH');
 
 	mesh->numTriangles		= numTriangles;
 	mesh->numPoints			= numPoints;
@@ -276,7 +184,7 @@ TQ3TriMeshData* Q3TriMeshData_New(int numTriangles,	int numPoints)
 
 TQ3TriMeshData* Q3TriMeshData_Duplicate(const TQ3TriMeshData* source)
 {
-	TQ3TriMeshData* mesh	= __Q3Copy(source, 'TMSH');
+	TQ3TriMeshData* mesh	= __Q3Copy(source, 'MESH');
 	mesh->points			= __Q3Copy(source->points,			'TMpt');
 	mesh->triangles			= __Q3Copy(source->triangles,		'TMtr');
 	mesh->vertexNormals		= __Q3Copy(source->vertexNormals,	'TMvn');
@@ -292,5 +200,5 @@ void Q3TriMeshData_Dispose(TQ3TriMeshData* mesh)
 	__Q3DisposeArray(&mesh->vertexNormals,		'TMvn');
 	__Q3DisposeArray(&mesh->vertexColors,		'TMvc');
 	__Q3DisposeArray(&mesh->vertexUVs,			'TMuv');
-	__Q3Dispose(mesh, 'TMSH');
+	__Q3Dispose(mesh, 'MESH');
 }

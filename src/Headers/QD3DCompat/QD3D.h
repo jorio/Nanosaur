@@ -253,7 +253,7 @@ typedef struct TQ3TriMeshData
 
 	bool										hasTexture;
 	bool										textureHasTransparency;		// TODO
-	uint32_t									internalTextureID;
+	int											internalTextureID;
 	uint32_t									glTextureName;
 
 	bool										hasVertexColors;
@@ -284,3 +284,30 @@ typedef struct TQ3CameraPlacement
 	TQ3Point3D                                  pointOfInterest;
 	TQ3Vector3D                                 upVector;
 } TQ3CameraPlacement;
+
+// WARNING: this structure differs from QD3D.
+typedef struct TQ3Pixmap
+{
+	uint8_t 									*image;
+	uint32_t									width;
+	uint32_t									height;
+	uint32_t									rowBytes;
+	uint32_t									pixelSize;
+	uint32_t									pixelType;
+	uint32_t									bitOrder;
+	uint32_t									byteOrder;
+	uint32_t									glTextureName;
+} TQ3Pixmap;
+
+// WARNING: this structure does not exist in QD3D.
+typedef struct TQ3MetaFile
+{
+	int 										numTextures;
+	TQ3Pixmap									**textures;
+
+	int											numMeshes;
+	TQ3TriMeshData								**meshes;
+
+	int											numTopLevelGroups;
+	TQ3TriMeshFlatGroup							*topLevelGroups;
+} TQ3MetaFile;

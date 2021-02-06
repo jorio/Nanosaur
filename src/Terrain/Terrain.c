@@ -252,10 +252,24 @@ void DisposeTerrain(void)
 	{
 		for (int i = 0; i < MAX_SUPERTILES; i++)
 		{
-			if (gSuperTileMemoryList[i].textureData)
+			SuperTileMemoryType* superTile = &gSuperTileMemoryList[i];
+
+			if (superTile->textureData)
 			{
-				DisposePtr((Ptr) gSuperTileMemoryList[i].textureData);
-				gSuperTileMemoryList[i].textureData = nil;
+				DisposePtr((Ptr) superTile->textureData);
+				superTile->textureData = nil;
+			}
+
+			if (superTile->triMeshPtr)
+			{
+				Q3TriMeshData_Dispose(superTile->triMeshPtr);
+				superTile->triMeshPtr = nil;
+			}
+
+			if (superTile->triMeshPtr2)
+			{
+				Q3TriMeshData_Dispose(superTile->triMeshPtr2);
+				superTile->triMeshPtr2 = nil;
 			}
 		}
 		DisposePtr((Ptr) gSuperTileMemoryList);

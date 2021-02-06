@@ -291,6 +291,7 @@ void AttachGeometryToDisplayGroupObject(ObjNode* theNode, int numMeshes, TQ3TriM
 		GAME_ASSERT(theNode->NumMeshes <= MAX_DECOMPOSED_TRIMESHES);
 
 		theNode->MeshList[nodeMeshIndex] = meshList[i];
+		theNode->OwnsMeshMemory[nodeMeshIndex] = false;
 	}
 }
 
@@ -614,9 +615,16 @@ ObjNode *tempNode;
 		DisposeCollisionTriangleMemory(theNode);
 
 		/* SEE IF NEED TO DEREFERENCE A QD3D OBJECT */
-	
-	DisposeObjectBaseGroup(theNode);		
 
+	for (int i = 0; i < theNode->NumMeshes; i++)
+	{
+		if (theNode->OwnsMeshMemory[i])
+			Q3TriMeshData_Dispose(theNode->MeshList[i]);
+
+		theNode->MeshList[i] = nil;
+		theNode->OwnsMeshMemory[i] = false;
+	}
+	theNode->NumMeshes = 0;
 
 					/* DO NODE SWITCHING */
 
@@ -674,33 +682,6 @@ long	i,num;
 
 	gNumObjsInDeleteQueue = 0;
 }
-
-
-/****************** DISPOSE OBJECT BASE GROUP **********************/
-
-void DisposeObjectBaseGroup(ObjNode *theNode)
-#if 1	// TODO noquesa
-{ printf("TODO noquesa: %s\n", __func__); }
-#else
-{
-TQ3Status	status;
-
-	if (theNode->BaseGroup != nil)
-	{
-		status = Q3Object_Dispose(theNode->BaseGroup);
-		if (status != kQ3Success)
-			DoFatalAlert("DisposeObjectBaseGroup: Q3Object_Dispose Failed!");
-
-		theNode->BaseGroup = nil;
-	}
-	
-	if (theNode->BaseTransformObject != nil)							// also nuke extra ref to transform object
-	{
-		Q3Object_Dispose(theNode->BaseTransformObject);
-		theNode->BaseTransformObject = nil;
-	}
-}
-#endif
 
 
 

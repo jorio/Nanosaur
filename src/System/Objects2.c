@@ -32,9 +32,6 @@
 #include "collision.h"
 #include "frustumculling.h"
 
-extern	TQ3Object	gObjectGroupList[MAX_3DMF_GROUPS][MAX_OBJECTS_IN_GROUP];
-extern	float		gObjectGroupRadiusList[MAX_3DMF_GROUPS][MAX_OBJECTS_IN_GROUP];
-extern	short		gNumObjectsInGroupList[MAX_3DMF_GROUPS];
 extern	float		gFramesPerSecondFrac;
 extern	TQ3ShaderObject	gQD3D_gShadowTexture;
 extern	ObjNode		*gPlayerObj,*gFirstNodePtr;
