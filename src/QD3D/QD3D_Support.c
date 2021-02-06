@@ -358,9 +358,9 @@ TQ3Status	myErr;
 
 		glLightfv(GL_LIGHT0+i, GL_AMBIENT, lightamb);
 
-		diffuse[0] = lightDefPtr->fillColor[i].r;
-		diffuse[1] = lightDefPtr->fillColor[i].g;
-		diffuse[2] = lightDefPtr->fillColor[i].b;
+		diffuse[0] = lightDefPtr->fillColor[i].r * lightDefPtr->fillBrightness[i];
+		diffuse[1] = lightDefPtr->fillColor[i].g * lightDefPtr->fillBrightness[i];
+		diffuse[2] = lightDefPtr->fillColor[i].b * lightDefPtr->fillBrightness[i];
 		diffuse[3] = 1;
 
 		glLightfv(GL_LIGHT0+i, GL_DIFFUSE, diffuse);
