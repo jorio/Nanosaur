@@ -80,9 +80,7 @@ TQ3Vector3D	gDelta;
 long		gNumObjsInDeleteQueue = 0;
 ObjNode		*gObjectDeleteQueue[OBJ_DEL_Q_SIZE];
 
-long		gNodesDrawn = 0;  // Source port addition - nodes drawn during a frame (for statistics)
-long		gTrianglesDrawn = 0;  // Source port addition - triangles drawn during a frame (for statistics)
-long		gMeshesDrawn = 0;
+extern RenderStats	gRenderStats;
 
 //============================================================================================================
 //============================================================================================================
@@ -406,10 +404,6 @@ void DrawObjects(QD3DSetupOutputType *setupInfo)
 ObjNode		*theNode;
 unsigned long	statusBits;
 
-	gNodesDrawn = 0;
-	gTrianglesDrawn = 0;
-	gMeshesDrawn = 0;
-
 	if (gFirstNodePtr == nil)							// see if there are any objects
 		return;
 
@@ -514,7 +508,7 @@ unsigned long	statusBits;
 							theNode->MeshList,
 							statusBits & STATUS_BIT_REFLECTIONMAP,
 							&theNode->BaseTransformMatrix);
-					gNodesDrawn++;
+					gRenderStats.nodesDrawn++;
 					break;
 		}
 
