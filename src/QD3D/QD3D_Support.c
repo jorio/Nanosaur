@@ -283,24 +283,6 @@ QD3DSetupOutputType	*data;
 
 static void CreateLights(QD3DLightDefType *lightDefPtr)
 {
-#if 0	// NOQUESA
-TQ3GroupPosition		myGroupPosition;
-TQ3LightData			myLightData;
-TQ3DirectionalLightData	myDirectionalLightData;
-TQ3LightObject			myLight;
-short					i;
-TQ3Status	myErr;
-
-
-			/* CREATE NEW LIGHT GROUP */
-			
-	gQD3D_LightGroup = Q3LightGroup_New();						// make new light group
-	if ( gQD3D_LightGroup == nil )
-		DoFatalAlert(" Q3LightGroup_New Failed!");
-
-
-	myLightData.isOn = kQ3True;									// light is ON
-#endif
 	glEnable(GL_LIGHTING);
 
 			/************************/
@@ -309,7 +291,6 @@ TQ3Status	myErr;
 
 	if (lightDefPtr->ambientBrightness != 0)						// see if ambient exists
 	{
-#if 1	// NOQUESA
 		GLfloat ambient[4] =
 		{
 			lightDefPtr->ambientBrightness * lightDefPtr->ambientColor.r,
@@ -318,28 +299,14 @@ TQ3Status	myErr;
 			1
 		};
 		glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient);
-#else
-		myLightData.color = lightDefPtr->ambientColor;				// set color of light
-		myLightData.brightness = lightDefPtr->ambientBrightness;	// set brightness value
-		myLight = Q3AmbientLight_New(&myLightData);					// make it
-		if ( myLight == nil )
-			DoFatalAlert("Q3AmbientLight_New Failed!");
-
-		myGroupPosition = Q3Group_AddObject(gQD3D_LightGroup, myLight);	// add to group
-		if ( myGroupPosition == 0 )
-			DoFatalAlert(" Q3Group_AddObject Failed!");
-
-		Q3Object_Dispose(myLight);									// dispose of light
-#endif
 	}
 
 			/**********************/
 			/* CREATE FILL LIGHTS */
 			/**********************/
-			
+
 	for (int i = 0; i < lightDefPtr->numFillLights; i++)
 	{
-#if 1	// NOQUESA
 		static GLfloat lightamb[4] = { 0.0, 0.0, 0.0, 1.0 };
 		GLfloat lightVec[4];
 		GLfloat	diffuse[4];
@@ -353,7 +320,6 @@ TQ3Status	myErr;
 		lightVec[3] = 0;									// when w==0, this is a directional light, if 1 then point light
 		glLightfv(GL_LIGHT0+i, GL_POSITION, lightVec);
 
-
 					/* SET COLOR */
 
 		glLightfv(GL_LIGHT0+i, GL_AMBIENT, lightamb);
@@ -365,33 +331,8 @@ TQ3Status	myErr;
 
 		glLightfv(GL_LIGHT0+i, GL_DIFFUSE, diffuse);
 
-
 		glEnable(GL_LIGHT0+i);								// enable the light
-#else
-		myLightData.color = lightDefPtr->fillColor[i];						// set color of light
-		myLightData.brightness = lightDefPtr->fillBrightness[i];			// set brightness
-		myDirectionalLightData.lightData = myLightData;						// refer to general light info
-		myDirectionalLightData.castsShadows = kQ3True;						// shadows
-		myDirectionalLightData.direction =  lightDefPtr->fillDirection[i];	// set fill vector
-		myLight = Q3DirectionalLight_New(&myDirectionalLightData);			// make it
-		if ( myLight == nil )
-			DoFatalAlert(" Q3DirectionalLight_New Failed!");
-
-		myGroupPosition = Q3Group_AddObject(gQD3D_LightGroup, myLight);		// add to group
-		if ( myGroupPosition == 0 )
-			DoFatalAlert(" Q3Group_AddObject Failed!");
-
-		Q3Object_Dispose(myLight);											// dispose of light
-#endif
 	}
-
-#if 0	// NOQUESA
-			/* ASSIGN LIGHT GROUP TO VIEW */
-			
-	myErr = Q3View_SetLightGroup(gQD3D_ViewObject, gQD3D_LightGroup);		// assign light group to view
-	if (myErr == kQ3Failure)
-		DoFatalAlert("Q3View_SetLightGroup Failed!");		
-#endif
 }
 
 
