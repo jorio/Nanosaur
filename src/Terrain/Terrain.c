@@ -816,21 +816,8 @@ SuperTileMemoryType	*superTilePtr;
 			}			
 		}
 	}
-	
-						/* CALC FACE NORMALS */
-					
-	for (i = 0; i < NUM_POLYS_IN_SUPERTILE; i++)
-	{
-#if 1	// NOQUESA
-		printf("TODO noquesa: add face normals in trimeshptr\n");
-#else
-		CalcFaceNormal(&pointList[triangleList[i].pointIndices[2]],			
-						&pointList[triangleList[i].pointIndices[1]],
-						&pointList[triangleList[i].pointIndices[0]],
-						&normalPtr[i]);
-#endif
-	}			
-			
+
+
 			/******************/
 			/* UPDATE TEXTURE */
 			/******************/
