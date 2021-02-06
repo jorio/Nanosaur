@@ -182,10 +182,10 @@ typedef struct TQ3RationalPoint4D
 
 typedef struct TQ3ColorARGB
 {
+	float					a;
 	float					r;
 	float					g;
 	float					b;
-	float					a;
 } TQ3ColorARGB;
 
 typedef struct TQ3ColorRGBA
@@ -271,7 +271,7 @@ typedef struct TQ3FogStyleData
 	float                                       fogStart;
 	float                                       fogEnd;
 	float                                       density;
-	TQ3ColorARGB                                color;
+	TQ3ColorRGBA                                color;
 } TQ3FogStyleData;
 
 typedef struct TQ3CameraPlacement

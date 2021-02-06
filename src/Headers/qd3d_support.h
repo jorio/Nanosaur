@@ -17,7 +17,7 @@
 typedef	struct
 {
 	GWorldPtr				gworld;
-	TQ3ColorARGB			clearColor;
+	TQ3ColorRGBA			clearColor;
 	Rect					paneClip;			// not pane size, but clip:  left = amount to clip off left
 }QD3DViewDefType;
 
@@ -108,7 +108,6 @@ extern	GWorldPtr QD3D_MipmapToGWorld(TQ3Mipmap *mipmap, Rect *r);
 extern	void QD3D_GWorldToMipMap(GWorldPtr pGWorld, TQ3Mipmap *mipmap, Boolean pointToGWorld);
 #endif
 
-extern	void QD3D_SetRaveFog(QD3DSetupOutputType *setupInfo, float fogHither, float fogYon, TQ3ColorARGB *fogColor, TQ3FogMode fogMode);
 extern	void QD3D_SetTextureFilter(unsigned long textureMode);
 
 extern	void QD3D_OnWindowResized(int windowWidth, int windowHeight);

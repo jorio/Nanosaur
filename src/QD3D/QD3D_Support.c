@@ -98,7 +98,7 @@ void QD3D_Boot(void)
 
 void QD3D_NewViewDef(QD3DSetupInputType *viewDef)
 {
-TQ3ColorARGB		clearColor = {0,0,0,0};
+TQ3ColorRGBA		clearColor = {0,0,0,1};
 TQ3Point3D			cameraFrom = { 0, 40, 200.0 };
 TQ3Point3D			cameraTo = { 0, 0, 0 };
 TQ3Vector3D			cameraUp = { 0.0, 1.0, 0.0 };
