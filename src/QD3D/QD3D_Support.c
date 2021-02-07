@@ -349,8 +349,6 @@ void QD3D_DrawScene(QD3DSetupOutputType *setupInfo, void (*drawRoutine)(QD3DSetu
 	glViewport(0, 0, windowWidth, windowHeight);
 
 
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 
 
 			/* PREPARE FRUSTUM PLANES FOR SPHERE VISIBILITY CHECKS */
@@ -363,53 +361,12 @@ void QD3D_DrawScene(QD3DSetupOutputType *setupInfo, void (*drawRoutine)(QD3DSetu
 			/* RENDER LOOP */
 			/***************/
 
-	memset(&gRenderStats, 0, sizeof(gRenderStats));
+	Render_StartFrame();
 
-#if 1	// NOQUESA
 	if (drawRoutine)
 		drawRoutine(setupInfo);
 
 	SDL_GL_SwapWindow(gSDLWindow);
-#else
-	do
-	{
-				/* DRAW STYLES */
-				
-		// Source port addition
-		myStatus = Q3FogStyle_Submit(&gQD3D_FogStyleData, setupInfo->viewObject);
-		if ( myStatus == kQ3Failure )
-			DoFatalAlert(" Q3FogStyle_Submit Failed!");
-		
-		myStatus = Q3Style_Submit(setupInfo->interpolationStyle,setupInfo->viewObject);
-		if ( myStatus == kQ3Failure )
-			DoFatalAlert(" Q3Style_Submit Failed!");
-			
-		myStatus = Q3Style_Submit(setupInfo->backfacingStyle,setupInfo->viewObject);
-		if ( myStatus == kQ3Failure )
-			DoFatalAlert(" Q3Style_Submit Failed!");
-			
-		myStatus = Q3Style_Submit(setupInfo->fillStyle, setupInfo->viewObject);
-		if ( myStatus == kQ3Failure )
-			DoFatalAlert(" Q3Style_Submit Failed!");
-
-		myStatus = Q3Shader_Submit(setupInfo->shaderObject, setupInfo->viewObject);
-		if ( myStatus == kQ3Failure )
-			DoFatalAlert(" Q3Shader_Submit Failed!");
-
-
-			/* CALL INPUT DRAW FUNCTION */
-
-		if (drawRoutine != nil)
-			drawRoutine(setupInfo);
-
-		myViewStatus = Q3View_EndRendering(setupInfo->viewObject);
-		if ( myViewStatus == kQ3ViewStatusError)
-			DoFatalAlert("QD3D_DrawScene: Q3View_EndRendering failed!");
-		else if (myViewStatus == kQ3ViewStatusRetraverse)
-			DoFatalAlert("QD3D_DrawScene: we need to retraverse!");
-		
-	} while ( myViewStatus == kQ3ViewStatusRetraverse );
-#endif
 }
 
 

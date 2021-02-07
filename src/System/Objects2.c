@@ -214,7 +214,7 @@ ObjNode	*shadowObj;
 	gNewObjectDefinition.type = GLOBAL_MObjType_Shadow;	
 	gNewObjectDefinition.coord = theNode->Coord;
 	gNewObjectDefinition.coord.y += .5;
-	gNewObjectDefinition.flags = STATUS_BIT_BLEND_INTERPOLATE;
+	gNewObjectDefinition.flags = STATUS_BIT_BLEND_INTERPOLATE | STATUS_BIT_NOZWRITE;
 	gNewObjectDefinition.slot = SLOT_OF_DUMB+1;
 	gNewObjectDefinition.moveCall = nil;
 	gNewObjectDefinition.rot = 0;

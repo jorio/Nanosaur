@@ -44,6 +44,7 @@ typedef struct RendererState
 	bool		hasState_GL_TEXTURE_2D;
 	bool		hasState_GL_BLEND;
 	bool		hasState_GL_LIGHTING;
+	bool		hasFlag_glDepthMask;
 //	bool		hasState_GL_FOG;
 } RendererState;
 
@@ -142,6 +143,18 @@ static inline void __DisableClientState(GLenum stateEnum, bool* stateFlagPtr)
 #define DisableState(stateEnum) __DisableState(stateEnum, &gState.hasState_##stateEnum)
 #define DisableClientState(stateEnum) __DisableClientState(stateEnum, &gState.hasClientState_##stateEnum)
 
+#define EnableFlag(glFunction) do {					\
+	if (!gState.hasFlag_##glFunction) {				\
+		glFunction(GL_TRUE);						\
+		gState.hasFlag_##glFunction = true;			\
+	} } while(0)
+
+#define DisableFlag(glFunction) do {				\
+	if (gState.hasFlag_##glFunction) {				\
+		glFunction(GL_FALSE);						\
+		gState.hasFlag_##glFunction = false;		\
+	} } while(0)
+
 #pragma mark -
 
 //=======================================================================================================
@@ -173,6 +186,8 @@ void Render_InitState(void)
 	SetInitialState(GL_BLEND,			false);
 	SetInitialState(GL_LIGHTING,		true);
 //	SetInitialState(GL_FOG,				true);
+
+	gState.hasFlag_glDepthMask = true;		// initially active on a fresh context
 
 	gState.boundTexture = 0;
 }
@@ -256,6 +271,16 @@ void Render_Dispose3DMFTextures(TQ3MetaFile* metaFile)
 	}
 }
 
+void Render_StartFrame(void)
+{
+	memset(&gRenderStats, 0, sizeof(gRenderStats));
+
+	// The depth mask must be re-enabled so we can clear the depth buffer.
+	EnableFlag(glDepthMask);
+
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
 void Render_DrawTriMeshList(
 		int numMeshes,
 		TQ3TriMeshData** meshList,
@@ -311,6 +336,15 @@ void Render_DrawTriMeshList(
 		else
 		{
 			EnableState(GL_LIGHTING);
+		}
+
+		if (mods->statusBits & STATUS_BIT_NOZWRITE)
+		{
+			DisableFlag(glDepthMask);
+		}
+		else
+		{
+			EnableFlag(glDepthMask);
 		}
 
 		glVertexPointer(3, GL_FLOAT, 0, mesh->points);
