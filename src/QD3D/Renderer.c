@@ -24,6 +24,7 @@
 
 extern TQ3Param2D				gEnvMapUVs[];
 extern RenderStats				gRenderStats;
+extern PrefsType				gGamePrefs;
 
 
 /****************************/
@@ -192,6 +193,47 @@ void Render_InitState(void)
 	gState.boundTexture = 0;
 }
 
+GLuint Render_LoadTexture(
+		GLenum internalFormat,
+		int width,
+		int height,
+		GLenum bufferFormat,
+		GLenum bufferType,
+		const GLvoid* pixels,
+		RendererTextureFlags flags)
+{
+	GLuint textureName;
+
+	glGenTextures(1, &textureName);
+	CHECK_GL_ERROR();
+
+	glBindTexture(GL_TEXTURE_2D, textureName);				// this is now the currently active texture
+	CHECK_GL_ERROR();
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gGamePrefs.highQualityTextures? GL_LINEAR: GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gGamePrefs.highQualityTextures? GL_LINEAR: GL_NEAREST);
+
+	if (flags & kRendererTextureFlags_ClampU)
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+
+	if (flags & kRendererTextureFlags_ClampV)
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+	glTexImage2D(
+			GL_TEXTURE_2D,
+			0,						// mipmap level
+			internalFormat,			// format in OpenGL
+			width,					// width in pixels
+			height,					// height in pixels
+			0,						// border
+			bufferFormat,			// what my format is
+			bufferType,				// size of each r,g,b
+			pixels);				// pointer to the actual texture pixels
+	CHECK_GL_ERROR();
+
+	return textureName;
+}
+
 void Render_Load3DMFTextures(TQ3MetaFile* metaFile)
 {
 	for (int i = 0; i < metaFile->numTextures; i++)
@@ -206,12 +248,12 @@ void Render_Load3DMFTextures(TQ3MetaFile* metaFile)
 		{
 			case kQ3PixelTypeRGB16:
 				internalFormat = GL_RGB;
-				format = GL_BGRA_EXT;
+				format = GL_BGRA;
 				type = GL_UNSIGNED_SHORT_1_5_5_5_REV;
 				break;
 			case kQ3PixelTypeARGB16:
 				internalFormat = GL_RGBA;
-				format = GL_BGRA_EXT;
+				format = GL_BGRA;
 				type = GL_UNSIGNED_SHORT_1_5_5_5_REV;
 				break;
 			default:
@@ -219,39 +261,21 @@ void Render_Load3DMFTextures(TQ3MetaFile* metaFile)
 				continue;
 		}
 
-		GLuint textureName;
-
-		glGenTextures(1, &textureName);
-		CHECK_GL_ERROR();
-
-		textureDef->glTextureName = textureName;
-
-		glBindTexture(GL_TEXTURE_2D, textureName);				// this is now the currently active texture
-		CHECK_GL_ERROR();
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-//			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-//			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-		glTexImage2D(GL_TEXTURE_2D,
-					 0,										// mipmap level
+		textureDef->glTextureName = Render_LoadTexture(
 					 internalFormat,						// format in OpenGL
 					 textureDef->width,						// width in pixels
 					 textureDef->height,					// height in pixels
-					 0,										// border
 					 format,								// what my format is
 					 type,									// size of each r,g,b
-					 textureDef->image);					// pointer to the actual texture pixels
-		CHECK_GL_ERROR();
+					 textureDef->image,						// pointer to the actual texture pixels
+					 0);
 
 		// Set glTextureName on meshes
 		for (int j = 0; j < metaFile->numMeshes; j++)
 		{
 			if (metaFile->meshes[j]->hasTexture && metaFile->meshes[j]->internalTextureID == i)
 			{
-				metaFile->meshes[j]->glTextureName = textureName;
+				metaFile->meshes[j]->glTextureName = textureDef->glTextureName;
 			}
 		}
 	}

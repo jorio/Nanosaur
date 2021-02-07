@@ -16,9 +16,29 @@ typedef struct RenderModifiers
 	TQ3ColorRGBA			diffuseColor;
 } RenderModifiers;
 
+typedef enum
+{
+	kRendererTextureFlags_ClampU		= (1 << 0),
+	kRendererTextureFlags_ClampV		= (1 << 1),
+	kRendererTextureFlags_ClampBoth		= kRendererTextureFlags_ClampU | kRendererTextureFlags_ClampV,
+} RendererTextureFlags;
+
 // Sets up the initial renderer state.
 // Call this function after creating the OpenGL context.
 void Render_InitState(void);
+
+// Wrapper for glTexImage that takes care of all the boilerplate associated with texture creation.
+// Returns an OpenGL texture name.
+// Aborts the game on failure.
+GLuint Render_LoadTexture(
+		GLenum internalFormat,
+		int width,
+		int height,
+		GLenum bufferFormat,
+		GLenum bufferType,
+		const GLvoid* pixels,
+		RendererTextureFlags flags
+);
 
 // Uploads all textures from a 3DMF file to the GPU.
 // Requires an OpenGL context to be active.

@@ -832,28 +832,15 @@ void MakeShadowTexture(void)
 
 	GAME_ASSERT_MESSAGE(gShadowGLTextureName == 0, "shadow texture already allocated");
 
-	glGenTextures(1, &gShadowGLTextureName);
-	CHECK_GL_ERROR();
-	GAME_ASSERT(gShadowGLTextureName != 0);
-
-	glBindTexture(GL_TEXTURE_2D, gShadowGLTextureName);
-	CHECK_GL_ERROR();
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-	glTexImage2D(
-			GL_TEXTURE_2D,
-			0,
-			GL_RGBA8,
+	gShadowGLTextureName = Render_LoadTexture(
+			GL_RGBA,
 			width,
 			height,
-			0,
 			GL_BGRA,
 			GL_UNSIGNED_INT_8_8_8_8,
-			pixelData
-	);
-	CHECK_GL_ERROR();
+			pixelData,
+			0
+			);
 
 	DisposeHandle((Handle) picHandle);
 }

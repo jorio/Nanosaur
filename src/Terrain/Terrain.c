@@ -388,26 +388,15 @@ Ptr						blankTexPtr;
 		blankTexPtr = AllocPtr(SUPERTILE_TEXMAP_SIZE * SUPERTILE_TEXMAP_SIZE * sizeof(uint16_t));
 		GAME_ASSERT(blankTexPtr);
 
-		GLuint textureName;
-		glGenTextures(1, &textureName);
-		CHECK_GL_ERROR();
-		GAME_ASSERT(textureName);
-		glBindTexture(GL_TEXTURE_2D, textureName);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glTexImage2D(
-				GL_TEXTURE_2D,
-				0,
+		GLuint textureName = Render_LoadTexture(
 				TILE_TEXTURE_INTERNAL_FORMAT,
 				SUPERTILE_TEXMAP_SIZE,
 				SUPERTILE_TEXMAP_SIZE,
-				0,
 				TILE_TEXTURE_FORMAT,
 				TILE_TEXTURE_TYPE,
-				blankTexPtr);
-		CHECK_GL_ERROR();
+				blankTexPtr,
+				kRendererTextureFlags_ClampBoth
+				);
 
 					/* SET DATA */
 
