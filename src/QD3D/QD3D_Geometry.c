@@ -47,6 +47,8 @@ ObjNode		*gParticleParentObj;
 long				gNumParticles = 0;
 ParticleType		gParticles[MAX_PARTICLES];
 
+static RenderModifiers kParticleRenderingMods;
+
 
 
 /*************** QD3D: CALC OBJECT BOUNDING BOX ************************/
@@ -136,6 +138,9 @@ void QD3D_InitParticles(void)
 		for (int v = 0; v < 3; v++)
 			particle->mesh->triangles[0].pointIndices[v] = v;
 	}
+
+	Render_SetDefaultModifiers(&kParticleRenderingMods);
+	kParticleRenderingMods.statusBits |= STATUS_BIT_KEEPBACKFACES;			// draw both faces on particles
 }
 
 
@@ -394,19 +399,14 @@ void QD3D_DrawParticles(QD3DSetupOutputType *setupInfo)
 	if (gNumParticles == 0)												// quick check if any particles at all
 		return;
 
-	// TODO: notify renderer that we changed cull face state
-	glDisable(GL_CULL_FACE);											// draw particles both backfaces
-
 	for (int i = 0; i < MAX_PARTICLES; i++)
 	{
 		ParticleType* particle = &gParticles[i];
-		if (!particle->isUsed)
-			continue;
-
-		Render_DrawTriMeshList(1, &particle->mesh, &particle->matrix, nil);
+		if (particle->isUsed)
+		{
+			Render_DrawTriMeshList(1, &particle->mesh, &particle->matrix, &kParticleRenderingMods);
+		}
 	}
-
-	glEnable(GL_CULL_FACE);
 }
 
 

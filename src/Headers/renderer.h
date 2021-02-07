@@ -51,6 +51,9 @@ void Render_Dispose3DMFTextures(TQ3MetaFile* metaFile);
 // Call this function before submitting any draw calls.
 void Render_StartFrame(void);
 
+// Fills the argument with the default mesh rendering modifiers.
+void Render_SetDefaultModifiers(RenderModifiers* dest);
+
 // Submits a list of trimeshes for drawing.
 // Requires an OpenGL context to be active.
 // Arguments transform and mods may be nil.

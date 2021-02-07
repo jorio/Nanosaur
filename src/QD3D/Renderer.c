@@ -305,6 +305,11 @@ void Render_StartFrame(void)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
+void Render_SetDefaultModifiers(RenderModifiers* dest)
+{
+	memcpy(dest, &kDefaultRenderMods, sizeof(RenderModifiers));
+}
+
 void Render_DrawTriMeshList(
 		int numMeshes,
 		TQ3TriMeshData** meshList,
