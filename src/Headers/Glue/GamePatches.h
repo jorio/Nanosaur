@@ -43,17 +43,6 @@ void DoSDLMaintenance(void);
 
 void SetFullscreenMode(void);
 
-//-----------------------------------------------------------------------------
-// Patch 3DMF models
-
-#if 0 // TODO: noquesa
-void PatchSkeleton3DMF(const char* cName, TQ3Object newModel);
-
-void PatchGrouped3DMF(const char* cName, TQ3Object* objects, int nObjects);
-
-void ApplyEdgePadding(const TQ3Mipmap* mipmap);
-#endif
-
 #ifdef __cplusplus
 }
 #endif
