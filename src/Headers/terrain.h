@@ -10,10 +10,6 @@
 #define	MAP_ITEM_MYSTARTCOORD		0				// map item # for my start coords
 #define	MAP_ITEM_TIMEPORTAL			9				// map item # for TIME PORTAL
 
-#if SOURCE_PORT_ENHANCEMENTS
-#define TERRAIN_160X160_TEXTURES	true			// source port addition - use 160x160 textures as stored in terrain files instead of shrinking to 128x128 or 64x64
-#endif
-
 extern	const float	gOneOver_TERRAIN_POLYGON_SIZE;
 
 		/* PATH TILES */
@@ -78,8 +74,8 @@ enum
 
 #if TWO_MEG_VERSION
 #define	SUPERTILE_TEXMAP_SIZE	64						// the width & height of a supertile's texture
-#elif TERRAIN_160X160_TEXTURES 
-#define SUPERTILE_TEXMAP_SIZE	160
+#elif SOURCE_PORT_ENHANCEMENTS
+#define SUPERTILE_TEXMAP_SIZE	160						// original size as stored in terrain files
 #else
 #define	SUPERTILE_TEXMAP_SIZE	128						// the width & height of a supertile's texture
 #endif

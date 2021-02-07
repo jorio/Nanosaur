@@ -56,7 +56,7 @@ static void CreateSuperTileMemoryList(void);
 static short	BuildTerrainSuperTile(long	startCol, long startRow);
 static void DrawTileIntoMipmap(UInt16 tile, short row, short col, UInt16 *buffer);
 static void BuildTerrainSuperTile_Flat(SuperTileMemoryType *, long startCol, long startRow);
-static inline void	ShrinkSuperTileTextureMap(UInt16 *srcPtr,UInt16 *destPtr);
+static void ShrinkSuperTileTextureMap(const uint16_t* srcPtr, uint16_t* dstPtr, int targetSize);
 
 
 /****************************/
@@ -824,7 +824,8 @@ SuperTileMemoryType	*superTilePtr;
 
 			/* GET MIPMAP BUFFER */
 
-	ShrinkSuperTileTextureMap(gTempTextureBuffer, superTilePtr->textureData);		// shrink to 128x128
+	// store a resized copy of the texture in the supertile's textureData buffer
+	ShrinkSuperTileTextureMap(gTempTextureBuffer, superTilePtr->textureData, SUPERTILE_TEXMAP_SIZE);
 
 				/* UPDATE THE TRIMESH */
 
@@ -920,7 +921,8 @@ TQ3PlaneEquation	planeEq;
 
 				/* UPDATE TEXTURE */
 
-	ShrinkSuperTileTextureMap(gTempTextureBuffer, superTilePtr->textureData);		// shrink to 128x128
+	// store a resized copy of the texture in the supertile's textureData buffer
+	ShrinkSuperTileTextureMap(gTempTextureBuffer, superTilePtr->textureData, SUPERTILE_TEXMAP_SIZE);
 
 	glBindTexture(GL_TEXTURE_2D, superTilePtr->glTextureName);
 	glTexSubImage2D(
@@ -1110,330 +1112,64 @@ UInt16		*sPtr,*tileDataS;
 
 
 
-#if TWO_MEG_VERSION
-
 /************ SHRINK SUPERTILE TEXTURE MAP ********************/
 //
-// Shrinks a 160x160 src texture to a 64x64 dest texture
+// Shrinks a 160x160 src texture to a 160x160, 128x128, or 64x64 dest texture
 //
 
-static inline void	ShrinkSuperTileTextureMap(UInt16 *srcPtr,UInt16 *destPtr)
+static void ShrinkSuperTileTextureMap(const uint16_t* srcPtr, uint16_t* dstPtr, int dstSize)
 {
-#if (SUPERTILE_TEXMAP_SIZE != 64)
-	ReWrite this!
-#endif
 #if ((SUPERTILE_SIZE * OREOMAP_TILE_SIZE) != 160)
 	ReWrite this!
 #endif
 
-short	y,v;
-
-	for (v = y = 0; y < SUPERTILE_TEXMAP_SIZE; y++)
+	switch (dstSize)
 	{
-		destPtr[0] = srcPtr[0];
-		destPtr[1] = srcPtr[2];
-		
-		destPtr[2] = srcPtr[5];
-		destPtr[3] = srcPtr[7];
+		case 64:
+			for (int y = 0; y < 64; y++)
+			{
+				for (int x = 0; x < 64; x += 2)
+				{
+					dstPtr[0] = srcPtr[0];
+					dstPtr[1] = srcPtr[2];
+					dstPtr += 2;
+					srcPtr += 5;
+				}
 
-		destPtr[4] = srcPtr[10];
-		destPtr[5] = srcPtr[12];
+				srcPtr += SUPERTILE_SIZE * OREOMAP_TILE_SIZE;					// skip every other line
 
-		destPtr[6] = srcPtr[15];
-		destPtr[7] = srcPtr[17];
+				if (y % 2 == 0)													// skip another line
+					srcPtr +=  SUPERTILE_SIZE * OREOMAP_TILE_SIZE;
+			}
+			break;
 
-		destPtr[8] = srcPtr[20];
-		destPtr[9] = srcPtr[22];
+		case 128:
+			for (int y = 0; y < 128; y++)
+			{
+				for (int x = 0; x < 128; x += 4)
+				{
+					dstPtr[0] = srcPtr[0];
+					dstPtr[1] = srcPtr[1];
+					dstPtr[2] = srcPtr[2];
+					dstPtr[3] = srcPtr[3];
+					dstPtr += 4;
+					srcPtr += 5;
+				}
 
-		destPtr[10] = srcPtr[25];
-		destPtr[11] = srcPtr[27];
+				if (y % 4 == 3)													// skip every fourth line
+					srcPtr +=  SUPERTILE_SIZE * OREOMAP_TILE_SIZE;
+			}
+			break;
 
-		destPtr[12] = srcPtr[30];
-		destPtr[13] = srcPtr[32];
+		case 160:
+			memcpy(dstPtr, srcPtr, 160 * 160 * sizeof(UInt16));
+			break;
 
-		destPtr[14] = srcPtr[35];
-		destPtr[15] = srcPtr[37];
-
-		destPtr[16] = srcPtr[40];
-		destPtr[17] = srcPtr[42];
-
-		destPtr[18] = srcPtr[45];
-		destPtr[19] = srcPtr[47];
-
-		destPtr[20] = srcPtr[50];
-		destPtr[21] = srcPtr[52];
-
-		destPtr[22] = srcPtr[55];
-		destPtr[23] = srcPtr[57];
-
-		destPtr[24] = srcPtr[60];
-		destPtr[25] = srcPtr[62];
-
-		destPtr[26] = srcPtr[65];
-		destPtr[27] = srcPtr[67];
-	
-		destPtr[28] = srcPtr[70];
-		destPtr[29] = srcPtr[72];
-	
-		destPtr[30] = srcPtr[75];
-		destPtr[31] = srcPtr[77];
-	
-		destPtr[32] = srcPtr[80];
-		destPtr[33] = srcPtr[82];
-		
-		destPtr[34] = srcPtr[85];
-		destPtr[35] = srcPtr[87];
-
-		destPtr[36] = srcPtr[90];
-		destPtr[37] = srcPtr[92];
-
-		destPtr[38] = srcPtr[95];
-		destPtr[39] = srcPtr[97];
-
-		destPtr[40] = srcPtr[100];
-		destPtr[41] = srcPtr[102];
-
-		destPtr[42] = srcPtr[105];
-		destPtr[43] = srcPtr[107];
-
-		destPtr[44] = srcPtr[110];
-		destPtr[45] = srcPtr[112];
-
-		destPtr[46] = srcPtr[115];
-		destPtr[47] = srcPtr[117];
-
-		destPtr[48] = srcPtr[120];
-		destPtr[49] = srcPtr[122];
-
-		destPtr[50] = srcPtr[125];
-		destPtr[51] = srcPtr[127];
-
-		destPtr[52] = srcPtr[130];
-		destPtr[53] = srcPtr[132];
-
-		destPtr[54] = srcPtr[135];
-		destPtr[55] = srcPtr[137];
-
-		destPtr[56] = srcPtr[140];
-		destPtr[57] = srcPtr[142];
-
-		destPtr[58] = srcPtr[145];
-		destPtr[59] = srcPtr[147];
-	
-		destPtr[60] = srcPtr[150];
-		destPtr[61] = srcPtr[152];
-	
-		destPtr[62] = srcPtr[155];
-		destPtr[63] = srcPtr[157];
-	
-		destPtr += SUPERTILE_TEXMAP_SIZE;								// next line in dest
-
-		srcPtr +=  SUPERTILE_SIZE * OREOMAP_TILE_SIZE * 2;				// skip 2 lines in src
-		
-		if (v++)														// skip every other line
-		{
-			v = 0;
-			srcPtr +=  SUPERTILE_SIZE * OREOMAP_TILE_SIZE;
-		}
+		default:
+			DoFatalAlert("ShrinkSuperTileTextureMap: Unsupported target size");
+			break;
 	}
 }
-#elif TERRAIN_160X160_TEXTURES
-static inline void	ShrinkSuperTileTextureMap(UInt16* srcPtr, UInt16* destPtr)
-{
-	memcpy(destPtr, srcPtr, 160 * 160 * sizeof(UInt16));
-}
-#else
-/************ SHRINK SUPERTILE TEXTURE MAP ********************/
-//
-// Shrinks a 160x160 src texture to a 128x128 dest texture
-//
-
-static inline void	ShrinkSuperTileTextureMap(UInt16 *srcPtr,UInt16 *destPtr)
-{
-#if (SUPERTILE_TEXMAP_SIZE != 128)
-	ReWrite this!
-#endif
-#if ((SUPERTILE_SIZE * OREOMAP_TILE_SIZE) != 160)
-	ReWrite this!
-#endif
-
-short	y,v;
-
-	for (v = y = 0; y < SUPERTILE_TEXMAP_SIZE; y++)
-	{
-		destPtr[0] = srcPtr[0];
-		destPtr[1] = srcPtr[1];
-		destPtr[2] = srcPtr[2];
-		destPtr[3] = srcPtr[3];
-		
-		destPtr[4] = srcPtr[5];
-		destPtr[5] = srcPtr[6];
-		destPtr[6] = srcPtr[7];
-		destPtr[7] = srcPtr[8];
-
-		destPtr[8] = srcPtr[10];
-		destPtr[9] = srcPtr[11];
-		destPtr[10] = srcPtr[12];
-		destPtr[11] = srcPtr[13];
-
-		destPtr[12] = srcPtr[15];
-		destPtr[13] = srcPtr[16];
-		destPtr[14] = srcPtr[17];
-		destPtr[15] = srcPtr[18];
-
-		destPtr[16] = srcPtr[20];
-		destPtr[17] = srcPtr[21];
-		destPtr[18] = srcPtr[22];
-		destPtr[19] = srcPtr[23];
-
-		destPtr[20] = srcPtr[25];
-		destPtr[21] = srcPtr[26];
-		destPtr[22] = srcPtr[27];
-		destPtr[23] = srcPtr[28];
-
-		destPtr[24] = srcPtr[30];
-		destPtr[25] = srcPtr[31];
-		destPtr[26] = srcPtr[32];
-		destPtr[27] = srcPtr[33];
-
-		destPtr[28] = srcPtr[35];
-		destPtr[29] = srcPtr[36];
-		destPtr[30] = srcPtr[37];
-		destPtr[31] = srcPtr[38];
-
-		destPtr[32] = srcPtr[40];
-		destPtr[33] = srcPtr[41];
-		destPtr[34] = srcPtr[42];
-		destPtr[35] = srcPtr[43];
-
-		destPtr[36] = srcPtr[45];
-		destPtr[37] = srcPtr[46];
-		destPtr[38] = srcPtr[47];
-		destPtr[39] = srcPtr[48];
-
-		destPtr[40] = srcPtr[50];
-		destPtr[41] = srcPtr[51];
-		destPtr[42] = srcPtr[52];
-		destPtr[43] = srcPtr[53];
-
-		destPtr[44] = srcPtr[55];
-		destPtr[45] = srcPtr[56];
-		destPtr[46] = srcPtr[57];
-		destPtr[47] = srcPtr[58];
-
-		destPtr[48] = srcPtr[60];
-		destPtr[49] = srcPtr[61];
-		destPtr[50] = srcPtr[62];
-		destPtr[51] = srcPtr[63];
-
-		destPtr[52] = srcPtr[65];
-		destPtr[53] = srcPtr[66];
-		destPtr[54] = srcPtr[67];
-		destPtr[55] = srcPtr[68];
-	
-		destPtr[56] = srcPtr[70];
-		destPtr[57] = srcPtr[71];
-		destPtr[58] = srcPtr[72];
-		destPtr[59] = srcPtr[73];
-	
-		destPtr[60] = srcPtr[75];
-		destPtr[61] = srcPtr[76];
-		destPtr[62] = srcPtr[77];
-		destPtr[63] = srcPtr[78];
-	
-		destPtr[64] = srcPtr[80];
-		destPtr[65] = srcPtr[81];
-		destPtr[66] = srcPtr[82];
-		destPtr[67] = srcPtr[83];
-		
-		destPtr[68] = srcPtr[85];
-		destPtr[69] = srcPtr[86];
-		destPtr[70] = srcPtr[87];
-		destPtr[71] = srcPtr[88];
-
-		destPtr[72] = srcPtr[90];
-		destPtr[73] = srcPtr[91];
-		destPtr[74] = srcPtr[92];
-		destPtr[75] = srcPtr[93];
-
-		destPtr[76] = srcPtr[95];
-		destPtr[77] = srcPtr[96];
-		destPtr[78] = srcPtr[97];
-		destPtr[79] = srcPtr[98];
-
-		destPtr[80] = srcPtr[100];
-		destPtr[81] = srcPtr[101];
-		destPtr[82] = srcPtr[102];
-		destPtr[83] = srcPtr[103];
-
-		destPtr[84] = srcPtr[105];
-		destPtr[85] = srcPtr[106];
-		destPtr[86] = srcPtr[107];
-		destPtr[87] = srcPtr[108];
-
-		destPtr[88] = srcPtr[110];
-		destPtr[89] = srcPtr[111];
-		destPtr[90] = srcPtr[112];
-		destPtr[91] = srcPtr[113];
-
-		destPtr[92] = srcPtr[115];
-		destPtr[93] = srcPtr[116];
-		destPtr[94] = srcPtr[117];
-		destPtr[95] = srcPtr[118];
-
-		destPtr[96] = srcPtr[120];
-		destPtr[97] = srcPtr[121];
-		destPtr[98] = srcPtr[122];
-		destPtr[99] = srcPtr[123];
-
-		destPtr[100] = srcPtr[125];
-		destPtr[101] = srcPtr[126];
-		destPtr[102] = srcPtr[127];
-		destPtr[103] = srcPtr[128];
-
-		destPtr[104] = srcPtr[130];
-		destPtr[105] = srcPtr[131];
-		destPtr[106] = srcPtr[132];
-		destPtr[107] = srcPtr[133];
-
-		destPtr[108] = srcPtr[135];
-		destPtr[109] = srcPtr[136];
-		destPtr[110] = srcPtr[137];
-		destPtr[111] = srcPtr[138];
-
-		destPtr[112] = srcPtr[140];
-		destPtr[113] = srcPtr[141];
-		destPtr[114] = srcPtr[142];
-		destPtr[115] = srcPtr[143];
-
-		destPtr[116] = srcPtr[145];
-		destPtr[117] = srcPtr[146];
-		destPtr[118] = srcPtr[147];
-		destPtr[119] = srcPtr[148];
-	
-		destPtr[120] = srcPtr[150];
-		destPtr[121] = srcPtr[151];
-		destPtr[122] = srcPtr[152];
-		destPtr[123] = srcPtr[153];
-	
-		destPtr[124] = srcPtr[155];
-		destPtr[125] = srcPtr[156];
-		destPtr[126] = srcPtr[157];
-		destPtr[127] = srcPtr[158];
-	
-		destPtr += SUPERTILE_TEXMAP_SIZE;								// next line in dest
-		
-		if (++v == 4)													// skip every 4th line
-		{
-			srcPtr +=  SUPERTILE_SIZE * OREOMAP_TILE_SIZE * 2;	
-			v = 0;
-		}
-		else
-			srcPtr +=  SUPERTILE_SIZE * OREOMAP_TILE_SIZE;
-	}
-}
-
-#endif
 
 
 /******************* RELEASE SUPERTILE OBJECT *******************/
