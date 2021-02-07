@@ -75,6 +75,10 @@ void LoadGrouped3DMF(FSSpec *spec, Byte groupNum)
 
 	gObjectGroupFile[groupNum] = the3DMFFile;
 
+			/* UPLOAD TEXTURES TO GPU */
+
+	Render_Load3DMFTextures(the3DMFFile);
+
 			/* BUILD OBJECT LIST */
 
 	int nObjects = the3DMFFile->numTopLevelGroups;
@@ -108,6 +112,7 @@ void Free3DMFGroup(Byte groupNum)
 {
 	if (gObjectGroupFile[groupNum] != nil)
 	{
+		Render_Dispose3DMFTextures(gObjectGroupFile[groupNum]);
 		Q3MetaFile_Dispose(gObjectGroupFile[groupNum]);
 		gObjectGroupFile[groupNum] = nil;
 	}

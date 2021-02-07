@@ -326,6 +326,7 @@ short	i,j,numAnims,numJoints;
 
 	if (skeleton->associated3DMF)
 	{
+		Render_Dispose3DMFTextures(skeleton->associated3DMF);
 		Q3MetaFile_Dispose(skeleton->associated3DMF);
 		skeleton->associated3DMF = nil;
 	}

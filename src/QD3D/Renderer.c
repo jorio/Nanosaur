@@ -177,6 +177,85 @@ void Render_InitState(void)
 	gState.boundTexture = 0;
 }
 
+void Render_Load3DMFTextures(TQ3MetaFile* metaFile)
+{
+	for (int i = 0; i < metaFile->numTextures; i++)
+	{
+		TQ3Pixmap* textureDef = metaFile->textures[i];
+		GAME_ASSERT_MESSAGE(textureDef->glTextureName == 0, "GL texture already allocated");
+
+		GLenum internalFormat;
+		GLenum format;
+		GLenum type;
+		switch (textureDef->pixelType)
+		{
+			case kQ3PixelTypeRGB16:
+				internalFormat = GL_RGB;
+				format = GL_BGRA_EXT;
+				type = GL_UNSIGNED_SHORT_1_5_5_5_REV;
+				break;
+			case kQ3PixelTypeARGB16:
+				internalFormat = GL_RGBA;
+				format = GL_BGRA_EXT;
+				type = GL_UNSIGNED_SHORT_1_5_5_5_REV;
+				break;
+			default:
+				DoAlert("3DMF texture: Unsupported kQ3PixelType");
+				continue;
+		}
+
+		GLuint textureName;
+
+		glGenTextures(1, &textureName);
+		CHECK_GL_ERROR();
+
+		textureDef->glTextureName = textureName;
+
+		glBindTexture(GL_TEXTURE_2D, textureName);				// this is now the currently active texture
+		CHECK_GL_ERROR();
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+//			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+//			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+		glTexImage2D(GL_TEXTURE_2D,
+					 0,										// mipmap level
+					 internalFormat,						// format in OpenGL
+					 textureDef->width,						// width in pixels
+					 textureDef->height,					// height in pixels
+					 0,										// border
+					 format,								// what my format is
+					 type,									// size of each r,g,b
+					 textureDef->image);					// pointer to the actual texture pixels
+		CHECK_GL_ERROR();
+
+		// Set glTextureName on meshes
+		for (int j = 0; j < metaFile->numMeshes; j++)
+		{
+			if (metaFile->meshes[j]->hasTexture && metaFile->meshes[j]->internalTextureID == i)
+			{
+				metaFile->meshes[j]->glTextureName = textureName;
+			}
+		}
+	}
+}
+
+void Render_Dispose3DMFTextures(TQ3MetaFile* metaFile)
+{
+	for (int i = 0; i < metaFile->numTextures; i++)
+	{
+		TQ3Pixmap* textureDef = metaFile->textures[i];
+
+		if (textureDef->glTextureName != 0)
+		{
+			glDeleteTextures(1, &textureDef->glTextureName);
+			textureDef->glTextureName = 0;
+		}
+	}
+}
+
 void Render_DrawTriMeshList(
 		int numMeshes,
 		TQ3TriMeshData** meshList,

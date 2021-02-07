@@ -1,14 +1,7 @@
-#include <cstring>
 #include "Pomme.h"
 #include "PommeFiles.h"
 #include "Pomme3DMF.h"
 #include "Pomme3DMF_Internal.h"
-
-#if __APPLE__
-	#include <OpenGL/glu.h>
-#else
-	#include <GL/glu.h>
-#endif
 
 #define EDGE_PADDING_REPEAT 8
 
@@ -20,23 +13,6 @@ static void Assert(bool condition, const char* message)
 	}
 }
 
-static void ThrowGLError(GLenum error, const char* func, int line)
-{
-	char message[512];
-
-	snprintf(message, sizeof(message), "OpenGL error 0x%x in %s:%d (\"%s\")",
-				error, func, line, (const char*) gluErrorString(error));
-
-	throw std::runtime_error(message);
-}
-
-#define CHECK_GL_ERROR()												\
-	do {					 											\
-		GLenum error = glGetError();									\
-		if (error != GL_NO_ERROR)										\
-			ThrowGLError(error, __func__, __LINE__);					\
-	} while(0)
-
 TQ3MetaFile* Q3MetaFile_Load3DMF(const FSSpec* spec)
 {
 	short refNum;
@@ -46,82 +22,11 @@ TQ3MetaFile* Q3MetaFile_Load3DMF(const FSSpec* spec)
 	if (err != noErr)
 		return nullptr;
 
-	printf("========== LOADING 3DMF: %s ===========\n", spec->cName);
-
 	TQ3MetaFile* metaFile = __Q3Alloc<TQ3MetaFile>(1, '3DMF');
 
 	auto& fileStream = Pomme::Files::GetStream(refNum);
 	Q3MetaFileParser(fileStream, *metaFile).Parse3DMF();
 	FSClose(refNum);
-
-	//-------------------------------------------------------------------------
-	// Load textures
-
-	for (int i = 0; i < metaFile->numTextures; i++)
-	{
-		TQ3Pixmap* textureDef = metaFile->textures[i];
-		Assert(textureDef->glTextureName == 0, "texture already allocated");
-
-		GLuint textureName;
-
-		glGenTextures(1, &textureName);
-		CHECK_GL_ERROR();
-
-		printf("Loading GL texture #%d\n", textureName);
-
-		textureDef->glTextureName = textureName;
-
-		glBindTexture(GL_TEXTURE_2D, textureName);				// this is now the currently active texture
-		CHECK_GL_ERROR();
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-//			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-//			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-		GLenum internalFormat;
-		GLenum format;
-		GLenum type;
-		switch (textureDef->pixelType)
-		{
-			case kQ3PixelTypeRGB16:
-				internalFormat = GL_RGB;
-				format = GL_BGRA_EXT;
-				type = GL_UNSIGNED_SHORT_1_5_5_5_REV;
-				break;
-			case kQ3PixelTypeARGB16:
-				internalFormat = GL_RGBA;
-				format = GL_BGRA_EXT;
-				type = GL_UNSIGNED_SHORT_1_5_5_5_REV;
-				break;
-			default:
-				throw std::runtime_error("3DMF texture: Unsupported kQ3PixelType");
-		}
-
-		glTexImage2D(GL_TEXTURE_2D,
-					 0,										// mipmap level
-					 internalFormat,						// format in OpenGL
-					 textureDef->width,						// width in pixels
-					 textureDef->height,					// height in pixels
-					 0,										// border
-					 format,								// what my format is
-					 type,									// size of each r,g,b
-					 textureDef->image);					// pointer to the actual texture pixels
-		CHECK_GL_ERROR();
-
-		// Set glTextureName on meshes
-		for (int j = 0; j < metaFile->numMeshes; j++)
-		{
-			if (metaFile->meshes[j]->hasTexture && metaFile->meshes[j]->internalTextureID == i)
-			{
-				metaFile->meshes[j]->glTextureName = textureName;
-			}
-		}
-	}
-
-	//-------------------------------------------------------------------------
-	// Done
 
 	return metaFile;
 }

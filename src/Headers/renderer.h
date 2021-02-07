@@ -18,6 +18,10 @@ typedef struct RenderModifiers
 
 void Render_InitState(void);
 
+void Render_Load3DMFTextures(TQ3MetaFile* metaFile);
+
+void Render_Dispose3DMFTextures(TQ3MetaFile* metaFile);
+
 void Render_DrawTriMeshList(
 		int numMeshes,
 		TQ3TriMeshData** meshList,

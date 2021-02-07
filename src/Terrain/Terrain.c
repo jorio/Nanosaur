@@ -260,6 +260,12 @@ void DisposeTerrain(void)
 				superTile->textureData = nil;
 			}
 
+			if (superTile->glTextureName)
+			{
+				glDeleteTextures(1, &superTile->glTextureName);
+				superTile->glTextureName = 0;
+			}
+
 			if (superTile->triMeshPtr)
 			{
 				Q3TriMeshData_Dispose(superTile->triMeshPtr);
