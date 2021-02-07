@@ -17,6 +17,8 @@ void Q3MetaFile_Dispose(TQ3MetaFile* the3DMFFile);
 
 #pragma mark -
 
+void Q3Pixmap_ApplyEdgePadding(TQ3Pixmap*);
+
 void Q3Pixmap_Dispose(TQ3Pixmap*);
 
 #pragma mark -

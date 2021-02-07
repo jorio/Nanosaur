@@ -212,7 +212,7 @@ QD3DSetupOutputType	*outputPtr;
 	else
 		glDisable(GL_FOG);
 
-	glAlphaFunc(GL_NOTEQUAL, 0);
+	glAlphaFunc(GL_GREATER, 0.4999f);
 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 

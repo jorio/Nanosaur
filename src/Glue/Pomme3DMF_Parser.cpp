@@ -490,7 +490,13 @@ uint32_t Q3MetaFileParser::Parse_txmm(uint32_t chunkSize)
 
 	// Make every pixel little-endian (especially to avoid breaking 16-bit 1-5-5-5 ARGB textures)
 	if (byteOrder == kQ3EndianBig)
+	{
 		ByteswapInts(bytesPerPixel, width*height, texture.image);
+		texture.byteOrder = kQ3EndianLittle;
+	}
+
+
+	Q3Pixmap_ApplyEdgePadding(&texture);
 
 	return newTextureID;
 }

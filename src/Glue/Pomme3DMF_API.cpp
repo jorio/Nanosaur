@@ -10,6 +10,8 @@
 	#include <GL/glu.h>
 #endif
 
+#define EDGE_PADDING_REPEAT 8
+
 static void Assert(bool condition, const char* message)
 {
 	if (!condition)
@@ -148,6 +150,90 @@ void Q3MetaFile_Dispose(TQ3MetaFile* metaFile)
 }
 
 #pragma -
+
+
+template<typename T>
+static void _EdgePadding(
+		T* const pixelData,
+		const int width,
+		const int height,
+		const int rowBytes,
+		const T alphaMask)
+{
+	Assert(rowBytes % sizeof(T) == 0, "EdgePadding: rowBytes is not a multiple of pixel bytesize");
+	const int rowAdvance = rowBytes / sizeof(T);
+
+	T* const firstRow = pixelData;
+	T* const lastRow = firstRow + (height-1) * rowAdvance;
+
+	for (int i = 0; i < EDGE_PADDING_REPEAT; i++)
+	{
+		// Dilate horizontally, row by row
+		for (T* row = firstRow; row <= lastRow; row += rowAdvance)
+		{
+			// Expand east
+			for (int x = 0; x < width-1; x++)
+				if (!row[x])
+					row[x] = row[x+1] & ~alphaMask;
+
+			// Expand west
+			for (int x = width-1; x > 0; x--)
+				if (!row[x])
+					row[x] = row[x-1] & ~alphaMask;
+		}
+
+		// Dilate vertically, column by column
+		for (int x = 0; x < width; x++)
+		{
+			// Expand south
+			for (T* row = firstRow; row < lastRow; row += rowAdvance)
+				if (!row[x])
+					row[x] = row[x + rowAdvance] & ~alphaMask;
+
+			// Expand north
+			for (T* row = lastRow; row > firstRow; row -= rowAdvance)
+				if (!row[x])
+					row[x] = row[x - rowAdvance] & ~alphaMask;
+		}
+	}
+}
+
+void Q3Pixmap_ApplyEdgePadding(TQ3Pixmap* pm)
+{
+	switch (pm->pixelType)
+	{
+		case kQ3PixelTypeARGB16:
+			Assert(pm->rowBytes >= pm->width * 2, "EdgePadding ARGB16: incorrect rowBytes");
+			_EdgePadding<uint16_t>(
+					(uint16_t *) pm->image,
+					pm->width,
+					pm->height,
+					pm->rowBytes,
+					pm->byteOrder==kQ3EndianBig? 0x0080: 0x8000);
+			break;
+
+		case kQ3PixelTypeARGB32:
+			Assert(pm->rowBytes >= pm->width * 4, "EdgePadding ARGB32: incorrect rowBytes");
+			_EdgePadding<uint32_t>(
+					(uint32_t *) pm->image,
+					pm->width,
+					pm->height,
+					pm->rowBytes,
+					pm->byteOrder==kQ3EndianBig? 0x000000FF: 0xFF000000);
+			break;
+
+		case kQ3PixelTypeRGB16:
+		case kQ3PixelTypeRGB16_565:
+		case kQ3PixelTypeRGB24:
+		case kQ3PixelTypeRGB32:
+			// Unnecessary to apply edge padding here because there's no alpha channel
+			break;
+
+		default:
+			Assert(false, "EdgePadding: pixel type unsupported");
+			break;
+	}
+}
 
 void Q3Pixmap_Dispose(TQ3Pixmap* pixmap)
 {

@@ -138,7 +138,6 @@ set(GAME_CORE_HEADERS
 set(GAME_GLUE_SOURCES
 	${GAME_SRCDIR}/Main.cpp
 	${GAME_SRCDIR}/Glue/Backdrop.cpp
-	${GAME_SRCDIR}/Glue/EdgePadding.cpp
 	${GAME_SRCDIR}/Glue/FrustumCulling.c
 	${GAME_SRCDIR}/Glue/GamePatches.cpp
 	${GAME_SRCDIR}/Glue/Patch3DMFModels.c
