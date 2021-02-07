@@ -239,32 +239,21 @@ QD3DSetupOutputType	*outputPtr;
 //
 // Disposes of all data created by QD3D_SetupWindow
 //
+// Make sure all GL textures have been freed before calling this, as this will destroy the GL context.
+//
 
 void QD3D_DisposeWindowSetup(QD3DSetupOutputType **dataHandle)
 {
 QD3DSetupOutputType	*data;
 
 	data = *dataHandle;
-	if (data == nil)												// see if this setup exists
-		DoFatalAlert("QD3D_DisposeWindowSetup: data == nil");
+	GAME_ASSERT(data);										// see if this setup exists
 
 	DisposeBackdropTexture(); // Source port addition - release backdrop GL texture
 
+	SDL_GL_DeleteContext(gGLContext);						// dispose GL context
+	gGLContext = nil;
 
-#if 1	// NOQUESA
-	printf("TODO noquesa: %s\n", __func__);
-#else
-	Q3Object_Dispose(data->viewObject);
-	Q3Object_Dispose(data->interpolationStyle);
-	Q3Object_Dispose(data->backfacingStyle);
-	Q3Object_Dispose(data->fillStyle);
-	Q3Object_Dispose(data->cameraObject);
-	Q3Object_Dispose(data->lightGroup);
-	Q3Object_Dispose(data->drawContext);
-	Q3Object_Dispose(data->shaderObject);
-	Q3Object_Dispose(data->nullShaderObject);
-#endif
-		
 	data->isActive = false;									// now inactive
 	
 		/* FREE MEMORY & NIL POINTER */

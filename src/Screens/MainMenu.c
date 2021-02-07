@@ -230,9 +230,9 @@ do_again:
 		/***********/
 		
 	DeleteAllObjects();
-	QD3D_DisposeWindowSetup(&gGameViewInfoPtr);		
 	DeleteAll3DMFGroups();
 	FreeAllSkeletonFiles(-1);
+	QD3D_DisposeWindowSetup(&gGameViewInfoPtr);
 	DisposeSoundBank(SOUND_BANK_MENU);
 
 

@@ -330,6 +330,7 @@ FSSpec			spec;
 			/***********/
 			
 	DeleteAllObjects();
+	DeleteAll3DMFGroups();
 	QD3D_DisposeWindowSetup(&gGameViewInfoPtr);		
 	KillSong();
 }
