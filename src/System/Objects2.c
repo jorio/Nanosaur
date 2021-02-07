@@ -33,7 +33,7 @@
 #include "frustumculling.h"
 
 extern	float		gFramesPerSecondFrac;
-extern	TQ3ShaderObject	gQD3D_gShadowTexture;
+extern	GLuint		gShadowGLTextureName;
 extern	ObjNode		*gPlayerObj,*gFirstNodePtr;
 extern	QD3DSetupOutputType		*gGameViewInfoPtr;
 extern	TQ3Point3D	gCoord;
@@ -204,12 +204,6 @@ void SetObjectCollisionBounds(ObjNode *theNode, short top, short bottom, short l
 /******************* ATTACH SHADOW TO OBJECT ************************/
 
 ObjNode	*AttachShadowToObject(ObjNode *theNode, float scaleX, float scaleZ)
-#if 1	// TODO noquesa
-{
-	printf("TODO noquesa: %s\n", __func__);
-	return nil;
-}
-#else
 {
 ObjNode	*shadowObj;
 							
@@ -229,7 +223,10 @@ ObjNode	*shadowObj;
 	if (shadowObj == nil)
 		return(nil);
 
-	QD3D_ReplaceGeometryTexture(shadowObj->BaseGroup,gQD3D_gShadowTexture);	// swap map on icon also
+	GAME_ASSERT(gShadowGLTextureName != 0);
+	shadowObj->MeshList[0]->diffuseColor = (TQ3ColorRGBA) {0,0,0,1};		// taint shadow black
+	shadowObj->MeshList[0]->glTextureName = gShadowGLTextureName;
+	shadowObj->MeshList[0]->textureHasTransparency = true;
 
 	theNode->ShadowNode = shadowObj;
 
@@ -238,7 +235,6 @@ ObjNode	*shadowObj;
 
 	return(shadowObj);
 }
-#endif
 
 
 

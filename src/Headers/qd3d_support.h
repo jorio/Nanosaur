@@ -98,8 +98,6 @@ extern	TQ3SurfaceShaderObject	QD3D_GWorldToTexture(GWorldPtr theGWorld, Boolean 
 #endif
 extern	void SetBackFaceStyle(QD3DSetupOutputType *setupInfo, TQ3BackfacingStyle style);
 extern	void SetFillStyle(QD3DSetupOutputType *setupInfo, TQ3FillStyle style);
-extern	void QD3D_DoMemoryError(void);
-extern	void QD3D_ShowRecentError(void);
 extern	void QD3D_NewViewDef(QD3DSetupInputType *viewDef);
 #if 0 // TODO noquesa
 extern	TQ3SurfaceShaderObject	QD3D_Data16ToTexture_NoMip(Ptr data, short width, short height);
@@ -107,6 +105,8 @@ extern	TQ3StorageObject QD3D_GetMipmapStorageObjectFromAttrib(TQ3AttributeSet at
 extern	GWorldPtr QD3D_MipmapToGWorld(TQ3Mipmap *mipmap, Rect *r);
 extern	void QD3D_GWorldToMipMap(GWorldPtr pGWorld, TQ3Mipmap *mipmap, Boolean pointToGWorld);
 #endif
+
+void MakeShadowTexture(void);
 
 extern	void QD3D_SetTextureFilter(unsigned long textureMode);
 

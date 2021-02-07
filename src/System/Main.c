@@ -217,9 +217,11 @@ TQ3ColorRGB		c2 = { 1, .9, .6 };
 	gMyHealth = 1.0;
 
 			/* LOAD ART */
-			
-	LoadLevelArt(LEVEL_NUM_0);			
-	
+
+	MakeShadowTexture();
+
+	LoadLevelArt(LEVEL_NUM_0);
+
 	QD3D_InitParticles();	
 	InitWeaponManager();
 	InitItemsManager();

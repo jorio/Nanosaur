@@ -49,7 +49,6 @@ static void CreateLights(QD3DLightDefType *lightDefPtr);
 static void DrawPICTIntoMipmap(PicHandle pict,long width, long height, TQ3Mipmap *mipmap);
 static void Data16ToMipmap(Ptr data, short width, short height, TQ3Mipmap *mipmap);
 #endif
-static void MakeShadowTexture(void);
 static TQ3Area GetAdjustedPane(int windowWidth, int windowHeight, Rect paneClip);
 
 
@@ -65,7 +64,7 @@ static TQ3Area GetAdjustedPane(int windowWidth, int windowHeight, Rect paneClip)
 SDL_GLContext					gGLContext;
 RenderStats						gRenderStats;
 
-TQ3ShaderObject					gQD3D_gShadowTexture = nil;
+GLuint 							gShadowGLTextureName = 0;
 
 float	gFramesPerSecond = DEFAULT_FPS;				// this is used to maintain a constant timing velocity as frame rates differ
 float	gFramesPerSecondFrac = 1/DEFAULT_FPS;
@@ -78,10 +77,6 @@ float	gAdditionalClipping = 0;
 void QD3D_Boot(void)
 {
 				/* LET 'ER RIP! */
-
-			/* MAKE THAT SHADOW THING */
-
-	MakeShadowTexture();
 }
 
 
@@ -250,6 +245,12 @@ QD3DSetupOutputType	*data;
 	GAME_ASSERT(data);										// see if this setup exists
 
 	DisposeBackdropTexture(); // Source port addition - release backdrop GL texture
+
+	if (gShadowGLTextureName != 0)
+	{
+		glDeleteTextures(1, &gShadowGLTextureName);
+		gShadowGLTextureName = 0;
+	}
 
 	SDL_GL_DeleteContext(gGLContext);						// dispose GL context
 	gGLContext = nil;
@@ -459,135 +460,6 @@ void QD3D_MoveCameraFromTo(QD3DSetupOutputType *setupInfo, TQ3Vector3D *moveVect
 //=======================================================================================================
 
 #pragma mark ---------- textures -------------
-
-/**************** QD3D GET TEXTURE MAP ***********************/
-//
-// Loads a PICT resource and returns a shader object which is
-// based on the PICT converted to a texture map.
-//
-// INPUT: textureRezID = resource ID of texture PICT to get.
-//			myFSSpec != nil if want to load PICT from file instead
-//
-// OUTPUT: TQ3ShaderObject = shader object for texture map.  nil == error.
-//
-
-TQ3SurfaceShaderObject	QD3D_GetTextureMap(long	textureRezID, FSSpec *myFSSpec)
-#if 1
-{ DoFatalAlert2("TODO noquesa", __func__); return nil; }
-#else
-{
-PicHandle			picture;
-TQ3SurfaceShaderObject		shader;
-long				pictSize,headerSize;
-OSErr				iErr;
-short				fRefNum;
-char				pictHeader[PICT_HEADER_SIZE];
-
-	if (myFSSpec == nil)
-	{
-					/* LOAD PICT REZ */
-		
-		picture = GetPicture (textureRezID);
-		if (picture == nil)
-			DoFatalAlert("Unable to load texture PICT resource");
-	}
-	else
-	{
-				/* LOAD PICT FROM FILE */
-	
-		iErr = FSpOpenDF(myFSSpec,fsCurPerm,&fRefNum);
-		if (iErr)
-		{
-			DoAlert("Sorry, can open that PICT file!");
-			return(nil);
-		}
-
-		if	(GetEOF(fRefNum,&pictSize) != noErr)		// get size of file		
-			goto err;
-				
-		headerSize = PICT_HEADER_SIZE;					// check the header					
-		if (FSRead(fRefNum,&headerSize,pictHeader) != noErr)
-			goto err;
-
-		if ((pictSize -= PICT_HEADER_SIZE) <= 0)
-			goto err;
-			
-		if ((picture = (PicHandle)AllocHandle(pictSize)) == nil)
-		{
-			DoAlert("Sorry, not enough memory to read PICT file!");
-			return(nil);
-		}
-		HLock((Handle)picture);
-			
-		if (FSRead(fRefNum,&pictSize,(Ptr)*picture) != noErr)
-		{
-			DisposeHandle((Handle)picture);
-			goto err;
-		}
-			
-		FSClose(fRefNum);		
-	}
-	
-	
-	shader = QD3D_PICTToTexture(picture);
-		
-	if (myFSSpec == nil)
-		ReleaseResource ((Handle) picture);
-	else
-		DisposeHandle((Handle)picture);
-
-	return(shader);	
-	
-err:
-	DoAlert("Sorry, error reading PICT file!");
-	return(nil);
-}
-#endif
-
-
-/**************** QD3D PICT TO TEXTURE ***********************/
-//
-//
-// INPUT: picture = handle to PICT.
-//
-// OUTPUT: TQ3ShaderObject = shader object for texture map.
-//
-
-TQ3SurfaceShaderObject	QD3D_PICTToTexture(PicHandle picture)
-#if 1
-{ DoFatalAlert2("TODO noquesa", __func__); return nil; }
-#else
-{
-TQ3Mipmap 				mipmap;
-TQ3TextureObject		texture;
-TQ3SurfaceShaderObject	shader;
-long					width,height;
-
-
-			/* MAKE INTO STORAGE MIPMAP */
-
-	width = (**picture).picFrame.right  - (**picture).picFrame.left;		// calc dimensions of mipmap
-	height = (**picture).picFrame.bottom - (**picture).picFrame.top;
-		
-	DrawPICTIntoMipmap (picture, width, height, &mipmap);
-		
-
-			/* MAKE NEW PIXMAP TEXTURE */
-			
-	texture = Q3MipmapTexture_New(&mipmap);							// make new mipmap	
-	if (texture == nil)
-		DoFatalAlert("QD3D_PICTToTexture: Q3MipmapTexture_New failed!");
-		
-	shader = Q3TextureShader_New (texture);
-	if (shader == nil)
-		DoFatalAlert("Error calling Q3TextureShader_New!");
-
-	Q3Object_Dispose (texture);
-	Q3Object_Dispose (mipmap.image);			// disposes of extra reference to storage obj
-
-	return(shader);	
-}
-#endif
 
 
 /**************** QD3D GWORLD TO TEXTURE ***********************/
@@ -806,56 +678,6 @@ short					depth;
 //=======================================================================================================
 
 
-/****************** QD3D:  SET BACKFACE STYLE ***********************/
-
-void SetBackFaceStyle(QD3DSetupOutputType *setupInfo, TQ3BackfacingStyle style)
-#if 1
-{ DoFatalAlert2("TODO noquesa", __func__); }
-#else
-{
-TQ3Status status;
-TQ3BackfacingStyle	backfacingStyle;
-
-	status = Q3BackfacingStyle_Get(setupInfo->backfacingStyle, &backfacingStyle);
-	if (status == kQ3Failure)
-		DoFatalAlert("Q3BackfacingStyle_Get Failed!");
-
-	if (style == backfacingStyle)							// see if already set to that
-		return;
-		
-	status = Q3BackfacingStyle_Set(setupInfo->backfacingStyle, style);
-	if (status == kQ3Failure)
-		DoFatalAlert("Q3BackfacingStyle_Set Failed!");
-
-}
-#endif
-
-
-/****************** QD3D:  SET FILL STYLE ***********************/
-
-void SetFillStyle(QD3DSetupOutputType *setupInfo, TQ3FillStyle style)
-#if 1
-{ DoFatalAlert2("TODO noquesa", __func__); }
-#else
-{
-TQ3Status 		status;
-TQ3FillStyle	fillStyle;
-
-	status = Q3FillStyle_Get(setupInfo->fillStyle, &fillStyle);
-	if (status == kQ3Failure)
-		DoFatalAlert("Q3FillStyle_Get Failed!");
-
-	if (style == fillStyle)							// see if already set to that
-		return;
-		
-	status = Q3FillStyle_Set(setupInfo->fillStyle, style);
-	if (status == kQ3Failure)
-		DoFatalAlert("Q3FillStyle_Set Failed!");
-
-}
-#endif
-
-
 //=======================================================================================================
 //=============================== MISC ==================================================================
 //=======================================================================================================
@@ -886,57 +708,6 @@ static	unsigned long then = 0;
 	
 	then = now;										// remember time	
 }
-
-
-#pragma mark ---------- errors -------------
-
-/************ QD3D: SHOW RECENT ERROR *******************/
-
-void QD3D_ShowRecentError(void)
-#if 1
-{ DoFatalAlert2("TODO noquesa", __func__); }
-#else
-{
-TQ3Error	q3Err;
-Str255		s;
-	
-	q3Err = Q3Error_Get(nil);
-	if (q3Err == kQ3ErrorOutOfMemory)
-		QD3D_DoMemoryError();
-	else
-	if (q3Err == kQ3ErrorMacintoshError)
-		DoFatalAlert("kQ3ErrorMacintoshError");
-	else
-	if (q3Err == kQ3ErrorNotInitialized)
-		DoFatalAlert("kQ3ErrorNotInitialized");
-	else
-	if (q3Err == kQ3ErrorReadLessThanSize)
-		DoFatalAlert("kQ3ErrorReadLessThanSize");
-	else
-	if (q3Err == kQ3ErrorViewNotStarted)
-		DoFatalAlert("kQ3ErrorViewNotStarted");
-	else
-	if (q3Err != 0)
-	{
-		NumToStringC(q3Err,s);
-		DoFatalAlert2("QD3D Error", s);
-	}
-}
-#endif
-
-/***************** QD3D: DO MEMORY ERROR **********************/
-
-void QD3D_DoMemoryError(void)
-{
-	DoFatalAlert("QD3D Memory Error!");
-}
-
-
-
-
-
-
-
 
 
 
@@ -1059,91 +830,76 @@ TQ3StorageObject		storage;
 /*********************** MAKE SHADOW TEXTURE ***************************/
 //
 // The shadow is acutally just an alpha map, but we load in the PICT resource, then
-// convert it to a texture, then convert the texture to an alpha channel with a texture of all black.
+// convert it to a texture, then convert the texture to an alpha channel with a texture of all white.
 //
 
-static void MakeShadowTexture(void)
-#if 1
-{ printf("TODO noquesa: %s\n", __func__); }
-#else
+void MakeShadowTexture(void)
 {
-TQ3Status	status;
-TQ3TextureObject	texture;
-TQ3Mipmap			mipmap;
-short		width,height,x,y;
-UInt32		*buffer,*pixelPtr,pixmapRowbytes,size,sizeRead;
-
-	if (gQD3D_gShadowTexture)
+	if (gShadowGLTextureName != 0)			// already allocated
 		return;
 
 			/* LOAD IMAGE FROM RESOURCE */
-				
-	gQD3D_gShadowTexture = QD3D_GetTextureMap(129, nil);			
-		
-		
+
+	PicHandle picHandle = GetPicture(129);
+	GAME_ASSERT(picHandle);
+
+
 		/* GET QD3D PIXMAP DATA INFO */
 
-
-	status = Q3TextureShader_GetTexture(gQD3D_gShadowTexture, &texture);		// get texture from shader
-	if (status != kQ3Success)
-		DoFatalAlert("MakeShadowTexture: Q3TextureShader_GetTexture failed!");
-
-	status = Q3MipmapTexture_GetMipmap(texture, &mipmap);						// get texture's mipmap
-	if (status != kQ3Success)
-		DoFatalAlert("MakeShadowTexture: Q3MipmapTexture_GetMipmap failed!");
-		
-		
-		
-	height = mipmap.mipmaps[0].height;
-	width = mipmap.mipmaps[0].width;
-
-	status = Q3Storage_GetSize(mipmap.image, &size);						// get size of data
-	if (status == kQ3Failure)
-		DoFatalAlert("MakeShadowTexture: Q3Storage_GetSize failed!");
-
-	buffer = (UInt32 *)AllocPtr(size);										// alloc buffer for pixel data
-	if (buffer == nil)
-		DoFatalAlert("MakeShadowTexture: AllocPtr failed!");		
-
-	status = Q3Storage_GetData(mipmap.image, 0, size, (unsigned char *)buffer, &sizeRead);	// get pixel data
-	if (status == kQ3Failure)
-		DoFatalAlert("MakeShadowTexture: Q3Storage_GetData failed!");
-
-	pixmapRowbytes = mipmap.mipmaps[0].rowBytes/4;
-		
+	int16_t width = (**picHandle).picFrame.right - (**picHandle).picFrame.left;
+	int16_t height = (**picHandle).picFrame.bottom - (**picHandle).picFrame.top;
+	uint32_t *const pixelData =  (uint32_t*) (**picHandle).__pomme_pixelsARGB32;
 
 
 			/* REMAP THE ALPHA */
-					
-	pixelPtr = buffer;
-	
-	for (y = 0; y < height; y++)
-	{
-		for (x = 0; x < width; x++)
-		{
-			// put Blue into Alpha & leave map black
-			unsigned char* argb = (unsigned char *)(pixelPtr + x);
-			argb[0] = argb[3];
-			argb[1] = 0;
-			argb[2] = 0;
-			argb[3] = 0;
-		}
-			
-		pixelPtr += pixmapRowbytes;
-	}
-		
-		
-		/* UPDATE THE MAP */
-				
-	status = Q3Storage_SetData(mipmap.image, 0, size, (unsigned char *)buffer, &sizeRead);		
-	if (status == kQ3Failure)
-		DoFatalAlert("MakeShadowTexture: Q3Storage_SetData failed!");
 
-	DisposePtr((Ptr)buffer);
-	Q3Object_Dispose(texture);
-	Q3Object_Dispose(mipmap.image);												// nuke old image storage
+	uint32_t* pixelPtr = pixelData;
+
+	for (int y = 0; y < height; y++)
+	{
+		for (int x = 0; x < width; x++)
+		{
+			// put Blue into Alpha & leave map white
+			unsigned char* argb = (unsigned char *)(&pixelPtr[x]);
+			argb[0] = argb[3];	// put blue into alpha
+			argb[1] = 255;
+			argb[2] = 255;
+			argb[3] = 255;
+		}
+
+		pixelPtr += width;
+	}
+
+
+		/* UPDATE THE MAP */
+
+	GAME_ASSERT_MESSAGE(gShadowGLTextureName == 0, "shadow texture already allocated");
+
+	glGenTextures(1, &gShadowGLTextureName);
+	CHECK_GL_ERROR();
+	GAME_ASSERT(gShadowGLTextureName != 0);
+
+	glBindTexture(GL_TEXTURE_2D, gShadowGLTextureName);
+	CHECK_GL_ERROR();
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	glTexImage2D(
+			GL_TEXTURE_2D,
+			0,
+			GL_RGBA8,
+			width,
+			height,
+			0,
+			GL_BGRA,
+			GL_UNSIGNED_INT_8_8_8_8,
+			pixelData
+	);
+	CHECK_GL_ERROR();
+
+	DisposeHandle((Handle) picHandle);
 }
-#endif
 
 #pragma mark ---------- fog & settings -------------
 
