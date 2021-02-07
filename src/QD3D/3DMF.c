@@ -97,12 +97,6 @@ void LoadGrouped3DMF(FSSpec *spec, Byte groupNum)
 	}
 
 	gNumObjectsInGroupList[groupNum] = nObjects;					// set # objects.
-
-#if 0	// NOQUESA
-			/* PATCH 3DMF (ADD ALPHA TEST) */
-
-	PatchGrouped3DMF(spec->cName, gObjectGroupList[groupNum], nObjects);
-#endif
 }
 
 

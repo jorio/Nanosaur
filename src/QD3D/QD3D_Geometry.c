@@ -97,7 +97,6 @@ void QD3D_CalcObjectBoundingBox(int numMeshes, TQ3TriMeshData** meshList, TQ3Bou
 
 float QD3D_CalcObjectRadius(int numMeshes, TQ3TriMeshData** meshList)
 {
-#if 1	// NOQUESA
 	float maxRadius = 0;
 
 	for (int i = 0; i < numMeshes; i++)
@@ -106,7 +105,6 @@ float QD3D_CalcObjectRadius(int numMeshes, TQ3TriMeshData** meshList)
 		for (int v = 0; v < mesh->numPoints; v++)						// scan thru all verts
 		{
 			TQ3Point3D tmPoint = mesh->points[v];						// get point
-//			Q3Point3D_Transform(&tmPoint, &gWorkMatrix, &tmPoint);		// transform it
 
 			float dist = Q3Vector3D_Length((TQ3Vector3D*) &tmPoint);	// calc dist
 			if (dist > maxRadius)
@@ -115,85 +113,6 @@ float QD3D_CalcObjectRadius(int numMeshes, TQ3TriMeshData** meshList)
 	}
 
 	return maxRadius;
-#else
-	gMaxRadius = 0;
-	Q3Matrix4x4_SetIdentity(&gWorkMatrix);					// init to identity matrix
-
-
-
-TQ3GroupPosition	position;
-TQ3Object   		object;
-TQ3ObjectType		oType;
-TQ3TriMeshData		triMeshData;
-long				v;
-TQ3Point3D			tmPoint;
-float				dist;
-TQ3Matrix4x4		transform;
-TQ3Matrix4x4  		stashMatrix;
-
-				/*******************************/
-				/* SEE IF ACCUMULATE TRANSFORM */
-				/*******************************/
-				
-	if (Q3Object_IsType(obj,kQ3ShapeTypeTransform))
-	{
-  		Q3Transform_GetMatrix(obj,&transform);
-  		Q3Matrix4x4_Multiply(&transform,&gWorkMatrix,&gWorkMatrix);
- 	}
-	else
-
-				/*************************/
-				/* SEE IF FOUND GEOMETRY */
-				/*************************/
-
-	if (Q3Object_IsType(obj,kQ3ShapeTypeGeometry))
-	{
-		oType = Q3Geometry_GetType(obj);									// get geometry type
-		switch(oType)
-		{
-					/* MUST BE TRIMESH */
-					
-			case	kQ3GeometryTypeTriMesh:
-					Q3TriMesh_GetData(obj,&triMeshData);							// get trimesh data	
-					for (v = 0; v < triMeshData.numPoints; v++)						// scan thru all verts
-					{
-						tmPoint = triMeshData.points[v];							// get point
-						Q3Point3D_Transform(&tmPoint, &gWorkMatrix, &tmPoint);		// transform it	
-						
-						dist = sqrt((tmPoint.x * tmPoint.x) +
-									(tmPoint.y * tmPoint.y) +
-									(tmPoint.z * tmPoint.z));
-							
-//						dist = Q3Point3D_Distance(&p000, &tmPoint);					// calc dist
-						if (dist > gMaxRadius)
-							gMaxRadius = dist;
-					}
-					Q3TriMesh_EmptyData(&triMeshData);
-					break;
-		}
-	}
-	else
-	
-			/* SEE IF RECURSE SUB-GROUP */
-
-	if (Q3Object_IsType(obj,kQ3ShapeTypeGroup))
- 	{
-  		stashMatrix = gWorkMatrix;										// push matrix
-  		for (Q3Group_GetFirstPosition(obj, &position); position != nil;
-  			 Q3Group_GetNextPosition(obj, &position))					// scan all objects in group
- 		{
-   			Q3Group_GetPositionObject (obj, position, &object);			// get object from group
-			if (object != NULL)
-   			{
-    			CalcRadius_Recurse(object);								// sub-recurse this object
-    			Q3Object_Dispose(object);								// dispose local ref
-   			}
-  		}
-  		gWorkMatrix = stashMatrix;										// pop matrix  		
-	}
-
-	return(gMaxRadius);
-#endif
 }
 
 //===================================================================================================
