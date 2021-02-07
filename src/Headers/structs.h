@@ -261,7 +261,8 @@ struct ObjNode
 
 	int						NumMeshes;
 	TQ3TriMeshData*			MeshList[MAX_DECOMPOSED_TRIMESHES];
-	bool					OwnsMeshMemory[MAX_DECOMPOSED_TRIMESHES];
+	bool					OwnsMeshTexture[MAX_DECOMPOSED_TRIMESHES];		// if true, DeleteObject will call glDeleteTextures on the corresponding mesh's texture (if any)
+	bool					OwnsMeshMemory[MAX_DECOMPOSED_TRIMESHES];		// if true, DeleteObject will call Q3TriMeshData_Dispose on the corresponding mesh
 
 	RenderModifiers			RenderModifiers;
 

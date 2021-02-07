@@ -295,6 +295,7 @@ void AttachGeometryToDisplayGroupObject(ObjNode* theNode, int numMeshes, TQ3TriM
 
 		theNode->MeshList[nodeMeshIndex] = meshList[i];
 		theNode->OwnsMeshMemory[nodeMeshIndex] = false;
+		theNode->OwnsMeshTexture[nodeMeshIndex] = false;
 	}
 }
 
@@ -538,8 +539,18 @@ ObjNode *tempNode;
 
 	for (int i = 0; i < theNode->NumMeshes; i++)
 	{
+		// If the node has ownership of this mesh's OpenGL texture name, delete it
+		if (theNode->MeshList[i]->glTextureName && theNode->OwnsMeshTexture[i])
+		{
+			glDeleteTextures(1, &theNode->MeshList[i]->glTextureName);
+			theNode->MeshList[i]->glTextureName = 0;
+		}
+
+		// If the node has ownership of this mesh's memory, dispose of it
 		if (theNode->OwnsMeshMemory[i])
+		{
 			Q3TriMeshData_Dispose(theNode->MeshList[i]);
+		}
 
 		theNode->MeshList[i] = nil;
 		theNode->OwnsMeshMemory[i] = false;

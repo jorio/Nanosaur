@@ -98,8 +98,9 @@ enum
 
 
 
-#define	GPS_MAP_SIZE		(64-2)
-#define	GPS_DISPLAY_SIZE	2.5f
+#define	GPS_MAP_TEXTURE_SIZE	64
+#define	GPS_MAP_SIZE			(GPS_MAP_TEXTURE_SIZE-2)
+#define	GPS_DISPLAY_SIZE		2.5f
 
 
 /*********************/
@@ -115,7 +116,6 @@ ObjNode			*gCompassObj = nil;
 short			gRecoveredEggs[NUM_EGG_SPECIES];
 
 static GWorldPtr gGPSGWorld = nil,gGPSFullImage = nil;
-static TQ3TriMeshData*		gGPSTriMesh = nil;
 static	ObjNode 	*gGPSObj;
 static	long	gOldGPSCoordX,gOldGPSCoordY;
 
@@ -146,29 +146,21 @@ short	i;
 
 void InitInfobar(void)
 {
-//PicHandle	pic;
-//Rect		r;
 FSSpec	spec;
 
 
 			/* INIT GPS MAP */
-			
+
 	InitGPSMap();
-	
-	
+
+
 			/* DRAW INFOBAR */
 
 	FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":images:infobar.pict", &spec);
     DrawPictureToScreen(&spec, 0,0);
-	
-//	pic = LoadAPict(&spec);
-//	SetPort(gCoverWindow);
-//	SetRect(&r,0,GAME_VIEW_HEIGHT-INFOBAR_HEIGHT,GAME_VIEW_WIDTH,GAME_VIEW_HEIGHT);
-//	DrawPicture(pic, &r);	
-//	DisposeHandle((Handle)pic);
+
 
 			/* MAKE COMPASS */
-
 
 	gNewObjectDefinition.group = MODEL_GROUP_INFOBAR;
 	gNewObjectDefinition.type = INFOBAR_ObjType_Compass;
@@ -549,13 +541,11 @@ static void InitGPSMap(void)
 {
 Rect					r;
 OSErr					myErr;
-TQ3Object			attrib;
 PicHandle			pict;
 GDHandle				oldGD;
 GWorldPtr				oldGW;
 
-static TQ3Param2D				uvs[4] = {{0,1},	{1,1},	{1,0},	{0,0}};
-static TQ3TriMeshAttributeData	vertAttribs = {kQ3AttributeTypeSurfaceUV,&uvs[0],nil};
+static TQ3Param2D				uvs[4] = {{0,0},	{1,0},	{1,1},	{0,1}};		// NOTE: flipped V coords wrt original QuickDraw 3D version
 static TQ3TriMeshTriangleData	triangles[2] = { {{0,3,1}},  {{1,3,2}} };
 static TQ3Point3D				points[4] = { { -GPS_DISPLAY_SIZE,  GPS_DISPLAY_SIZE, 0 },
 											  {  GPS_DISPLAY_SIZE,  GPS_DISPLAY_SIZE, 0 },
@@ -574,22 +564,13 @@ static TQ3Point3D				points[4] = { { -GPS_DISPLAY_SIZE,  GPS_DISPLAY_SIZE, 0 },
 		DisposeGWorld(gGPSGWorld);
 		gGPSGWorld = nil;
 	}
-//	if (gGPSShaderObject)
-//	{
-//		Q3Object_Dispose(gGPSShaderObject);
-//		gGPSShaderObject = nil;
-//	}
-	if (gGPSTriMesh)
-	{
-		Q3TriMeshData_Dispose(gGPSTriMesh);
-		gGPSTriMesh = nil;
-	}
+	// Previous GPS trimesh & texture should have been deleted by ObjNode destructor
 
 
 			/* CREATE TRIMESH */
 
-	gGPSTriMesh = Q3TriMeshData_New(2, 4);
-	GAME_ASSERT(gGPSTriMesh);
+	TQ3TriMeshData* mesh = Q3TriMeshData_New(2, 4);
+	GAME_ASSERT(mesh);
 
 
 			/* DRAW FULL-SIZE IMAGE INTO GWORLD */
@@ -611,7 +592,7 @@ static TQ3Point3D				points[4] = { { -GPS_DISPLAY_SIZE,  GPS_DISPLAY_SIZE, 0 },
 
 				/* CREATE THE TEXTURE GWORLD */
 
-	SetRect(&r, 0, 0, GPS_MAP_SIZE+2, GPS_MAP_SIZE+2);							// set dimensions
+	SetRect(&r, 0, 0, GPS_MAP_TEXTURE_SIZE, GPS_MAP_TEXTURE_SIZE);							// set dimensions
 	myErr = NewGWorld(&gGPSGWorld, 16, &r, 0, 0, 0L);						// make gworld
 	GAME_ASSERT(!myErr);
 
@@ -622,20 +603,30 @@ static TQ3Point3D				points[4] = { { -GPS_DISPLAY_SIZE,  GPS_DISPLAY_SIZE, 0 },
 
 		/* CREATE THE QD3D SHADER OBJECT */
 
-
+	GLuint textureName = Render_LoadTexture(
+			GL_RGB,
+			GPS_MAP_TEXTURE_SIZE,
+			GPS_MAP_TEXTURE_SIZE,
+			GL_BGRA,
+			GL_UNSIGNED_INT_8_8_8_8,
+			GetPixBaseAddr(GetGWorldPixMap(gGPSGWorld)),
+			kRendererTextureFlags_ClampBoth);
+	mesh->glTextureName = textureName;
+	mesh->hasTexture = true;
 
 		/* BUILD GEOMETRY FOR THIS */
 
-	memcpy(gGPSTriMesh->triangles,	triangles,	sizeof(triangles));
-	memcpy(gGPSTriMesh->points,		points,		sizeof(points));
+	memcpy(mesh->triangles,		triangles,	sizeof(triangles));
+	memcpy(mesh->points,		points,		sizeof(points));
+	memcpy(mesh->vertexUVs,		uvs,		sizeof(uvs));
 
-	gGPSTriMesh->bBox.min.x = points[0].x;
-	gGPSTriMesh->bBox.min.y = points[3].y;
-	gGPSTriMesh->bBox.min.z = points[0].z;
-	gGPSTriMesh->bBox.max.x = points[1].x;
-	gGPSTriMesh->bBox.max.y = points[0].y;
-	gGPSTriMesh->bBox.max.z = points[0].z;
-	gGPSTriMesh->bBox.isEmpty = kQ3False;
+	mesh->bBox.min.x = points[0].x;
+	mesh->bBox.min.y = points[3].y;
+	mesh->bBox.min.z = points[0].z;
+	mesh->bBox.max.x = points[1].x;
+	mesh->bBox.max.y = points[0].y;
+	mesh->bBox.max.z = points[0].z;
+	mesh->bBox.isEmpty = kQ3False;
 
 
 			/* CREATE OBJECT TO DISPLAY THIS */
@@ -644,14 +635,16 @@ static TQ3Point3D				points[4] = { { -GPS_DISPLAY_SIZE,  GPS_DISPLAY_SIZE, 0 },
 	gNewObjectDefinition.coord.x = 8.5;
 	gNewObjectDefinition.coord.y = 5;
 	gNewObjectDefinition.coord.z = INFOBAR_Z;
-	gNewObjectDefinition.flags = STATUS_BIT_DONTCULL|STATUS_BIT_NULLSHADER|STATUS_BIT_HIGHFILTER|STATUS_BIT_KEEPBACKFACES;
+	gNewObjectDefinition.flags = STATUS_BIT_DONTCULL|STATUS_BIT_NULLSHADER|STATUS_BIT_HIGHFILTER;
 	gNewObjectDefinition.slot = INFOBAR_SLOT;
 	gNewObjectDefinition.moveCall = MoveGPS;
 	gNewObjectDefinition.rot = 0;
 	gNewObjectDefinition.scale = 1;
 	gGPSObj = MakeNewObject(&gNewObjectDefinition);
 	CreateBaseGroup(gGPSObj);								// create group object
-	AttachGeometryToDisplayGroupObject(gGPSObj, 1, &gGPSTriMesh);
+	AttachGeometryToDisplayGroupObject(gGPSObj, 1, &mesh);
+	gGPSObj->OwnsMeshMemory[0] = true;						// let DeleteObject dispose of trimesh memory
+	gGPSObj->OwnsMeshTexture[0] = true;						// let DeleteObject dispose of OpenGL texture
 
 	MakeObjectTransparent(gGPSObj,.75);						// make xparent
 
@@ -666,17 +659,10 @@ static TQ3Point3D				points[4] = { { -GPS_DISPLAY_SIZE,  GPS_DISPLAY_SIZE, 0 },
 static void MoveGPS(ObjNode *theNode)
 {
 long				x,y,left,right,top,bottom;
-#if 0	// NOQUESA
-TQ3Mipmap 			mipmap;
-TQ3TextureObject	texture;
-#endif
 Rect				sRect,dRect;
 GDHandle				oldGD;
 GWorldPtr				oldGW;
 Boolean					forceUpdate = false;
-unsigned char 		*buffer;
-TQ3Uns32			validSize,bufferSize;
-TQ3Status			status;
 
 
 					/* SEE IF TOGGLE ON/OFF */
@@ -791,34 +777,24 @@ TQ3Status			status;
 
 		SetGWorld (oldGW, oldGD);
 
-#if 0	// NOQUESA
 				/**********************/
 				/* UPDATE THE TEXTURE */
 				/**********************/
-				//
-				// Note:  the texture's image storage object alrady points to the gworld, so we just
-				// need to inform the system that it has changed.
-				//
-						
-		status = Q3TextureShader_GetTexture(gGPSShaderObject, &texture);		// get texture from shader
-		if (status == kQ3Failure)
-			DoFatalAlert("MoveGPS: Q3TextureShader_GetTexture failed!");
-		
-		status = Q3MipmapTexture_GetMipmap(texture, &mipmap);					// get mipmap from texture
-		if (status == kQ3Failure)
-			DoFatalAlert("MoveGPS: Q3MipmapTexture_GetMipmap failed!");
-						
-		status = Q3MemoryStorage_GetBuffer(mipmap.image, &buffer, &validSize, &bufferSize);	// get buffer
-		if (status == kQ3Failure)
-			DoFatalAlert("MoveGPS: Q3MemoryStorage_GetBuffer failed!");
-		
-		status = Q3MemoryStorage_SetBuffer(mipmap.image, buffer, validSize, bufferSize);		// set buffer
-		if (status == kQ3Failure)
-			DoFatalAlert("MoveGPS: Q3MemoryStorage_SetBuffer failed!");
-		
-		Q3Object_Dispose(texture);										// nuke extra ref
-#endif
-	
+
+		glBindTexture(GL_TEXTURE_2D, gGPSObj->MeshList[0]->glTextureName);
+		glTexSubImage2D(
+				GL_TEXTURE_2D,
+				0,
+				0,
+				0,
+				GPS_MAP_TEXTURE_SIZE,
+				GPS_MAP_TEXTURE_SIZE,
+				GL_BGRA,
+				GL_UNSIGNED_INT_8_8_8_8,
+				GetPixBaseAddr(GetGWorldPixMap(gGPSGWorld)));
+		CHECK_GL_ERROR();
+
+
 		gOldGPSCoordX = x;
 		gOldGPSCoordY = y;
 	}
@@ -869,13 +845,4 @@ void GetHealth(float amount)
 		gMyHealth = 1.0f;
 	gInfobarUpdateBits |= UPDATE_HEALTH;
 }
-
-
-
-
-
-
-
-
-
 
