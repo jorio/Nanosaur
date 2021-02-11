@@ -193,7 +193,7 @@ QD3DSetupOutputType	*outputPtr;
 		float fogHither	= setupDefPtr->lights.fogHither;
 		float fogYon	= setupDefPtr->lights.fogYon;
 		glEnable(GL_FOG);
-		glHint(GL_FOG_HINT,		GL_FASTEST);
+		glHint(GL_FOG_HINT,		GL_NICEST);
 		glFogi(GL_FOG_MODE,		GL_LINEAR);
 		glFogf(GL_FOG_START,	camHither + fogHither * (camYon - camHither));
 		glFogf(GL_FOG_END,		camHither + fogYon    * (camYon - camHither));
