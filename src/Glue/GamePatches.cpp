@@ -33,6 +33,7 @@ extern PrefsType gGamePrefs;
 extern short gPrefsFolderVRefNum;
 extern long gPrefsFolderDirID;
 extern const int PRO_MODE;
+extern TQ3Point3D gMyCoord;
 }
 
 OSErr MakePrefsFSSpec(const char* prefFileName, FSSpec* spec)
@@ -265,14 +266,16 @@ void DoSDLMaintenance()
 	if (ticksElapsed >= debugText.updateInterval) {
 		float fps = 1000 * debugText.frameAccumulator / (float)ticksElapsed;
 		snprintf(debugText.titleBuffer, sizeof(debugText.titleBuffer),
-			"%s %s - fps:%d tris:%d nodes:%d meshes:%d bsc:%d ",
+			"%s %s - fps:%d tris:%d nodes:%d meshes:%d - x:%.0f z:%.0f",
 			PRO_MODE ? "Nanosaur Extreme" : "Nanosaur",
 			PROJECT_VERSION,
 			(int)round(fps),
 			gRenderStats.trianglesDrawn,
 			gRenderStats.nodesDrawn,
 			gRenderStats.meshesDrawn,
-			gRenderStats.batchedStateChanges);
+			gMyCoord.x,
+			gMyCoord.z
+			);
 		SDL_SetWindowTitle(gSDLWindow, debugText.titleBuffer);
 		debugText.frameAccumulator = 0;
 		debugText.lastUpdateAt = now;
