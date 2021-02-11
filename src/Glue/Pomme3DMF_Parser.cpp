@@ -162,6 +162,7 @@ uint32_t Q3MetaFileParser::Parse1Chunk()
 			if (knownTextures.find(chunkOffset) != knownTextures.end())
 			{
 				printf("Texture already seen!");
+				internalTextureID = knownTextures[chunkOffset];
 				f.Skip(chunkSize);
 			}
 			else
