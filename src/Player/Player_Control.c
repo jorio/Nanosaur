@@ -456,22 +456,27 @@ float	sumDX,sumDY,sumDZ,maxSpeed;
 
 
 				/* CALC SUM DELTAS */
-				
+
+
+	sumDX = gDelta.x;
+	sumDY = gDelta.y;
+	sumDZ = gDelta.z;
+
+	
 	if (theNode->PlatformNode)										// include MPlatform
 	{
-		ObjNode	*pNode = theNode->PlatformNode;
-		
-		sumDX = gDelta.x + pNode->Delta.x;
-		sumDZ = gDelta.z + pNode->Delta.z;
-		sumDY = gDelta.y + pNode->Delta.y;
-		
-		theNode->Rot.y += pNode->RotDelta.y*fps;					// also apply it's rot
-	}
-	else
-	{
-		sumDX = gDelta.x;
-		sumDY = gDelta.y;
-		sumDZ = gDelta.z;
+		if (theNode->PlatformNode->CType == INVALID_NODE_FLAG)		// ensure my platform isn't dead (source port addition)
+		{															// (player might have killed the ptera they were standing on top of)
+			theNode->PlatformNode = nil;
+		}
+		else
+		{
+			sumDX += theNode->PlatformNode->Delta.x;
+			sumDZ += theNode->PlatformNode->Delta.z;
+			sumDY += theNode->PlatformNode->Delta.y;
+
+			theNode->Rot.y += theNode->PlatformNode->RotDelta.y * fps;		// also apply its rot
+		}
 	}
 	
 	

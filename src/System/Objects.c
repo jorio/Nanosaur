@@ -53,14 +53,14 @@ extern	PrefsType	gGamePrefs;
 /*    PROTOTYPES            */
 /****************************/
 
-static void FlushObjectDeleteQueue(void);
+static void FlushObjectDeleteQueue(int qid);
 
 
 /****************************/
 /*    CONSTANTS             */
 /****************************/
 
-#define	OBJ_DEL_Q_SIZE	100
+#define	OBJ_DEL_Q_SIZE	4096	// number of ObjNodes that can be deleted during any given frame
 
 
 /**********************/
@@ -77,8 +77,13 @@ NewObjectDefinitionType	gNewObjectDefinition;
 TQ3Point3D	gCoord;
 TQ3Vector3D	gDelta;
 
-long		gNumObjsInDeleteQueue = 0;
-ObjNode		*gObjectDeleteQueue[OBJ_DEL_Q_SIZE];
+// Source port change: We now have a double-buffered deletion queue, so objects
+// that get queued for deletion during frame N will be deleted at the end of frame N+1.
+// This gives live objects a full frame to clean up references to dead objects.
+static int			gNumObjsInDeleteQueue[2];
+static ObjNode*		gObjectDeleteQueue[2][OBJ_DEL_Q_SIZE];
+static int			gObjectDeleteQueueFlipFlop = 0;
+
 
 extern RenderStats	gRenderStats;
 
@@ -395,8 +400,9 @@ ObjNode		*thisNodePtr;
 	DoSDLMaintenance(); // Source port addition, for convenience as well
 
 			/* FLUSH THE DELETE QUEUE */
-			
-	FlushObjectDeleteQueue();
+	
+	gObjectDeleteQueueFlipFlop = !gObjectDeleteQueueFlipFlop;
+	FlushObjectDeleteQueue(gObjectDeleteQueueFlipFlop);
 }
 
 
@@ -483,8 +489,9 @@ void DeleteAllObjects(void)
 {
 	while (gFirstNodePtr != nil)
 		DeleteObject(gFirstNodePtr);
-		
-	FlushObjectDeleteQueue();
+	
+	FlushObjectDeleteQueue(0);
+	FlushObjectDeleteQueue(1);
 }
 
 
@@ -594,24 +601,28 @@ ObjNode *tempNode;
 	theNode->CType = INVALID_NODE_FLAG;							// INVALID_NODE_FLAG indicates its deleted
 
 
-	gObjectDeleteQueue[gNumObjsInDeleteQueue++] = theNode;
-	if (gNumObjsInDeleteQueue >= OBJ_DEL_Q_SIZE)
-		FlushObjectDeleteQueue();
-	
+	const int qid = gObjectDeleteQueueFlipFlop;
+	if (gNumObjsInDeleteQueue[qid] >= OBJ_DEL_Q_SIZE)
+	{
+		// We're out of room in the delete queue. Just delete the node immediately,
+		// but that might cause the game to become instable (unless we're here from DeleteAllNodes).
+		DisposePtr((Ptr) theNode);
+	}
+	else
+	{
+		// Defer actual deletion of this node to the next frame.
+		gObjectDeleteQueue[qid][gNumObjsInDeleteQueue[qid]++] = theNode;
+	}
 }
 
 /***************** FLUSH OBJECT DELETE QUEUE ****************/
 
-static void FlushObjectDeleteQueue(void)
+static void FlushObjectDeleteQueue(int qid)
 {
-long	i,num;
+	for (int i = 0; i < gNumObjsInDeleteQueue[qid]; i++)
+		DisposePtr((Ptr)gObjectDeleteQueue[qid][i]);
 
-	num = gNumObjsInDeleteQueue;
-	
-	for (i = 0; i < num; i++)
-		DisposePtr((Ptr)gObjectDeleteQueue[i]);					
-
-	gNumObjsInDeleteQueue = 0;
+	gNumObjsInDeleteQueue[qid] = 0;
 }
 
 
