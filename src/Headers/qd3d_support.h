@@ -19,6 +19,7 @@ typedef	struct
 	GWorldPtr				gworld;
 	TQ3ColorRGBA			clearColor;
 	Rect					paneClip;			// not pane size, but clip:  left = amount to clip off left
+	int						backdropFit;
 }QD3DViewDefType;
 
 
@@ -75,6 +76,7 @@ typedef struct
 	Boolean					isActive;
 	Rect					paneClip;			// not pane size, but clip:  left = amount to clip off left
 	bool					needScissorTest;
+	int						backdropFit;
 	float					hither,yon;
 	float					fov;
 	TQ3CameraPlacement		cameraPlacement;

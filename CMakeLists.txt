@@ -79,7 +79,6 @@ set(GAME_CORE_SOURCES
 	${GAME_SRCDIR}/Skeleton/SkeletonJoints.c
 	${GAME_SRCDIR}/Skeleton/SkeletonAnim.c
 	${GAME_SRCDIR}/Skeleton/Bones.c
-	${GAME_SRCDIR}/QD3D/2DBackdrop.c
 	${GAME_SRCDIR}/QD3D/EnvironmentMap.c
 	${GAME_SRCDIR}/QD3D/Camera.c
 	${GAME_SRCDIR}/QD3D/QD3D_Support.c

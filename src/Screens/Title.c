@@ -368,6 +368,9 @@ struct SlideshowEntry
 
 static void Slideshow(const struct SlideshowEntry* slides)
 {
+#if 1
+	printf("TODO noquesa: %s\n", __func__);
+#else
 	FSSpec spec;
 
 	ExclusiveOpenGLMode_Begin();
@@ -437,6 +440,7 @@ static void Slideshow(const struct SlideshowEntry* slides)
 	ExclusiveOpenGLMode_End();
 
 	GammaFadeOut();
+#endif
 }
 
 

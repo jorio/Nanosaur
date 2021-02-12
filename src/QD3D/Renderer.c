@@ -15,7 +15,6 @@
 #include "environmentmap.h"
 #include "renderer.h"
 #include "globals.h"	// status bits
-#include "windows_nano.h"	// GAME_VIEW_WIDTH, GAME_VIEW_HEIGHT
 
 #if __APPLE__
 	#include <OpenGL/glu.h>
@@ -26,7 +25,9 @@
 extern TQ3Param2D				gEnvMapUVs[];
 extern RenderStats				gRenderStats;
 extern PrefsType				gGamePrefs;
-
+extern UInt32*const				gCoverWindowPixPtr;
+extern int						gWindowWidth;
+extern int						gWindowHeight;
 
 /****************************/
 /*    PROTOTYPES            */
@@ -67,6 +68,10 @@ static const RenderModifiers kDefaultRenderMods =
 static RendererState gState;
 
 static PFNGLDRAWRANGEELEMENTSPROC __glDrawRangeElements;
+
+static	GLuint			gCoverWindowTextureName = 0;
+static	GLuint			gCoverWindowTextureWidth = 0;
+static	GLuint			gCoverWindowTextureHeight = 0;
 
 /****************************/
 /*    MACROS/HELPERS        */
@@ -178,48 +183,6 @@ void Render_InitState(void)
 	gState.hasFlag_glDepthMask = true;		// initially active on a fresh context
 
 	gState.boundTexture = 0;
-}
-
-static void Render_EnterExit2D(bool enter)
-{
-	static RendererState backup3DState;
-
-	if (enter)
-	{
-		backup3DState = gState;
-		DisableState(GL_LIGHTING);
-		DisableState(GL_FOG);
-		DisableState(GL_DEPTH_TEST);
-//		DisableState(GL_TEXTURE_2D);
-		glMatrixMode(GL_PROJECTION);
-		glPushMatrix();
-		glLoadIdentity();
-		glOrtho(0, 640, 480, 0, 0, 1000);
-		glMatrixMode(GL_MODELVIEW);
-		glPushMatrix();
-		glLoadIdentity();
-	}
-	else
-	{
-		glMatrixMode(GL_PROJECTION);
-		glPopMatrix();
-		glMatrixMode(GL_MODELVIEW);
-		glPopMatrix();
-		RestoreStateFromBackup(GL_LIGHTING,		&backup3DState);
-		RestoreStateFromBackup(GL_FOG,			&backup3DState);
-		RestoreStateFromBackup(GL_DEPTH_TEST,	&backup3DState);
-//		RestoreStateFromBackup(GL_TEXTURE_2D,	&backup3DState);
-	}
-}
-
-void Render_Enter2D(void)
-{
-	Render_EnterExit2D(true);
-}
-
-void Render_Exit2D(void)
-{
-	Render_EnterExit2D(false);
 }
 
 GLuint Render_LoadTexture(
@@ -462,31 +425,128 @@ void Render_DrawTriMeshList(
 }
 
 
-void Render_Draw2DFullscreenQuad()
-{
-	//		0----1
-	//		|  / |
-	//		| /  |
-	//		2----3
 
-	static const TQ3Point2D pts[4] = {
-			{0,					0},
-			{0,					GAME_VIEW_HEIGHT},
-			{GAME_VIEW_WIDTH,	0},
-			{GAME_VIEW_WIDTH,	GAME_VIEW_HEIGHT},
+#pragma mark -
+
+//=======================================================================================================
+
+/****************************/
+/*    2D    */
+/****************************/
+
+static void Render_EnterExit2D(bool enter)
+{
+	static RendererState backup3DState;
+
+	if (enter)
+	{
+		backup3DState = gState;
+		DisableState(GL_LIGHTING);
+		DisableState(GL_FOG);
+		DisableState(GL_DEPTH_TEST);
+//		DisableState(GL_TEXTURE_2D);
+		glMatrixMode(GL_PROJECTION);
+		glPushMatrix();
+		glLoadIdentity();
+		glOrtho(-1, 1,  -1, 1, 0, 1000);
+		glMatrixMode(GL_MODELVIEW);
+		glPushMatrix();
+		glLoadIdentity();
+	}
+	else
+	{
+		glMatrixMode(GL_PROJECTION);
+		glPopMatrix();
+		glMatrixMode(GL_MODELVIEW);
+		glPopMatrix();
+		RestoreStateFromBackup(GL_LIGHTING,		&backup3DState);
+		RestoreStateFromBackup(GL_FOG,			&backup3DState);
+		RestoreStateFromBackup(GL_DEPTH_TEST,	&backup3DState);
+//		RestoreStateFromBackup(GL_TEXTURE_2D,	&backup3DState);
+	}
+}
+
+void Render_Enter2D(void)
+{
+	Render_EnterExit2D(true);
+}
+
+void Render_Exit2D(void)
+{
+	Render_EnterExit2D(false);
+}
+
+static void Render_Draw2DFullscreenQuad(int fit)
+{
+	//		2----3
+	//		| \  |
+	//		|  \ |
+	//		0----1
+	TQ3Point2D pts[4] = {
+			{-1,	-1},
+			{ 1,	-1},
+			{-1,	 1},
+			{ 1,	 1},
 	};
 
 	static const TQ3Param2D uvs[4] = {
-			{0,					0},
-			{0,					1},
-			{1,					0},
-			{1,					1},
+			{0,		1},
+			{1,		1},
+			{0,		0},
+			{1,		0},
 	};
 
 	static const uint8_t tris[2][3] = {
-			{0,1,2},
-			{2,1,3},
+			{0, 1, 2},
+			{1, 3, 2},
 	};
+
+
+	float screenLeft   = 0.0f;
+	float screenRight  = (float)gWindowWidth;
+	float screenTop    = 0.0f;
+	float screenBottom = (float)gWindowHeight;
+	bool needClear = false;
+
+	// Adjust screen coordinates if we want to pillarbox/letterbox the image.
+	if (fit & (kCoverQuadLetterbox | kCoverQuadPillarbox))
+	{
+		const float targetAspectRatio = (float) gWindowWidth / gWindowHeight;
+		const float sourceAspectRatio = (float) gCoverWindowTextureWidth / gCoverWindowTextureHeight;
+
+		if (fabsf(sourceAspectRatio - targetAspectRatio) < 0.1)
+		{
+			// source and window have nearly the same aspect ratio -- fit (no-op)
+		}
+		else if ((fit & kCoverQuadLetterbox) && sourceAspectRatio > targetAspectRatio)
+		{
+			// source is wider than window -- letterbox
+			needClear = true;
+			float letterboxedHeight = gWindowWidth / sourceAspectRatio;
+			screenTop = (gWindowHeight - letterboxedHeight) / 2;
+			screenBottom = screenTop + letterboxedHeight;
+		}
+		else if ((fit & kCoverQuadPillarbox) && sourceAspectRatio < targetAspectRatio)
+		{
+			// source is narrower than window -- pillarbox
+			needClear = true;
+			float pillarboxedWidth = sourceAspectRatio * gWindowWidth / targetAspectRatio;
+			screenLeft = (gWindowWidth / 2.0f) - (pillarboxedWidth / 2.0f);
+			screenRight = screenLeft + pillarboxedWidth;
+		}
+	}
+
+	// Compute normalized device coordinates for the quad vertices.
+	float ndcLeft   = 2.0f * screenLeft  / gWindowWidth - 1.0f;
+	float ndcRight  = 2.0f * screenRight / gWindowWidth - 1.0f;
+	float ndcTop    = 1.0f - 2.0f * screenTop    / gWindowHeight;
+	float ndcBottom = 1.0f - 2.0f * screenBottom / gWindowHeight;
+
+	pts[0] = (TQ3Point2D) { ndcLeft, ndcBottom };
+	pts[1] = (TQ3Point2D) { ndcRight, ndcBottom };
+	pts[2] = (TQ3Point2D) { ndcLeft, ndcTop };
+	pts[3] = (TQ3Point2D) { ndcRight, ndcTop };
+
 
 	glColor4f(1, 1, 1, 1);
 	EnableState(GL_TEXTURE_2D);
@@ -495,4 +555,105 @@ void Render_Draw2DFullscreenQuad()
 	glVertexPointer(2, GL_FLOAT, 0, pts);
 	glTexCoordPointer(2, GL_FLOAT, 0, uvs);
 	__glDrawRangeElements(GL_TRIANGLES, 0, 3*2, 3*2, GL_UNSIGNED_BYTE, tris);
+}
+
+#pragma mark -
+
+//=======================================================================================================
+
+/*******************************************/
+/*    BACKDROP/OVERLAY (COVER WINDOW)      */
+/*******************************************/
+
+void Render_Alloc2DCover(int width, int height)
+{
+	gCoverWindowTextureWidth = width;
+	gCoverWindowTextureHeight = height;
+
+	gCoverWindowTextureName = Render_LoadTexture(
+			GL_RGBA,
+			width,
+			height,
+			GL_BGRA,
+			GL_UNSIGNED_INT_8_8_8_8,
+			gCoverWindowPixPtr,
+			kRendererTextureFlags_None
+	);
+
+	ClearPortDamage();
+}
+
+void Render_Dispose2DCover(void)
+{
+	if (gCoverWindowTextureName == 0)
+		return;
+
+	glDeleteTextures(1, &gCoverWindowTextureName);
+	gCoverWindowTextureName = 0;
+}
+
+void Render_Clear2DCover(UInt32 argb)
+{
+	UInt32 bgra = Byteswap32(&argb);
+
+	UInt32* backdropPixPtr = gCoverWindowPixPtr;
+
+	for (GLuint i = 0; i < gCoverWindowTextureWidth * gCoverWindowTextureHeight; i++)
+	{
+		*(backdropPixPtr++) = bgra;
+	}
+
+	GrafPtr port;
+	GetPort(&port);
+	DamagePortRegion(&port->portRect);
+}
+
+void Render_Draw2DCover(int fit)
+{
+	if (gCoverWindowTextureName == 0)
+		return;
+
+	glBindTexture(GL_TEXTURE_2D, gCoverWindowTextureName);
+
+	// If the screen port has dirty pixels ("damaged"), update the texture
+	if (IsPortDamaged())
+	{
+		Rect damageRect;
+		GetPortDamageRegion(&damageRect);
+
+		// Set unpack row length to 640
+		GLint pUnpackRowLength;
+		glGetIntegerv(GL_UNPACK_ROW_LENGTH, &pUnpackRowLength);
+		glPixelStorei(GL_UNPACK_ROW_LENGTH, gCoverWindowTextureWidth);
+
+		glTexSubImage2D(
+				GL_TEXTURE_2D,
+				0,
+				damageRect.left,
+				damageRect.top,
+				damageRect.right - damageRect.left,
+				damageRect.bottom - damageRect.top,
+				GL_BGRA,
+				GL_UNSIGNED_INT_8_8_8_8,
+				gCoverWindowPixPtr + (damageRect.top * gCoverWindowTextureWidth + damageRect.left));
+		CHECK_GL_ERROR();
+
+		// Restore unpack row length
+		glPixelStorei(GL_UNPACK_ROW_LENGTH, pUnpackRowLength);
+
+		ClearPortDamage();
+	}
+
+	glViewport(0, 0, gWindowWidth, gWindowHeight);
+	Render_Enter2D();
+	Render_Draw2DFullscreenQuad(fit);
+	Render_Exit2D();
+}
+
+#pragma -
+
+void SetWindowGamma(int percent)
+{
+	printf("TODO noquesa: %s\n", __func__);
+//	SDL_SetWindowBrightness(gSDLWindow, percent / 100.0f);
 }

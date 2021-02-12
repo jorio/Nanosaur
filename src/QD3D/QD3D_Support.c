@@ -31,7 +31,6 @@
 #include "3dmath.h"
 #include "environmentmap.h"
 
-#include "2dbackdrop.h"
 #include "renderer.h"
 
 extern	SDL_Window	*gSDLWindow;
@@ -116,6 +115,7 @@ TQ3Vector3D			fillDirection2 = { -1, -1, .2 };
 	viewDef->view.paneClip.right 	= 0;
 	viewDef->view.paneClip.top 		= 0;
 	viewDef->view.paneClip.bottom 	= 0;
+	viewDef->view.backdropFit		= kCoverQuadFill;
 
 	viewDef->styles.interpolation 	= gGamePrefs.interpolationStyle? kQ3InterpolationStyleVertex: kQ3InterpolationStyleNone; 
 	viewDef->styles.backfacing 		= kQ3BackfacingStyleRemove; 
@@ -168,6 +168,7 @@ QD3DSetupOutputType	*outputPtr;
 	outputPtr->paneClip = setupDefPtr->view.paneClip;
 	outputPtr->needScissorTest = setupDefPtr->view.paneClip.left != 0 || setupDefPtr->view.paneClip.right != 0
 								 || setupDefPtr->view.paneClip.bottom != 0 || setupDefPtr->view.paneClip.top != 0;
+	outputPtr->backdropFit = setupDefPtr->view.backdropFit;
 	outputPtr->hither = setupDefPtr->camera.hither;				// remember hither/yon
 	outputPtr->yon = setupDefPtr->camera.yon;
 	outputPtr->fov = setupDefPtr->camera.fov;
@@ -187,7 +188,7 @@ QD3DSetupOutputType	*outputPtr;
 
 	SDL_GL_SetSwapInterval(gGamePrefs.vsync ? 1 : 0);
 
-	Backdrop_AllocTexture();
+	Render_Alloc2DCover(GAME_VIEW_WIDTH, GAME_VIEW_HEIGHT);
 
 	CreateLights(&setupDefPtr->lights);
 
@@ -245,7 +246,7 @@ QD3DSetupOutputType	*data;
 	data = *dataHandle;
 	GAME_ASSERT(data);										// see if this setup exists
 
-	Backdrop_DisposeTexture(); // Source port addition - release backdrop GL texture
+	Render_Dispose2DCover(); // Source port addition - release backdrop GL texture
 
 	if (gShadowGLTextureName != 0)
 	{
@@ -351,7 +352,7 @@ void QD3D_DrawScene(QD3DSetupOutputType *setupInfo, void (*drawRoutine)(QD3DSetu
 	if (setupInfo->needScissorTest)
 	{
 		// Render backdrop
-		Backdrop_Draw();
+		Render_Draw2DCover(setupInfo->backdropFit);
 
 		// Set scissor
 		TQ3Area pane	= GetAdjustedPane(setupInfo->paneClip);

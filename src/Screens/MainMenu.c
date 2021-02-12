@@ -128,7 +128,8 @@ do_again:
 	viewDef.view.clearColor.r 		= 0;
 	viewDef.view.clearColor.g 		= 0;
 	viewDef.view.clearColor.b 		= 0;
-	
+	viewDef.view.backdropFit		= kCoverQuadPillarbox;
+
 #if TWO_MEG_VERSION
 	viewDef.view.paneClip.left 		+= 0;  
 	viewDef.view.paneClip.right 	+= 0;  

@@ -16,6 +16,15 @@ typedef struct RenderModifiers
 	TQ3ColorRGBA			diffuseColor;
 } RenderModifiers;
 
+
+enum
+{
+	kCoverQuadFill						= 0,
+	kCoverQuadPillarbox					= 1,
+	kCoverQuadLetterbox					= 2,
+	kCoverQuadFit						= kCoverQuadPillarbox | kCoverQuadLetterbox,
+};
+
 typedef enum
 {
 	kRendererTextureFlags_None			= 0,
@@ -23,6 +32,8 @@ typedef enum
 	kRendererTextureFlags_ClampV		= (1 << 1),
 	kRendererTextureFlags_ClampBoth		= kRendererTextureFlags_ClampU | kRendererTextureFlags_ClampV,
 } RendererTextureFlags;
+
+#pragma mark -
 
 // Sets up the initial renderer state.
 // Call this function after creating the OpenGL context.
@@ -48,12 +59,6 @@ void Render_Load3DMFTextures(TQ3MetaFile* metaFile);
 // Deletes OpenGL texture names previously loaded from a 3DMF file.
 void Render_Dispose3DMFTextures(TQ3MetaFile* metaFile);
 
-void Render_Enter2D(void);
-
-void Render_Exit2D(void);
-
-void Render_Draw2DFullscreenQuad(void);
-
 // Instructs the renderer to get ready to draw a new frame.
 // Call this function before submitting any draw calls.
 void Render_StartFrame(void);
@@ -70,3 +75,22 @@ void Render_DrawTriMeshList(
 		const TQ3Matrix4x4* transform,
 		const RenderModifiers* mods);
 
+#pragma mark -
+
+void Render_Enter2D(void);
+
+void Render_Exit2D(void);
+
+#pragma mark -
+
+void Render_Alloc2DCover(int width, int height);
+
+void Render_Dispose2DCover(void);
+
+void Render_Clear2DCover(uint32_t argb);
+
+void Render_Draw2DCover(int fit);
+
+#pragma mark -
+
+void SetWindowGamma(int percent);
