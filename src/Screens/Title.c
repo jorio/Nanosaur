@@ -31,6 +31,7 @@
 #include "version.h"
 #include <string.h>
 #include <stdlib.h>
+#include <SDL.h>
 
 extern	float				gFramesPerSecondFrac,gFramesPerSecond;
 extern	TQ3Point3D			gCoord;
@@ -42,6 +43,8 @@ extern	Boolean		gSongPlayingFlag,gResetSong,gDisableAnimSounds;
 extern	FSSpec		gDataSpec;
 extern	PrefsType	gGamePrefs;
 extern	const int	PRO_MODE;
+extern	SDL_Window*	gSDLWindow;
+extern	UInt32*const				gCoverWindowPixPtr;
 
 /****************************/
 /*    PROTOTYPES            */
@@ -368,12 +371,12 @@ struct SlideshowEntry
 
 static void Slideshow(const struct SlideshowEntry* slides)
 {
-#if 1
-	printf("TODO noquesa: %s\n", __func__);
-#else
 	FSSpec spec;
 
-	ExclusiveOpenGLMode_Begin();
+	SDL_GLContext glContext = SDL_GL_CreateContext(gSDLWindow);
+	GAME_ASSERT(glContext);
+	Render_InitState();
+	Render_Alloc2DCover(GAME_VIEW_WIDTH, GAME_VIEW_HEIGHT);
 
 	for (int i = 0; slides[i].opcode != SLIDESHOW_STOP; i++)
 	{
@@ -406,9 +409,12 @@ static void Slideshow(const struct SlideshowEntry* slides)
 			slide->postDrawCallback();
 		}
 
+		uint8_t* clearColor = (uint8_t*)gCoverWindowPixPtr;
+		glClearColor(clearColor[1]/255.0f, clearColor[2]/255.0f, clearColor[3]/255.0f, 1.0f);
+
 		if (i == 0)
 		{
-			RenderBackdropQuad(BACKDROP_FIT);
+//			RenderBackdropQuad(BACKDROP_FIT);
 			GammaFadeIn();
 		}
 		ReadKeyboard();
@@ -431,16 +437,20 @@ static void Slideshow(const struct SlideshowEntry* slides)
 
 			ReadKeyboard();
 			DoSoundMaintenance();
-			RenderBackdropQuad(BACKDROP_FIT);
+
+			Render_StartFrame();
+			Render_Draw2DCover(kCoverQuadFit);
+
 			QD3D_CalcFramesPerSecond(); // required for DoSDLMaintenance to properly cap the framerate
 			DoSDLMaintenance();
+			SDL_GL_SwapWindow(gSDLWindow);
 		} while (!GetNewKeyState_Real(kVK_Return) && !GetNewKeyState_Real(kVK_Escape) && !GetNewKeyState_Real(kVK_Space));
 	}
 
-	ExclusiveOpenGLMode_End();
+	Render_Dispose2DCover();
+	SDL_GL_DeleteContext(glContext);
 
 	GammaFadeOut();
-#endif
 }
 
 
@@ -471,9 +481,6 @@ static void ShowCharity_SourcePortCreditOverlay(void)
 }
 
 void ShowCharity(void)
-#if 1	// TODO noquesa
-{ printf("TODO noquesa: %s\n", __func__); }
-#else
 {
 	const char* firstImage = PRO_MODE ? ":images:Boot1Pro.pict" : ":images:Boot1.pict";
 
@@ -484,7 +491,6 @@ void ShowCharity(void)
 	};
 	Slideshow(slides);
 }
-#endif
 
 
 /*************** SHOW HELP **********************/

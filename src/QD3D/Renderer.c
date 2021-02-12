@@ -577,7 +577,7 @@ void Render_Alloc2DCover(int width, int height)
 			GL_BGRA,
 			GL_UNSIGNED_INT_8_8_8_8,
 			gCoverWindowPixPtr,
-			kRendererTextureFlags_None
+			kRendererTextureFlags_ClampBoth
 	);
 
 	ClearPortDamage();

@@ -7,6 +7,8 @@ extern "C" {
 #include "sound2.h"
 #include "qd3d_support.h"
 #include "terrain.h"
+#include "misc.h"
+#include "windows_nano.h"
 }
 
 #include <SDL.h>
@@ -166,12 +168,13 @@ static void RenderQualityDialog()
 
 void DoQualityDialog()
 {
-#if 1
-	printf("TODO noquesa: %s\n", __func__);
-#else
 	needFullRender = true;
 
-	ExclusiveOpenGLMode_Begin();
+	SDL_GLContext glContext = SDL_GL_CreateContext(gSDLWindow);
+	GAME_ASSERT(glContext);
+	Render_InitState();
+	Render_Alloc2DCover(GAME_VIEW_WIDTH, GAME_VIEW_HEIGHT);
+	glClearColor(.6471f, .6471f, .6471f, 1.0f);
 
 	while (1)
 	{
@@ -193,13 +196,16 @@ void DoQualityDialog()
 
 		QD3D_CalcFramesPerSecond();
 		DoSoundMaintenance();
-		RenderBackdropQuad(BACKDROP_FIT);
+
+		Render_StartFrame();
+		Render_Draw2DCover(kCoverQuadFit);
 
 		DoSDLMaintenance();
+		SDL_GL_SwapWindow(gSDLWindow);
 	}
 
 	SavePrefs(&gGamePrefs);
 
-	ExclusiveOpenGLMode_End();
-#endif
+	Render_Dispose2DCover();
+	SDL_GL_DeleteContext(glContext);
 }

@@ -148,12 +148,11 @@ void PlayAMovie(FSSpec* spec)
 
 	CinepakContext cinepak(movie.width, movie.height);
 
-#if 1
-	printf("TODO noquesa: %s\n", __func__);
-#else
-	ExclusiveOpenGLMode_Begin();
-	SetBackdropClipRegion(movie.width, movie.height);
-	ClearBackdrop(0xFF000000);
+	SDL_GLContext glContext = SDL_GL_CreateContext(gSDLWindow);
+	GAME_ASSERT(glContext);
+	Render_InitState();
+	Render_Alloc2DCover(movie.width, movie.height);
+	glClearColor(0,0,0,1);
 
 	movie.audioStream.Play();
 
@@ -189,8 +188,11 @@ void PlayAMovie(FSSpec* spec)
 
 		Rect damage = {0, 0, (SInt16) movie.height, (SInt16) movie.width};
 		DamagePortRegion(&damage);
-		RenderBackdropQuad(BACKDROP_FIT | BACKDROP_CLEAR_BLACK);
+
+		Render_StartFrame();
+		Render_Draw2DCover(kCoverQuadLetterbox);
 		DoSDLMaintenance();
+		SDL_GL_SwapWindow(gSDLWindow);
 
 		unsigned int endTicks = SDL_GetTicks();
 		int diffTicks = endTicks - startTicks;
@@ -213,9 +215,8 @@ void PlayAMovie(FSSpec* spec)
 
 	movie.audioStream.Stop();
 
-	SetBackdropClipRegion(GAME_VIEW_WIDTH, GAME_VIEW_HEIGHT);
-	ExclusiveOpenGLMode_End();
-#endif
+	Render_Dispose2DCover();
+	SDL_GL_DeleteContext(glContext);
 }
 
 //-----------------------------------------------------------------------------
