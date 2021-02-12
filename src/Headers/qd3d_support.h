@@ -74,6 +74,7 @@ typedef struct
 {
 	Boolean					isActive;
 	Rect					paneClip;			// not pane size, but clip:  left = amount to clip off left
+	bool					needScissorTest;
 	float					hither,yon;
 	float					fov;
 	TQ3CameraPlacement		cameraPlacement;
@@ -98,7 +99,7 @@ void MakeShadowTexture(void);
 extern	void QD3D_OnWindowResized(int windowWidth, int windowHeight);
 
 
-void QD3D_GetCurrentViewport(const QD3DSetupOutputType *setupInfo, int *x, int *y, int *w, int *h);
+float QD3D_GetCurrentViewportAspectRatio(const QD3DSetupOutputType *setupInfo);
 
 
 

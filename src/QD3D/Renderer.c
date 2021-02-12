@@ -15,6 +15,7 @@
 #include "environmentmap.h"
 #include "renderer.h"
 #include "globals.h"	// status bits
+#include "windows_nano.h"	// GAME_VIEW_WIDTH, GAME_VIEW_HEIGHT
 
 #if __APPLE__
 	#include <OpenGL/glu.h>
@@ -45,8 +46,8 @@ typedef struct RendererState
 	bool		hasState_GL_TEXTURE_2D;
 	bool		hasState_GL_BLEND;
 	bool		hasState_GL_LIGHTING;
+	bool		hasState_GL_FOG;
 	bool		hasFlag_glDepthMask;
-//	bool		hasState_GL_FOG;
 } RendererState;
 
 /****************************/
@@ -91,45 +92,29 @@ static void __SetInitialClientState(GLenum stateEnum, bool* stateFlagPtr, bool i
 	CHECK_GL_ERROR();
 }
 
-static inline void __EnableState(GLenum stateEnum, bool* stateFlagPtr)
+static inline void __SetState(GLenum stateEnum, bool* stateFlagPtr, bool enable)
 {
-	if (!*stateFlagPtr)
+	if (enable != *stateFlagPtr)
 	{
-		glEnable(stateEnum);
-		*stateFlagPtr = true;
+		if (enable)
+			glEnable(stateEnum);
+		else
+			glDisable(stateEnum);
+		*stateFlagPtr = enable;
 	}
 	else
 		gRenderStats.batchedStateChanges++;
 }
 
-static inline void __EnableClientState(GLenum stateEnum, bool* stateFlagPtr)
+static inline void __SetClientState(GLenum stateEnum, bool* stateFlagPtr, bool enable)
 {
-	if (!*stateFlagPtr)
+	if (enable != *stateFlagPtr)
 	{
-		glEnableClientState(stateEnum);
-		*stateFlagPtr = true;
-	}
-	else
-		gRenderStats.batchedStateChanges++;
-}
-
-static inline void __DisableState(GLenum stateEnum, bool* stateFlagPtr)
-{
-	if (*stateFlagPtr)
-	{
-		glDisable(stateEnum);
-		*stateFlagPtr = false;
-	}
-	else
-		gRenderStats.batchedStateChanges++;
-}
-
-static inline void __DisableClientState(GLenum stateEnum, bool* stateFlagPtr)
-{
-	if (*stateFlagPtr)
-	{
-		glDisableClientState(stateEnum);
-		*stateFlagPtr = false;
+		if (enable)
+			glEnableClientState(stateEnum);
+		else
+			glDisableClientState(stateEnum);
+		*stateFlagPtr = enable;
 	}
 	else
 		gRenderStats.batchedStateChanges++;
@@ -138,11 +123,13 @@ static inline void __DisableClientState(GLenum stateEnum, bool* stateFlagPtr)
 #define SetInitialState(stateEnum, initialValue) __SetInitialState(stateEnum, &gState.hasState_##stateEnum, initialValue)
 #define SetInitialClientState(stateEnum, initialValue) __SetInitialClientState(stateEnum, &gState.hasClientState_##stateEnum, initialValue)
 
-#define EnableState(stateEnum) __EnableState(stateEnum, &gState.hasState_##stateEnum)
-#define EnableClientState(stateEnum) __EnableClientState(stateEnum, &gState.hasClientState_##stateEnum)
+#define EnableState(stateEnum) __SetState(stateEnum, &gState.hasState_##stateEnum, true)
+#define EnableClientState(stateEnum) __SetClientState(stateEnum, &gState.hasClientState_##stateEnum, true)
 
-#define DisableState(stateEnum) __DisableState(stateEnum, &gState.hasState_##stateEnum)
-#define DisableClientState(stateEnum) __DisableClientState(stateEnum, &gState.hasClientState_##stateEnum)
+#define DisableState(stateEnum) __SetState(stateEnum, &gState.hasState_##stateEnum, false)
+#define DisableClientState(stateEnum) __SetClientState(stateEnum, &gState.hasClientState_##stateEnum, false)
+
+#define RestoreStateFromBackup(stateEnum, backup) __SetState(stateEnum, &gState.hasState_##stateEnum, (backup)->hasState_##stateEnum)
 
 #define EnableFlag(glFunction) do {					\
 	if (!gState.hasFlag_##glFunction) {				\
@@ -191,6 +178,48 @@ void Render_InitState(void)
 	gState.hasFlag_glDepthMask = true;		// initially active on a fresh context
 
 	gState.boundTexture = 0;
+}
+
+static void Render_EnterExit2D(bool enter)
+{
+	static RendererState backup3DState;
+
+	if (enter)
+	{
+		backup3DState = gState;
+		DisableState(GL_LIGHTING);
+		DisableState(GL_FOG);
+		DisableState(GL_DEPTH_TEST);
+//		DisableState(GL_TEXTURE_2D);
+		glMatrixMode(GL_PROJECTION);
+		glPushMatrix();
+		glLoadIdentity();
+		glOrtho(0, 640, 480, 0, 0, 1000);
+		glMatrixMode(GL_MODELVIEW);
+		glPushMatrix();
+		glLoadIdentity();
+	}
+	else
+	{
+		glMatrixMode(GL_PROJECTION);
+		glPopMatrix();
+		glMatrixMode(GL_MODELVIEW);
+		glPopMatrix();
+		RestoreStateFromBackup(GL_LIGHTING,		&backup3DState);
+		RestoreStateFromBackup(GL_FOG,			&backup3DState);
+		RestoreStateFromBackup(GL_DEPTH_TEST,	&backup3DState);
+//		RestoreStateFromBackup(GL_TEXTURE_2D,	&backup3DState);
+	}
+}
+
+void Render_Enter2D(void)
+{
+	Render_EnterExit2D(true);
+}
+
+void Render_Exit2D(void)
+{
+	Render_EnterExit2D(false);
 }
 
 GLuint Render_LoadTexture(
@@ -430,4 +459,40 @@ void Render_DrawTriMeshList(
 	{
 		glPopMatrix();
 	}
+}
+
+
+void Render_Draw2DFullscreenQuad()
+{
+	//		0----1
+	//		|  / |
+	//		| /  |
+	//		2----3
+
+	static const TQ3Point2D pts[4] = {
+			{0,					0},
+			{0,					GAME_VIEW_HEIGHT},
+			{GAME_VIEW_WIDTH,	0},
+			{GAME_VIEW_WIDTH,	GAME_VIEW_HEIGHT},
+	};
+
+	static const TQ3Param2D uvs[4] = {
+			{0,					0},
+			{0,					1},
+			{1,					0},
+			{1,					1},
+	};
+
+	static const uint8_t tris[2][3] = {
+			{0,1,2},
+			{2,1,3},
+	};
+
+	glColor4f(1, 1, 1, 1);
+	EnableState(GL_TEXTURE_2D);
+	EnableClientState(GL_TEXTURE_COORD_ARRAY);
+	DisableClientState(GL_COLOR_ARRAY);
+	glVertexPointer(2, GL_FLOAT, 0, pts);
+	glTexCoordPointer(2, GL_FLOAT, 0, uvs);
+	__glDrawRangeElements(GL_TRIANGLES, 0, 3*2, 3*2, GL_UNSIGNED_BYTE, tris);
 }

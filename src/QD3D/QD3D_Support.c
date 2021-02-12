@@ -45,7 +45,7 @@ extern	QD3DSetupOutputType		*gGameViewInfoPtr;
 /****************************/
 
 static void CreateLights(QD3DLightDefType *lightDefPtr);
-static TQ3Area GetAdjustedPane(int windowWidth, int windowHeight, Rect paneClip);
+static TQ3Area GetAdjustedPane(Rect paneClip);
 
 
 /****************************/
@@ -66,6 +66,9 @@ float	gFramesPerSecond = DEFAULT_FPS;				// this is used to maintain a constant 
 float	gFramesPerSecondFrac = 1/DEFAULT_FPS;
 
 float	gAdditionalClipping = 0;
+
+static int		gWindowWidth		= GAME_VIEW_WIDTH;
+static int		gWindowHeight		= GAME_VIEW_HEIGHT;
 
 
 /******************** QD3D: BOOT ******************************/
@@ -163,6 +166,8 @@ QD3DSetupOutputType	*outputPtr;
 				/* PASS BACK INFO */
 
 	outputPtr->paneClip = setupDefPtr->view.paneClip;
+	outputPtr->needScissorTest = setupDefPtr->view.paneClip.left != 0 || setupDefPtr->view.paneClip.right != 0
+								 || setupDefPtr->view.paneClip.bottom != 0 || setupDefPtr->view.paneClip.top != 0;
 	outputPtr->hither = setupDefPtr->camera.hither;				// remember hither/yon
 	outputPtr->yon = setupDefPtr->camera.yon;
 	outputPtr->fov = setupDefPtr->camera.fov;
@@ -340,12 +345,30 @@ void QD3D_DrawScene(QD3DSetupOutputType *setupInfo, void (*drawRoutine)(QD3DSetu
 	int mkc = SDL_GL_MakeCurrent(gSDLWindow, gGLContext);
 	GAME_ASSERT_MESSAGE(mkc == 0, SDL_GetError());
 
-	int windowWidth, windowHeight;
-	SDL_GetWindowSize(gSDLWindow, &windowWidth, &windowHeight);
-	glViewport(0, 0, windowWidth, windowHeight);
+	Render_StartFrame();
 
 
+	// Clip pane
+	if (setupInfo->needScissorTest)
+	{
+		// Render backdrop
+		glViewport(0, 0, gWindowWidth, gWindowHeight);
+		Render_Enter2D();
+		Render_Draw2DFullscreenQuad();
+		Render_Exit2D();
 
+		// Set scissor
+		TQ3Area pane	= GetAdjustedPane(setupInfo->paneClip);
+		int paneWidth	= pane.max.x-pane.min.x;
+		int paneHeight	= pane.max.y-pane.min.y;
+		glEnable(GL_SCISSOR_TEST);
+		glScissor	(pane.min.x, pane.min.y, paneWidth, paneHeight);
+		glViewport	(pane.min.x, pane.min.y, paneWidth, paneHeight);
+	}
+	else
+	{
+		glViewport(0, 0, gWindowWidth, gWindowHeight);
+	}
 
 			/* PREPARE FRUSTUM PLANES FOR SPHERE VISIBILITY CHECKS */
 			// (Source port addition)
@@ -357,10 +380,17 @@ void QD3D_DrawScene(QD3DSetupOutputType *setupInfo, void (*drawRoutine)(QD3DSetu
 			/* RENDER LOOP */
 			/***************/
 
-	Render_StartFrame();
-
 	if (drawRoutine)
 		drawRoutine(setupInfo);
+
+			/******************/
+			/* DONE RENDERING */
+			/*****************/
+
+	if (setupInfo->needScissorTest)
+	{
+		glDisable(GL_SCISSOR_TEST);
+	}
 
 	SDL_GL_SwapWindow(gSDLWindow);
 }
@@ -504,25 +534,24 @@ void MakeShadowTexture(void)
 
 #pragma mark ---------- source port additions -------------
 
-static TQ3Area GetAdjustedPane(int windowWidth, int windowHeight, Rect paneClip)
+static TQ3Area GetAdjustedPane(Rect paneClip)
 {
 	TQ3Area pane;
 
 	pane.min.x = paneClip.left;					// set bounds?
 	pane.max.x = GAME_VIEW_WIDTH - paneClip.right;
-	pane.min.y = paneClip.top;
-	pane.max.y = GAME_VIEW_HEIGHT - paneClip.bottom;
+	pane.min.y = paneClip.bottom;							// bottom is min for OpenGL viewport
+	pane.max.y = GAME_VIEW_HEIGHT - paneClip.top;			// top is max for OpenGL viewport
 
 	pane.min.x += gAdditionalClipping;						// offset bounds by user clipping
 	pane.max.x -= gAdditionalClipping;
-	pane.min.y += gAdditionalClipping*.75;
-	pane.max.y -= gAdditionalClipping*.75;
+	pane.min.y += gAdditionalClipping*.75f;
+	pane.max.y -= gAdditionalClipping*.75f;
 
-	// Source port addition
-	pane.min.x *= windowWidth / (float)(GAME_VIEW_WIDTH);					// scale clip pane to window size
-	pane.max.x *= windowWidth / (float)(GAME_VIEW_WIDTH);
-	pane.min.y *= windowHeight / (float)(GAME_VIEW_HEIGHT);
-	pane.max.y *= windowHeight / (float)(GAME_VIEW_HEIGHT);
+	pane.min.x *= gWindowWidth	/ (float)(GAME_VIEW_WIDTH);	// scale clip pane to window size
+	pane.max.x *= gWindowWidth	/ (float)(GAME_VIEW_WIDTH);
+	pane.min.y *= gWindowHeight	/ (float)(GAME_VIEW_HEIGHT);
+	pane.max.y *= gWindowHeight	/ (float)(GAME_VIEW_HEIGHT);
 
 	return pane;
 }
@@ -530,40 +559,33 @@ static TQ3Area GetAdjustedPane(int windowWidth, int windowHeight, Rect paneClip)
 // Called when the game window gets resized.
 // Adjusts the clipping pane and camera aspect ratio.
 void QD3D_OnWindowResized(int windowWidth, int windowHeight)
-#if 1
-{ printf("TODO noquesa: %s\n", __func__); }
-#else
 {
+	gWindowWidth	= windowWidth;
+	gWindowHeight	= windowHeight;
+
 	if (!gGameViewInfoPtr)
 		return;
 
-	TQ3Area pane = GetAdjustedPane(windowWidth, windowHeight, gGameViewInfoPtr->paneClip);
-	Q3DrawContext_SetPane(gGameViewInfoPtr->drawContext, &pane);
-
-	float aspectRatioXToY = (pane.max.x-pane.min.x)/(pane.max.y-pane.min.y);
-
-	Q3ViewAngleAspectCamera_SetAspectRatio(gGameViewInfoPtr->cameraObject, aspectRatioXToY);
+	CalcCameraMatrixInfo(gGameViewInfoPtr);
 }
-#endif
 
 
 
 #pragma mark -
 
-void QD3D_GetCurrentViewport(const QD3DSetupOutputType *setupInfo, int *x, int *y, int *w, int *h)
+float QD3D_GetCurrentViewportAspectRatio(const QD3DSetupOutputType *setupInfo)
 {
 	int	t,b,l,r;
-	int gameWindowWidth, gameWindowHeight;
-
-	SDL_GetWindowSize(gSDLWindow, &gameWindowWidth, &gameWindowHeight);
-
 	t = setupInfo->paneClip.top;
 	b = setupInfo->paneClip.bottom;
 	l = setupInfo->paneClip.left;
 	r = setupInfo->paneClip.right;
 
-	*x = l;
-	*y = t;
-	*w = gameWindowWidth-l-r;
-	*h = gameWindowHeight-t-b;
+	int w = gWindowWidth	- l		- r;
+	int h = gWindowHeight	- t		- b;
+
+	if (h == 0)
+		return 1;
+	else
+		return (float)w / (float)h;
 }

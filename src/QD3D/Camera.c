@@ -244,17 +244,13 @@ float	fps = gFramesPerSecondFrac;
 
 void CalcCameraMatrixInfo(QD3DSetupOutputType *setupInfo)
 {
-	int temp, w, h;
-	QD3D_GetCurrentViewport(setupInfo, &temp, &temp, &w, &h);
-	float aspect = (float)w/(float)h;
-
 			/* INIT PROJECTION MATRIX */
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 
 	gluPerspective (Q3Math_RadiansToDegrees(setupInfo->fov),	// fov
-					aspect,					// aspect
+					QD3D_GetCurrentViewportAspectRatio(setupInfo),		// aspect
 					setupInfo->hither,		// hither
 					setupInfo->yon);		// yon
 

@@ -47,6 +47,12 @@ void Render_Load3DMFTextures(TQ3MetaFile* metaFile);
 // Deletes OpenGL texture names previously loaded from a 3DMF file.
 void Render_Dispose3DMFTextures(TQ3MetaFile* metaFile);
 
+void Render_Enter2D(void);
+
+void Render_Exit2D(void);
+
+void Render_Draw2DFullscreenQuad(void);
+
 // Instructs the renderer to get ready to draw a new frame.
 // Call this function before submitting any draw calls.
 void Render_StartFrame(void);
