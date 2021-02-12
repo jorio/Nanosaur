@@ -180,42 +180,22 @@ GDHandle	oldGD;
 GWorldPtr	oldGW;
 
 	GetGWorld (&oldGW,&oldGD);
-	SetGWorld(destWorld,nil);	
+	SetGWorld(destWorld,nil);
 	ForeColor(blackColor);
 	BackColor(whiteColor);
 
-	SetGWorld(thisWorld,nil);	
+	SetGWorld(thisWorld,nil);
 	ForeColor(blackColor);
 	BackColor(whiteColor);
 
-#if 0
-	DoLockPixels(destWorld);
-	DoLockPixels(thisWorld);
-#endif
+	pm = GetGWorldPixMap(thisWorld);
+	GAME_ASSERT_MESSAGE(pm && *pm, "Source PixMap Handle or Ptr = Null?!");
 
-	pm = GetGWorldPixMap(thisWorld);	
-	if ((pm == nil) | (*pm == nil) )
-		DoAlert("PixMap Handle or Ptr = Null?!");
+	pm2 = GetGWorldPixMap(destWorld);
+	GAME_ASSERT_MESSAGE(pm2 && *pm2, "Dest PixMap Handle or Ptr = Null?!");
 
-	pm2 = GetGWorldPixMap(destWorld);	
-	if ((pm2 == nil) | (*pm2 == nil) )
-		DoAlert("PixMap Handle or Ptr = Null?!");
+	CopyBits(*pm, *pm2, srcRect, destRect, srcCopy, 0);
 
-		
-#if 0
-	CopyBits((BitMap *)*pm,(BitMap *)*pm2,
-			srcRect,destRect,srcCopy,0);
-#else
-	CopyBits(*pm,*pm2,srcRect,destRect,0,0);
-#endif
 	SetGWorld(oldGW,oldGD);								// restore gworld
-
 }
-
-
-
-
-
-
-
 
