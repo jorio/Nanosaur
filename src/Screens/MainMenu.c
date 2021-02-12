@@ -107,9 +107,6 @@ QD3DSetupInputType	viewDef;
 TQ3Point3D			cameraFrom = { 0, 00, 600.0 };
 Size				size;
 
-	MaxMem(&size);
-
-
 	MakeFadeEvent(true);
 
 do_again:
@@ -503,103 +500,4 @@ static void MoveMenuBG(ObjNode *theNode)
 
 	UpdateObjectTransforms(theNode);
 }
-
-
-
-/**************** DO QUALITY DIALOG *********************/
-
-#if 0   // Source port modification: entirely rewritten in SettingsScreen.cpp
-static void DoQualityDialog(void)
-{
-DialogPtr 		myDialog;
-short			itemType,itemHit;
-ControlHandle	itemHandle;
-Rect			itemRect;
-Boolean			dialogDone,cancelled;
-
-	FlushEvents (everyEvent, REMOVE_ALL_EVENTS);
-
-	SetPort(gCoverWindow);					// set this so DialogManager knows where to put dialog
-	InitCursor();
-
-	myDialog = GetNewDialog(129,nil,MOVE_TO_FRONT);
-
-	DSpContext_FadeGamma(nil,100,nil);
-
-	
-				/* SET CONTROL VALUES */
-					
-	GetDialogItem(myDialog,2,&itemType,(Handle *)&itemHandle,&itemRect);
-	SetControlValue((ControlHandle)itemHandle,gGamePrefs.highQualityTextures);
-
-	GetDialogItem(myDialog,3,&itemType,(Handle *)&itemHandle,&itemRect);
-	SetControlValue((ControlHandle)itemHandle, gGamePrefs.canDoFog);
-
-	GetDialogItem(myDialog,4,&itemType,(Handle *)&itemHandle,&itemRect);
-	SetControlValue((ControlHandle)itemHandle, gGamePrefs.shadows);
-
-	GetDialogItem(myDialog,5,&itemType,(Handle *)&itemHandle,&itemRect);
-	SetControlValue((ControlHandle)itemHandle, gGamePrefs.dust);
-		
-				/* DO IT */
-				
-	dialogDone = cancelled = false;
-	while(!dialogDone)
-	{
-		ModalDialog(nil, &itemHit);
-		switch (itemHit)
-		{
-			case 	1:									// hit ok
-					dialogDone = true;
-					break;
-					
-			case	2:
-					gGamePrefs.highQualityTextures = !gGamePrefs.highQualityTextures;
-					GetDialogItem(myDialog,itemHit,&itemType,(Handle *)&itemHandle,&itemRect);
-					SetControlValue((ControlHandle)itemHandle,gGamePrefs.highQualityTextures);					
-					break;
-							
-			case	3:
-					gGamePrefs.canDoFog = !gGamePrefs.canDoFog;
-					GetDialogItem(myDialog,itemHit,&itemType,(Handle *)&itemHandle,&itemRect);
-					SetControlValue((ControlHandle)itemHandle,gGamePrefs.canDoFog);					
-					break;
-
-			case	4:
-					gGamePrefs.shadows = !gGamePrefs.shadows;
-					GetDialogItem(myDialog,itemHit,&itemType,(Handle *)&itemHandle,&itemRect);
-					SetControlValue((ControlHandle)itemHandle,gGamePrefs.shadows);					
-					break;
-
-			case	5:
-					gGamePrefs.dust = !gGamePrefs.dust;
-					GetDialogItem(myDialog,itemHit,&itemType,(Handle *)&itemHandle,&itemRect);
-					SetControlValue((ControlHandle)itemHandle,gGamePrefs.dust);					
-					break;
-					
-			case	7:
-					DoKeyConfigDialog();
-					goto done;
-		}
-	}	
-	
-done:	
-	DisposeDialog(myDialog);
-	
-	HideCursor();	
-
-	SavePrefs(&gGamePrefs);
-}
-#endif
-
-
-
-
-
-
-
-
-
-
-
 
