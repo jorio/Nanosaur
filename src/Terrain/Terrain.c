@@ -824,7 +824,7 @@ SuperTileMemoryType	*superTilePtr;
 
 				/* UPDATE THE TRIMESH */
 
-	glBindTexture(GL_TEXTURE_2D, superTilePtr->glTextureName);
+	Render_BindTexture(superTilePtr->glTextureName);
 	glTexSubImage2D(
 			GL_TEXTURE_2D,
 			0,
@@ -919,7 +919,7 @@ TQ3PlaneEquation	planeEq;
 	// store a resized copy of the texture in the supertile's textureData buffer
 	ShrinkSuperTileTextureMap(gTempTextureBuffer, superTilePtr->textureData, SUPERTILE_TEXMAP_SIZE);
 
-	glBindTexture(GL_TEXTURE_2D, superTilePtr->glTextureName);
+	Render_BindTexture(superTilePtr->glTextureName);
 	glTexSubImage2D(
 			GL_TEXTURE_2D,
 			0,

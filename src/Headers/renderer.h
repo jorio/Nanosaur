@@ -39,6 +39,8 @@ typedef enum
 // Call this function after creating the OpenGL context.
 void Render_InitState(void);
 
+void Render_BindTexture(GLuint textureName);
+
 // Wrapper for glTexImage that takes care of all the boilerplate associated with texture creation.
 // Returns an OpenGL texture name.
 // Aborts the game on failure.

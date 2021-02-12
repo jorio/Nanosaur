@@ -783,7 +783,7 @@ Boolean					forceUpdate = false;
 				/* UPDATE THE TEXTURE */
 				/**********************/
 
-		glBindTexture(GL_TEXTURE_2D, gGPSObj->MeshList[0]->glTextureName);
+		Render_BindTexture(gGPSObj->MeshList[0]->glTextureName);
 		glTexSubImage2D(
 				GL_TEXTURE_2D,
 				0,

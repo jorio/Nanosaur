@@ -185,6 +185,19 @@ void Render_InitState(void)
 	gState.boundTexture = 0;
 }
 
+void Render_BindTexture(GLuint textureName)
+{
+	if (gState.boundTexture != textureName)
+	{
+		glBindTexture(GL_TEXTURE_2D, textureName);
+		gState.boundTexture = textureName;
+	}
+	else
+	{
+		gRenderStats.batchedStateChanges++;
+	}
+}
+
 GLuint Render_LoadTexture(
 		GLenum internalFormat,
 		int width,
@@ -199,7 +212,7 @@ GLuint Render_LoadTexture(
 	glGenTextures(1, &textureName);
 	CHECK_GL_ERROR();
 
-	glBindTexture(GL_TEXTURE_2D, textureName);				// this is now the currently active texture
+	Render_BindTexture(textureName);				// this is now the currently active texture
 	CHECK_GL_ERROR();
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gGamePrefs.highQualityTextures? GL_LINEAR: GL_NEAREST);
@@ -376,13 +389,7 @@ void Render_DrawTriMeshList(
 		{
 			EnableState(GL_TEXTURE_2D);
 			EnableClientState(GL_TEXTURE_COORD_ARRAY);
-			if (gState.boundTexture != mesh->glTextureName)
-			{
-				glBindTexture(GL_TEXTURE_2D, mesh->glTextureName);
-				gState.boundTexture = mesh->glTextureName;
-			}
-			else
-				gRenderStats.batchedStateChanges++;
+			Render_BindTexture(mesh->glTextureName);
 
 			glTexCoordPointer(2, GL_FLOAT, 0, envMap ? gEnvMapUVs : mesh->vertexUVs);
 			CHECK_GL_ERROR();
@@ -613,7 +620,7 @@ void Render_Draw2DCover(int fit)
 	if (gCoverWindowTextureName == 0)
 		return;
 
-	glBindTexture(GL_TEXTURE_2D, gCoverWindowTextureName);
+	Render_BindTexture(gCoverWindowTextureName);
 
 	// If the screen port has dirty pixels ("damaged"), update the texture
 	if (IsPortDamaged())
