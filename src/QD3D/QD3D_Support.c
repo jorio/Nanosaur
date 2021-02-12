@@ -31,7 +31,7 @@
 #include "3dmath.h"
 #include "environmentmap.h"
 
-#include "GamePatches.h" // Source port addition - for backdrop quad
+#include "2dbackdrop.h"
 #include "renderer.h"
 
 extern	SDL_Window	*gSDLWindow;
@@ -67,8 +67,8 @@ float	gFramesPerSecondFrac = 1/DEFAULT_FPS;
 
 float	gAdditionalClipping = 0;
 
-static int		gWindowWidth		= GAME_VIEW_WIDTH;
-static int		gWindowHeight		= GAME_VIEW_HEIGHT;
+int		gWindowWidth		= GAME_VIEW_WIDTH;
+int		gWindowHeight		= GAME_VIEW_HEIGHT;
 
 
 /******************** QD3D: BOOT ******************************/
@@ -187,7 +187,7 @@ QD3DSetupOutputType	*outputPtr;
 
 	SDL_GL_SetSwapInterval(gGamePrefs.vsync ? 1 : 0);
 
-	AllocBackdropTexture();
+	Backdrop_AllocTexture();
 
 	CreateLights(&setupDefPtr->lights);
 
@@ -245,7 +245,7 @@ QD3DSetupOutputType	*data;
 	data = *dataHandle;
 	GAME_ASSERT(data);										// see if this setup exists
 
-	DisposeBackdropTexture(); // Source port addition - release backdrop GL texture
+	Backdrop_DisposeTexture(); // Source port addition - release backdrop GL texture
 
 	if (gShadowGLTextureName != 0)
 	{
@@ -347,15 +347,11 @@ void QD3D_DrawScene(QD3DSetupOutputType *setupInfo, void (*drawRoutine)(QD3DSetu
 
 	Render_StartFrame();
 
-
 	// Clip pane
 	if (setupInfo->needScissorTest)
 	{
 		// Render backdrop
-		glViewport(0, 0, gWindowWidth, gWindowHeight);
-		Render_Enter2D();
-		Render_Draw2DFullscreenQuad();
-		Render_Exit2D();
+		Backdrop_Draw();
 
 		// Set scissor
 		TQ3Area pane	= GetAdjustedPane(setupInfo->paneClip);

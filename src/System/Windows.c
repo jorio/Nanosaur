@@ -17,7 +17,7 @@
 #include "objects.h"
 #include "file.h"
 #include "input.h"
-#include "GamePatches.h"
+#include "2dbackdrop.h"
 
 #define	ALLOW_FADE		1
 

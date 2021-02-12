@@ -96,10 +96,14 @@ int CommonMain(int argc, const char** argv)
 	gCoverWindowPixPtr = (UInt32*) GetPixBaseAddr(GetGWorldPixMap(gCoverWindow));
 
 	// Clear window
+#if 1
+	printf("TODO noquesa: Initial clear window?\n");
+#else
 	ExclusiveOpenGLMode_Begin();
 	ClearBackdrop(0xFFA5A5A5);
 	RenderBackdropQuad(BACKDROP_FILL);
 	ExclusiveOpenGLMode_End();
+#endif
 
 	FindGameData();
 #if !(__APPLE__)

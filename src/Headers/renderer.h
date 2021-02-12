@@ -18,6 +18,7 @@ typedef struct RenderModifiers
 
 typedef enum
 {
+	kRendererTextureFlags_None			= 0,
 	kRendererTextureFlags_ClampU		= (1 << 0),
 	kRendererTextureFlags_ClampV		= (1 << 1),
 	kRendererTextureFlags_ClampBoth		= kRendererTextureFlags_ClampU | kRendererTextureFlags_ClampV,

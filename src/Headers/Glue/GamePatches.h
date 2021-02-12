@@ -1,7 +1,5 @@
 #pragma once
 
-#include "GLBackdrop.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -12,25 +10,6 @@ extern "C" {
 char GetTypedKey(void);
 
 void DoQualityDialog(void);
-
-//-----------------------------------------------------------------------------
-// Backdrop
-
-void SetWindowGamma(int percent);
-
-void ExclusiveOpenGLMode_Begin(void);
-
-void ExclusiveOpenGLMode_End(void);
-
-void AllocBackdropTexture(void);
-
-void SetBackdropClipRegion(int width, int height);
-
-void ClearBackdrop(UInt32 argb);
-
-void RenderBackdropQuad(int fit);
-
-void DisposeBackdropTexture(void);
 
 //-----------------------------------------------------------------------------
 // Misc additions

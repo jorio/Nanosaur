@@ -186,11 +186,6 @@ do_again:
 				
 	do
 	{
-		if (gGamePrefs.mainMenuHelp)
-		{
-			RenderBackdropQuad(BACKDROP_PILLARBOX);
-		}
-
 				/* UPDATE FRAME */
 				
 		GenerateFallingEgg();

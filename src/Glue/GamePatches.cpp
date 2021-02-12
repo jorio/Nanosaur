@@ -148,6 +148,9 @@ void PlayAMovie(FSSpec* spec)
 
 	CinepakContext cinepak(movie.width, movie.height);
 
+#if 1
+	printf("TODO noquesa: %s\n", __func__);
+#else
 	ExclusiveOpenGLMode_Begin();
 	SetBackdropClipRegion(movie.width, movie.height);
 	ClearBackdrop(0xFF000000);
@@ -212,6 +215,7 @@ void PlayAMovie(FSSpec* spec)
 
 	SetBackdropClipRegion(GAME_VIEW_WIDTH, GAME_VIEW_HEIGHT);
 	ExclusiveOpenGLMode_End();
+#endif
 }
 
 //-----------------------------------------------------------------------------

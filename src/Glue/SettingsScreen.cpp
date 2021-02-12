@@ -166,6 +166,9 @@ static void RenderQualityDialog()
 
 void DoQualityDialog()
 {
+#if 1
+	printf("TODO noquesa: %s\n", __func__);
+#else
 	needFullRender = true;
 
 	ExclusiveOpenGLMode_Begin();
@@ -198,4 +201,5 @@ void DoQualityDialog()
 	SavePrefs(&gGamePrefs);
 
 	ExclusiveOpenGLMode_End();
+#endif
 }

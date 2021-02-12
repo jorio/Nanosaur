@@ -307,8 +307,7 @@ FSSpec	spec;
 				/* DRAW OBJECTS & TERRAIN */
 					
 		DoMyTerrainUpdate();
-		UpdateInfobar();			
-		RenderBackdropQuad(BACKDROP_FILL);
+		UpdateInfobar();
 		QD3D_DrawScene(gGameViewInfoPtr,DrawTerrain);
 		QD3D_CalcFramesPerSecond();
 
