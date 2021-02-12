@@ -574,6 +574,8 @@ static void Render_Draw2DFullscreenQuad(int fit)
 
 void Render_Alloc2DCover(int width, int height)
 {
+	GAME_ASSERT_MESSAGE(gCoverWindowTextureName == 0, "cover texture already allocated");
+
 	gCoverWindowTextureWidth = width;
 	gCoverWindowTextureHeight = height;
 

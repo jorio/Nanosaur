@@ -188,8 +188,6 @@ QD3DSetupOutputType	*outputPtr;
 
 	SDL_GL_SetSwapInterval(gGamePrefs.vsync ? 1 : 0);
 
-	Render_Alloc2DCover(GAME_VIEW_WIDTH, GAME_VIEW_HEIGHT);
-
 	CreateLights(&setupDefPtr->lights);
 
 	if (setupDefPtr->lights.useFog)
@@ -222,13 +220,12 @@ QD3DSetupOutputType	*outputPtr;
 	glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
 
 	Render_InitState();
+	Render_Alloc2DCover(GAME_VIEW_WIDTH, GAME_VIEW_HEIGHT);
 
 	glClearColor(setupDefPtr->view.clearColor.r, setupDefPtr->view.clearColor.g, setupDefPtr->view.clearColor.b, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	CHECK_GL_ERROR();
-
-	SDL_GL_SwapWindow(gSDLWindow);
 }
 
 
