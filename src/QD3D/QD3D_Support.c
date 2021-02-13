@@ -190,7 +190,7 @@ QD3DSetupOutputType	*outputPtr;
 
 	CreateLights(&setupDefPtr->lights);
 
-	if (setupDefPtr->lights.useFog)
+	if (setupDefPtr->lights.useFog && gGamePrefs.canDoFog)
 	{
 		float camHither = setupDefPtr->camera.hither;
 		float camYon	= setupDefPtr->camera.yon;
