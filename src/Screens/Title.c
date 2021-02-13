@@ -444,7 +444,7 @@ static void Slideshow(const struct SlideshowEntry* slides)
 			QD3D_CalcFramesPerSecond(); // required for DoSDLMaintenance to properly cap the framerate
 			DoSDLMaintenance();
 			SDL_GL_SwapWindow(gSDLWindow);
-		} while (!GetNewKeyState_Real(kVK_Return) && !GetNewKeyState_Real(kVK_Escape) && !GetNewKeyState_Real(kVK_Space));
+		} while (!GetNewKeyState_Skip());
 	}
 
 	Render_Dispose2DCover();

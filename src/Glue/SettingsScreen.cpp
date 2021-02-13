@@ -186,7 +186,7 @@ void DoQualityDialog()
 		if (GetNewKeyState(kKey_Backward))  { selectedEntry++; needFullRender = true; PlayEffect(EFFECT_SELECT); }
 		selectedEntry = PositiveModulo(selectedEntry, (unsigned int)settings.size());
 
-		if (GetNewKeyState_Real(KEY_RETURN) || GetNewKeyState(kKey_Attack) || GetNewKeyState(kKey_TurnRight) || GetNewKeyState(kKey_TurnLeft))
+		if (GetNewKeyState_Confirm() || GetNewKeyState(kKey_TurnRight) || GetNewKeyState(kKey_TurnLeft))
 		{
 			settings[selectedEntry].Cycle(GetNewKeyState(kKey_TurnLeft) ? -1 : 1);
 			PlayEffect(EFFECT_BLASTER);

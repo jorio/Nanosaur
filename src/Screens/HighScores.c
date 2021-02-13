@@ -130,7 +130,7 @@ TQ3Vector3D	camDelta = {0,0,0};
 		QD3D_DrawScene(gGameViewInfoPtr,DrawObjects);	
 
 		ReadKeyboard();
-		if (GetNewKeyState_Real(KEY_SPACE))
+		if (GetNewKeyState_Skip())
 			break;
 			
 	}while(gGameViewInfoPtr->cameraPlacement.cameraLocation.x < 2200);

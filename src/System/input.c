@@ -187,6 +187,29 @@ unsigned char *keyMap;
 	return ( ( keyMap[key>>3] >> (key & 7) ) & 1);
 }
 
+
+
+
+/************************ GET CONFIRM KEY STATE ***************************/
+
+Boolean GetNewKeyState_Confirm(void)
+{
+	return GetNewKeyState_Real(kVK_Return)
+		   || GetNewKeyState_Real(kVK_Space)
+		   || GetNewKeyState_Real(kVK_ANSI_KeypadEnter);
+}
+
+
+
+/************************ GET SKIP KEY STATE ***************************/
+
+Boolean GetNewKeyState_Skip(void)
+{
+	return GetNewKeyState_Confirm() || GetNewKeyState_Real(kVK_Escape);
+}
+
+
+
 /********************** MY GET KEYS ******************************/
 //
 // Depending on mode, will either read key map from GetKeys or
@@ -198,33 +221,3 @@ static void MyGetKeys(KeyMap *keyMap)
 	ReadKeyboard_Real();
 	GetKeys(*keyMap);
 }
-
-
-
-/************************ DO KEY CONFIG DIALOG ***************************/
-
-void DoKeyConfigDialog(void)
-{
-	// no-op without inputsprockets
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

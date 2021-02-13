@@ -201,7 +201,7 @@ void PlayAMovie(FSSpec* spec)
 			SDL_Delay(waitTicks);
 
 		ReadKeyboard();
-		movieAbortedByUser = GetNewKeyState_Real(KEY_SPACE) || GetNewKeyState_Real(KEY_ESC);
+		movieAbortedByUser = GetNewKeyState_Skip();
 	}
 
 	// Freeze on last frame while audio track is still playing (Lose.mov requires this)
@@ -210,7 +210,7 @@ void PlayAMovie(FSSpec* spec)
 		DoSDLMaintenance();
 		SDL_Delay(100);
 		ReadKeyboard();
-		movieAbortedByUser = GetNewKeyState_Real(KEY_SPACE) || GetNewKeyState_Real(KEY_ESC);
+		movieAbortedByUser = GetNewKeyState_Skip();
 	}
 
 	movie.audioStream.Stop();

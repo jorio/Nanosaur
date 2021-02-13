@@ -472,7 +472,7 @@ Boolean	toggleMusic = !gMuteMusicFlag;
 		QD3D_DrawScene(gGameViewInfoPtr,DrawTerrain);
 		DoSDLMaintenance();
 	}
-	while(!GetNewKeyState_Real(KEY_SPACE) && !GetNewKeyState_Real(KEY_RETURN));					// see if select
+	while(!GetNewKeyState_Confirm());					// see if select
 
 			/* CLEANUP */
 			

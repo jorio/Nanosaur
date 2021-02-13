@@ -151,8 +151,8 @@ extern	void ReadKeyboard(void);
 extern	Boolean Nano_GetKeyState(unsigned short key);
 Boolean GetKeyState_Real(unsigned short key);
 Boolean GetNewKeyState_Real(unsigned short key);
-void DoKeyConfigDialog(void);
-
+Boolean GetNewKeyState_Confirm(void);
+Boolean GetNewKeyState_Skip(void);
 
 
 

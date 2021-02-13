@@ -195,7 +195,7 @@ do_again:
 
 		ReadKeyboard();
 				
-		if (GetNewKeyState_Real(KEY_SPACE) || GetNewKeyState_Real(KEY_RETURN))	// see if select
+		if (GetNewKeyState_Confirm())	// see if select
 			break;
 
 		if (GetNewKeyState_Real(KEY_LEFT))									// spin left
