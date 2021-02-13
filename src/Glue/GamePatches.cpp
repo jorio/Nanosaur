@@ -215,6 +215,8 @@ void PlayAMovie(FSSpec* spec)
 
 	movie.audioStream.Stop();
 
+	Render_FreezeFrameFadeOut();
+
 	Render_Dispose2DCover();
 	SDL_GL_DeleteContext(glContext);
 }

@@ -7,8 +7,3 @@
 
 extern void	DumpGWorldToGWorld(GWorldPtr, GWorldPtr, Rect *, Rect *);
 extern	void MakeFadeEvent(Boolean	fadeIn);
-
-extern	void GammaFadeOut(void);
-extern	void GammaFadeIn(void);
-
-

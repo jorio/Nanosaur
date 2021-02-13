@@ -105,11 +105,11 @@ void DoMainMenu(void)
 FSSpec	file;
 QD3DSetupInputType	viewDef;
 TQ3Point3D			cameraFrom = { 0, 00, 600.0 };
-Size				size;
+
+do_again:
 
 	MakeFadeEvent(true);
 
-do_again:
 			/**************/
 			/* INITIALIZE */
 			/**************/
@@ -221,6 +221,8 @@ do_again:
 		/***********/
 		/* CLEANUP */
 		/***********/
+
+	Render_FreezeFrameFadeOut();
 		
 	DeleteAllObjects();
 	DeleteAll3DMFGroups();
@@ -234,7 +236,6 @@ do_again:
 	switch(gCurrentSelection)
 	{
 		case	0:							// play
-				GammaFadeOut();
 				return;
 				
 		case	1:							// high scores	
@@ -242,23 +243,17 @@ do_again:
 				goto do_again;
 		
 		case	2:							// HELP
-				GammaFadeOut();
 				ShowHelp();
-				MakeFadeEvent(true);				
 				goto do_again;
 						
 		case	3:							// quit
 				CleanQuit();
 				return;
 
-
 		case	4:							// high scores
-				GammaFadeOut();
 				ShowHighScoresScreen(0);
-				GammaFadeOut();
-				MakeFadeEvent(true);				
 				goto do_again;
-	}	
+	}
 }
 
 

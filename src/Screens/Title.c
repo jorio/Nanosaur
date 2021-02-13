@@ -199,7 +199,7 @@ TQ3Point3D		cameraFrom = { 110, 90, 190.0 };
 			
 	QD3D_CalcFramesPerSecond();
 	
-	while(!Button())
+	while (1) //while(!Button())
 	{
 		MoveObjects();
 		QD3D_DrawScene(gGameViewInfoPtr,DrawObjects);
@@ -211,11 +211,12 @@ TQ3Point3D		cameraFrom = { 110, 90, 190.0 };
 	
 			/* CLEANUP */
 
+	Render_FreezeFrameFadeOut();
+
 	DeleteAllObjects();
 	FreeAllSkeletonFiles(-1);
 	DeleteAll3DMFGroups();
 	QD3D_DisposeWindowSetup(&gGameViewInfoPtr);		
-	GammaFadeOut();
 	gDisableAnimSounds = false;
 }
 
@@ -325,7 +326,8 @@ FSSpec			spec;
 		QD3D_DrawScene(gGameViewInfoPtr,DrawObjects);
 		QD3D_CalcFramesPerSecond();					
 	}
-	GammaFadeOut();
+
+	Render_FreezeFrameFadeOut();
 
 
 			/***********/
@@ -412,18 +414,24 @@ static void Slideshow(const struct SlideshowEntry* slides)
 		uint8_t* clearColor = (uint8_t*)gCoverWindowPixPtr;
 		glClearColor(clearColor[1]/255.0f, clearColor[2]/255.0f, clearColor[3]/255.0f, 1.0f);
 
-		if (i == 0)
-		{
-//			RenderBackdropQuad(BACKDROP_FIT);
-			GammaFadeIn();
-		}
 		ReadKeyboard();
 
 		float slideAge = 0;
 		bool promptShownYet = false;
 
+		bool wantOut = false;
+
 		do
 		{
+			float gamma = 100;
+			if (gGamePrefs.allowGammaFade && i == 0)
+			{
+				gamma = 100.0f * slideAge / 1.0f;
+				if (gamma > 100)
+					gamma = 100;
+			}
+			Render_SetWindowGamma(gamma);
+
 			slideAge += gFramesPerSecondFrac;
 
 			if (!promptShownYet && slideAge > 2)
@@ -443,14 +451,21 @@ static void Slideshow(const struct SlideshowEntry* slides)
 
 			QD3D_CalcFramesPerSecond(); // required for DoSDLMaintenance to properly cap the framerate
 			DoSDLMaintenance();
+
+			Render_EndFrame();
 			SDL_GL_SwapWindow(gSDLWindow);
-		} while (!GetNewKeyState_Skip());
+
+			if (gamma < 100)
+				wantOut = false;
+			else
+				wantOut = GetNewKeyState_Skip();
+		} while (!wantOut);
 	}
+
+	Render_FreezeFrameFadeOut();
 
 	Render_Dispose2DCover();
 	SDL_GL_DeleteContext(glContext);
-
-	GammaFadeOut();
 }
 
 

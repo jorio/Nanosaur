@@ -134,10 +134,12 @@ TQ3Vector3D	camDelta = {0,0,0};
 			break;
 			
 	}while(gGameViewInfoPtr->cameraPlacement.cameraLocation.x < 2200);
-	
-	
+
+
 			/* CLEANUP */
-				
+
+	Render_FreezeFrameFadeOut();
+
 	DeleteAllObjects();
 	Free3DMFGroup(MODEL_GROUP_HIGHSCORES);
 	QD3D_DisposeWindowSetup(&gGameViewInfoPtr);

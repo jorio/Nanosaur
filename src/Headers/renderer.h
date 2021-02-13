@@ -98,3 +98,5 @@ void Render_Draw2DCover(int fit);
 #pragma mark -
 
 void Render_SetWindowGamma(float percent);
+
+void Render_FreezeFrameFadeOut(void);

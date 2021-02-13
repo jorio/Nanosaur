@@ -9,8 +9,6 @@
 /* EXTERNALS   */
 /***************/
 
-#include	<SDL.h>
-#include	<stdlib.h>
 #include	"globals.h"
 #include	"windows_nano.h"
 #include	"misc.h"
@@ -18,71 +16,12 @@
 #include "file.h"
 #include "input.h"
 
-#define	ALLOW_FADE		1
-
 static void MoveFadeEvent(ObjNode *theNode);
 
 extern	NewObjectDefinitionType	gNewObjectDefinition;
-extern	ObjNode	*gCurrentNode;
 extern	float	gFramesPerSecondFrac,gAdditionalClipping;
 extern  WindowPtr				gCoverWindow;
 extern	PrefsType	gGamePrefs;
-
-Boolean					gGammaIsOn = true;
-
-/**************** GAMMA FADE IN *************************/
-
-void GammaFadeIn(void)
-{
-	if (!gGamePrefs.allowGammaFade)
-		return;
-
-#if ALLOW_FADE	
-
-#if 0
-	if (gDisplayContext)
-		if (!gGammaIsOn)
-			DSpContext_FadeGammaIn(MONITORS_TO_FADE,nil);
-#else
-	for (int i = 0; i <= 100; i++) {
-//		Render_SetWindowGamma(i);
-//		SDL_Delay(16);
-	}
-#endif
-		
-	gGammaIsOn = true;
-#endif		
-}
-
-/**************** GAMMA FADE OUT *************************/
-
-void GammaFadeOut(void)
-{
-	if (!gGamePrefs.allowGammaFade)
-		return;
-
-Rect	r;
-
-#if ALLOW_FADE	
-#if 0
-	if (gDisplayContext)
-		if (gGammaIsOn)
-			DSpContext_FadeGammaOut(MONITORS_TO_FADE,nil);
-#else
-	for (int i = 100; i >= 1; i--) {
-//		Render_SetWindowGamma(i);
-//		SDL_Delay(16);
-	}
-#endif
-#endif	
-
-	r = gCoverWindow->portRect;									// clear it
-	SetPort(gCoverWindow);
-	BackColor(blackColor);
-	EraseRect(&r);
-	
-	gGammaIsOn = false;
-}
 
 /******************** MAKE FADE EVENT *********************/
 //
@@ -91,13 +30,10 @@ Rect	r;
 
 void MakeFadeEvent(Boolean	fadeIn)
 {
-	
-ObjNode	*newObj;
-
 	if (!gGamePrefs.allowGammaFade)
 		return;
 
-#if ALLOW_FADE			
+ObjNode	*newObj;
 
 	gNewObjectDefinition.genre = EVENT_GENRE;
 	gNewObjectDefinition.coord.x = 0;
@@ -111,15 +47,12 @@ ObjNode	*newObj;
 		return;
 
 	Render_SetWindowGamma(fadeIn ? 0 : 100);
-	
+
 	newObj->Flag[0] = fadeIn;
 	if (fadeIn)
 		newObj->SpecialF[0] = 0;
 	else
 		newObj->SpecialF[0] = 100;
-		
-	gGammaIsOn = fadeIn;
-#endif		
 }
 
 

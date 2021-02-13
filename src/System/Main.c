@@ -9,6 +9,7 @@
 /*    EXTERNALS             */
 /****************************/
 
+#include <SDL.h>
 #include <QD3D.h>
 #include <QD3DMath.h>
 #include <string.h>
@@ -124,19 +125,15 @@ OSErr		iErr;
 	gGamePrefs.shadows = true;
 	gGamePrefs.dust = true;
 	gGamePrefs.interpolationStyle = 1;
-	gGamePrefs.allowGammaFade = false;
+	gGamePrefs.allowGammaFade = true;
 	gGamePrefs.fullscreen = true;
 	gGamePrefs.vsync = true;
 	gGamePrefs.mainMenuHelp = true;
 	gGamePrefs.opaqueWater = false;
 	gGamePrefs.extreme = false;
-				
-#if 1	// NOQUESA - remove me when done testing
-	gGamePrefs.extreme = true;
-	gGamePrefs.fullscreen = false;
-#else
+
 	LoadPrefs(&gGamePrefs);							// attempt to read from prefs file
-#endif
+
 	SetFullscreenMode();
 	SetProModeSettings(gGamePrefs.extreme);
 
@@ -258,6 +255,7 @@ static void CleanupLevel(void)
 	DisposeTerrain();
 	DisposeSpriteGroup(0);
 	DeleteAll3DMFGroups();
+	Render_FreezeFrameFadeOut();
 	QD3D_DisposeWindowSetup(&gGameViewInfoPtr);
 }
 
@@ -370,7 +368,6 @@ FSSpec	spec;
 	{
 		FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":movies:Win.mov", &spec);
 		PlayAMovie(&spec);
-		GammaFadeOut();
 	}
 	
 			/* PLAY LOSE MOVIE */
@@ -378,7 +375,6 @@ FSSpec	spec;
 	{
 		FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":movies:Lose.mov", &spec);
 		PlayAMovie(&spec);
-		GammaFadeOut();
 	}
 
 

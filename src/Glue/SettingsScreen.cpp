@@ -68,7 +68,9 @@ std::vector<SettingEntry> settings = {
 		{&gGamePrefs.canDoFog           , "Fog"                 },
 //		{&gGamePrefs.shadows            , "Shadow Decals"       },
 //		{&gGamePrefs.dust               , "Dust"                },
-//		{&gGamePrefs.allowGammaFade     , "Allow Gamma Fade"    },
+#if _DEBUG
+		{&gGamePrefs.allowGammaFade     , "[DEBUG] Allow Gamma Fade"    },
+#endif
 		{&gGamePrefs.softerLighting     , "Softer Lighting"     },
 //		{&gGamePrefs.interpolationStyle , "Face Shading"      , nullptr, {"Flat", "Per-Pixel"} },
 //		{&gGamePrefs.opaqueWater        , "Water Alpha"       , nullptr, {"Translucent", "Opaque"}},
@@ -205,6 +207,8 @@ void DoQualityDialog()
 	}
 
 	SavePrefs(&gGamePrefs);
+
+	Render_FreezeFrameFadeOut();
 
 	Render_Dispose2DCover();
 	SDL_GL_DeleteContext(glContext);

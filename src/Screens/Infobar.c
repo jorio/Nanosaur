@@ -464,11 +464,6 @@ Boolean	toggleMusic = !gMuteMusicFlag;
 		UpdateInfobarIcon(resume);
 		UpdateInfobarIcon(quit);
 
-#if 0
-		RenderBackdropQuad(BACKDROP_FILL);				// Source port addition: repaint backdrop so it looks
-															// correct when user resizes window while paused
-#endif
-
 		QD3D_DrawScene(gGameViewInfoPtr,DrawTerrain);
 		DoSDLMaintenance();
 	}
