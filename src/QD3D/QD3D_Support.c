@@ -358,6 +358,7 @@ void QD3D_DrawScene(QD3DSetupOutputType *setupInfo, void (*drawRoutine)(QD3DSetu
 		glEnable(GL_SCISSOR_TEST);
 		glScissor	(pane.min.x, pane.min.y, paneWidth, paneHeight);
 		glViewport	(pane.min.x, pane.min.y, paneWidth, paneHeight);
+		glClear(GL_COLOR_BUFFER_BIT);
 	}
 	else
 	{
