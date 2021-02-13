@@ -387,6 +387,8 @@ void QD3D_DrawScene(QD3DSetupOutputType *setupInfo, void (*drawRoutine)(QD3DSetu
 		glDisable(GL_SCISSOR_TEST);
 	}
 
+	Render_EndFrame();
+
 	SDL_GL_SwapWindow(gSDLWindow);
 }
 

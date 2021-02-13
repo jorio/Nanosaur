@@ -45,8 +45,8 @@ void GammaFadeIn(void)
 			DSpContext_FadeGammaIn(MONITORS_TO_FADE,nil);
 #else
 	for (int i = 0; i <= 100; i++) {
-		SetWindowGamma(i);
-		SDL_Delay(16);
+//		Render_SetWindowGamma(i);
+//		SDL_Delay(16);
 	}
 #endif
 		
@@ -70,8 +70,8 @@ Rect	r;
 			DSpContext_FadeGammaOut(MONITORS_TO_FADE,nil);
 #else
 	for (int i = 100; i >= 1; i--) {
-		SetWindowGamma(i);
-		SDL_Delay(16);
+//		Render_SetWindowGamma(i);
+//		SDL_Delay(16);
 	}
 #endif
 #endif	
@@ -110,7 +110,7 @@ ObjNode	*newObj;
 	if (newObj == nil)
 		return;
 
-	SetWindowGamma(fadeIn ? 0 : 100);
+	Render_SetWindowGamma(fadeIn ? 0 : 100);
 	
 	newObj->Flag[0] = fadeIn;
 	if (fadeIn)
@@ -127,10 +127,11 @@ ObjNode	*newObj;
 
 static void MoveFadeEvent(ObjNode *theNode)
 {
-long	percent;
-		
+	float percent;
+
+
 			/* SEE IF FADE IN */
-			
+
 	if (theNode->Flag[0])
 	{
 		percent = theNode->SpecialF[0] += 130*gFramesPerSecondFrac;
@@ -139,11 +140,6 @@ long	percent;
 			percent = 100;
 			DeleteObject(theNode);
 		}
-		SetWindowGamma(percent);
-#if 0 // ALLOW_FADE			
-		if (gDisplayContext)
-			DSpContext_FadeGamma(gDisplayContext,percent,nil);
-#endif
 	}
 	
 			/* FADE OUT */
@@ -155,12 +151,10 @@ long	percent;
 			percent = 0;
 			DeleteObject(theNode);
 		}
-		SetWindowGamma(percent);
-#if 0 // ALLOW_FADE		
-		if (gDisplayContext)
-			DSpContext_FadeGamma(gDisplayContext,theNode->SpecialF[0],nil);	
-#endif
 	}
+
+
+	Render_SetWindowGamma(percent);
 }
 
 

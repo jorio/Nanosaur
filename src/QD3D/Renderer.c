@@ -51,6 +51,8 @@ typedef struct RendererState
 	bool		hasFlag_glDepthMask;
 } RendererState;
 
+static void Render_DrawFadeOverlay(float opacity);
+
 /****************************/
 /*    CONSTANTS             */
 /****************************/
@@ -72,6 +74,8 @@ static PFNGLDRAWRANGEELEMENTSPROC __glDrawRangeElements;
 static	GLuint			gCoverWindowTextureName = 0;
 static	GLuint			gCoverWindowTextureWidth = 0;
 static	GLuint			gCoverWindowTextureHeight = 0;
+
+static	float			gFadeOverlayOpacity = 0;
 
 /****************************/
 /*    MACROS/HELPERS        */
@@ -135,6 +139,7 @@ static inline void __SetClientState(GLenum stateEnum, bool* stateFlagPtr, bool e
 #define DisableClientState(stateEnum) __SetClientState(stateEnum, &gState.hasClientState_##stateEnum, false)
 
 #define RestoreStateFromBackup(stateEnum, backup) __SetState(stateEnum, &gState.hasState_##stateEnum, (backup)->hasState_##stateEnum)
+#define RestoreClientStateFromBackup(stateEnum, backup) __SetClientState(stateEnum, &gState.hasClientState_##stateEnum, (backup)->hasClientState_##stateEnum)
 
 #define EnableFlag(glFunction) do {					\
 	if (!gState.hasFlag_##glFunction) {				\
@@ -310,6 +315,14 @@ void Render_StartFrame(void)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
+void Render_EndFrame(void)
+{
+	if (gFadeOverlayOpacity > 0.01f)
+	{
+		Render_DrawFadeOverlay(gFadeOverlayOpacity);
+	}
+}
+
 void Render_SetDefaultModifiers(RenderModifiers* dest)
 {
 	memcpy(dest, &kDefaultRenderMods, sizeof(RenderModifiers));
@@ -451,7 +464,11 @@ static void Render_EnterExit2D(bool enter)
 		DisableState(GL_LIGHTING);
 		DisableState(GL_FOG);
 		DisableState(GL_DEPTH_TEST);
+		DisableState(GL_ALPHA_TEST);
 //		DisableState(GL_TEXTURE_2D);
+//		DisableClientState(GL_TEXTURE_COORD_ARRAY);
+		DisableClientState(GL_COLOR_ARRAY);
+		DisableClientState(GL_NORMAL_ARRAY);
 		glMatrixMode(GL_PROJECTION);
 		glPushMatrix();
 		glLoadIdentity();
@@ -470,6 +487,9 @@ static void Render_EnterExit2D(bool enter)
 		RestoreStateFromBackup(GL_FOG,			&backup3DState);
 		RestoreStateFromBackup(GL_DEPTH_TEST,	&backup3DState);
 //		RestoreStateFromBackup(GL_TEXTURE_2D,	&backup3DState);
+		RestoreStateFromBackup(GL_ALPHA_TEST,	&backup3DState);
+		RestoreClientStateFromBackup(GL_COLOR_ARRAY,	&backup3DState);
+		RestoreClientStateFromBackup(GL_NORMAL_ARRAY,	&backup3DState);
 	}
 }
 
@@ -558,7 +578,6 @@ static void Render_Draw2DFullscreenQuad(int fit)
 	glColor4f(1, 1, 1, 1);
 	EnableState(GL_TEXTURE_2D);
 	EnableClientState(GL_TEXTURE_COORD_ARRAY);
-	DisableClientState(GL_COLOR_ARRAY);
 	glVertexPointer(2, GL_FLOAT, 0, pts);
 	glTexCoordPointer(2, GL_FLOAT, 0, uvs);
 	__glDrawRangeElements(GL_TRIANGLES, 0, 3*2, 3*2, GL_UNSIGNED_BYTE, tris);
@@ -659,10 +678,40 @@ void Render_Draw2DCover(int fit)
 	Render_Exit2D();
 }
 
+static void Render_DrawFadeOverlay(float opacity)
+{
+	//		2----3
+	//		| \  |
+	//		|  \ |
+	//		0----1
+	static const TQ3Point2D pts[4] = {
+			{-1,	-1},
+			{ 1,	-1},
+			{-1,	 1},
+			{ 1,	 1},
+	};
+
+	static const uint8_t tris[2][3] = {
+			{0, 1, 2},
+			{1, 3, 2},
+	};
+
+
+	glViewport(0, 0, gWindowWidth, gWindowHeight);
+	Render_Enter2D();
+	EnableState(GL_BLEND);
+	DisableState(GL_TEXTURE_2D);
+	DisableClientState(GL_TEXTURE_COORD_ARRAY);
+	glColor4f(0,0,0,opacity);
+	glVertexPointer(2, GL_FLOAT, 0, pts);
+	__glDrawRangeElements(GL_TRIANGLES, 0, 3*2, 3*2, GL_UNSIGNED_BYTE, tris);
+	Render_Exit2D();
+}
+
 #pragma -
 
-void SetWindowGamma(int percent)
+void Render_SetWindowGamma(float percent)
 {
-	printf("TODO noquesa: %s\n", __func__);
 //	SDL_SetWindowBrightness(gSDLWindow, percent / 100.0f);
+	gFadeOverlayOpacity = (100.0f - percent) / 100.0f;
 }
