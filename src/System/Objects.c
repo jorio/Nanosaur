@@ -118,67 +118,24 @@ void InitObjectManager(void)
 
 ObjNode	*MakeNewObject(NewObjectDefinitionType *newObjDef)
 {
-ObjNode	*newNodePtr,*scanNodePtr,*reNodePtr;
-long	slot;
-
-	
 				/* INITIALIZE NEW NODE */
-	
-	newNodePtr = (ObjNode *) NewPtrClear(sizeof(ObjNode));
-	if (newNodePtr == nil)
-		DoFatalAlert("MakeNewObject: Alloc Ptr failed!");
 
-	slot = newObjDef->slot;
+	// NewPtrClear allocates and zeroes out the memory so we don't need to set most fields to 0 initially
+	ObjNode* newNodePtr = (ObjNode *) NewPtrClear(sizeof(ObjNode));
+	GAME_ASSERT(newNodePtr);
 
-	newNodePtr->Slot = slot;
-	newNodePtr->Type = newObjDef->type;
-	newNodePtr->Group = newObjDef->group;
-	newNodePtr->MoveCall = newObjDef->moveCall;						// save move routine
-	newNodePtr->Genre = newObjDef->genre;
-	newNodePtr->Coord = newNodePtr->OldCoord = newObjDef->coord;	// save coords
-	newNodePtr->StatusBits = newObjDef->flags;
-	memset(newNodePtr->Flag, 0, sizeof(newNodePtr->Flag));
-	memset(newNodePtr->Special, 0, sizeof(newNodePtr->Special));
-	memset(newNodePtr->SpecialF, 0, sizeof(newNodePtr->SpecialF));
-	memset(newNodePtr->SpecialRef, 0, sizeof(newNodePtr->SpecialRef));
-	newNodePtr->CType =							// must init ctype to something ( INVALID_NODE_FLAG might be set from last delete)
-	newNodePtr->CBits =
-	newNodePtr->Delta.x =
-	newNodePtr->Delta.y = 
-	newNodePtr->Delta.z = 
-	newNodePtr->RotDelta.x = 
-	newNodePtr->RotDelta.y = 
-	newNodePtr->RotDelta.z = 
-	newNodePtr->Rot.x =
-	newNodePtr->Rot.z = 0;
-	newNodePtr->Rot.y =  newObjDef->rot;
-	newNodePtr->Scale.x =
-	newNodePtr->Scale.y = 
-	newNodePtr->Scale.z = newObjDef->scale;
-	newNodePtr->TargetOff.x =
-	newNodePtr->TargetOff.y = 0;
+	newNodePtr->Slot		= newObjDef->slot;
+	newNodePtr->Type		= newObjDef->type;
+	newNodePtr->Group		= newObjDef->group;
+	newNodePtr->MoveCall	= newObjDef->moveCall;						// save move routine
+	newNodePtr->Genre		= newObjDef->genre;
+	newNodePtr->Coord		= newNodePtr->OldCoord = newObjDef->coord;	// save coords
+	newNodePtr->StatusBits	= newObjDef->flags;
+	newNodePtr->Rot = (TQ3Vector3D){ 0, newObjDef->rot, 0 };
+	newNodePtr->Scale = (TQ3Vector3D){ newObjDef->scale, newObjDef->scale, newObjDef->scale };
 	newNodePtr->Radius = 4;								// set default radius
 	
-	newNodePtr->Damage = 0;
-	newNodePtr->Health = 0;
-
-	newNodePtr->Speed = 0;
-	newNodePtr->Accel = 0;
 	newNodePtr->TerrainAccel.x = newNodePtr->TerrainAccel.y = 0;
-
-#if 0	// NOQUESA - we alloc'd it with NewPtrClear, so we're fine
-	newNodePtr->CarriedObj = nil;						// nothing being carried
-	
-	newNodePtr->ChainNode = nil;
-	newNodePtr->ChainHead = nil;
-	newNodePtr->BaseGroup = nil;						// nothing attached as QD3D object yet
-	newNodePtr->ShadowNode = nil;
-	newNodePtr->PlatformNode = nil;						// assume not on any platform
-	newNodePtr->BaseTransformObject = nil;
-	newNodePtr->NumCollisionBoxes = 0;
-	newNodePtr->CollisionBoxes = nil;					// no collision boxes yet
-	newNodePtr->CollisionTriangles = nil;
-#endif
 
 	newNodePtr->StreamingEffect = -1;					// no streaming sound effect
 
@@ -187,7 +144,7 @@ long	slot;
 	newNodePtr->Skeleton = nil;
 
 	newNodePtr->RenderModifiers.statusBits = 0;
-	newNodePtr->RenderModifiers.diffuseColor = (TQ3ColorRGBA) { 1,1,1,1 };
+	newNodePtr->RenderModifiers.diffuseColor = (TQ3ColorRGBA) { 1,1,1,1 };	// default diffuse color is opaque white
 
 			/* MAKE SURE SCALE != 0 */
 			
@@ -208,7 +165,7 @@ long	slot;
 		newNodePtr->NextNode = nil;
 	}
 	else
-	if (slot < gFirstNodePtr->Slot)					// INSERT AS FIRST NODE
+	if (newNodePtr->Slot < gFirstNodePtr->Slot)		// INSERT AS FIRST NODE
 	{
 		newNodePtr->PrevNode = nil;					// no prev
 		newNodePtr->NextNode = gFirstNodePtr; 		// next pts to old 1st
@@ -217,12 +174,12 @@ long	slot;
 	}
 	else
 	{
-		reNodePtr = gFirstNodePtr;
-		scanNodePtr = gFirstNodePtr->NextNode;		// start scanning for insertion slot on 2nd node
+		ObjNode* reNodePtr = gFirstNodePtr;
+		ObjNode* scanNodePtr = gFirstNodePtr->NextNode;		// start scanning for insertion slot on 2nd node
 			
 		while (scanNodePtr != nil)
 		{
-			if (slot < scanNodePtr->Slot)					// INSERT IN MIDDLE HERE
+			if (newNodePtr->Slot < scanNodePtr->Slot)		// INSERT IN MIDDLE HERE
 			{
 				newNodePtr->NextNode = scanNodePtr;
 				newNodePtr->PrevNode = reNodePtr;
