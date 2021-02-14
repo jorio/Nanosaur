@@ -203,18 +203,15 @@ void UpdateSkinnedGeometry(ObjNode *theNode)
 	const SkeletonDefType* skeletonDef = theNode->Skeleton->skeletonDefinition;
 	GAME_ASSERT(skeletonDef);
 
-	// Source port note: the original game used to start from the node's BaseTransformMatrix.
-	// I'm starting from the identity instead, which removes the need to differentiate
-	// skeleton/displaygroup nodes in the rendering code.
-	// The bbox's is also now centered around 0,0,0 rather than Coord.
-	Q3Matrix4x4_SetIdentity(&gMatrix);
-	gBBox.min =	gBBox.max = (TQ3Point3D){0,0,0};										// init bounding box calc
+	gMatrix = theNode->BaseTransformMatrix;
+
+	gBBox.min =	gBBox.max = theNode->Coord;												// init bounding box calc
 
 			/* RECURSIVELY UPDATE GEOMETRY STARTING FROM BASE JOINT */
 
 	GAME_ASSERT_MESSAGE(skeletonDef->Bones[0].parentBone == NO_PREVIOUS_JOINT, "joint 0 isnt base - fix code Brian!");
 	UpdateSkinnedGeometry_Recurse(theNode, 0);											// start @ base
-	
+
 			/* UPDATE ALL TRIMESH BBOXES */
 			
 	for (int i = 0; i < theNode->NumMeshes; i++)

@@ -34,6 +34,14 @@ static void ExplodeTriMesh(const TQ3TriMeshData *mesh, const TQ3Matrix4x4* trans
 /*    CONSTANTS             */
 /****************************/
 
+static const TQ3Matrix4x4 kIdentity4x4 =
+{{
+	{1, 0, 0, 0},
+	{0, 1, 0, 0},
+	{0, 0, 1, 0},
+	{0, 0, 0, 1},
+}};
+
 
 /*********************/
 /*    VARIABLES      */
@@ -42,7 +50,6 @@ static void ExplodeTriMesh(const TQ3TriMeshData *mesh, const TQ3Matrix4x4* trans
 float		gBoomForce,gParticleDecaySpeed;
 Byte		gParticleMode;
 long		gParticleDensity;
-ObjNode		*gParticleParentObj;
 
 long				gNumParticles = 0;
 ParticleType		gParticles[MAX_PARTICLES];
@@ -180,13 +187,27 @@ void QD3D_ExplodeGeometry(ObjNode *theNode, float boomForce, Byte particleMode, 
 	gParticleMode = particleMode;
 	gParticleDensity = particleDensity;
 	gParticleDecaySpeed = particleDecaySpeed;
-	gParticleParentObj = theNode;
 
-		/* EXPLODE EACH TRIMESH INDIVIDUALLY */
+
+			/* SEE IF EXPLODING SKELETON OR PLAIN GEOMETRY */
+
+	const TQ3Matrix4x4* transform;
+
+	if (theNode->Genre == SKELETON_GENRE)
+	{
+		transform = &kIdentity4x4;							// init to identity matrix (skeleton vertices are pre-transformed)
+	}
+	else
+	{
+		transform = &theNode->BaseTransformMatrix;			// static object: set pos/rot/scale from its base transform matrix
+	}
+
+
+			/* EXPLODE EACH TRIMESH INDIVIDUALLY */
 
 	for (int i = 0; i < theNode->NumMeshes; i++)
 	{
-		ExplodeTriMesh(theNode->MeshList[i], &theNode->BaseTransformMatrix);
+		ExplodeTriMesh(theNode->MeshList[i], transform);
 	}
 }
 
