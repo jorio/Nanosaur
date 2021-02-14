@@ -239,14 +239,8 @@ long	numAnims,numJoints;
 
 		/* ALLOC DECOMPOSED DATA */
 
-#if 1	// NOQUESA
 	skeleton->decomposedTriMeshPtrs = (TQ3TriMeshData**) AllocPtr(sizeof(TQ3TriMeshData*) * MAX_DECOMPOSED_TRIMESHES);
 	GAME_ASSERT(skeleton->decomposedTriMeshPtrs);
-#else
-	skeleton->decomposedTriMeshes = (TQ3TriMeshData *)AllocPtr(sizeof(TQ3TriMeshData)*MAX_DECOMPOSED_TRIMESHES);		
-	if (skeleton->decomposedTriMeshes == nil)
-		DoFatalAlert("Not enough memory to alloc decomposedTriMeshes");
-#endif
 
 	skeleton->decomposedPointList = (DecomposedPointType *)AllocPtr(sizeof(DecomposedPointType)*MAX_DECOMPOSED_POINTS);		
 	GAME_ASSERT(skeleton->decomposedPointList);

@@ -59,10 +59,6 @@ void LoadBonesReferenceModel(FSSpec	*inSpec, SkeletonDefType *skeleton)
 	TQ3MetaFile* the3DMFFile = Q3MetaFile_Load3DMF(inSpec);
 	GAME_ASSERT(the3DMFFile);
 
-#if 0	// TODO noquesa (might not be needed anymore)
-	PatchSkeleton3DMF(inSpec->cName, newModel);		// patch 3DMF (add alpha test)
-#endif
-
 	skeleton->associated3DMF = the3DMFFile;
 
 			/* UPLOAD TEXTURES TO GPU */

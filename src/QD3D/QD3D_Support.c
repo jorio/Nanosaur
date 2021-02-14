@@ -102,14 +102,6 @@ TQ3Vector3D			fillDirection2 = { -1, -1, .2 };
 	Q3Vector3D_Normalize(&fillDirection1,&fillDirection1);
 	Q3Vector3D_Normalize(&fillDirection2,&fillDirection2);
 
-#if 0	// NOQUESA
-	if (theWindow == nil)
-		viewDef->view.useWindow 	=	false;							// assume going to pixmap
-	else
-		viewDef->view.useWindow 	=	true;							// assume going to window
-	viewDef->view.displayWindow 	= theWindow;
-	viewDef->view.rendererType      = kQ3RendererTypeOpenGL;//kQ3RendererTypeInteractive;
-#endif
 	viewDef->view.clearColor 		= clearColor;
 	viewDef->view.paneClip.left 	= 0;
 	viewDef->view.paneClip.right 	= 0;

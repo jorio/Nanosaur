@@ -285,19 +285,11 @@ void CalcCameraMatrixInfo(QD3DSetupOutputType *setupInfo)
 
 			/* GET CAMERA VIEW MATRIX INFO */
 
-#if 1	// TODO noquesa
 	glGetFloatv(GL_MODELVIEW_MATRIX, (GLfloat *)&gCameraWorldToViewMatrix);				// get camera's world to view matrix
 	glGetFloatv(GL_PROJECTION_MATRIX, (GLfloat *)&gCameraViewToFrustumMatrix);			// get camera's view to frustrum matrix (to calc screen coords)
 	Q3Matrix4x4_Multiply(&gCameraWorldToViewMatrix, &gCameraViewToFrustumMatrix, &gCameraWorldToFrustumMatrix);		// calc world to frustum matrix
 
-//	OGLMatrix4x4_GetFrustumToWindow(setupInfo, &gFrustumToWindowMatrix);		// (from otto)
-//	OGLMatrix4x4_Multiply(&gWorldToFrustumMatrix, &gFrustumToWindowMatrix, &gWorldToWindowMatrix);		// (from otto)
-#else
-	Q3Camera_GetWorldToView(viewPtr->cameraObject, &gCameraWorldToViewMatrix);			// get camera's world to view matrix
-	Q3Camera_GetViewToFrustum(viewPtr->cameraObject, &gCameraViewToFrustumMatrix);		// get camera's view to frustrum matrix (to calc screen coords)
-#endif
-	
-	
+
 			/* CALCULATE THE ADJUSTMENT MATRIX */
 			//
 			// this gets a view->world matrix for putting stuff in the infobar.

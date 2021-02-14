@@ -54,7 +54,7 @@ void Q3MetaFile_Dispose(TQ3MetaFile* metaFile)
 	__Q3Dispose(metaFile,						'3DMF');
 }
 
-#pragma -
+#pragma mark -
 
 
 template<typename T>
@@ -146,7 +146,7 @@ void Q3Pixmap_Dispose(TQ3Pixmap* pixmap)
 	__Q3Dispose(pixmap,							'PXMP');
 }
 
-#pragma -
+#pragma mark -
 
 TQ3TriMeshData* Q3TriMeshData_New(int numTriangles,	int numPoints)
 {

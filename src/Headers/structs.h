@@ -64,12 +64,6 @@ typedef struct
 typedef struct
 {
 	long 				parentBone;			 			// index to previous bone
-#if 0	// srcport noquesa
-	TQ3GroupObject		ignored1;			
-	TQ3Matrix4x4		ignored2;	
-	TQ3TransformObject	ignored3;
-	unsigned char		ignored4[32];		
-#endif
 	TQ3Point3D			coord;							// absolute coord (not relative to parent!) 
 	UInt16				numPointsAttachedToBone;		// # vertices/points that this bone has
 	UInt16				*pointList;						// indecies into gDecomposedPointList

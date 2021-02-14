@@ -5,6 +5,7 @@
 
 #include <SDL.h>
 #include <string.h>
+#include <stdio.h>
 #include "version.h"
 
 int		PRO_MODE;

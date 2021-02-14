@@ -76,12 +76,10 @@ short		fRefNum;
 				/* OPEN THE REZ-FORK */
 			
 	fRefNum = FSpOpenResFile(inFile,fsRdPerm);
-	if (fRefNum == -1)
-		DoFatalAlert("LoadFramesFile: Error opening Frames Rez file");
-				
+	GAME_ASSERT(fRefNum != -1);
+
 	UseResFile(fRefNum);
-	if ( (iErr = ResError()) )
-		DoFatalAlert("Error using Rez file!");
+	GAME_ASSERT(noErr == ResError());
 
 			/* EXTRACT INFO FROM FILE */
 
@@ -91,9 +89,8 @@ short		fRefNum;
 			/* CLOSE REZ FILE */
 			
 	CloseResFile(fRefNum);
-	if ( (iErr = ResError()) )
-		DoFatalAlert("Error closing Rez file!");
-	
+	GAME_ASSERT(noErr == ResError());
+
 	UseResFile(gMainAppRezFile);		
 }
 

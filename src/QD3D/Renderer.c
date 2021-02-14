@@ -911,7 +911,7 @@ static void Render_DrawFadeOverlay(float opacity)
 	Render_Exit2D();
 }
 
-#pragma -
+#pragma mark -
 
 void Render_SetWindowGamma(float percent)
 {

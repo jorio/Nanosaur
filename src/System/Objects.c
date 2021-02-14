@@ -696,13 +696,6 @@ TQ3Matrix4x4	matrix;
 
 	Q3Matrix4x4_SetTranslate(&matrix, theNode->Coord.x, theNode->Coord.y, theNode->Coord.z);	// make translate matrix
 	Q3Matrix4x4_Multiply(&theNode->BaseTransformMatrix,&matrix, &theNode->BaseTransformMatrix);
-
-
-#if 0	// NOQUESA
-				/* UPDATE TRANSFORM OBJECT */
-				
-	SetObjectTransformMatrix(theNode);
-#endif
 }
 
 

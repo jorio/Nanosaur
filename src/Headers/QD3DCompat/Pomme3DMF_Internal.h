@@ -48,7 +48,7 @@ private:
 struct __Q3AllocatorCookie
 {
 	uint32_t		classID;
-	uint32_t		blockSize;		// including header cookie
+	size_t			blockSize;		// including header cookie
 };
 
 static_assert(sizeof(__Q3AllocatorCookie) <= ALLOCATOR_HEADER_BYTES);

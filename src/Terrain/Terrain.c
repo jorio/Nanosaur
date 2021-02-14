@@ -296,7 +296,6 @@ void DisposeTerrain(void)
 static void CreateSuperTileMemoryList(void)
 {
 short					u,v,i,j;
-TQ3Status				status;
 TQ3Point3D				p[NUM_VERTICES_IN_SUPERTILE];
 TQ3TriMeshTriangleData	newTriangle[NUM_POLYS_IN_SUPERTILE];
 TQ3Vector3D				faceNormals[NUM_POLYS_IN_SUPERTILE];
@@ -520,8 +519,6 @@ UInt16				tile;
 short				h1,h2,h3,h4;
 TQ3Point3D			*pointList;
 TQ3TriMeshTriangleData	*triangleList;
-TQ3StorageObject	mipmapStorage;
-UInt32				validSize,bufferSize;
 SuperTileMemoryType	*superTilePtr;
 
 	superTileNum = GetFreeSuperTileMemory();					// get memory block for the data

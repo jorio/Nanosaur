@@ -355,11 +355,7 @@ ObjNode* theNode;
 		if (theNode->StatusBits & STATUS_BIT_ALWAYSCULL)
 			goto try_cull;
 
-#if 1	// NOQUESA
 		if (0 == theNode->NumMeshes)												// quick check if any geometry at all
-#else
-		if (theNode->BaseGroup == nil)												// quick check if any geometry at all
-#endif
 			if (theNode->Genre != SKELETON_GENRE)
 				goto next;
 

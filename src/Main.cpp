@@ -2,7 +2,6 @@
 #include "PommeInit.h"
 #include "PommeFiles.h"
 #include "PommeGraphics.h"
-#include "GamePatches.h"
 
 #include <SDL.h>
 
@@ -94,16 +93,6 @@ int CommonMain(int argc, const char** argv)
 	// Set up globals that the game expects
 	gCoverWindow = Pomme::Graphics::GetScreenPort();
 	gCoverWindowPixPtr = (UInt32*) GetPixBaseAddr(GetGWorldPixMap(gCoverWindow));
-
-	// Clear window
-#if 1
-	printf("TODO noquesa: Initial clear window?\n");
-#else
-	ExclusiveOpenGLMode_Begin();
-	ClearBackdrop(0xFFA5A5A5);
-	RenderBackdropQuad(BACKDROP_FILL);
-	ExclusiveOpenGLMode_End();
-#endif
 
 	FindGameData();
 #if !(__APPLE__)

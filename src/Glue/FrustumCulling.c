@@ -7,9 +7,6 @@
 #include <stdbool.h>
 #include "frustumculling.h"
 
-#include "Pomme.h"
-#include "misc.h"	// DoFatalAlert2 -- TODO noquesa
-
 static TQ3RationalPoint4D gFrustumPlanes[6];
 extern TQ3Matrix4x4 gCameraWorldToFrustumMatrix;
 

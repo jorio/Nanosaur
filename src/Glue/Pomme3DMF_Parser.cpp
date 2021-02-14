@@ -53,8 +53,8 @@ uint32_t Q3MetaFileParser::Parse1Chunk()
 	uint32_t chunkType		= f.Read<uint32_t>();
 	uint32_t chunkSize		= f.Read<uint32_t>();
 
-	std::string myChunk = Pomme::FourCCString(chunkType);
-	const char* myChunkC = myChunk.c_str();
+//	std::string myChunk = Pomme::FourCCString(chunkType);
+//	const char* myChunkC = myChunk.c_str();
 
 	printf("\n%d-%08x ", currentDepth, chunkOffset);
 	for (int i = 0; i < 1 + currentDepth - (chunkType=='endg'?1:0); i++)
