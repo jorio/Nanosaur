@@ -231,11 +231,9 @@ struct ObjNode
 	float			Accel;				// current acceleration value
 	TQ3Vector2D		TerrainAccel;		// force added by terrain slopes
 	TQ3Point2D		TargetOff;			// target offsets
-	TQ3Point3D		AltCoord;			// alternate misc usage coordinate
 	unsigned long	CType;				// collision type bits
 	unsigned long	CBits;				// collision attribute bits
 	Byte			Kind;				// kind
-	signed char		Mode;				// mode
 	signed char		Flag[6];
 	long			Special[6];
 	float			SpecialF[6];

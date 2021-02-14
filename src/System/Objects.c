@@ -161,8 +161,7 @@ long	slot;
 	
 	newNodePtr->Damage = 0;
 	newNodePtr->Health = 0;
-	newNodePtr->Mode = 0;
-		
+
 	newNodePtr->Speed = 0;
 	newNodePtr->Accel = 0;
 	newNodePtr->TerrainAccel.x = newNodePtr->TerrainAccel.y = 0;
