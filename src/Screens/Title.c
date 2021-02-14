@@ -439,7 +439,7 @@ static void Slideshow(const struct SlideshowEntry* slides)
 
 			if (!promptShownYet && slideAge > 2)
 			{
-				MoveTo(490, 480);
+				MoveTo(490, 480-4);
 				RGBBackColor2(0);
 				RGBForeColor2(0xFFFFFF);
 				DrawStringC(" Hit SPACE to continue ");
@@ -488,13 +488,13 @@ static void ShowCharity_SourcePortVersionOverlay(void)
 static void ShowCharity_SourcePortCreditOverlay(void)
 {
 	RGBBackColor2(0xA5A5A5);
-	MoveTo(8, 480-8-14-14);
+	MoveTo(8, 480-4-14);
 	RGBForeColor2(0xA50808);
-	DrawStringC("SOURCE PORT:");
+	DrawStringC("ENHANCED UPDATE:   ");
 	ForeColor(blackColor);
-	MoveTo(8, 480-8-14);
-	DrawStringC("Iliyas Jorio (2020)");
-	MoveTo(8, 480-8);
+	DrawStringC("Iliyas Jorio");
+	MoveTo(8, 480-4);
+	RGBForeColor2(0x606060);
 	DrawStringC("https://github.com/jorio/nanosaur");
 }
 
