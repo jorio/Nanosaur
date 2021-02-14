@@ -405,7 +405,7 @@ float	r,fps;
 					
 		gNewObjectDefinition.group = GLOBAL_MGroupNum_SonicScream;	
 		gNewObjectDefinition.type = GLOBAL_MObjType_SonicScream;	
-		gNewObjectDefinition.flags = STATUS_BIT_KEEPBACKFACES;
+		gNewObjectDefinition.flags = STATUS_BIT_KEEPBACKFACES | STATUS_BIT_NULLSHADER;
 		gNewObjectDefinition.slot = PLAYER_SLOT-1;						// dont update till next loop
 		gNewObjectDefinition.moveCall = MoveSonicScream;
 		gNewObjectDefinition.rot = r = theNode->Rot.y;

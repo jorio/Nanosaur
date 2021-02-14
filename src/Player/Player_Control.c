@@ -750,7 +750,7 @@ ObjNode	*newObj,*newObj2;
 	
 	gNewObjectDefinition.group = GLOBAL_MGroupNum_JetFlame;	
 	gNewObjectDefinition.type = GLOBAL_MObjType_JetFlame;	
-	gNewObjectDefinition.flags = STATUS_BIT_DONTCULL | STATUS_BIT_NOCOLLISION | STATUS_BIT_NOTRICACHE | STATUS_BIT_KEEPBACKFACES;
+	gNewObjectDefinition.flags = STATUS_BIT_DONTCULL | STATUS_BIT_NOCOLLISION | STATUS_BIT_NOTRICACHE | STATUS_BIT_KEEPBACKFACES | STATUS_BIT_NULLSHADER;
 	gNewObjectDefinition.slot = SLOT_OF_DUMB+10;				// after me
 	gNewObjectDefinition.moveCall = MoveJetPackFlame;
 	gNewObjectDefinition.rot = 0;
