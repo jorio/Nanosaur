@@ -46,7 +46,7 @@ extern	const int	PRO_MODE;
 /*    PROTOTYPES            */
 /****************************/
 
-static void ReadDataFromSkeletonFile(SkeletonDefType *skeleton, FSSpec *fsSpec);
+static void ReadDataFromSkeletonFile(SkeletonDefType *skeleton, FSSpec *target);
 
 
 /****************************/
@@ -79,45 +79,37 @@ SkeletonDefType *LoadSkeletonFile(short skeletonType)
 {
 OSErr		iErr;
 short		fRefNum;
-FSSpec		fsSpec;
-SkeletonDefType	*skeleton;					
+FSSpec		fsSpecSkel;
+FSSpec		fsSpec3DMF;
+SkeletonDefType	*skeleton;
+const char* modelName = "Unknown";
 
 				/* SET CORRECT FILENAME */
-					
+
 	switch(skeletonType)
 	{
-		case	SKELETON_TYPE_PTERA:
-				FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":Skeletons:Petra.skeleton", &fsSpec);
-				break;
-
-		case	SKELETON_TYPE_REX:
-				FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":Skeletons:rex.skeleton", &fsSpec);
-				break;
-
-		case	SKELETON_TYPE_STEGO:
-				FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":Skeletons:Stego.skeleton", &fsSpec);
-				break;
-				
-		case	SKELETON_TYPE_DEINON:
-				FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":Skeletons:Deinon.skeleton", &fsSpec);
-				break;
-
-		case	SKELETON_TYPE_TRICER:
-				FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":Skeletons:Tricer.skeleton", &fsSpec);
-				break;
-
-		case	SKELETON_TYPE_SPITTER:
-				FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":Skeletons:Diloph.skeleton", &fsSpec);
-				break;
-		
+		case	SKELETON_TYPE_PTERA:	modelName = "Ptera";	break;
+		case	SKELETON_TYPE_REX:		modelName = "Rex";		break;
+		case	SKELETON_TYPE_STEGO:	modelName = "Stego";	break;
+		case	SKELETON_TYPE_DEINON:	modelName = "Deinon";	break;
+		case	SKELETON_TYPE_TRICER:	modelName = "Tricer";	break;
+		case	SKELETON_TYPE_SPITTER:	modelName = "Diloph";	break;
 		default:
 				DoFatalAlert("LoadSkeleton: Unknown skeletonType!");
 	}
+
+	char filename[256];
 	
-	
+	snprintf(filename, sizeof(filename), ":Skeletons:%s.skeleton", modelName);
+	FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, filename, &fsSpecSkel);
+
+	snprintf(filename, sizeof(filename), ":Skeletons:%s.3dmf", modelName);
+	FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, filename, &fsSpec3DMF);
+
+
 			/* OPEN THE FILE'S REZ FORK */
-				
-	fRefNum = FSpOpenResFile(&fsSpec,fsRdPerm);
+
+	fRefNum = FSpOpenResFile(&fsSpecSkel, fsRdPerm);
 	if (fRefNum == -1)
 	{
 		iErr = ResError();
@@ -125,22 +117,20 @@ SkeletonDefType	*skeleton;
 		NumToStringC(iErr, numStr);
 		DoFatalAlert2("Error opening Skel Rez file", numStr);
 	}
-	
-	UseResFile(fRefNum);
-	if ( (iErr = ResError()) )
-		DoFatalAlert("Error using Rez file!");
 
-			
+	UseResFile(fRefNum);
+	GAME_ASSERT(noErr == ResError());
+
+
 			/* ALLOC MEMORY FOR SKELETON INFO STRUCTURE */
-			
+
 	skeleton = (SkeletonDefType *)AllocPtr(sizeof(SkeletonDefType));
-	if (skeleton == nil)
-		DoFatalAlert("Cannot alloc SkeletonInfoType");
+	GAME_ASSERT(skeleton);
 
 
 			/* READ SKELETON RESOURCES */
-			
-	ReadDataFromSkeletonFile(skeleton,&fsSpec);
+
+	ReadDataFromSkeletonFile(skeleton, &fsSpec3DMF);
 	PrimeBoneData(skeleton);
 	
 			/* CLOSE REZ FILE */
@@ -158,7 +148,7 @@ SkeletonDefType	*skeleton;
 // Current rez file is set to the file. 
 //
 
-static void ReadDataFromSkeletonFile(SkeletonDefType *skeleton, FSSpec *fsSpec)
+static void ReadDataFromSkeletonFile(SkeletonDefType *skeleton, FSSpec *target)
 {
 Handle				hand;
 long				i,k,j;
@@ -167,10 +157,6 @@ AnimEventType		*animEventPtr;
 JointKeyframeType	*keyFramePtr;
 SkeletonFile_Header_Type	*headerPtr;
 short				version;
-AliasHandle				alias;
-OSErr					iErr;
-FSSpec					target;
-Boolean					wasChanged;
 TQ3Point3D				*pointPtr;
 SkeletonFile_AnimHeader_Type	*animHeaderPtr;
 
@@ -180,24 +166,18 @@ SkeletonFile_AnimHeader_Type	*animHeaderPtr;
 			/************************/
 
 	hand = GetResource('Hedr',1000);
-	if (hand == nil)
-	{
-		DoAlert("Error reading header resource!");
-		return;
-	}
-	
+	GAME_ASSERT(hand);
+
 	headerPtr = (SkeletonFile_Header_Type *) *hand;
 	ByteswapStructs(STRUCTFORMAT_SkeletonFile_Header_Type, sizeof(SkeletonFile_Header_Type), 1, headerPtr);
 	version = headerPtr->version;
-	if (version != SKELETON_FILE_VERS_NUM)
-		DoFatalAlert("Skeleton file has wrong version #");
-	
+	GAME_ASSERT_MESSAGE(version == SKELETON_FILE_VERS_NUM, "Skeleton file has wrong version #");
+
 	numAnims = skeleton->NumAnims = headerPtr->numAnims;			// get # anims in skeleton
 	numJoints = skeleton->NumBones = headerPtr->numJoints;			// get # joints in skeleton
 	ReleaseResource(hand);
 
-	if (numJoints > MAX_JOINTS)										// check for overload
-		DoFatalAlert("ReadDataFromSkeletonFile: numJoints > MAX_JOINTS");
+	GAME_ASSERT(numJoints <= MAX_JOINTS);							// check for overload
 
 
 				/*************************************/
@@ -211,17 +191,8 @@ SkeletonFile_AnimHeader_Type	*animHeaderPtr;
 		/********************************/
 		/* 	LOAD THE REFERENCE GEOMETRY */
 		/********************************/
-		
-	alias = (AliasHandle)GetResource(rAliasType,1000);				// alias to geometry 3DMF file
-	if (alias != nil)
-	{
-		iErr = ResolveAlias(fsSpec, alias, &target, &wasChanged);	// try to resolve alias
-		if (!iErr)
-			LoadBonesReferenceModel(&target,skeleton);
-		else
-			DoFatalAlert("ReadDataFromSkeletonFile: Cannot resolve alias to 3DMF file!");
-		ReleaseResource((Handle)alias);
-	}
+
+	LoadBonesReferenceModel(target, skeleton);
 
 
 		/***********************************/
@@ -236,8 +207,7 @@ SkeletonFile_AnimHeader_Type	*animHeaderPtr;
 			/* READ BONE DATA */
 			
 		hand = GetResource('Bone',1000+i);
-		if (hand == nil)
-			DoFatalAlert("Error reading Bone resource!");
+		GAME_ASSERT(hand);
 		HLock(hand);
 		bonePtr = (File_BoneDefinitionType *) *hand;
 		ByteswapStructs(STRUCTFORMAT_File_BoneDefinitionType, sizeof(File_BoneDefinitionType), 1, bonePtr);
@@ -254,18 +224,15 @@ SkeletonFile_AnimHeader_Type	*animHeaderPtr;
 			/* ALLOC THE POINT & NORMALS SUB-ARRAYS */
 				
 		skeleton->Bones[i].pointList = (UInt16 *)AllocPtr(sizeof(UInt16) * (int)skeleton->Bones[i].numPointsAttachedToBone);
-		if (skeleton->Bones[i].pointList == nil)
-			DoFatalAlert("ReadDataFromSkeletonFile: AllocPtr/pointList failed!");
+		GAME_ASSERT(skeleton->Bones[i].pointList);
 
 		skeleton->Bones[i].normalList = (UInt16 *)AllocPtr(sizeof(UInt16) * (int)skeleton->Bones[i].numNormalsAttachedToBone);
-		if (skeleton->Bones[i].normalList == nil)
-			DoFatalAlert("ReadDataFromSkeletonFile: AllocPtr/normalList failed!");
+		GAME_ASSERT(skeleton->Bones[i].normalList);
 
 			/* READ POINT INDEX ARRAY */
 			
 		hand = GetResource('BonP',1000+i);
-		if (hand == nil)
-			DoFatalAlert("Error reading BonP resource!");
+		GAME_ASSERT(hand);
 		HLock(hand);
 		indexPtr = (UInt16 *) *hand;
 		ByteswapInts(sizeof(UInt16), skeleton->Bones[i].numPointsAttachedToBone, indexPtr);
@@ -281,8 +248,7 @@ SkeletonFile_AnimHeader_Type	*animHeaderPtr;
 			/* READ NORMAL INDEX ARRAY */
 			
 		hand = GetResource('BonN',1000+i);
-		if (hand == nil)
-			DoFatalAlert("Error reading BonN resource!");
+		GAME_ASSERT(hand);
 		HLock(hand);
 		indexPtr = (UInt16 *) *hand;
 		ByteswapInts(sizeof(UInt16), skeleton->Bones[i].numNormalsAttachedToBone, indexPtr);
@@ -305,8 +271,7 @@ SkeletonFile_AnimHeader_Type	*animHeaderPtr;
 		// We need to restore these manually.
 	
 	hand = GetResource('RelP', 1000);
-	if (hand == nil)
-		DoFatalAlert("Error reading RelP resource!");
+	GAME_ASSERT(hand);
 	HLock(hand);
 	
 	if ((GetHandleSize(hand) / (Size)sizeof(TQ3Point3D)) != skeleton->numDecomposedPoints)
@@ -332,8 +297,7 @@ SkeletonFile_AnimHeader_Type	*animHeaderPtr;
 				/* READ ANIM HEADER */
 
 		hand = GetResource('AnHd',1000+i);
-		if (hand == nil)
-			DoFatalAlert("Error getting anim header resource");
+		GAME_ASSERT(hand);
 		HLock(hand);
 		animHeaderPtr = (SkeletonFile_AnimHeader_Type *) *hand;
 		ByteswapStructs(STRUCTFORMAT_SkeletonFile_AnimHeader_Type, sizeof(SkeletonFile_AnimHeader_Type), 1, animHeaderPtr);
@@ -345,8 +309,7 @@ SkeletonFile_AnimHeader_Type	*animHeaderPtr;
 			/* READ ANIM-EVENT DATA */
 			
 		hand = GetResource('Evnt',1000+i);
-		if (hand == nil)
-			DoFatalAlert("Error reading anim-event data resource!");
+		GAME_ASSERT(hand);
 		animEventPtr = (AnimEventType *) *hand;
 		ByteswapStructs(STRUCTFORMAT_AnimEventType, sizeof(AnimEventType), skeleton->NumAnimEvents[i], animEventPtr);
 		for (j=0;  j < skeleton->NumAnimEvents[i]; j++)
@@ -357,8 +320,7 @@ SkeletonFile_AnimHeader_Type	*animHeaderPtr;
 			/* READ # KEYFRAMES PER JOINT IN EACH ANIM */
 					
 		hand = GetResource('NumK',1000+i);									// read array of #'s for this anim
-		if (hand == nil)
-			DoFatalAlert("Error reading # keyframes/joint resource!");
+		GAME_ASSERT(hand);
 		for (j=0; j < numJoints; j++)
 			skeleton->JointKeyframes[j].numKeyFrames[i] = (*hand)[j];
 		ReleaseResource(hand);
@@ -380,14 +342,12 @@ SkeletonFile_AnimHeader_Type	*animHeaderPtr;
 		for (i=0; i < numAnims; i++)								
 		{
 			numKeyframes = skeleton->JointKeyframes[j].numKeyFrames[i];					// get actual # of keyframes for this joint
-			if (numKeyframes > MAX_KEYFRAMES)
-				DoFatalAlert("Error: numKeyframes > MAX_KEYFRAMES");
+			GAME_ASSERT(numKeyframes <= MAX_KEYFRAMES);
 		
 					/* READ A JOINT KEYFRAME */
 					
 			hand = GetResource('KeyF',1000+(i*100)+j);
-			if (hand == nil)
-				DoFatalAlert("Error reading joint keyframes resource!");
+			GAME_ASSERT(hand);
 			keyFramePtr = (JointKeyframeType *) *hand;
 			ByteswapStructs(STRUCTFORMAT_JointKeyframeType, sizeof(JointKeyframeType), numKeyframes, keyFramePtr);
 			for (k = 0; k < numKeyframes; k++)												// copy this joint's keyframes for this anim
