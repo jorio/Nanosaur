@@ -3,9 +3,7 @@
 #include "PommeDebug.h"
 #include "Pomme.h"
 
-#include <stack>
-
-//#define printf(...) do{}while(0)
+#define printf(...) do{}while(0)
 
 class Q3MetaFile_EarlyEOFException : public std::exception
 {
