@@ -396,23 +396,26 @@ static int DepthSortCompare(void const* a_void, void const* b_void)
 {
 	static const int kDrawAFirst = -1;
 	static const int kDrawBFirst = 1;
+	static const int kDrawWhicheverFirst = 0;
 	
 	const TransparentQueueEntry* a = a_void;
 	const TransparentQueueEntry* b = b_void;
 
-	if (a->mods->statusBits & STATUS_BIT_TRANSPARENCY_DRAW_FIRST)	// A wants to be drawn before all transparent meshes
+	// First check manual transparency priority
+	if (a->mods->transparencyPriority < b->mods->transparencyPriority)
 		return kDrawAFirst;
 	
-	if (b->mods->statusBits & STATUS_BIT_TRANSPARENCY_DRAW_FIRST)	// B wants to be drawn before all transparent meshes
+	if (a->mods->transparencyPriority > b->mods->transparencyPriority)
 		return kDrawBFirst;
 
-	float diff = b->coordInFrustum.z - a->coordInFrustum.z;
-	if (diff < 0)		// bz < az; A is further back than B
+	// Next, if both A and B are in the same transparency slot, compare their depth coord
+	if (a->coordInFrustum.z > b->coordInFrustum.z)
 		return kDrawAFirst;
-	else if (diff > 0)	// bz > az; A is closer to cam than B
+	
+	if (a->coordInFrustum.z < b->coordInFrustum.z)
 		return kDrawBFirst;
-	else				// bz == az
-		return 0;
+
+	return kDrawWhicheverFirst;
 }
 
 void Render_EndFrame(void)

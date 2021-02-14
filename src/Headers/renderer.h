@@ -13,8 +13,18 @@ typedef struct RenderStats
 
 typedef struct RenderModifiers
 {
+	// Copy of the status bits from ObjNode.
 	uint32_t 				statusBits;
+
+	// Diffuse color applied to the entire mesh.
 	TQ3ColorRGBA			diffuseColor;
+
+	// Set this to override the order in which transparent meshes are drawn.
+	// The default value is 0.
+	// Negative priorities will cause the mesh to be drawn earlier.
+	// Meshes with the same transparencyPriority value are sorted according to
+	// their depth relative to the camera (meshes further back are drawn first).
+	int						transparencyPriority;
 } RenderModifiers;
 
 

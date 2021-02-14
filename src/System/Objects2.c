@@ -214,7 +214,7 @@ ObjNode	*shadowObj;
 	gNewObjectDefinition.type = GLOBAL_MObjType_Shadow;	
 	gNewObjectDefinition.coord = theNode->Coord;
 	gNewObjectDefinition.coord.y += .5;
-	gNewObjectDefinition.flags = STATUS_BIT_BLEND_INTERPOLATE | STATUS_BIT_NOZWRITE | STATUS_BIT_TRANSPARENCY_DRAW_FIRST;
+	gNewObjectDefinition.flags = STATUS_BIT_BLEND_INTERPOLATE | STATUS_BIT_NOZWRITE;
 	gNewObjectDefinition.slot = SLOT_OF_DUMB+1;
 	gNewObjectDefinition.moveCall = nil;
 	gNewObjectDefinition.rot = 0;
@@ -233,6 +233,8 @@ ObjNode	*shadowObj;
 	shadowObj->SpecialF[0] = scaleX;							// need to remeber scales for update
 	shadowObj->SpecialF[1] = scaleZ;
 
+	shadowObj->RenderModifiers.transparencyPriority = -9999;	// shadows must be drawn underneath all other transparent meshes
+	
 	return(shadowObj);
 }
 

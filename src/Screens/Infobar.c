@@ -644,6 +644,7 @@ static TQ3Point3D				points[4] = { { -GPS_DISPLAY_SIZE,  GPS_DISPLAY_SIZE, 0 },
 	gGPSObj->OwnsMeshTexture[0] = true;						// let DeleteObject dispose of OpenGL texture
 
 	MakeObjectTransparent(gGPSObj,.75);						// make xparent
+	gGPSObj->RenderModifiers.transparencyPriority = 9999;	// draw GPS atop all other transparent meshes
 
 			/* INIT TRACKING THING */
 
