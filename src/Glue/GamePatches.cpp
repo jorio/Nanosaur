@@ -150,6 +150,9 @@ void PlayAMovie(FSSpec* spec)
 
 	SDL_GLContext glContext = SDL_GL_CreateContext(gSDLWindow);
 	GAME_ASSERT(glContext);
+
+	SDL_GL_SetSwapInterval(gGamePrefs.vsync ? 1 : 0);
+	
 	Render_InitState();
 	Render_Alloc2DCover(movie.width, movie.height);
 	glClearColor(0,0,0,1);

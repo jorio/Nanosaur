@@ -377,6 +377,9 @@ static void Slideshow(const struct SlideshowEntry* slides)
 
 	SDL_GLContext glContext = SDL_GL_CreateContext(gSDLWindow);
 	GAME_ASSERT(glContext);
+	
+	SDL_GL_SetSwapInterval(gGamePrefs.vsync ? 1 : 0);
+	
 	Render_InitState();
 	Render_Alloc2DCover(GAME_VIEW_WIDTH, GAME_VIEW_HEIGHT);
 
