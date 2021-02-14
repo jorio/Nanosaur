@@ -273,13 +273,14 @@ void DoSDLMaintenance()
 	if (ticksElapsed >= debugText.updateInterval) {
 		float fps = 1000 * debugText.frameAccumulator / (float)ticksElapsed;
 		snprintf(debugText.titleBuffer, sizeof(debugText.titleBuffer),
-			"%s %s - fps:%d tris:%d nodes:%d meshes:%d - x:%.0f z:%.0f",
+			"%s %s - fps:%d tris:%d nodes:%d meshes:%d transp:%d - x:%.0f z:%.0f",
 			PRO_MODE ? "Nanosaur Extreme" : "Nanosaur",
 			PROJECT_VERSION,
 			(int)round(fps),
 			gRenderStats.trianglesDrawn,
 			gRenderStats.nodesDrawn,
 			gRenderStats.meshesDrawn,
+			gRenderStats.transparentQueueSize,
 			gMyCoord.x,
 			gMyCoord.z
 			);

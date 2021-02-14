@@ -132,7 +132,8 @@ enum
 	STATUS_BIT_BLEND_INTERPOLATE =  (1<<15), // to use interpolation blending
 	STATUS_BIT_NOTRICACHE 	 =  (1<<16), 	// set if want to disable triangle caching when drawing this xparent obj
 	STATUS_BIT_KEEPBACKFACES =	(1<<17),	// set if want to render both front and back faces
-	STATUS_BIT_NOZWRITE		=	(1<<17),	// set when want to turn off z buffer writes
+	STATUS_BIT_NOZWRITE		=	(1<<18),	// set when want to turn off z buffer writes
+	STATUS_BIT_TRANSPARENCY_DRAW_FIRST = (1<<19),	// set to draw transparent meshes before all other xparent meshes
 };
 
 

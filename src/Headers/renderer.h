@@ -8,6 +8,7 @@ typedef struct RenderStats
 	int			trianglesDrawn;
 	int			meshesDrawn;
 	int 		batchedStateChanges;
+	int			transparentQueueSize;
 } RenderStats;
 
 typedef struct RenderModifiers
@@ -77,7 +78,8 @@ void Render_DrawTriMeshList(
 		int numMeshes,
 		TQ3TriMeshData** meshList,
 		const TQ3Matrix4x4* transform,
-		const RenderModifiers* mods);
+		const RenderModifiers* mods,
+		const TQ3Point3D* centerCoord);
 
 #pragma mark -
 

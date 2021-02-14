@@ -15,6 +15,7 @@
 #include "environmentmap.h"
 #include "renderer.h"
 #include "globals.h"	// status bits
+#include <stdlib.h>		// qsort
 
 #if __APPLE__
 	#include <OpenGL/glu.h>
@@ -29,10 +30,17 @@ extern UInt32*const				gCoverWindowPixPtr;
 extern int						gWindowWidth;
 extern int						gWindowHeight;
 extern SDL_Window*				gSDLWindow;
+extern TQ3Matrix4x4				gCameraWorldToFrustumMatrix;
 
 /****************************/
 /*    PROTOTYPES            */
 /****************************/
+
+enum
+{
+	kRenderPass_Opaque,
+	kRenderPass_Transparent
+};
 
 typedef struct RendererState
 {
@@ -51,6 +59,23 @@ typedef struct RendererState
 	bool		hasState_GL_FOG;
 	bool		hasFlag_glDepthMask;
 } RendererState;
+
+typedef struct TransparentQueueEntry
+{
+	int						numMeshes;
+	TQ3TriMeshData**		meshList;
+	const TQ3Matrix4x4*		transform;
+	const RenderModifiers*	mods;
+	const TQ3Point3D*		centerCoord;
+	TQ3Point3D				coordInFrustum;
+} TransparentQueueEntry;
+
+#define TRANSPARENT_QUEUE_MAX_SIZE 1024
+
+static int gRenderingPass = kRenderPass_Opaque;
+
+static TransparentQueueEntry gTransparentQueue[TRANSPARENT_QUEUE_MAX_SIZE];
+static int gTransparentQueueSize = 0;
 
 static void Render_DrawFadeOverlay(float opacity);
 
@@ -353,16 +378,84 @@ void Render_Dispose3DMFTextures(TQ3MetaFile* metaFile)
 
 void Render_StartFrame(void)
 {
+	// Clear rendering statistics
 	memset(&gRenderStats, 0, sizeof(gRenderStats));
 
-	// The depth mask must be re-enabled so we can clear the depth buffer.
-	EnableFlag(glDepthMask);
+	// Clear transparent queue
+	gTransparentQueueSize = 0;
 
+	// Initial rendering pass is for opaque meshes
+	gRenderingPass = kRenderPass_Opaque;
+
+	// Clear color & depth buffers.
+	EnableFlag(glDepthMask);	// The depth mask must be re-enabled so we can clear the depth buffer.
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+static int DepthSortCompare(void const* a_void, void const* b_void)
+{
+	static const int kDrawAFirst = -1;
+	static const int kDrawBFirst = 1;
+	
+	const TransparentQueueEntry* a = a_void;
+	const TransparentQueueEntry* b = b_void;
+
+	if (a->mods->statusBits & STATUS_BIT_TRANSPARENCY_DRAW_FIRST)	// A wants to be drawn before all transparent meshes
+		return kDrawAFirst;
+	
+	if (b->mods->statusBits & STATUS_BIT_TRANSPARENCY_DRAW_FIRST)	// B wants to be drawn before all transparent meshes
+		return kDrawBFirst;
+
+	float diff = b->coordInFrustum.z - a->coordInFrustum.z;
+	if (diff < 0)		// bz < az; A is further back than B
+		return kDrawAFirst;
+	else if (diff > 0)	// bz > az; A is closer to cam than B
+		return kDrawBFirst;
+	else				// bz == az
+		return 0;
 }
 
 void Render_EndFrame(void)
 {
+	GAME_ASSERT(gRenderingPass == kRenderPass_Opaque);
+	
+	// Keep track of transparent queue size for debug stats
+	gRenderStats.transparentQueueSize = gTransparentQueueSize;
+
+	// Flush transparent queue
+	if (gTransparentQueueSize != 0)
+	{
+		// Sort transparent queue back to front
+		qsort(
+			gTransparentQueue,
+			gTransparentQueueSize,
+			sizeof(TransparentQueueEntry),
+			DepthSortCompare
+		);
+
+		// Start rendering pass: transparent meshes
+		gRenderingPass = kRenderPass_Transparent;
+
+		// Submit all transparent meshes
+		for (int i = 0; i < gTransparentQueueSize; i++)
+		{
+			Render_DrawTriMeshList(
+				gTransparentQueue[i].numMeshes,
+				gTransparentQueue[i].meshList,
+				gTransparentQueue[i].transform,
+				gTransparentQueue[i].mods,
+				gTransparentQueue[i].centerCoord
+			);
+		}
+
+		// Clear transparent queue
+		gTransparentQueueSize = 0;
+
+		// Reset rendering pass to: opaque meshes
+		gRenderingPass = kRenderPass_Opaque;
+	}
+
+	// Draw fade overlay
 	if (gGamePrefs.allowGammaFade && gFadeOverlayOpacity > 0.01f)
 	{
 		Render_DrawFadeOverlay(gFadeOverlayOpacity);
@@ -380,7 +473,8 @@ void Render_DrawTriMeshList(
 		int numMeshes,
 		TQ3TriMeshData** meshList,
 		const TQ3Matrix4x4* transform,
-		const RenderModifiers* mods)
+		const RenderModifiers* mods,
+		const TQ3Point3D* centerCoord)
 {
 	if (mods == nil)
 	{
@@ -389,22 +483,60 @@ void Render_DrawTriMeshList(
 
 	bool envMap = mods->statusBits & STATUS_BIT_REFLECTIONMAP;
 
-	if (transform)
-	{
-		glPushMatrix();
-		glMultMatrixf((float*) transform->value);
-	}
+	bool matrixPushedYet = false;
+	bool meshGroupAddedToTransparentQueueYet = false;
 
 	for (int i = 0; i < numMeshes; i++)
 	{
 		const TQ3TriMeshData* mesh = meshList[i];
 
-		if (envMap)
+		bool meshIsTransparent = mesh->textureHasTransparency || mesh->diffuseColor.a < .999f || mods->diffuseColor.a < .999f;
+
+		// Decide whether or not to draw this mesh in this pass, depending on which pass we're in
+		// (opaque or transparent), and whether the mesh has transparency.
+		if (gRenderingPass == kRenderPass_Opaque)
 		{
-			EnvironmentMapTriMesh(mesh, transform);
+			// OPAQUE PASS
+			
+			if (meshIsTransparent)
+			{
+				if (!meshGroupAddedToTransparentQueueYet)
+				{
+					// it's transparent -- append the mesh list to the transparent queue
+
+					GAME_ASSERT(gTransparentQueueSize < TRANSPARENT_QUEUE_MAX_SIZE);
+					GAME_ASSERT(centerCoord);
+
+					TQ3Point3D coordInFrustum;
+					Q3Point3D_Transform(centerCoord, &gCameraWorldToFrustumMatrix, &coordInFrustum);
+
+					TransparentQueueEntry* tqe = &gTransparentQueue[gTransparentQueueSize++];
+					tqe->numMeshes = numMeshes;
+					tqe->meshList = meshList;
+					tqe->transform = transform;
+					tqe->mods = mods;
+					tqe->centerCoord = centerCoord;
+					tqe->coordInFrustum = coordInFrustum;
+					meshGroupAddedToTransparentQueueYet = true;
+				}
+
+				// skil all transparent meshes in this pass
+				continue;
+			}
+		}
+		else 
+		{
+			// TRANSPARENT PASS
+			
+			if (!meshIsTransparent)
+			{
+				// skip all opaque meshes in this pass
+				continue;
+			}
 		}
 
-		if (mesh->textureHasTransparency || mesh->diffuseColor.a < .999f || mods->diffuseColor.a < .999f)
+		// Enable alpha blending if the mesh has transparency
+		if (meshIsTransparent)
 		{
 			EnableState(GL_BLEND);
 			DisableState(GL_ALPHA_TEST);
@@ -415,6 +547,13 @@ void Render_DrawTriMeshList(
 			EnableState(GL_ALPHA_TEST);
 		}
 
+		// Environment map effect
+		if (envMap)
+		{
+			EnvironmentMapTriMesh(mesh, transform);
+		}
+
+		// Cull backfaces or not
 		if (mods->statusBits & STATUS_BIT_KEEPBACKFACES)
 		{
 			DisableState(GL_CULL_FACE);
@@ -424,6 +563,7 @@ void Render_DrawTriMeshList(
 			EnableState(GL_CULL_FACE);
 		}
 
+		// Apply gouraud or null illumination
 		if (mods->statusBits & STATUS_BIT_NULLSHADER)
 		{
 			DisableState(GL_LIGHTING);
@@ -433,7 +573,8 @@ void Render_DrawTriMeshList(
 			EnableState(GL_LIGHTING);
 		}
 
-		if (mods->statusBits & STATUS_BIT_NOZWRITE)
+		// Write geometry to depth buffer or not
+		if (meshIsTransparent || mods->statusBits & STATUS_BIT_NOZWRITE)
 		{
 			DisableFlag(glDepthMask);
 		}
@@ -442,10 +583,7 @@ void Render_DrawTriMeshList(
 			EnableFlag(glDepthMask);
 		}
 
-		glVertexPointer(3, GL_FLOAT, 0, mesh->points);
-		glNormalPointer(GL_FLOAT, 0, mesh->vertexNormals);
-		CHECK_GL_ERROR();
-
+		// Texture mapping
 		if (mesh->hasTexture)
 		{
 			EnableState(GL_TEXTURE_2D);
@@ -462,6 +600,7 @@ void Render_DrawTriMeshList(
 			CHECK_GL_ERROR();
 		}
 
+		// Per-vertex colors (unused in Nanosaur, will be in Bugdom)
 		if (mesh->hasVertexColors)
 		{
 			EnableClientState(GL_COLOR_ARRAY);
@@ -472,6 +611,7 @@ void Render_DrawTriMeshList(
 			DisableClientState(GL_COLOR_ARRAY);
 		}
 
+		// Apply diffuse color for the entire mesh
 		glColor4f(
 				mesh->diffuseColor.r * mods->diffuseColor.r,
 				mesh->diffuseColor.g * mods->diffuseColor.g,
@@ -479,14 +619,29 @@ void Render_DrawTriMeshList(
 				mesh->diffuseColor.a * mods->diffuseColor.a
 				);
 
+		// Submit transformation matrix if any
+		if (!matrixPushedYet && transform)
+		{
+			glPushMatrix();
+			glMultMatrixf((float*)transform->value);
+			matrixPushedYet = true;
+		}
+
+		// Submit vertex and normal data
+		glVertexPointer(3, GL_FLOAT, 0, mesh->points);
+		glNormalPointer(GL_FLOAT, 0, mesh->vertexNormals);
+		CHECK_GL_ERROR();
+
+		// Draw the mesh
 		__glDrawRangeElements(GL_TRIANGLES, 0, mesh->numPoints-1, mesh->numTriangles*3, GL_UNSIGNED_SHORT, mesh->triangles);
 		CHECK_GL_ERROR();
 
+		// Update stats
 		gRenderStats.trianglesDrawn += mesh->numTriangles;
 		gRenderStats.meshesDrawn++;
 	}
 
-	if (transform)
+	if (matrixPushedYet)
 	{
 		glPopMatrix();
 	}

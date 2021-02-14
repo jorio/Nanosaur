@@ -453,7 +453,8 @@ unsigned long	statusBits;
 							theNode->NumMeshes,
 							theNode->MeshList,
 							&theNode->BaseTransformMatrix,
-							&theNode->RenderModifiers);
+							&theNode->RenderModifiers,
+							&theNode->Coord);
 					gRenderStats.nodesDrawn++;
 					break;
 		}
