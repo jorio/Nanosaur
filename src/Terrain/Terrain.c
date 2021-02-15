@@ -1210,7 +1210,7 @@ void DrawTerrain(QD3DSetupOutputType *setupInfo)
 				? gSuperTileMemoryList[i].triMeshPtr2
 				: gSuperTileMemoryList[i].triMeshPtr;
 
-		Render_DrawTriMeshList(1, &mesh, nil, nil, &gSuperTileMemoryList[i].coord);
+		Render_SubmitMesh(mesh, nil, nil, &gSuperTileMemoryList[i].coord);
 	}
 
 

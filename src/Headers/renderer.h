@@ -4,11 +4,9 @@
 
 typedef struct RenderStats
 {
-	int			nodesDrawn;
 	int			trianglesDrawn;
-	int			meshesDrawn;
+	int			meshQueueSize;
 	int 		batchedStateChanges;
-	int			transparentQueueSize;
 } RenderStats;
 
 typedef struct RenderModifiers
@@ -19,12 +17,13 @@ typedef struct RenderModifiers
 	// Diffuse color applied to the entire mesh.
 	TQ3ColorRGBA			diffuseColor;
 
-	// Set this to override the order in which transparent meshes are drawn.
+	// Set this to override the order in which meshes are drawn.
 	// The default value is 0.
-	// Negative priorities will cause the mesh to be drawn earlier.
-	// Meshes with the same transparencyPriority value are sorted according to
-	// their depth relative to the camera (meshes further back are drawn first).
-	int						transparencyPriority;
+	// Positive values will cause the mesh to be drawn as if it were further back in the scene than it really is.
+	// Negative values will cause the mesh to be drawn as if it were closer to the camera than it really is.
+	// When several meshes have the same priority, they are sorted according to their depth relative to the camera.
+	// Note that opaque meshes are drawn front-to-back, and transparent meshes are drawn back-to-front.
+	int						sortPriority;
 } RenderModifiers;
 
 
@@ -46,9 +45,14 @@ typedef enum
 
 #pragma mark -
 
+// Fills the argument with the default mesh rendering modifiers.
+void Render_SetDefaultModifiers(RenderModifiers* dest);
+
 // Sets up the initial renderer state.
 // Call this function after creating the OpenGL context.
 void Render_InitState(void);
+
+#pragma mark -
 
 void Render_BindTexture(GLuint textureName);
 
@@ -72,21 +76,37 @@ void Render_Load3DMFTextures(TQ3MetaFile* metaFile);
 // Deletes OpenGL texture names previously loaded from a 3DMF file.
 void Render_Dispose3DMFTextures(TQ3MetaFile* metaFile);
 
+#pragma mark -
+
 // Instructs the renderer to get ready to draw a new frame.
-// Call this function before submitting any draw calls.
+// Call this function before any draw/submit calls.
 void Render_StartFrame(void);
 
+// Flushes the rendering queue.
 void Render_EndFrame(void);
 
-// Fills the argument with the default mesh rendering modifiers.
-void Render_SetDefaultModifiers(RenderModifiers* dest);
+void Render_SetViewport(bool scissor, int x, int y, int w, int h);
+
+#pragma mark -
 
 // Submits a list of trimeshes for drawing.
-// Requires an OpenGL context to be active.
 // Arguments transform and mods may be nil.
-void Render_DrawTriMeshList(
+// Rendering will actually occur in Render_EndFrame(), after all meshes have been submitted.
+// IMPORTANT: the pointers must remain valid until you call Render_EndFrame(),
+// INCLUDING THE POINTER TO THE LIST OF MESHES!
+void Render_SubmitMeshList(
 		int numMeshes,
 		TQ3TriMeshData** meshList,
+		const TQ3Matrix4x4* transform,
+		const RenderModifiers* mods,
+		const TQ3Point3D* centerCoord);
+
+// Submits one trimesh for drawing.
+// Arguments transform and mods may be nil.
+// Rendering will actually occur in Render_EndFrame(), after all meshes have been submitted.
+// IMPORTANT: the pointers must remain valid until you call Render_EndFrame().
+void Render_SubmitMesh(
+		TQ3TriMeshData* mesh,
 		const TQ3Matrix4x4* transform,
 		const RenderModifiers* mods,
 		const TQ3Point3D* centerCoord);

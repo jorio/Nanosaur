@@ -425,7 +425,7 @@ void QD3D_DrawParticles(QD3DSetupOutputType *setupInfo)
 		ParticleType* particle = &gParticles[i];
 		if (particle->isUsed)
 		{
-			Render_DrawTriMeshList(1, &particle->mesh, &particle->matrix, &kParticleRenderingMods, &particle->coord);
+			Render_SubmitMesh(particle->mesh, &particle->matrix, &kParticleRenderingMods, &particle->coord);
 		}
 	}
 }

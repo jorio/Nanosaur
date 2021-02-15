@@ -404,23 +404,21 @@ unsigned long	statusBits;
 			case	SKELETON_GENRE:
 					GetModelCurrentPosition(theNode->Skeleton);
 					UpdateSkinnedGeometry(theNode);
-					Render_DrawTriMeshList(
+					Render_SubmitMeshList(
 							theNode->NumMeshes,
 							theNode->MeshList,
 							nil,		// Don't mult matrix with BaseTransformMatrix -- skeleton code already does it
 							&theNode->RenderModifiers,
 							&theNode->Coord);
-					gRenderStats.nodesDrawn++;
 					break;
 
 			case	DISPLAY_GROUP_GENRE:
-					Render_DrawTriMeshList(
+					Render_SubmitMeshList(
 							theNode->NumMeshes,
 							theNode->MeshList,
 							&theNode->BaseTransformMatrix,
 							&theNode->RenderModifiers,
 							&theNode->Coord);
-					gRenderStats.nodesDrawn++;
 					break;
 		}
 

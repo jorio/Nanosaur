@@ -347,18 +347,14 @@ void QD3D_DrawScene(QD3DSetupOutputType *setupInfo, void (*drawRoutine)(QD3DSetu
 		TQ3Area pane	= GetAdjustedPane(setupInfo->paneClip);
 		int paneWidth	= pane.max.x-pane.min.x;
 		int paneHeight	= pane.max.y-pane.min.y;
-		glEnable(GL_SCISSOR_TEST);
-		glScissor	(pane.min.x, pane.min.y, paneWidth, paneHeight);
-		glViewport	(pane.min.x, pane.min.y, paneWidth, paneHeight);
-		glClear(GL_COLOR_BUFFER_BIT);
+		Render_SetViewport(true, pane.min.x, pane.min.y, paneWidth, paneHeight);
 	}
 	else
 	{
-		glViewport(0, 0, gWindowWidth, gWindowHeight);
+		Render_SetViewport(false, 0, 0, gWindowWidth, gWindowHeight);
 	}
 
 			/* PREPARE FRUSTUM PLANES FOR SPHERE VISIBILITY CHECKS */
-			// (Source port addition)
 
 	UpdateFrustumPlanes();
 
@@ -373,11 +369,6 @@ void QD3D_DrawScene(QD3DSetupOutputType *setupInfo, void (*drawRoutine)(QD3DSetu
 			/******************/
 			/* DONE RENDERING */
 			/*****************/
-
-	if (setupInfo->needScissorTest)
-	{
-		glDisable(GL_SCISSOR_TEST);
-	}
 
 	Render_EndFrame();
 

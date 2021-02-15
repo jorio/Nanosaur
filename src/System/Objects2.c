@@ -233,7 +233,7 @@ ObjNode	*shadowObj;
 	shadowObj->SpecialF[0] = scaleX;							// need to remeber scales for update
 	shadowObj->SpecialF[1] = scaleZ;
 
-	shadowObj->RenderModifiers.transparencyPriority = -9999;	// shadows must be drawn underneath all other transparent meshes
+	shadowObj->RenderModifiers.sortPriority = +9999;			// shadows must be drawn underneath all other transparent meshes
 	
 	return(shadowObj);
 }

@@ -355,7 +355,7 @@ float	y;
 	if (newObj == nil)
 		return(false);
 
-	newObj->RenderModifiers.transparencyPriority = -5000;			// draw water before most other transparent meshes (but not shadows)
+	newObj->RenderModifiers.sortPriority = +5000;			// draw water before most other transparent meshes (but not shadows)
 
 	newObj->TerrainItemPtr = itemPtr;								// keep ptr to item list
 
