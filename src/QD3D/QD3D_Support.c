@@ -26,7 +26,7 @@
 #include "misc.h"
 #include "qd3d_support.h"
 #include "input.h"
-#include "windows_nano.h"
+#include "window.h"
 #include "camera.h"
 #include "3dmath.h"
 #include "environmentmap.h"

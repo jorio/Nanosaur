@@ -24,7 +24,7 @@
 #include "title.h"
 #include "input.h"
 #include "file.h"
-#include "windows_nano.h"
+#include "window.h"
 
 extern	NewObjectDefinitionType	gNewObjectDefinition;
 extern	QD3DSetupOutputType		*gGameViewInfoPtr;

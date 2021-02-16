@@ -8,7 +8,7 @@ extern "C" {
 #include "qd3d_support.h"
 #include "terrain.h"
 #include "misc.h"
-#include "windows_nano.h"
+#include "window.h"
 }
 
 #include <SDL.h>

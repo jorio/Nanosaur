@@ -13,7 +13,7 @@
 #include <QD3DMath.h>
 #include "globals.h"
 #include "objects.h"
-#include "windows_nano.h"
+#include "window.h"
 #include "misc.h"
 #include "infobar.h"
 #include "file.h"

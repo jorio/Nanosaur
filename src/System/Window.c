@@ -10,7 +10,7 @@
 /***************/
 
 #include	"globals.h"
-#include	"windows_nano.h"
+#include    "window.h"
 #include	"misc.h"
 #include "objects.h"
 #include "file.h"

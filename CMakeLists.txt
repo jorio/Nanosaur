@@ -57,7 +57,7 @@ set(GAME_CORE_SOURCES
 	${GAME_SRCDIR}/System/Objects2.c
 	${GAME_SRCDIR}/System/Sprites.c
 	${GAME_SRCDIR}/System/Sound.c
-	${GAME_SRCDIR}/System/Windows.c
+	${GAME_SRCDIR}/System/Window.c
 	${GAME_SRCDIR}/Terrain/Terrain.c
 	${GAME_SRCDIR}/Terrain/Terrain2.c
 	${GAME_SRCDIR}/Player/MyGuy.c
@@ -132,7 +132,7 @@ set(GAME_CORE_HEADERS
 	${GAME_SRCDIR}/Headers/triggers.h
 	${GAME_SRCDIR}/Headers/version.h
 	${GAME_SRCDIR}/Headers/weapons.h
-	${GAME_SRCDIR}/Headers/windows_nano.h
+	${GAME_SRCDIR}/Headers/window.h
 )
 
 set(GAME_GLUE_SOURCES

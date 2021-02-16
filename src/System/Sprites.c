@@ -12,7 +12,7 @@
 #include "globals.h"
 #include "misc.h"
 #include "sprites.h"
-#include "windows_nano.h"
+#include "window.h"
 #include "structformats.h"
 
 extern	short		gMainAppRezFile;

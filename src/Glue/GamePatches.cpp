@@ -10,7 +10,7 @@ extern "C" {
 #include "qd3d_support.h"
 #include "movie.h" // PlayAMovie
 #include "misc.h" // DrawPictureToScreen
-#include "windows_nano.h" // GAME_VIEW_WIDTH, GAME_VIEW_HEIGHT
+#include "window.h" // GAME_VIEW_WIDTH, GAME_VIEW_HEIGHT
 #include "renderer.h"
 #include "version.h"
 }
