@@ -7,3 +7,4 @@
 
 extern void	DumpGWorldToGWorld(GWorldPtr, GWorldPtr, Rect *, Rect *);
 extern	void MakeFadeEvent(Boolean	fadeIn);
+void SetFullscreenMode(void);

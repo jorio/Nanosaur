@@ -7,8 +7,6 @@ extern "C" {
 //-----------------------------------------------------------------------------
 // Reimplementations of game functions
 
-char GetTypedKey(void);
-
 void DoQualityDialog(void);
 
 //-----------------------------------------------------------------------------
@@ -17,8 +15,6 @@ void DoQualityDialog(void);
 void SetProModeSettings(int isPro);
 
 void DoSDLMaintenance(void);
-
-void SetFullscreenMode(void);
 
 #ifdef __cplusplus
 }

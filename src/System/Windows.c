@@ -22,6 +22,7 @@ extern	NewObjectDefinitionType	gNewObjectDefinition;
 extern	float	gFramesPerSecondFrac,gAdditionalClipping;
 extern  WindowPtr				gCoverWindow;
 extern	PrefsType	gGamePrefs;
+extern	SDL_Window*				gSDLWindow;
 
 /******************** MAKE FADE EVENT *********************/
 //
@@ -124,3 +125,20 @@ GWorldPtr	oldGW;
 	SetGWorld(oldGW,oldGD);								// restore gworld
 }
 
+
+
+/*********************** SET FULLSCREEN MODE **********************/
+
+void SetFullscreenMode(void)
+{
+	SDL_SetWindowFullscreen(
+			gSDLWindow,
+			gGamePrefs.fullscreen? SDL_WINDOW_FULLSCREEN_DESKTOP: 0);
+
+	// Ensure the clipping pane gets resized properly after switching in or out of fullscreen mode
+	int width, height;
+	SDL_GetWindowSize(gSDLWindow, &width, &height);
+	QD3D_OnWindowResized(width, height);
+
+	SDL_ShowCursor(gGamePrefs.fullscreen? 0: 1);
+}
