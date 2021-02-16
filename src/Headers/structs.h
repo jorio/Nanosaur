@@ -9,6 +9,7 @@
 #include <Pomme3DMF.h>
 #include "globals.h"
 #include "renderer.h"
+#include "input.h"
 
 #define	MAX_ANIMS			20
 #define	MAX_KEYFRAMES		15
@@ -305,6 +306,7 @@ typedef struct
 	Boolean vsync;
 	Boolean opaqueWater;
 	Boolean extreme;
+	KeyBinding keys[NUM_CONTROL_NEEDS];
 	Boolean	reserved[4];
 }PrefsType;
 

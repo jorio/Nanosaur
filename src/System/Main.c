@@ -55,6 +55,8 @@ extern	long	gMyStartX,gMyStartZ;
 extern	unsigned long 	gInfobarUpdateBits,gScore;
 extern	ObjNode		*gPlayerObj;
 
+extern const KeyBinding kDefaultKeyBindings[NUM_CONTROL_NEEDS];
+
 /****************************/
 /*    PROTOTYPES            */
 /****************************/
@@ -131,6 +133,9 @@ OSErr		iErr;
 	gGamePrefs.mainMenuHelp = true;
 	gGamePrefs.opaqueWater = false;
 	gGamePrefs.extreme = false;
+
+	memcpy(gGamePrefs.keys, kDefaultKeyBindings, sizeof(gGamePrefs.keys));
+	_Static_assert(sizeof(gGamePrefs.keys) == sizeof(gGamePrefs.keys));
 
 	LoadPrefs(&gGamePrefs);							// attempt to read from prefs file
 
@@ -286,7 +291,7 @@ FSSpec	spec;
 	{
 		fps = gFramesPerSecondFrac;
 		
-		ReadKeyboard();
+		UpdateInput();
 
 
 				/* MOVE OBJECTS */
@@ -312,26 +317,26 @@ FSSpec	spec;
 				
 			/* SEE IF PAUSE GAME */
 
-		if (GetNewKeyState(kKey_Pause))						// see if pause/abort
+		if (GetNewNeedState(kNeed_UIPause))						// see if pause/abort
 			DoPaused();
 
 			/* CHECK CHEAT KEYS */
 			
-		if (GetKeyState_Real(KEY_F15) || GetKeyState_Real(KEY_F12))
+		if (GetSDLKeyState(SDL_SCANCODE_F15) || GetSDLKeyState(SDL_SCANCODE_F12))
 		{
-			if (GetNewKeyState_Real(KEY_F1))				// get health
+			if (GetNewSDLKeyState(SDL_SCANCODE_F1))				// get health
 				GetHealth(1);
 			else
-			if (GetNewKeyState_Real(KEY_F2))				// get shield
+			if (GetNewSDLKeyState(SDL_SCANCODE_F2))				// get shield
 				StartMyShield(gPlayerObj);
 			else
-			if (GetNewKeyState_Real(KEY_F3))				// get full weaponry
+			if (GetNewSDLKeyState(SDL_SCANCODE_F3))				// get full weaponry
 				GetCheatWeapons();
 			else
-			if (GetNewKeyState_Real(KEY_F4))				// get all eggs
+			if (GetNewSDLKeyState(SDL_SCANCODE_F4))				// get all eggs
 				GetAllEggsCheat();
 			else
-			if (GetNewKeyState_Real(KEY_F5))				// get fuel
+			if (GetNewSDLKeyState(SDL_SCANCODE_F5))				// get fuel
 			{
 				gFuel = MAX_FUEL_CAPACITY;
 				gInfobarUpdateBits |= UPDATE_FUEL;

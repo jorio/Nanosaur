@@ -19,7 +19,6 @@ extern "C" {
 
 extern "C" {
 extern	WindowPtr				gCoverWindow;
-extern	KeyMap					gNewKeys_Real;
 extern	PrefsType				gGamePrefs;
 extern	float			gFramesPerSecond,gFramesPerSecondFrac;
 extern	SDL_Window*				gSDLWindow;
@@ -180,17 +179,17 @@ void DoQualityDialog()
 
 	while (1)
 	{
-		ReadKeyboard();
+		UpdateInput();
 
-		if (GetNewKeyState(kKey_Pause)) break;
+		if (GetNewNeedState(kNeed_UIBack)) break;
 		
-		if (GetNewKeyState(kKey_Forward))   { selectedEntry--; needFullRender = true; PlayEffect(EFFECT_SELECT); }
-		if (GetNewKeyState(kKey_Backward))  { selectedEntry++; needFullRender = true; PlayEffect(EFFECT_SELECT); }
+		if (GetNewNeedState(kNeed_UIUp))   { selectedEntry--; needFullRender = true; PlayEffect(EFFECT_SELECT); }
+		if (GetNewNeedState(kNeed_UIDown)) { selectedEntry++; needFullRender = true; PlayEffect(EFFECT_SELECT); }
 		selectedEntry = PositiveModulo(selectedEntry, (unsigned int)settings.size());
 
-		if (GetNewKeyState_Confirm() || GetNewKeyState(kKey_TurnRight) || GetNewKeyState(kKey_TurnLeft))
+		if (GetNewNeedState(kNeed_UIConfirm) || GetNewNeedState(kNeed_UILeft) || GetNewNeedState(kNeed_UIRight))
 		{
-			settings[selectedEntry].Cycle(GetNewKeyState(kKey_TurnLeft) ? -1 : 1);
+			settings[selectedEntry].Cycle(GetNewNeedState(kNeed_UILeft) ? -1 : 1);
 			PlayEffect(EFFECT_BLASTER);
 			needFullRender = true;
 		}

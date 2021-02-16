@@ -110,34 +110,34 @@ KeyControlType	bits;
 	
 	bits = 0;							// init to 0
 
-	if (Nano_GetKeyState(kKey_TurnLeft))		// rot left
+	if (GetNeedState(kNeed_TurnLeft))			// rot left
 		bits |= KEYCONTROL_ROTLEFT;
 	else
-	if (Nano_GetKeyState(kKey_TurnRight))	// rot right
+	if (GetNeedState(kNeed_TurnRight))			// rot right
 		bits |= KEYCONTROL_ROTRIGHT;
 				
-	if (Nano_GetKeyState(kKey_Forward))		// forward
+	if (GetNeedState(kNeed_Forward))			// forward
 		bits |= KEYCONTROL_FORWARD;
 	else
-	if (Nano_GetKeyState(kKey_Backward))		// backward
+	if (GetNeedState(kNeed_Backward))			// backward
 		bits |= KEYCONTROL_BACKWARD;
 	
-	if (GetNewKeyState(kKey_Jump))		// jump
+	if (GetNeedState(kNeed_Jump))				// jump
 		bits |= KEYCONTROL_JUMP;
 	else
-	if (Nano_GetKeyState(kKey_Attack))		// attack
+	if (GetNeedState(kNeed_Attack))				// attack
 		bits |= KEYCONTROL_ATTACK;
 	else
-	if (Nano_GetKeyState(kKey_JetUp))		// Jet Up
+	if (GetNeedState(kNeed_JetUp))				// Jet Up
 		bits |= KEYCONTROL_JETUP;
 	else
-	if (Nano_GetKeyState(kKey_JetDown))		// Jet Down
+	if (GetNeedState(kNeed_JetDown))			// Jet Down
 		bits |= KEYCONTROL_JETDOWN;
 	
-	if (GetNewKeyState(kKey_AttackMode))	// attack mode change
+	if (GetNewNeedState(kNeed_AttackMode))		// attack mode change
 		bits |= KEYCONTROL_ATTACKMODE;
 
-	if (GetNewKeyState(kKey_PickUp))	// try pickup
+	if (GetNewNeedState(kNeed_PickUp))			// try pickup
 		bits |= KEYCONTROL_PICKUP;
 		
 

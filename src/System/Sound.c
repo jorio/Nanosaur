@@ -659,16 +659,16 @@ void ToggleMusic(void)
 
 void DoSoundMaintenance(void)
 {
-				
+
 			/* SEE IF TOGGLE MUSIC */
 
-	if (GetNewKeyState(kKey_ToggleMusic))
+	if (GetNewNeedState(kNeed_ToggleMusic))
 		ToggleMusic();
-	
-		
+
+
 				/* SEE IF TOGGLE AMBIENT */
-				
-	if (GetNewKeyState(kKey_ToggleAmbient))
+
+	if (GetNewNeedState(kNeed_ToggleAmbient))
 	{
 		if (gAmbientEffect == -1)
 			StartAmbientEffect();
@@ -681,7 +681,7 @@ void DoSoundMaintenance(void)
 
 			/* SEE IF CHANGE VOLUME */
 
-	if (GetNewKeyState(kKey_RaiseVolume))
+	if (GetNewNeedState(kNeed_RaiseVolume))
 	{
 		if (gCurrentSystemVolume < 0x100)
 			gCurrentSystemVolume += 8;
@@ -690,7 +690,7 @@ void DoSoundMaintenance(void)
 		SetDefaultOutputVolume((gCurrentSystemVolume<<16)|gCurrentSystemVolume); // set system volume
 	}
 	else
-	if (GetNewKeyState(kKey_LowerVolume))
+	if (GetNewNeedState(kNeed_LowerVolume))
 	{
 		if (gCurrentSystemVolume > 0x000)
 			gCurrentSystemVolume -= 8;

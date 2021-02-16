@@ -44,7 +44,7 @@ extern	long	gNumSuperTilesDeep,gNumSuperTilesWide;
 extern	FSSpec		gDataSpec;
 extern	TimePortalType	gTimePortalList[];
 extern	Boolean			gMuteMusicFlag;
-extern	long	gOriginalSystemVolume,gCurrentSystemVolume;
+extern	long	gCurrentSystemVolume;
 
 
 /****************************/
@@ -429,20 +429,20 @@ Boolean	toggleMusic = !gMuteMusicFlag;
 		
 				/* SEE IF CHANGE SELECT */
 				
-		ReadKeyboard();
-		if (GetNewKeyState_Real(KEY_UP) && (selected > 0))
+		UpdateInput();
+		if (GetNewNeedState(kNeed_UIUp) && (selected > 0))
 		{
 			selected = 0;
 			PlayEffect(EFFECT_SELECT);
 		}
 		else
-		if (GetNewKeyState_Real(KEY_DOWN) && (selected == 0))
+		if (GetNewNeedState(kNeed_UIDown) && (selected == 0))
 		{
 			selected = 1;
 			PlayEffect(EFFECT_SELECT);
 		}
 
-		if (GetNewKeyState(kKey_Pause))					// ESC does quick un-pause
+		if (GetNewNeedState(kNeed_UIPause) || GetNewNeedState(kNeed_UIBack))					// ESC does quick un-pause
 		{
 			selected = 0;
 			break;
@@ -467,7 +467,7 @@ Boolean	toggleMusic = !gMuteMusicFlag;
 		QD3D_DrawScene(gGameViewInfoPtr,DrawTerrain);
 		DoSDLMaintenance();
 	}
-	while(!GetNewKeyState_Confirm());					// see if select
+	while (!GetNewNeedState(kNeed_UIConfirm));					// see if select
 
 			/* CLEANUP */
 			
@@ -665,7 +665,7 @@ Boolean					forceUpdate = false;
 
 					/* SEE IF TOGGLE ON/OFF */
 
-	if (GetNewKeyState(kKey_ToggleGPS))
+	if (GetNewNeedState(kNeed_ToggleGPS))
 	{
 		gGPSObj->StatusBits ^= STATUS_BIT_HIDDEN;
 		if (!(gGPSObj->StatusBits & STATUS_BIT_HIDDEN))		// see if just now made re-visible

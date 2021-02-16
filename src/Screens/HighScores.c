@@ -12,7 +12,6 @@
 #include "globals.h"
 
 #include <QD3D.h>
-#include <QD3DMath.h>
 #include <math.h>
 
 #include "objects.h"
@@ -32,10 +31,10 @@ extern	NewObjectDefinitionType	gNewObjectDefinition;
 extern	QD3DSetupOutputType		*gGameViewInfoPtr;
 extern	float			gFramesPerSecond,gFramesPerSecondFrac;
 extern	WindowPtr		gCoverWindow;
-extern	short			gStreamCount;
 extern	short	gPrefsFolderVRefNum;
 extern	long	gPrefsFolderDirID;
 extern	FSSpec	gDataSpec;
+extern	char			gTextInput[SDL_TEXTINPUTEVENT_TEXT_SIZE];
 
 /****************************/
 /*    PROTOTYPES            */
@@ -129,8 +128,8 @@ TQ3Vector3D	camDelta = {0,0,0};
 		
 		QD3D_DrawScene(gGameViewInfoPtr,DrawObjects);	
 
-		ReadKeyboard();
-		if (GetNewKeyState_Skip())
+		UpdateInput();
+		if (UserWantsOut())
 			break;
 			
 	}while(gGameViewInfoPtr->cameraPlacement.cameraLocation.x < 2200);
@@ -395,36 +394,28 @@ short		i;
 		
 	do
 	{
-		QD3D_CalcFramesPerSecond();					
+		UpdateInput();
+		QD3D_CalcFramesPerSecond();
 		MoveObjects();
-		
+
 				/* CHECK FOR KEY */
-				
-#if 1
-		char newKey;
-		if ( (newKey = GetTypedKey()) )
+
+		if (gTextInput[0] && gTextInput[0] >= ' ' && gTextInput[0] < '~')
 		{
-			TypeNewKey(newKey);
-#else
-		ReadKeyboard();
-		EventRecord	theEvent;
-		if (GetNextEvent(keyDownMask, &theEvent))		// see if keydown
-		{
-			TypeNewKey(theEvent.message & charCodeMask);
-#endif
+			TypeNewKey(gTextInput[0]);
 			UpdateNameAndCursor(true,LEFT_EDGE,0,0);
 		}
 		
 				/* MOVE CAMERA */
 				
 		camWobble += gFramesPerSecondFrac;
-		camPt.x = sin(camWobble) * 50;
+		camPt.x = sinf(camWobble) * 50;
 		QD3D_UpdateCameraFrom(gGameViewInfoPtr, &camPt);	// update camera position
 		
 				/* DRAW SCENE */
 				
 		QD3D_DrawScene(gGameViewInfoPtr,DrawObjects);	
-	}while(!GetNewKeyState_Real(KEY_RETURN));
+	} while (!GetSDLKeyState(SDL_SCANCODE_RETURN) && !GetSDLKeyState(SDL_SCANCODE_KP_ENTER));
 
 			/* CLEANUP */
 
@@ -560,7 +551,7 @@ char	c;
 				case	'?':
 						gNewObjectDefinition.type = SCORES_ObjType_Question;
 						break;
-				case	CHAR_APOSTROPHE:
+				case	'\'':
 						gNewObjectDefinition.type = SCORES_ObjType_Apostrophe;
 						break;
 				case	'.':

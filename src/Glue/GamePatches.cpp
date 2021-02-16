@@ -64,34 +64,6 @@ OSErr MakePrefsFSSpec(const char* prefFileName, FSSpec* spec)
 	return FSMakeFSSpec(gPrefsFolderVRefNum, gPrefsFolderDirID, name, spec);
 }
 
-char GetTypedKey(void)
-{
-	static const char KCHR_US_LOWER[] = "asdfhgzxcv\0bqweryt123465=97-80]ou[ip\rlj'k;\\,/nm.\t `\x08\0\x1B\0\0\0\0\0\0\0\0\0\0\0.\0*\0+\0\0\0\0\0/\n\0-\0\0=01234567\x0089\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x7F\0\0\0\0\0\x1C\x1D\x1F\x1E";
-	static const char KCHR_US_UPPER[] = "ASDFHGZXCV\0BQWERYT!@#$^%+(&_*)}OU{IP\rLJ\"K:|<?NM>\t ~\x08\0\x1B\0\0\0\0\0\0\0\0\0\0\0.\0*\0+\0\0\0\0\0/\n\0-\0\0=01234567\x0089\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x7F\0\0\0\0\0\x1C\x1D\x1F\x1E";
-
-	ReadKeyboard_Real();
-
-	for (size_t i = 0; i < sizeof(KCHR_US_LOWER); i++)
-	{
-		if (!GetNewKeyState_Real(i))
-			continue;
-
-		char c = '\0';
-
-		if (GetKeyState_Real(kVK_Shift) || GetKeyState_Real(kVK_RightShift))
-			c = KCHR_US_UPPER[i];
-		else
-			c = KCHR_US_LOWER[i];
-
-		if (c == '\0')
-			continue;
-
-		return c;
-	}
-
-	return 0;
-}
-
 
 /**************** DRAW PICTURE TO SCREEN ***********************/
 //
@@ -203,8 +175,8 @@ void PlayAMovie(FSSpec* spec)
 		if (waitTicks > 0)
 			SDL_Delay(waitTicks);
 
-		ReadKeyboard();
-		movieAbortedByUser = GetNewKeyState_Skip();
+		UpdateInput();
+		movieAbortedByUser = UserWantsOut();
 	}
 
 	// Freeze on last frame while audio track is still playing (Lose.mov requires this)
@@ -212,8 +184,8 @@ void PlayAMovie(FSSpec* spec)
 	{
 		DoSDLMaintenance();
 		SDL_Delay(100);
-		ReadKeyboard();
-		movieAbortedByUser = GetNewKeyState_Skip();
+		UpdateInput();
+		movieAbortedByUser = UserWantsOut();
 	}
 
 	movie.audioStream.Stop();
@@ -292,34 +264,10 @@ void DoSDLMaintenance()
 	debugText.frameAccumulator++;
 #endif
 
-	if (GetNewKeyState(kKey_ToggleFullscreen))
+	if (GetNewNeedState(kNeed_ToggleFullscreen))
 	{
 		gGamePrefs.fullscreen = gGamePrefs.fullscreen ? 0 : 1;
 		SetFullscreenMode();
-	}
-
-	SDL_Event event;
-	while (SDL_PollEvent(&event))
-	{
-		switch (event.type)
-		{
-		case SDL_QUIT:
-			throw Pomme::QuitRequest();
-			break;
-
-		case SDL_WINDOWEVENT:
-			switch (event.window.event)
-			{
-			case SDL_WINDOWEVENT_CLOSE:
-				throw Pomme::QuitRequest();
-				break;
-
-			case SDL_WINDOWEVENT_RESIZED:
-				QD3D_OnWindowResized(event.window.data1, event.window.data2);
-				break;
-			}
-			break;
-		}
 	}
 }
 

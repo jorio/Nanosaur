@@ -143,7 +143,7 @@ float	fps = gFramesPerSecondFrac;
 	
 			/* SEE IF TOGGLE MODES */
 			
-	if (GetNewKeyState(kKey_CameraMode))	
+	if (GetNewNeedState(kNeed_CameraMode))
 	{
 		gCameraMode++;
 		if (gCameraMode > 1)
@@ -189,14 +189,14 @@ float	fps = gFramesPerSecondFrac;
 						/******************************/
 						
 		case	CAMERA_MODE_MANUAL:
-				if (Nano_GetKeyState(kKey_ZoomIn))	
+				if (GetNeedState(kNeed_ZoomIn))
 				{
 					gCameraDistFromMe -= fps * 100;		// closer camera
 					if (gCameraDistFromMe < CAMERA_CLOSEST)
 						gCameraDistFromMe = CAMERA_CLOSEST;
 				}
 				else
-				if (Nano_GetKeyState(kKey_ZoomOut))	
+				if (GetNeedState(kNeed_ZoomOut))
 				{
 					gCameraDistFromMe += fps * 100;		// farther camera
 					if (gCameraDistFromMe > CAMERA_FARTHEST)
@@ -205,12 +205,12 @@ float	fps = gFramesPerSecondFrac;
 				
 						/* CHECK CAMERA VIEW ROTATION */
 						
-				if (Nano_GetKeyState(kKey_SwivelCameraLeft))
+				if (GetNeedState(kNeed_CameraLeft))
 				{
 					gCameraViewYAngle -= 2*fps;
 				}
 				else
-				if (Nano_GetKeyState(kKey_SwivelCameraRight))
+				if (GetNeedState(kNeed_CameraRight))
 				{
 					gCameraViewYAngle += 2*fps;
 				}

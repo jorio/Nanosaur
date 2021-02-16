@@ -27,7 +27,6 @@
 
 #include <SDL.h> // source port addition for message boxes
 
-extern	long		gOriginalSystemVolume;
 extern	short		gMainAppRezFile;
 extern	Boolean		gGameOverFlag;
 extern	QD3DSetupOutputType		*gGameViewInfoPtr;

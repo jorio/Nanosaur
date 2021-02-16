@@ -38,7 +38,6 @@ extern	TQ3Point3D			gCoord;
 extern	WindowPtr			gCoverWindow;
 extern	NewObjectDefinitionType	gNewObjectDefinition;
 extern	QD3DSetupOutputType		*gGameViewInfoPtr;
-extern	KeyMap gNewKeys_Real;
 extern	Boolean		gSongPlayingFlag,gResetSong,gDisableAnimSounds;
 extern	FSSpec		gDataSpec;
 extern	PrefsType	gGamePrefs;
@@ -199,13 +198,13 @@ TQ3Point3D		cameraFrom = { 110, 90, 190.0 };
 			
 	QD3D_CalcFramesPerSecond();
 	
-	while (1) //while(!Button())
+	while (1)
 	{
 		MoveObjects();
 		QD3D_DrawScene(gGameViewInfoPtr,DrawObjects);
 		QD3D_CalcFramesPerSecond();
-		ReadKeyboard();									// keys get us out
-		if (gNewKeys_Real[0] || gNewKeys_Real[1] ||  gNewKeys_Real[2] || gNewKeys_Real[3])
+		UpdateInput();									// keys get us out
+		if (UserWantsOut())
 			break;
 	}
 	
@@ -318,8 +317,8 @@ FSSpec			spec;
 
 	while((!gResetSong) && gSongPlayingFlag)					// wait until song stops
 	{
-		ReadKeyboard();
-		if (gNewKeys_Real[0] || gNewKeys_Real[1] ||  gNewKeys_Real[2] || gNewKeys_Real[3])
+		UpdateInput();
+		if (UserWantsOut())
 			break;
 
 		MoveObjects();
@@ -417,7 +416,7 @@ static void Slideshow(const struct SlideshowEntry* slides)
 		uint8_t* clearColor = (uint8_t*)gCoverWindowPixPtr;
 		glClearColor(clearColor[1]/255.0f, clearColor[2]/255.0f, clearColor[3]/255.0f, 1.0f);
 
-		ReadKeyboard();
+		UpdateInput();
 
 		float slideAge = 0;
 		bool promptShownYet = false;
@@ -446,7 +445,7 @@ static void Slideshow(const struct SlideshowEntry* slides)
 				promptShownYet = true;
 			}
 
-			ReadKeyboard();
+			UpdateInput();
 			DoSoundMaintenance();
 
 			Render_StartFrame();
@@ -461,7 +460,7 @@ static void Slideshow(const struct SlideshowEntry* slides)
 			if (gamma < 100)
 				wantOut = false;
 			else
-				wantOut = GetNewKeyState_Skip();
+				wantOut = UserWantsOut();
 		} while (!wantOut);
 	}
 

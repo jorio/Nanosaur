@@ -193,12 +193,12 @@ do_again:
 		
 				/* CHECK FOR KEY INPUT */
 
-		ReadKeyboard();
-				
-		if (GetNewKeyState_Confirm())	// see if select
+		UpdateInput();
+
+		if (GetNewNeedState(kNeed_UIConfirm))								// see if select
 			break;
 
-		if (GetNewKeyState_Real(KEY_LEFT))									// spin left
+		if (GetNewNeedState(kNeed_UILeft))									// spin left
 		{
 			if (gCurrentSelection == 0)
 				gCurrentSelection = NUM_MAINMENU_ICONS-1;
@@ -206,8 +206,8 @@ do_again:
 				gCurrentSelection--;
 			SpinToPreviousMainMenuIcon();
 		}
-		else	
-		if (GetNewKeyState_Real(KEY_RIGHT))									// spin right
+		else
+		if (GetNewNeedState(kNeed_UIRight))									// spin right
 		{
 			if (++gCurrentSelection >= NUM_MAINMENU_ICONS)
 				gCurrentSelection = 0;
@@ -431,8 +431,8 @@ Boolean	stop;
 		QD3D_CalcFramesPerSecond();					
 		MoveObjects();
 		QD3D_DrawScene(gGameViewInfoPtr,DrawObjects);
-		ReadKeyboard();
-		
+		UpdateInput();
+
 	} while (!stop);
 }
 

@@ -50,7 +50,6 @@
 #define	CHAR_LEFT			0x1c
 #define	CHAR_RIGHT			0x1d
 #define	CHAR_DELETE			0x08
-#define	CHAR_APOSTROPHE		0x27
 
 
 							// COLLISION SIDE INFO

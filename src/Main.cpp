@@ -34,7 +34,7 @@ extern "C"
 	void GameMain(void);
 }
 
-static void FindGameData()
+static fs::path FindGameData()
 {
 	fs::path dataPath;
 
@@ -60,9 +60,11 @@ static void FindGameData()
 	gDataSpec = Pomme::Files::HostPathToFSSpec(dataPath / "Skeletons");
 
 	// Use application resource file
-	auto applicationSpec = Pomme::Files::HostPathToFSSpec(dataPath / "Application");
+	auto applicationSpec = Pomme::Files::HostPathToFSSpec(dataPath / "System" / "Application");
 	short resFileRefNum = FSpOpenResFile(&applicationSpec, fsRdPerm);
 	UseResFile(resFileRefNum);
+
+	return dataPath;
 }
 
 int CommonMain(int argc, const char** argv)
@@ -94,10 +96,20 @@ int CommonMain(int argc, const char** argv)
 	gCoverWindow = Pomme::Graphics::GetScreenPort();
 	gCoverWindowPixPtr = (UInt32*) GetPixBaseAddr(GetGWorldPixMap(gCoverWindow));
 
-	FindGameData();
+	fs::path dataPath = FindGameData();
 #if !(__APPLE__)
 	Pomme::Graphics::SetWindowIconFromIcl8Resource(gSDLWindow, 128);
 #endif
+
+	// Init joystick subsystem
+	{
+		SDL_Init(SDL_INIT_JOYSTICK);
+		auto gamecontrollerdbPath8 = (dataPath / "System" / "gamecontrollerdb.txt").u8string();
+		if (-1 == SDL_GameControllerAddMappingsFromFile((const char*)gamecontrollerdbPath8.c_str()))
+		{
+			SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, "Nanosaur", "Couldn't load gamecontrollerdb.txt!", gSDLWindow);
+		}
+	}
 
 	// Start the game
 	try
