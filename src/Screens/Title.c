@@ -385,28 +385,29 @@ static void Slideshow(const struct SlideshowEntry* slides)
 	for (int i = 0; slides[i].opcode != SLIDESHOW_STOP; i++)
 	{
 		const struct SlideshowEntry* slide = &slides[i];
+		PicHandle picHandle = nil;
 
 		if (slide->opcode == SLIDESHOW_RESOURCE)
 		{
-			PicHandle picHandle = GetPicture(slide->pictResource);
-			if (!picHandle)
-				continue;
-			DrawPicture(picHandle, &(**picHandle).picFrame);
-			ReleaseResource((Handle)picHandle);
+			picHandle = GetPicture(slide->pictResource);
+			GAME_ASSERT(picHandle);
 		}
 		else if (slide->opcode == SLIDESHOW_FILE)
 		{
-			OSErr result;
-			result = FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, slide->imagePath, &spec);
-			if (result != noErr)
-				continue;
-			DrawPictureToScreen(&spec, 0, 0);
+			OSErr result = FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, slide->imagePath, &spec);
+			GAME_ASSERT(result == noErr);
+
+			picHandle = GetPictureFromFile(&spec);
+			GAME_ASSERT(picHandle);
 		}
 		else
 		{
 			DoAlert("unsupported slideshow opcode");
 			continue;
 		}
+
+		DrawPicture(picHandle, &(**picHandle).picFrame);
+		DisposeHandle((Handle)picHandle);
 
 		if (slide->postDrawCallback)
 		{

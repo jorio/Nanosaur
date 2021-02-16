@@ -1,5 +1,4 @@
 #include "Pomme.h"
-#include <QD3DMath.h>
 #include <SDL.h>
 #include <SDL_opengl.h>
 
@@ -12,61 +11,20 @@ extern "C" {
 #include "misc.h" // DrawPictureToScreen
 #include "window.h" // GAME_VIEW_WIDTH, GAME_VIEW_HEIGHT
 #include "renderer.h"
-#include "version.h"
 }
 
-#include "GamePatches.h"
-
-#include "PommeInit.h"
 #include "PommeFiles.h"
 #include "PommeGraphics.h"
 #include "PommeVideo.h"
 #include "Video/Cinepak.h"
-
-#include <fstream>
 
 extern "C" {
 extern SDL_Window* gSDLWindow;
 extern PrefsType gGamePrefs;
 }
 
-
-/**************** DRAW PICTURE TO SCREEN ***********************/
-//
-// Uses Quicktime to load any kind of picture format file and draws
-//
-//
-// INPUT: myFSSpec = spec of image file
-//
-
-OSErr DrawPictureToScreen(FSSpec* spec, short x, short y)
-{
-	short refNum;
-
-	OSErr error = FSpOpenDF(spec, fsRdPerm, &refNum);
-	if (noErr != error)
-	{
-		TODO2("Couldn't open picture: " << spec->cName);
-		return error;
-	}
-
-	auto& stream = Pomme::Files::GetStream(refNum);
-	auto pict = Pomme::Graphics::ReadPICT(stream, true);
-	FSClose(refNum);
-
-	GrafPtr oldPort;
-	GetPort(&oldPort);
-	SetPort(Pomme::Graphics::GetScreenPort());
-	Pomme::Graphics::DrawARGBPixmap(x, y, pict);
-	SetPort(oldPort);
-
-	return noErr;
-}
-
-
 //-----------------------------------------------------------------------------
 // Movie
-
 
 void PlayAMovie(FSSpec* spec)
 {
@@ -158,23 +116,4 @@ void PlayAMovie(FSSpec* spec)
 
 	Render_Dispose2DCover();
 	SDL_GL_DeleteContext(glContext);
-}
-
-//-----------------------------------------------------------------------------
-// Fade
-
-void DumpGLPixels(const char* outFN)
-{
-	int width = 640;
-	int height = 480;
-	SDL_GetWindowSize(gSDLWindow, &width, &height);
-	auto buf = std::vector<char>(width * height * 3);
-	glReadPixels(0, 0, width, height, GL_BGR, GL_UNSIGNED_BYTE, buf.data());
-
-	std::ofstream out(outFN, std::ios::out | std::ios::binary);
-	uint16_t TGAhead[] = {0, 2, 0, 0, 0, 0, (uint16_t) width, (uint16_t) height, 24};
-	out.write(reinterpret_cast<char*>(&TGAhead), sizeof(TGAhead));
-	out.write(buf.data(), buf.size());
-
-	printf("Screenshot saved to %s\n", outFN);
 }

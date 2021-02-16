@@ -147,6 +147,7 @@ short	i;
 void InitInfobar(void)
 {
 FSSpec	spec;
+OSErr	err;
 
 
 			/* INIT GPS MAP */
@@ -156,8 +157,13 @@ FSSpec	spec;
 
 			/* DRAW INFOBAR */
 
-	FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":images:infobar.pict", &spec);
-    DrawPictureToScreen(&spec, 0,0);
+	err = FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":Images:Infobar.pict", &spec);
+	GAME_ASSERT(err == noErr);
+
+	PicHandle picHandle = GetPictureFromFile(&spec);
+	GAME_ASSERT(picHandle);
+
+	DrawPicture(picHandle, &(**picHandle).picFrame);
 
 
 			/* MAKE COMPASS */
