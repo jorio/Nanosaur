@@ -162,21 +162,6 @@ unsigned long MyRandomLong(void)
   return seed2 ^= (((seed1 ^= (seed2>>5)*1568397607UL)>>7)+
                    (seed0 = (seed0+1)*3141592621UL))*2435386481UL;
 }
- 
-
-/******************** MY RANDOM LONG: ALT **********************/
-//
-// This is identical to one above except it uses different vars.
-// The reason for this is so that random NON-INCIDENTAL numbers can
-// be generated on one machine during a 2-player network game w/o
-// either machine falling out of sync.
-//
-
-unsigned long MyRandomLong_Alt(void)
-{
-  return seed2_alt ^= (((seed1_alt ^= (seed2_alt>>5)*1568397607UL)>>7)+
-                   (seed0_alt = (seed0_alt+1)*3141592621UL))*2435386481UL;
-}
 
 
 /************** RANDOM FLOAT ********************/
@@ -212,19 +197,6 @@ void SetMyRandomSeed(unsigned long seed)
 	seed1_alt = 0;
 	seed2_alt = 0;	
 	
-}
-
-/**************** INIT MY RANDOM SEED *******************/
-
-void InitMyRandomSeed(void)
-{
-	seed0 = 0x2a80ce30;
-	seed1 = 0;
-	seed2 = 0;	
-
-	seed0_alt = 0x2a80ce30;
-	seed1_alt = 0;
-	seed2_alt = 0;	
 }
 
 
