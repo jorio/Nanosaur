@@ -30,9 +30,7 @@ extern	PrefsType	gGamePrefs;
 
 void MakeFadeEvent(Boolean	fadeIn)
 {
-	if (!gGamePrefs.allowGammaFade)
-		return;
-
+#if ALLOW_FADE
 ObjNode	*newObj;
 
 	gNewObjectDefinition.genre = EVENT_GENRE;
@@ -53,6 +51,7 @@ ObjNode	*newObj;
 		newObj->SpecialF[0] = 0;
 	else
 		newObj->SpecialF[0] = 100;
+#endif
 }
 
 

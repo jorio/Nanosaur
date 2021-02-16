@@ -2,6 +2,10 @@
 
 #include <QD3D.h>
 
+#if !defined(ALLOW_FADE) && !_DEBUG
+#define ALLOW_FADE		1
+#endif
+
 typedef struct RenderStats
 {
 	int			trianglesDrawn;

@@ -67,12 +67,7 @@ std::vector<SettingEntry> settings = {
 		{&gGamePrefs.canDoFog           , "Fog"                 },
 //		{&gGamePrefs.shadows            , "Shadow Decals"       },
 //		{&gGamePrefs.dust               , "Dust"                },
-#if _DEBUG
-		{&gGamePrefs.allowGammaFade     , "[DEBUG] Allow Gamma Fade"    },
-#endif
 		{&gGamePrefs.softerLighting     , "Softer Lighting"     },
-//		{&gGamePrefs.interpolationStyle , "Face Shading"      , nullptr, {"Flat", "Per-Pixel"} },
-//		{&gGamePrefs.opaqueWater        , "Water Alpha"       , nullptr, {"Translucent", "Opaque"}},
 		{&gGamePrefs.mainMenuHelp       , "Main Menu Help"      },
 };
 

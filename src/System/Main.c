@@ -126,12 +126,9 @@ OSErr		iErr;
 	gGamePrefs.canDoFog = true;
 	gGamePrefs.shadows = true;
 	gGamePrefs.dust = true;
-	gGamePrefs.interpolationStyle = 1;
-	gGamePrefs.allowGammaFade = true;
 	gGamePrefs.fullscreen = true;
 	gGamePrefs.vsync = true;
 	gGamePrefs.mainMenuHelp = true;
-	gGamePrefs.opaqueWater = false;
 	gGamePrefs.extreme = false;
 
 	memcpy(gGamePrefs.keys, kDefaultKeyBindings, sizeof(gGamePrefs.keys));

@@ -298,16 +298,12 @@ typedef struct
 	Boolean	canDoFog;
 	Boolean	shadows;
 	Boolean	dust;
-	Boolean	allowGammaFade;
 	Boolean softerLighting;
 	Boolean fullscreen;
 	Boolean mainMenuHelp;
-	Boolean interpolationStyle;
 	Boolean vsync;
-	Boolean opaqueWater;
 	Boolean extreme;
 	KeyBinding keys[NUM_CONTROL_NEEDS];
-	Boolean	reserved[4];
 }PrefsType;
 
 #define PREFS_MAGIC "Nanosaur Prefs v3"

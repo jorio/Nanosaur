@@ -412,7 +412,16 @@ PrefsType	prefs;
 	if (iErr)
 		return(iErr);
 
-	
+	iErr = GetEOF(refNum, &count);
+	if (iErr)
+		return iErr;
+
+	if (count != sizeof(PrefsType))
+	{
+		// size of file doesn't match size of struct
+		return badFileFormat;
+	}
+
 	count = sizeof(PrefsType);
 	iErr = FSRead(refNum, &count,  (Ptr)&prefs);		// read data from file
 	FSClose(refNum);

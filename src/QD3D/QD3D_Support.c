@@ -109,7 +109,7 @@ TQ3Vector3D			fillDirection2 = { -1, -1, .2 };
 	viewDef->view.paneClip.bottom 	= 0;
 	viewDef->view.backdropFit		= kCoverQuadFill;
 
-	viewDef->styles.interpolation 	= gGamePrefs.interpolationStyle? kQ3InterpolationStyleVertex: kQ3InterpolationStyleNone; 
+	viewDef->styles.interpolation 	= kQ3InterpolationStyleVertex;
 	viewDef->styles.backfacing 		= kQ3BackfacingStyleRemove; 
 	viewDef->styles.fill			= kQ3FillStyleFilled; 
 	viewDef->styles.usePhong 		= false; 

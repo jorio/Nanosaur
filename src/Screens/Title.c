@@ -426,13 +426,15 @@ static void Slideshow(const struct SlideshowEntry* slides)
 		do
 		{
 			float gamma = 100;
-			if (gGamePrefs.allowGammaFade && i == 0)
+#if ALLOW_FADE
+			if (i == 0)
 			{
 				gamma = 100.0f * slideAge / 1.0f;
 				if (gamma > 100)
 					gamma = 100;
 			}
 			Render_SetWindowGamma(gamma);
+#endif
 
 			slideAge += gFramesPerSecondFrac;
 

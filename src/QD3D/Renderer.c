@@ -461,11 +461,13 @@ void Render_EndFrame(void)
 		DisableState(GL_SCISSOR_TEST);
 	}
 
+#if ALLOW_FADE
 	// Draw fade overlay
-	if (gGamePrefs.allowGammaFade && gFadeOverlayOpacity > 0.01f)
+	if (gFadeOverlayOpacity > 0.01f)
 	{
 		DrawFadeOverlay(gFadeOverlayOpacity);
 	}
+#endif
 }
 
 #pragma mark -
@@ -941,9 +943,7 @@ void Render_SetWindowGamma(float percent)
 
 void Render_FreezeFrameFadeOut(void)
 {
-	if (!gGamePrefs.allowGammaFade)
-		return;
-
+#if ALLOW_FADE
 	//-------------------------------------------------------------------------
 	// Capture window contents into texture
 
@@ -1023,4 +1023,5 @@ void Render_FreezeFrameFadeOut(void)
 	glDeleteTextures(1, &textureName);
 
 	gFadeOverlayOpacity = 1;
+#endif
 }
