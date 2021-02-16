@@ -23,9 +23,8 @@
 #include "sound2.h"
 #include "title.h"
 #include "input.h"
+#include "file.h"
 #include "windows_nano.h"
-
-#include "GamePatches.h"
 
 extern	NewObjectDefinitionType	gNewObjectDefinition;
 extern	QD3DSetupOutputType		*gGameViewInfoPtr;

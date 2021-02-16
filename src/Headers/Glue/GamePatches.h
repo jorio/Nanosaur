@@ -16,8 +16,6 @@ void DoQualityDialog(void);
 
 void SetProModeSettings(int isPro);
 
-OSErr MakePrefsFSSpec(const char* prefFileName, FSSpec* spec);
-
 void DoSDLMaintenance(void);
 
 void SetFullscreenMode(void);
