@@ -1,6 +1,5 @@
 #include "Pomme.h"
 
-extern "C" {
 #include "structs.h"
 #include "input.h"
 #include "file.h"
@@ -9,20 +8,15 @@ extern "C" {
 #include "terrain.h"
 #include "misc.h"
 #include "window.h"
-}
 
 #include <SDL.h>
-#include <functional>
-#include <vector>
 #include "version.h"
 
-extern "C" {
 extern	WindowPtr				gCoverWindow;
 extern	PrefsType				gGamePrefs;
-extern	float			gFramesPerSecond,gFramesPerSecondFrac;
+extern	float					gFramesPerSecond,gFramesPerSecondFrac;
 extern	SDL_Window*				gSDLWindow;
 extern	const int				PRO_MODE;
-}
 
 static const int column1X = 320-256/2;
 static const int column2X = column1X + 256;
@@ -39,36 +33,51 @@ static unsigned int PositiveModulo(int value, unsigned int m)
 	return mod;
 }
 
-struct SettingEntry
+typedef struct SettingEntry
 {
-	Byte* ptr;
-	const char* label;
-	std::function<void()> callback = nullptr;
-	std::vector<const char*> choices = {"NO", "YES"};
+	Byte*			valuePtr;
+	const char*		label;
+	void			(*callback)(void);
+	unsigned int	numChoices;
+	const char*		choices[8];
+} SettingEntry;
 
-	void Cycle(int delta)
+
+static void Cycle(SettingEntry* entry, int delta)
+{
+	unsigned int value = (unsigned int) *entry->valuePtr;
+	value = PositiveModulo(value + delta, entry->numChoices);
+	*entry->valuePtr = value;
+	if (entry->callback)
 	{
-		unsigned int value = (unsigned int) *ptr;
-		value = PositiveModulo(value + delta, (unsigned int) choices.size());
-		*ptr = value;
-		if (callback)
-		{
-			callback();
-		}
+		entry->callback();
 	}
+}
+
+static void Callback_Difficulty(void)
+{
+	SetProModeSettings(gGamePrefs.extreme);
+}
+
+static void Callback_VSync(void)
+{
+	SDL_GL_SetSwapInterval(gGamePrefs.vsync ? 1 : 0);
+}
+
+static SettingEntry gSettingEntries[] =
+{
+	{&gGamePrefs.extreme			, "Game Difficulty"		, Callback_Difficulty,	2,	{ "Easy", "EXTREME!" } },
+	{&gGamePrefs.fullscreen			, "Fullscreen"			, SetFullscreenMode,	2,	{ "NO", "YES" }, },
+	{&gGamePrefs.vsync				, "V-Sync"				, Callback_VSync,		2,	{ "NO", "YES" }, },
+	{&gGamePrefs.highQualityTextures, "Texture Filtering"	, nil,					2,	{ "NO", "YES" }, },
+	{&gGamePrefs.canDoFog			, "Fog"					, nil,					2,	{ "NO", "YES" }, },
+//	{&gGamePrefs.shadows			, "Shadow Decals"		, nil,					2,	{ "NO", "YES" }, },
+//	{&gGamePrefs.dust				, "Dust"				, nil,					2,	{ "NO", "YES" }, },
+	{&gGamePrefs.softerLighting		, "Softer Lighting"		, nil,					2,	{ "NO", "YES" }, },
+	{&gGamePrefs.mainMenuHelp		, "Main Menu Help"		, nil,					2,	{ "NO", "YES" }, },
 };
 
-std::vector<SettingEntry> settings = {
-		{&gGamePrefs.extreme            , "Game Difficulty"   , []() { SetProModeSettings(gGamePrefs.extreme); }, { "Easy", "EXTREME!" } },
-		{&gGamePrefs.fullscreen         , "Fullscreen"        , SetFullscreenMode },
-		{&gGamePrefs.vsync              , "V-Sync"            , []() { SDL_GL_SetSwapInterval(gGamePrefs.vsync ? 1 : 0); } },
-		{&gGamePrefs.highQualityTextures, "Texture Filtering"   },
-		{&gGamePrefs.canDoFog           , "Fog"                 },
-//		{&gGamePrefs.shadows            , "Shadow Decals"       },
-//		{&gGamePrefs.dust               , "Dust"                },
-		{&gGamePrefs.softerLighting     , "Softer Lighting"     },
-		{&gGamePrefs.mainMenuHelp       , "Main Menu Help"      },
-};
+static const int numSettingEntries = sizeof(gSettingEntries) / sizeof(SettingEntry);
 
 static bool needFullRender = false;
 
@@ -117,9 +126,9 @@ static void RenderQualityDialog()
 	rowRect.left   = column1X;
 	rowRect.right  = column2X;
 
-	for (size_t i = 0; i < settings.size(); i++)
+	for (int i = 0; i < numSettingEntries; i++)
 	{
-		auto& setting = settings[i];
+		SettingEntry* entry = &gSettingEntries[i];
 		bool isSelected = (int) i == selectedEntry;
 
 		rowRect.top    = (SInt16)(200 + i * 16);
@@ -144,15 +153,15 @@ static void RenderQualityDialog()
 		RGBForeColor2(isSelected ? 0x108020 : 0x000000);
 
 		MoveTo(xOffset + column1X, rowRect.top + 12);
-		DrawStringC(settings[i].label);
+		DrawStringC(entry->label);
 
-		unsigned int settingByte = (unsigned int) *setting.ptr;
-		if (settingByte > settings[i].choices.size())
+		unsigned int settingByte = (unsigned int) *entry->valuePtr;
+		if (settingByte > entry->numChoices)
 		{
 			settingByte = 0;
 		}
 
-		auto choice = setting.choices[settingByte];
+		const char* choice = entry->choices[settingByte];
 		short choiceWidth = TextWidthC(choice);
 		MoveTo(column2X - choiceWidth, rowRect.top + 12);
 		DrawStringC(choice);
@@ -179,11 +188,12 @@ void DoQualityDialog()
 		
 		if (GetNewNeedState(kNeed_UIUp))   { selectedEntry--; needFullRender = true; PlayEffect(EFFECT_SELECT); }
 		if (GetNewNeedState(kNeed_UIDown)) { selectedEntry++; needFullRender = true; PlayEffect(EFFECT_SELECT); }
-		selectedEntry = PositiveModulo(selectedEntry, (unsigned int)settings.size());
+		selectedEntry = PositiveModulo(selectedEntry, (unsigned int)numSettingEntries);
 
 		if (GetNewNeedState(kNeed_UIConfirm) || GetNewNeedState(kNeed_UILeft) || GetNewNeedState(kNeed_UIRight))
 		{
-			settings[selectedEntry].Cycle(GetNewNeedState(kNeed_UILeft) ? -1 : 1);
+			int delta = GetNewNeedState(kNeed_UILeft) ? -1 : 1;
+			Cycle(&gSettingEntries[selectedEntry], delta);
 			PlayEffect(EFFECT_BLASTER);
 			needFullRender = true;
 		}

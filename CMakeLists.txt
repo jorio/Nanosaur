@@ -92,7 +92,7 @@ set(GAME_CORE_SOURCES
 	${GAME_SRCDIR}/Screens/Title.c
 	${GAME_SRCDIR}/Screens/MainMenu.c
 	${GAME_SRCDIR}/Screens/HighScores.c
-	${GAME_SRCDIR}/Screens/SettingsScreen.cpp
+	${GAME_SRCDIR}/Screens/SettingsScreen.c
 	${GAME_SRCDIR}/Screens/Movie.cpp
 	${GAME_SRCDIR}/QD3D/Pomme3DMF_API.cpp
 	${GAME_SRCDIR}/QD3D/Pomme3DMF_Parser.cpp
