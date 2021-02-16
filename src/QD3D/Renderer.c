@@ -17,12 +17,6 @@
 #include "globals.h"	// status bits
 #include <stdlib.h>		// qsort
 
-#if __APPLE__
-	#include <OpenGL/glu.h>
-#else
-	#include <GL/glu.h>
-#endif
-
 extern TQ3Param2D				gEnvMapUVs[];
 extern RenderStats				gRenderStats;
 extern PrefsType				gGamePrefs;

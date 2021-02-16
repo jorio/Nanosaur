@@ -4,9 +4,9 @@
 
 
 #if __APPLE__
-	#include <OpenGL/glu.h>		// gluErrorString
+	#include <OpenGL/glu.h>		// gluErrorString, gluPerspective, gluLookAt
 #else
-	#include <GL/glu.h>			// gluErrorString
+	#include <GL/glu.h>			// gluErrorString, gluPerspective, gluLookAt
 #endif
 
 

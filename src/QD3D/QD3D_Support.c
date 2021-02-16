@@ -13,12 +13,6 @@
 #include <QD3D.h>
 #include <QD3DMath.h>
 
-#if __APPLE__
-	#include <OpenGL/glu.h>		// gluPerspective
-#else
-	#include <GL/glu.h>			// gluPerspective
-#endif
-
 #include <frustumculling.h>
 #include <stdio.h>
 
