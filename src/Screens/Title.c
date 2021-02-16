@@ -453,8 +453,7 @@ static void Slideshow(const struct SlideshowEntry* slides)
 			Render_StartFrame();
 			Render_Draw2DCover(kCoverQuadFit);
 
-			QD3D_CalcFramesPerSecond(); // required for DoSDLMaintenance to properly cap the framerate
-			DoSDLMaintenance();
+			QD3D_CalcFramesPerSecond(); // required to properly cap the framerate
 
 			Render_EndFrame();
 			SDL_GL_SwapWindow(gSDLWindow);

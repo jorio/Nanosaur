@@ -26,14 +26,8 @@ extern "C" {
 #include <fstream>
 
 extern "C" {
-extern RenderStats gRenderStats;
 extern SDL_Window* gSDLWindow;
-extern float gFramesPerSecond;
 extern PrefsType gGamePrefs;
-extern short gPrefsFolderVRefNum;
-extern long gPrefsFolderDirID;
-extern const int PRO_MODE;
-extern TQ3Point3D gMyCoord;
 }
 
 
@@ -138,7 +132,6 @@ void PlayAMovie(FSSpec* spec)
 
 		Render_StartFrame();
 		Render_Draw2DCover(kCoverQuadLetterbox);
-		DoSDLMaintenance();
 		SDL_GL_SwapWindow(gSDLWindow);
 
 		unsigned int endTicks = SDL_GetTicks();
@@ -154,7 +147,6 @@ void PlayAMovie(FSSpec* spec)
 	// Freeze on last frame while audio track is still playing (Lose.mov requires this)
 	while (!movieAbortedByUser && movie.audioStream.GetState() == cmixer::CM_STATE_PLAYING)
 	{
-		DoSDLMaintenance();
 		SDL_Delay(100);
 		UpdateInput();
 		movieAbortedByUser = UserWantsOut();
@@ -185,60 +177,4 @@ void DumpGLPixels(const char* outFN)
 	out.write(buf.data(), buf.size());
 
 	printf("Screenshot saved to %s\n", outFN);
-}
-
-//-----------------------------------------------------------------------------
-// SDL maintenance
-
-static struct
-{
-	UInt32 lastUpdateAt = 0;
-	const UInt32 updateInterval = 50;
-	UInt32 frameAccumulator = 0;
-	char titleBuffer[1024];
-} debugText;
-
-void DoSDLMaintenance()
-{
-	static int holdFramerateCap = 0;
-
-	// Cap frame rate.
-	if (gFramesPerSecond > 200 || holdFramerateCap > 0)
-	{
-		SDL_Delay(5);
-		// Keep framerate cap for a while to avoid jitter in game physics
-		holdFramerateCap = 10;
-	}
-	else
-	{
-		holdFramerateCap--;
-	}
-
-#if _DEBUG
-	UInt32 now = SDL_GetTicks();
-	UInt32 ticksElapsed = now - debugText.lastUpdateAt;
-	if (ticksElapsed >= debugText.updateInterval) {
-		float fps = 1000 * debugText.frameAccumulator / (float)ticksElapsed;
-		snprintf(debugText.titleBuffer, sizeof(debugText.titleBuffer),
-			"%s %s - fps:%d tris:%d meshq:%d - x:%.0f z:%.0f",
-			PRO_MODE ? "Nanosaur Extreme" : "Nanosaur",
-			PROJECT_VERSION,
-			(int)round(fps),
-			gRenderStats.trianglesDrawn,
-			gRenderStats.meshQueueSize,
-			gMyCoord.x,
-			gMyCoord.z
-			);
-		SDL_SetWindowTitle(gSDLWindow, debugText.titleBuffer);
-		debugText.frameAccumulator = 0;
-		debugText.lastUpdateAt = now;
-	}
-	debugText.frameAccumulator++;
-#endif
-
-	if (GetNewNeedState(kNeed_ToggleFullscreen))
-	{
-		gGamePrefs.fullscreen = gGamePrefs.fullscreen ? 0 : 1;
-		SetFullscreenMode();
-	}
 }

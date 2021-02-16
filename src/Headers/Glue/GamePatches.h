@@ -14,8 +14,6 @@ void DoQualityDialog(void);
 
 void SetProModeSettings(int isPro);
 
-void DoSDLMaintenance(void);
-
 #ifdef __cplusplus
 }
 #endif

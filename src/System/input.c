@@ -14,6 +14,7 @@
 #include "globals.h"
 #include "misc.h"
 #include "input.h"
+#include "window.h"
 
 extern	short		gMainAppRezFile;
 extern	Boolean		gGameOverFlag;
@@ -276,6 +277,13 @@ void UpdateInput(void)
 		}
 
 		UpdateKeyState(&gNeedStates[i], downNow);
+	}
+
+
+	if (GetNewNeedState(kNeed_ToggleFullscreen))
+	{
+		gGamePrefs.fullscreen = gGamePrefs.fullscreen ? 0 : 1;
+		SetFullscreenMode();
 	}
 }
 

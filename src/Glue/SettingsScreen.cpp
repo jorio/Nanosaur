@@ -196,7 +196,6 @@ void DoQualityDialog()
 		Render_StartFrame();
 		Render_Draw2DCover(kCoverQuadFit);
 
-		DoSDLMaintenance();
 		SDL_GL_SwapWindow(gSDLWindow);
 	}
 

@@ -346,8 +346,6 @@ ObjNode		*thisNodePtr;
 			/* CALL SOUND MAINTENANCE HERE FOR CONVENIENCE */
 			
 	DoSoundMaintenance();
-	
-	DoSDLMaintenance(); // Source port addition, for convenience as well
 
 			/* FLUSH THE DELETE QUEUE */
 	

@@ -15,6 +15,7 @@
 
 #include <frustumculling.h>
 #include <stdio.h>
+#include <version.h>
 
 #include "globals.h"
 #include "misc.h"
@@ -31,6 +32,9 @@ extern	SDL_Window	*gSDLWindow;
 extern	long		gScreenXOffset,gScreenYOffset;
 extern	PrefsType	gGamePrefs;
 extern	QD3DSetupOutputType		*gGameViewInfoPtr;
+extern	const int				PRO_MODE;
+extern	RenderStats				gRenderStats;
+extern	TQ3Point3D				gMyCoord;
 
 
 /****************************/
@@ -56,12 +60,19 @@ RenderStats						gRenderStats;
 GLuint 							gShadowGLTextureName = 0;
 
 float	gFramesPerSecond = DEFAULT_FPS;				// this is used to maintain a constant timing velocity as frame rates differ
-float	gFramesPerSecondFrac = 1/DEFAULT_FPS;
+float	gFramesPerSecondFrac = 1.0f/DEFAULT_FPS;
 
 float	gAdditionalClipping = 0;
 
 int		gWindowWidth		= GAME_VIEW_WIDTH;
 int		gWindowHeight		= GAME_VIEW_HEIGHT;
+
+#if _DEBUG
+static const uint32_t	gDebugTextUpdateInterval = 50;
+static uint32_t			gDebugTextFrameAccumulator = 0;
+static uint32_t			gDebugTextLastUpdatedAt = 0;
+static char				gDebugTextBuffer[1024];
+#endif
 
 
 /******************** QD3D: BOOT ******************************/
@@ -424,7 +435,7 @@ unsigned long	now;
 static	unsigned long then = 0;
 
 			/* DO REGULAR CALCULATION */
-			
+
 	Microseconds(&wide);
 	now = wide.lo;
 	if (then != 0)
@@ -435,11 +446,53 @@ static	unsigned long then = 0;
 	}
 	else
 		gFramesPerSecond = DEFAULT_FPS;
-		
-//	gFramesPerSecondFrac = 1/gFramesPerSecond;		// calc fractional for multiplication
-	gFramesPerSecondFrac = __fres(gFramesPerSecond);	
-	
-	then = now;										// remember time	
+
+	gFramesPerSecondFrac = 1.0f/gFramesPerSecond;	// calc fractional for multiplication
+
+	then = now;										// remember time
+
+	static int holdFramerateCap = 0;
+
+
+			/* CAP FRAME RATE */
+
+	if (gFramesPerSecond > 200 || holdFramerateCap > 0)
+	{
+		SDL_Delay(5);
+		// Keep framerate cap for a while to avoid jitter in game physics
+		holdFramerateCap = 10;
+	}
+	else
+	{
+		holdFramerateCap--;
+	}
+
+
+			/* UPDATE DEBUG TEXT */
+
+#if _DEBUG
+	uint32_t ticksNow = SDL_GetTicks();
+	uint32_t ticksElapsed = ticksNow - gDebugTextLastUpdatedAt;
+	if (ticksElapsed >= gDebugTextUpdateInterval)
+	{
+		float fps = 1000 * gDebugTextFrameAccumulator / (float)ticksElapsed;
+		snprintf(
+				gDebugTextBuffer, sizeof(gDebugTextBuffer),
+				"%s %s - fps:%d tris:%d meshq:%d - x:%.0f z:%.0f",
+				PRO_MODE ? "Nanosaur Extreme" : "Nanosaur",
+				PROJECT_VERSION,
+				(int)round(fps),
+				gRenderStats.trianglesDrawn,
+				gRenderStats.meshQueueSize,
+				gMyCoord.x,
+				gMyCoord.z
+		);
+		SDL_SetWindowTitle(gSDLWindow, gDebugTextBuffer);
+		gDebugTextFrameAccumulator = 0;
+		gDebugTextLastUpdatedAt = ticksNow;
+	}
+	gDebugTextFrameAccumulator++;
+#endif
 }
 
 

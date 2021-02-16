@@ -465,7 +465,6 @@ Boolean	toggleMusic = !gMuteMusicFlag;
 		UpdateInfobarIcon(quit);
 
 		QD3D_DrawScene(gGameViewInfoPtr,DrawTerrain);
-		DoSDLMaintenance();
 	}
 	while (!GetNewNeedState(kNeed_UIConfirm));					// see if select
 
