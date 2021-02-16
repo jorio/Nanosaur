@@ -369,8 +369,6 @@ TQ3TriMeshData		**localTriMeshPtrs = skelNode->MeshList;
 
 	for (p = 0; p < numPoints; p++)
 	{
-		float	x,y,z;
-		
 		i = bonePtr->pointList[p];														// get index to point in gDecomposedPointList
 		x = decomposedPointList[i].boneRelPoint.x;										// get xyz of point
 		y = decomposedPointList[i].boneRelPoint.y;
