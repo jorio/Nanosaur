@@ -26,6 +26,9 @@ extern	void ApplyFrictionToDeltas(float f,TQ3Vector3D *d);
 
 OSErr DrawPictureToScreen(FSSpec *myFSSpec, short x, short y);
 
+void DoQualityDialog(void);
+
+void SetProModeSettings(int isPro);
 
 #define GAME_ASSERT(condition) do { if (!(condition)) DoAssert(#condition, __func__, __LINE__); } while(0)
 #define GAME_ASSERT_MESSAGE(condition, message) do { if (!(condition)) DoAssert(message, __func__, __LINE__); } while(0)

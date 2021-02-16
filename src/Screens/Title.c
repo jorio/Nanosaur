@@ -27,7 +27,6 @@
 #include "sound2.h"
 #include "skeletonanim.h"
 
-#include "GamePatches.h"
 #include "version.h"
 #include <string.h>
 #include <stdlib.h>

@@ -21,7 +21,6 @@
 #include "3dmf.h"
 #include "3dmath.h"
 #include "skeletonjoints.h"
-#include "GamePatches.h"
 
 /****************************/
 /*    PROTOTYPES            */

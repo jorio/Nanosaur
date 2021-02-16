@@ -26,14 +26,11 @@
 #include "environmentmap.h"
 #include "highscores.h"
 
-#include "GamePatches.h"
-
 extern	float				gFramesPerSecondFrac,gFramesPerSecond;
 extern	TQ3Point3D			gCoord;
 extern	WindowPtr			gCoverWindow;
 extern	NewObjectDefinitionType	gNewObjectDefinition;
 extern	QD3DSetupOutputType		*gGameViewInfoPtr;
-extern	KeyMap gNewKeys;
 extern	Boolean				gSongPlayingFlag,gResetSong;
 extern	ObjNode	*gFirstNodePtr;
 extern	PrefsType	gGamePrefs;

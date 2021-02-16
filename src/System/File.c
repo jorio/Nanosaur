@@ -27,7 +27,6 @@
 #include 	"bones.h"
 #include 	"sound2.h"
 #include	"structformats.h"
-#include	"GamePatches.h"
 
 extern	short			gMainAppRezFile;
 extern	short	gPrefsFolderVRefNum;

@@ -14,7 +14,6 @@ extern "C" {
 #include <SDL.h>
 #include <functional>
 #include <vector>
-#include "GamePatches.h"
 #include "version.h"
 
 extern "C" {

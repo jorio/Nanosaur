@@ -58,6 +58,7 @@ set(GAME_CORE_SOURCES
 	${GAME_SRCDIR}/System/Sprites.c
 	${GAME_SRCDIR}/System/Sound.c
 	${GAME_SRCDIR}/System/Window.c
+	${GAME_SRCDIR}/System/ProMode.c
 	${GAME_SRCDIR}/Terrain/Terrain.c
 	${GAME_SRCDIR}/Terrain/Terrain2.c
 	${GAME_SRCDIR}/Player/MyGuy.c
@@ -86,10 +87,16 @@ set(GAME_CORE_SOURCES
 	${GAME_SRCDIR}/QD3D/3DMF.c
 	${GAME_SRCDIR}/QD3D/3DMath.c
 	${GAME_SRCDIR}/QD3D/Renderer.c
+	${GAME_SRCDIR}/QD3D/FrustumCulling.c
 	${GAME_SRCDIR}/Screens/Infobar.c
 	${GAME_SRCDIR}/Screens/Title.c
 	${GAME_SRCDIR}/Screens/MainMenu.c
 	${GAME_SRCDIR}/Screens/HighScores.c
+	${GAME_SRCDIR}/Screens/SettingsScreen.cpp
+	${GAME_SRCDIR}/Screens/Movie.cpp
+	${GAME_SRCDIR}/QD3D/Pomme3DMF_API.cpp
+	${GAME_SRCDIR}/QD3D/Pomme3DMF_Parser.cpp
+	${GAME_SRCDIR}/Main.cpp
 )
 
 set(GAME_CORE_HEADERS
@@ -133,17 +140,6 @@ set(GAME_CORE_HEADERS
 	${GAME_SRCDIR}/Headers/version.h
 	${GAME_SRCDIR}/Headers/weapons.h
 	${GAME_SRCDIR}/Headers/window.h
-)
-
-set(GAME_GLUE_SOURCES
-	${GAME_SRCDIR}/Main.cpp
-	${GAME_SRCDIR}/Glue/FrustumCulling.c
-	${GAME_SRCDIR}/Glue/GamePatches.cpp
-	${GAME_SRCDIR}/Glue/ProMode.c
-	${GAME_SRCDIR}/Glue/SettingsScreen.cpp
-	${GAME_SRCDIR}/Glue/Pomme3DMF_API.cpp
-	${GAME_SRCDIR}/Glue/Pomme3DMF_Parser.cpp
-	${GAME_SRCDIR}/Headers/Glue/GamePatches.h
 	${GAME_SRCDIR}/Headers/QD3DCompat/QD3D.h
 	${GAME_SRCDIR}/Headers/QD3DCompat/QD3DMath.h
 	${GAME_SRCDIR}/Headers/QD3DCompat/Pomme3DMF.h
@@ -153,7 +149,6 @@ set(GAME_GLUE_SOURCES
 set(GAME_ALL_SOURCES
 	${GAME_CORE_SOURCES}
 	${GAME_CORE_HEADERS}
-	${GAME_GLUE_SOURCES}
 )
 
 #------------------------------------------------------------------------------

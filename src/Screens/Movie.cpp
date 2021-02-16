@@ -1,24 +1,22 @@
 #include "Pomme.h"
-#include <SDL.h>
-#include <SDL_opengl.h>
-
-extern "C" {
-#include "sound2.h"
-#include "structs.h"
-#include "input.h"
-#include "qd3d_support.h"
-#include "movie.h" // PlayAMovie
-#include "misc.h" // DrawPictureToScreen
-#include "window.h" // GAME_VIEW_WIDTH, GAME_VIEW_HEIGHT
-#include "renderer.h"
-}
-
 #include "PommeFiles.h"
 #include "PommeGraphics.h"
 #include "PommeVideo.h"
 #include "Video/Cinepak.h"
 
-extern "C" {
+#include <SDL.h>
+#include <SDL_opengl.h>
+
+extern "C"
+{
+#include "sound2.h"
+#include "structs.h"
+#include "input.h"
+#include "movie.h" // PlayAMovie
+#include "misc.h" // asserts
+#include "window.h" // GAME_VIEW_WIDTH, GAME_VIEW_HEIGHT
+#include "renderer.h"
+
 extern SDL_Window* gSDLWindow;
 extern PrefsType gGamePrefs;
 }
@@ -48,7 +46,7 @@ void PlayAMovie(FSSpec* spec)
 	GAME_ASSERT(glContext);
 
 	SDL_GL_SetSwapInterval(gGamePrefs.vsync ? 1 : 0);
-	
+
 	Render_InitState();
 	Render_Alloc2DCover(movie.width, movie.height);
 	glClearColor(0,0,0,1);

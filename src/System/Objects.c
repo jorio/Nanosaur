@@ -15,7 +15,6 @@
 #include "QD3D.h"
 #include "QD3DMath.h"
 
-#include <GamePatches.h>
 #include <string.h>
 
 #include "objects.h"

@@ -19,8 +19,6 @@
 #include "3dmath.h"
 #include "camera.h"
 #include "mobjtypes.h"
-
-#include "GamePatches.h"
 #include "frustumculling.h"
 
 #include <QD3DMath.h>

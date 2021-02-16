@@ -28,8 +28,6 @@
 #include "enemy.h"
 #include "timeportal.h"
 
-#include "GamePatches.h"
-
 extern	NewObjectDefinitionType	gNewObjectDefinition;
 extern	Byte			gCurrentAttackMode;
 extern	float			gFramesPerSecond,gFramesPerSecondFrac,gCameraRotY,gCameraRotX,gMyHealth;

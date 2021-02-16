@@ -44,8 +44,6 @@
 #include "pickups.h"
 #include "qd3d_geometry.h"
 
-#include "GamePatches.h"
-
 extern	Boolean			gSongPlayingFlag;
 extern	NewObjectDefinitionType	gNewObjectDefinition;
 extern	float			gFramesPerSecond,gFramesPerSecondFrac,gTimeRemaining,gMyHealth,gFuel;
