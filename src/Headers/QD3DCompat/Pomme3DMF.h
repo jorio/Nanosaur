@@ -29,6 +29,8 @@ TQ3TriMeshData* Q3TriMeshData_Duplicate(const TQ3TriMeshData* source);
 
 void Q3TriMeshData_Dispose(TQ3TriMeshData*);
 
+void Q3TriMeshData_SubdivideTriangles(TQ3TriMeshData* src);
+
 #ifdef __cplusplus
 }
 #endif

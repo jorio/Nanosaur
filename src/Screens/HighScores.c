@@ -34,6 +34,7 @@ extern	short	gPrefsFolderVRefNum;
 extern	long	gPrefsFolderDirID;
 extern	FSSpec	gDataSpec;
 extern	char			gTextInput[SDL_TEXTINPUTEVENT_TEXT_SIZE];
+extern	TQ3TriMeshFlatGroup			gObjectGroupList[MAX_3DMF_GROUPS][MAX_OBJECTS_IN_GROUP];
 
 /****************************/
 /*    PROTOTYPES            */
@@ -199,6 +200,11 @@ QD3DSetupInputType		viewDef;
 		
 	FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":models:HighScores.3dmf", &file);		
 	LoadGrouped3DMF(&file, MODEL_GROUP_HIGHSCORES);
+
+	// Subdivide triangles in background mesh so per-vertex fog looks better on it
+	// on systems that don't support per-pixel fog.
+	Q3TriMeshData_SubdivideTriangles(gObjectGroupList[MODEL_GROUP_HIGHSCORES][SCORES_ObjType_Spiral].meshes[1]);
+	Q3TriMeshData_SubdivideTriangles(gObjectGroupList[MODEL_GROUP_HIGHSCORES][SCORES_ObjType_Spiral].meshes[1]);
 
 	
 		/***********************/

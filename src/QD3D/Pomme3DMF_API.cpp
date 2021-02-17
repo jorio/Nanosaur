@@ -193,3 +193,148 @@ void Q3TriMeshData_Dispose(TQ3TriMeshData* mesh)
 	__Q3DisposeArray(&mesh->vertexUVs,			'TMuv');
 	__Q3Dispose(mesh, 'MESH');
 }
+
+void Q3TriMeshData_SubdivideTriangles(TQ3TriMeshData* mesh)
+{
+	struct Edge
+	{
+		int a;
+		int b;
+		int midpoint;
+	};
+
+	std::map<uint32_t, Edge> edges;
+
+	const int oldNumTriangles	= mesh->numTriangles;
+	const int oldNumPoints		= mesh->numPoints;
+
+	auto triangleEdges = new Edge*[oldNumTriangles * 3];
+
+	//-------------------------------------------------------------------------
+	// Prep edge records (so we have edge count too)
+
+	for (int t = 0; t < mesh->numTriangles; t++)
+	{
+		auto& triangle = mesh->triangles[t];
+
+		for (int e = 0; e < 3; e++)
+		{
+			int edgeP0 = triangle.pointIndices[e];
+			int edgeP1 = triangle.pointIndices[(e+1) % 3];
+			if (edgeP0 > edgeP1)
+			{
+				int swap = edgeP0;
+				edgeP0 = edgeP1;
+				edgeP1 = swap;
+			}
+			uint32_t edgeHash = (edgeP0 << 16) | edgeP1;
+
+			auto foundEdge = edges.find(edgeHash);
+			if (foundEdge != edges.end())
+			{
+				triangleEdges[t*3 + e] = &foundEdge->second;
+			}
+			else
+			{
+				edges[edgeHash] = { edgeP0, edgeP1, -1 };
+				triangleEdges[t*3 + e] = &edges[edgeHash];
+			}
+		}
+	}
+
+	//-------------------------------------------------------------------------
+	// Reallocate mesh
+
+	int numPointsWritten		= oldNumPoints;
+	int numTrianglesWritten		= oldNumTriangles;
+
+	mesh->numTriangles *= 4;
+	mesh->numPoints += edges.size();
+
+	mesh->points			= __Q3Realloc(mesh->points,			mesh->numPoints, 'TMpt');
+	mesh->vertexUVs			= __Q3Realloc(mesh->vertexUVs,		mesh->numPoints, 'TMuv');
+	mesh->vertexNormals		= __Q3Realloc(mesh->vertexNormals,	mesh->numPoints, 'TMvn');
+	if (mesh->vertexColors)
+		mesh->vertexColors	= __Q3Realloc(mesh->vertexColors,	mesh->numPoints, 'TMvc');
+
+	mesh->triangles			= __Q3Realloc(mesh->triangles,		mesh->numTriangles, 'TMtr');
+
+	//-------------------------------------------------------------------------
+	// Create edge midpoints
+
+	for (auto& edgeKV: edges)
+	{
+		auto& edge = edgeKV.second;
+
+		edge.midpoint = numPointsWritten;
+		numPointsWritten++;
+
+		int M = edge.midpoint;
+		int A = edge.a;
+		int B = edge.b;
+
+		mesh->points[M].x = (mesh->points[A].x + mesh->points[B].x) / 2.0f;
+		mesh->points[M].y = (mesh->points[A].y + mesh->points[B].y) / 2.0f;
+		mesh->points[M].z = (mesh->points[A].z + mesh->points[B].z) / 2.0f;
+
+		mesh->vertexNormals[M].x = (mesh->vertexNormals[A].x + mesh->vertexNormals[B].x) / 2.0f;
+		mesh->vertexNormals[M].y = (mesh->vertexNormals[A].y + mesh->vertexNormals[B].y) / 2.0f;
+		mesh->vertexNormals[M].z = (mesh->vertexNormals[A].z + mesh->vertexNormals[B].z) / 2.0f;
+
+		mesh->vertexUVs[M].u = (mesh->vertexUVs[A].u + mesh->vertexUVs[B].u) / 2.0f;
+		mesh->vertexUVs[M].v = (mesh->vertexUVs[A].v + mesh->vertexUVs[B].v) / 2.0f;
+
+		if (mesh->vertexColors)
+		{
+			mesh->vertexColors[M].r = (mesh->vertexColors[A].r + mesh->vertexColors[B].r) / 2.0f;
+			mesh->vertexColors[M].g = (mesh->vertexColors[A].g + mesh->vertexColors[B].g) / 2.0f;
+			mesh->vertexColors[M].b = (mesh->vertexColors[A].b + mesh->vertexColors[B].b) / 2.0f;
+			mesh->vertexColors[M].a = (mesh->vertexColors[A].a + mesh->vertexColors[B].a) / 2.0f;
+		}
+	}
+
+	//-------------------------------------------------------------------------
+	// Create new triangles
+
+	for (int t = 0; t < oldNumTriangles; t++)
+	{
+		auto& triangle = mesh->triangles[t];
+
+		/*
+		Original triangle: ABC.
+		Create 4 new triangles.
+
+		            B
+		            +
+		           / \
+		          /   \
+		         /     \
+		       >+ . . . +<
+		       / .     . \
+		      /   .   .   \
+		     /     . .     \
+		    +-------+-------+
+		   A        ^        C
+		*/
+
+		uint16_t A		= triangle.pointIndices[0];
+		uint16_t B		= triangle.pointIndices[1];
+		uint16_t C		= triangle.pointIndices[2];
+		uint16_t A2B	= triangleEdges[t*3 + 0]->midpoint;
+		uint16_t B2C	= triangleEdges[t*3 + 1]->midpoint;
+		uint16_t C2A	= triangleEdges[t*3 + 2]->midpoint;
+
+		mesh->triangles[numTrianglesWritten++]	= {{A2B, B, B2C} };
+		mesh->triangles[numTrianglesWritten++]	= {{B2C, C, C2A} };
+		mesh->triangles[numTrianglesWritten++]	= {{C2A, A, A2B} };
+		mesh->triangles[t]						= {{A2B, B2C, C2A} };	// replace original triangle
+	}
+
+	//-------------------------------------------------------------------------
+	// Make sure we didn't break the mesh
+
+	delete[] triangleEdges;
+
+	Assert(numTrianglesWritten == 4*oldNumTriangles, "unexpected number of triangles written");
+	Assert(numPointsWritten == oldNumPoints + edges.size(), "unexpected number of points written");
+}

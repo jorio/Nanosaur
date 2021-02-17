@@ -43,6 +43,7 @@ extern	PrefsType	gGamePrefs;
 extern	const int	PRO_MODE;
 extern	SDL_Window*	gSDLWindow;
 extern	UInt32*const				gCoverWindowPixPtr;
+extern	TQ3TriMeshFlatGroup			gObjectGroupList[MAX_3DMF_GROUPS][MAX_OBJECTS_IN_GROUP];
 
 /****************************/
 /*    PROTOTYPES            */
@@ -124,6 +125,13 @@ TQ3Point3D		cameraFrom = { 110, 90, 190.0 };
 
 	FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":Models:Title.3dmf", &spec);		// load other models
 	LoadGrouped3DMF(&spec,MODEL_GROUP_TITLE);
+
+
+	// Subdivide triangles in background mesh so per-vertex fog looks better on it
+	// on systems that don't support per-pixel fog.
+	Q3TriMeshData_SubdivideTriangles(gObjectGroupList[MODEL_GROUP_TITLE][TITLE_MObjType_Background].meshes[0]);
+	Q3TriMeshData_SubdivideTriangles(gObjectGroupList[MODEL_GROUP_TITLE][TITLE_MObjType_Background].meshes[0]);
+
 
 	LoadASkeleton(SKELETON_TYPE_REX);
 
