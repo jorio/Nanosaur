@@ -43,7 +43,7 @@ static void SetupHighScoresScreen(void);
 static void AddNewScore(unsigned long newScore);
 static void EnterPlayerName(unsigned long newScore);
 static void MoveCursor(ObjNode *theNode);
-static void TypeNewKey(char c);
+static bool TypeNewKey(void);
 static void UpdateNameAndCursor(Boolean doCursor, float x, float y, float z);
 static void SaveHighScores(void);
 static void LoadHighScores(void);
@@ -390,7 +390,7 @@ short		i;
 		
 	
 	QD3D_CalcFramesPerSecond();					
-		
+
 	do
 	{
 		UpdateInput();
@@ -399,12 +399,11 @@ short		i;
 
 				/* CHECK FOR KEY */
 
-		if (gTextInput[0] && gTextInput[0] >= ' ' && gTextInput[0] < '~')
+		if (TypeNewKey())
 		{
-			TypeNewKey(gTextInput[0]);
 			UpdateNameAndCursor(true,LEFT_EDGE,0,0);
 		}
-		
+
 				/* MOVE CAMERA */
 				
 		camWobble += gFramesPerSecondFrac;
@@ -427,53 +426,67 @@ short		i;
 // When player types new letter for name, this enters it.
 //
 
-static void TypeNewKey(char c)
+static bool TypeNewKey(void)
 {
-short	i;
 			/*******************/
 			/* SEE IF EDIT KEY */
 			/*******************/
 
-	if (c == CHAR_RETURN)
-		return;
-
 				/* DELETE */
-				
-	if (c == CHAR_DELETE)
+
+	if (GetNewSDLKeyState(SDL_SCANCODE_BACKSPACE))
 	{
 		if (gCursorPosition > 0)
 		{
-			for (i = gCursorPosition-1; i < (MAX_NAME_LENGTH-1); i++)
+			for (int i = gCursorPosition-1; i < (MAX_NAME_LENGTH-1); i++)
 				gNewName.name[i] = gNewName.name[i+1];
 			gNewName.name[MAX_NAME_LENGTH-1] = ' ';
 			gCursorPosition--;
 		}
-		return;
+		return true;
+	}
+
+				/* FORWARD DELETE */
+
+	else if (GetNewSDLKeyState(SDL_SCANCODE_DELETE))
+	{
+		for (int i = gCursorPosition; i < (MAX_NAME_LENGTH-1); i++)
+			gNewName.name[i] = gNewName.name[i+1];
+		gNewName.name[MAX_NAME_LENGTH-1] = ' ';
+		return true;
 	}
 				/* LEFT ARROW */
-		
-	if (c == CHAR_LEFT)
+
+	else if (GetNewSDLKeyState(SDL_SCANCODE_LEFT))
 	{
 		if (gCursorPosition > 0)
 			gCursorPosition--;
-		return;
+		return true;
 	}
 				/* RIGHT ARROW */
-	
-	if (c == CHAR_RIGHT)
+
+	else if (GetNewSDLKeyState(SDL_SCANCODE_RIGHT))
 	{
 		if (gCursorPosition < (MAX_NAME_LENGTH-1))
 			gCursorPosition++;
-		return;
+		return true;
 	}
 
 			/* ADD NEW LETTER TO NAME */
-			
-	gNewName.name[gCursorPosition] = c;							// add to string
-	if (gCursorPosition < (MAX_NAME_LENGTH-1))
-		gCursorPosition++;
-		
-	PlayEffect(EFFECT_SELECT);				
+
+	else if (gTextInput[0] && gTextInput[0] >= ' ' && gTextInput[0] < '~')
+	{
+		gNewName.name[gCursorPosition] = gTextInput[0];				// add to string
+		if (gCursorPosition < (MAX_NAME_LENGTH-1))
+			gCursorPosition++;
+
+		PlayEffect(EFFECT_SELECT);
+		return true;
+	}
+
+
+
+	return false;
 }
 
 
