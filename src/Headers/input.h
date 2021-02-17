@@ -6,14 +6,15 @@
 
 #include <SDL.h>
 
+#define KEYBINDING_MAX_KEYS					2
+#define KEYBINDING_MAX_GAMEPAD_BUTTONS		2
+
 typedef struct KeyBinding
 {
-	int16_t		key1;
-	int16_t		key2;
+	int16_t		key[KEYBINDING_MAX_KEYS];
 	int16_t		mouseButton;
 	int16_t		mouseWheelDelta;
-	int16_t		gamepadButton1;
-	int16_t		gamepadButton2;
+	int16_t		gamepadButton[KEYBINDING_MAX_GAMEPAD_BUTTONS];
 	int16_t		gamepadAxis;
 	int16_t		gamepadAxisSign;
 } KeyBinding;
@@ -37,23 +38,24 @@ enum
 	kNeed_ZoomOut,
 	kNeed_CameraMode,
 	kNeed_ToggleGPS,
+	kNeed_ToggleMusic,
+	kNeed_ToggleAmbient,
+	kNeed_ToggleFullscreen,
+	kNeed_RaiseVolume,
+	kNeed_LowerVolume,
+	NUM_REMAPPABLE_NEEDS,
 
 	// ^^^ REMAPPABLE
 	// --------------------------------------------------------
 	//              NON-REMAPPABLE vvv
 
-	kNeed_UIUp,
+	kNeed_UIUp = NUM_REMAPPABLE_NEEDS,
 	kNeed_UIDown,
 	kNeed_UILeft,
 	kNeed_UIRight,
 	kNeed_UIConfirm,
 	kNeed_UIBack,
 	kNeed_UIPause,
-	kNeed_ToggleMusic,
-	kNeed_ToggleAmbient,
-	kNeed_ToggleFullscreen,
-	kNeed_RaiseVolume,
-	kNeed_LowerVolume,
 	NUM_CONTROL_NEEDS
 };
 

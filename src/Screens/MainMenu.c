@@ -234,15 +234,15 @@ do_again:
 	{
 		case	0:							// play
 				return;
-				
-		case	1:							// high scores	
-				DoQualityDialog();
+
+		case	1:							// settings
+				DoSettingsScreen();
 				goto do_again;
-		
+
 		case	2:							// HELP
 				ShowHelp();
 				goto do_again;
-						
+
 		case	3:							// quit
 				CleanQuit();
 				return;
