@@ -15,6 +15,7 @@
 #include "input.h"
 #include "skeletonobj.h"
 
+extern	PrefsType	gGamePrefs;
 extern	short		gMainAppRezFile;
 extern	short 	gLavaSoundChannel;
 extern	float	gMinLavaDist;
@@ -363,6 +364,9 @@ void PlaySong(short songNum, Boolean loopFlag)
 OSErr 	iErr;
 Str255	errStr = "PlaySong: Couldnt Open Music AIFF File.";
 static	SndCommand 		mySndCmd;
+
+	if (!gGamePrefs.music)							// user doesn't want music
+		return;
 
 	if (songNum == gCurrentSong)					// see if this is already playing
 		return;
@@ -815,6 +819,9 @@ short	i;
 
 void StartAmbientEffect(void)
 {
+	if (!gGamePrefs.ambientSounds)
+		return;
+
 	gAmbientEffect = PlayEffect_Parms(EFFECT_AMBIENT,70,kMiddleC);				// ambient sound
 
 

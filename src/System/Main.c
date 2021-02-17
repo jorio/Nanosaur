@@ -128,6 +128,8 @@ OSErr		iErr;
 	gGamePrefs.vsync = true;
 	gGamePrefs.mainMenuHelp = true;
 	gGamePrefs.extreme = false;
+	gGamePrefs.music = true;
+	gGamePrefs.ambientSounds = true;
 
 	memcpy(gGamePrefs.keys, kDefaultKeyBindings, sizeof(gGamePrefs.keys));
 	_Static_assert(sizeof(gGamePrefs.keys) == sizeof(gGamePrefs.keys));

@@ -303,6 +303,8 @@ typedef struct
 	Boolean mainMenuHelp;
 	Boolean vsync;
 	Boolean extreme;
+	Boolean	music;
+	Boolean	ambientSounds;
 	KeyBinding keys[NUM_CONTROL_NEEDS];
 }PrefsType;
 

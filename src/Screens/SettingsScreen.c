@@ -55,6 +55,7 @@ typedef struct SettingEntry
 
 static void Callback_EnterControls(void);
 static void Callback_Difficulty(void);
+static void Callback_Music(void);
 static void Callback_VSync(void);
 static void Callback_Done(void);
 
@@ -63,6 +64,9 @@ static SettingEntry gSettingEntries[] =
 	{nil							, "Configure Controls"	, Callback_EnterControls,	0,	{} },
 	{nil							, nil					, nil,						0,  {} },
 	{&gGamePrefs.extreme			, "Game Difficulty"		, Callback_Difficulty,		2,	{ "Easy", "EXTREME!" } },
+	{nil							, nil					, nil,						0,  {} },
+	{&gGamePrefs.music				, "Music"				, Callback_Music,			2,	{ "NO", "YES" }, },
+	{&gGamePrefs.ambientSounds		, "Ambient Sounds"		, nil,						2,	{ "NO", "YES" }, },
 	{nil							, nil					, nil,						0,  {} },
 	{&gGamePrefs.fullscreen			, "Fullscreen"			, SetFullscreenMode,		2,	{ "NO", "YES" }, },
 	{&gGamePrefs.vsync				, "V-Sync"				, Callback_VSync,			2,	{ "NO", "YES" }, },
@@ -73,9 +77,6 @@ static SettingEntry gSettingEntries[] =
 //	{&gGamePrefs.dust				, "Dust"				, nil,						2,	{ "NO", "YES" }, },
 	{&gGamePrefs.softerLighting		, "Softer Lighting"		, nil,						2,	{ "NO", "YES" }, },
 	{&gGamePrefs.mainMenuHelp		, "Main Menu Help"		, nil,						2,	{ "NO", "YES" }, },
-	{nil							, nil					, nil,						0,  {} },
-	{nil							, nil					, nil,						0,  {} },
-	{nil							, nil					, nil,						0,  {} },
 	{nil							, nil					, nil,						0,  {} },
 	{nil							, nil					, nil,						0,  {} },
 	{nil							, nil					, nil,						0,  {} },
@@ -161,6 +162,14 @@ static void Callback_EnterControls(void)
 static void Callback_Difficulty(void)
 {
 	SetProModeSettings(gGamePrefs.extreme);
+}
+
+static void Callback_Music(void)
+{
+	if (!gGamePrefs.music)
+		KillSong();
+	else
+		PlaySong(1, true);
 }
 
 static void Callback_VSync(void)
