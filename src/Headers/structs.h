@@ -305,6 +305,7 @@ typedef struct
 	Boolean extreme;
 	Boolean	music;
 	Boolean	ambientSounds;
+	Boolean	debugInfoInTitleBar;
 	KeyBinding keys[NUM_CONTROL_NEEDS];
 }PrefsType;
 

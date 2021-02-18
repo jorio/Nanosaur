@@ -57,6 +57,7 @@ static void Callback_EnterControls(void);
 static void Callback_Difficulty(void);
 static void Callback_Music(void);
 static void Callback_VSync(void);
+static void Callback_DebugInfo(void);
 static void Callback_Done(void);
 
 static SettingEntry gSettingEntries[] =
@@ -76,10 +77,9 @@ static SettingEntry gSettingEntries[] =
 //	{&gGamePrefs.shadows			, "Shadow Decals"		, nil,						2,	{ "NO", "YES" }, },
 //	{&gGamePrefs.dust				, "Dust"				, nil,						2,	{ "NO", "YES" }, },
 	{&gGamePrefs.softerLighting		, "Softer Lighting"		, nil,						2,	{ "NO", "YES" }, },
-	{&gGamePrefs.mainMenuHelp		, "Main Menu Help"		, nil,						2,	{ "NO", "YES" }, },
 	{nil							, nil					, nil,						0,  {} },
-	{nil							, nil					, nil,						0,  {} },
-	{nil							, nil					, nil,						0,  {} },
+	{&gGamePrefs.mainMenuHelp		, "Show Help in Main Menu"		, nil,				2,	{ "NO", "YES" }, },
+	{&gGamePrefs.debugInfoInTitleBar, "Debug Info in Title Bar",	Callback_DebugInfo,	2,  { "NO", "YES" } },
 	{nil							, nil					, nil,						0,  {} },
 	{nil							, nil					, nil,						0,  {} },
 	{nil							, nil					, nil,						0,  {} },
@@ -175,6 +175,12 @@ static void Callback_Music(void)
 static void Callback_VSync(void)
 {
 	SDL_GL_SetSwapInterval(gGamePrefs.vsync ? 1 : 0);
+}
+
+static void Callback_DebugInfo(void)
+{
+	if (!gGamePrefs.debugInfoInTitleBar)
+		Callback_Difficulty();  // hack - this will set the window title
 }
 
 static void Callback_Done(void)

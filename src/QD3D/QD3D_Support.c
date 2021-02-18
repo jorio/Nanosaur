@@ -67,12 +67,10 @@ float	gAdditionalClipping = 0;
 int		gWindowWidth		= GAME_VIEW_WIDTH;
 int		gWindowHeight		= GAME_VIEW_HEIGHT;
 
-#if _DEBUG
 static const uint32_t	gDebugTextUpdateInterval = 50;
 static uint32_t			gDebugTextFrameAccumulator = 0;
 static uint32_t			gDebugTextLastUpdatedAt = 0;
 static char				gDebugTextBuffer[1024];
-#endif
 
 
 /******************** QD3D: BOOT ******************************/
@@ -470,29 +468,30 @@ static	unsigned long then = 0;
 
 			/* UPDATE DEBUG TEXT */
 
-#if _DEBUG
-	uint32_t ticksNow = SDL_GetTicks();
-	uint32_t ticksElapsed = ticksNow - gDebugTextLastUpdatedAt;
-	if (ticksElapsed >= gDebugTextUpdateInterval)
+	if (gGamePrefs.debugInfoInTitleBar)
 	{
-		float fps = 1000 * gDebugTextFrameAccumulator / (float)ticksElapsed;
-		snprintf(
-				gDebugTextBuffer, sizeof(gDebugTextBuffer),
-				"%s %s - fps:%d tris:%d meshq:%d - x:%.0f z:%.0f",
-				PRO_MODE ? "Nanosaur Extreme" : "Nanosaur",
-				PROJECT_VERSION,
-				(int)round(fps),
-				gRenderStats.trianglesDrawn,
-				gRenderStats.meshQueueSize,
-				gMyCoord.x,
-				gMyCoord.z
-		);
-		SDL_SetWindowTitle(gSDLWindow, gDebugTextBuffer);
-		gDebugTextFrameAccumulator = 0;
-		gDebugTextLastUpdatedAt = ticksNow;
+		uint32_t ticksNow = SDL_GetTicks();
+		uint32_t ticksElapsed = ticksNow - gDebugTextLastUpdatedAt;
+		if (ticksElapsed >= gDebugTextUpdateInterval)
+		{
+			float fps = 1000 * gDebugTextFrameAccumulator / (float)ticksElapsed;
+			snprintf(
+					gDebugTextBuffer, sizeof(gDebugTextBuffer),
+					"%s %s - fps:%d tris:%d meshq:%d - x:%.0f z:%.0f",
+					PRO_MODE ? "Nanosaur Extreme" : "Nanosaur",
+					PROJECT_VERSION,
+					(int)round(fps),
+					gRenderStats.trianglesDrawn,
+					gRenderStats.meshQueueSize,
+					gMyCoord.x,
+					gMyCoord.z
+			);
+			SDL_SetWindowTitle(gSDLWindow, gDebugTextBuffer);
+			gDebugTextFrameAccumulator = 0;
+			gDebugTextLastUpdatedAt = ticksNow;
+		}
+		gDebugTextFrameAccumulator++;
 	}
-	gDebugTextFrameAccumulator++;
-#endif
 }
 
 
