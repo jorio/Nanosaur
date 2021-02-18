@@ -445,11 +445,15 @@ PrefsType	prefs;
 
 	iErr = GetEOF(refNum, &count);
 	if (iErr)
+	{
+		FSClose(refNum);
 		return iErr;
+	}
 
 	if (count != sizeof(PrefsType))
 	{
 		// size of file doesn't match size of struct
+		FSClose(refNum);
 		return badFileFormat;
 	}
 
