@@ -386,7 +386,7 @@ short		i;
 	gNewName.score = newScore;							// set new score
 	gCursorPosition = 0;
 			
-	FlushEvents (everyEvent, REMOVE_ALL_EVENTS);		// use event manager to read keyboard, so start fresh
+//	FlushEvents (everyEvent, REMOVE_ALL_EVENTS);		// use event manager to read keyboard, so start fresh
 	
 		
 	

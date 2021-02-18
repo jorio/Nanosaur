@@ -137,11 +137,8 @@ static	Boolean beenHere = false;
 	// changed without going through the settings screen (e.g. fullscreen mode)
 	SavePrefs(&gGamePrefs);
 	
-#if 0
-	InitCursor();
-	FlushEvents ( everyEvent, REMOVE_ALL_EVENTS);
-#endif
-	ExitToShell();		
+
+	ExitToShell();
 }
 
 
