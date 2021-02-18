@@ -9,7 +9,7 @@
 /*    EXTERNALS             */
 /****************************/
 
-#include <Pomme3DMF.h>
+#include <QD3D.h>
 #include "globals.h"
 #include "misc.h"
 #include "3dmf.h"

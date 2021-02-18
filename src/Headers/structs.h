@@ -6,7 +6,7 @@
 #define STRUCTS_H
 
 
-#include <Pomme3DMF.h>
+#include <QD3D.h>
 #include "globals.h"
 #include "renderer.h"
 #include "input.h"

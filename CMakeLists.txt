@@ -94,9 +94,6 @@ set(GAME_CORE_SOURCES
 	${GAME_SRCDIR}/Screens/HighScores.c
 	${GAME_SRCDIR}/Screens/SettingsScreen.c
 	${GAME_SRCDIR}/Screens/Movie.cpp
-	${GAME_SRCDIR}/QD3D/Pomme3DMF_API.cpp
-	${GAME_SRCDIR}/QD3D/Pomme3DMF_Parser.cpp
-	${GAME_SRCDIR}/QD3D/QD3DMath.cpp
 	${GAME_SRCDIR}/Main.cpp
 )
 
@@ -141,10 +138,6 @@ set(GAME_CORE_HEADERS
 	${GAME_SRCDIR}/Headers/version.h
 	${GAME_SRCDIR}/Headers/weapons.h
 	${GAME_SRCDIR}/Headers/window.h
-	${GAME_SRCDIR}/Headers/QD3DCompat/QD3D.h
-	${GAME_SRCDIR}/Headers/QD3DCompat/QD3DMath.h
-	${GAME_SRCDIR}/Headers/QD3DCompat/Pomme3DMF.h
-	${GAME_SRCDIR}/Headers/QD3DCompat/Pomme3DMF_Internal.h
 )
 
 set(GAME_ALL_SOURCES
@@ -192,6 +185,7 @@ target_include_directories(${GAME_TARGET} PRIVATE
 	${SDL2_INCLUDE_DIRS}
 	${OPENGL_INCLUDE_DIRS}
 	extern/Pomme/src
+	extern/Pomme/src/QD3D
 	${GAME_SRCDIR}
 	${GAME_SRCDIR}/Headers
 	${GAME_SRCDIR}/Headers/Glue
