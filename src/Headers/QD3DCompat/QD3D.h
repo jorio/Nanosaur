@@ -6,6 +6,7 @@
 
 typedef float		TQ3Float32;
 typedef uint32_t	TQ3Uns32;
+typedef int32_t		TQ3Int32;
 typedef int32_t		TQ3ObjectType;
 
 // junk types

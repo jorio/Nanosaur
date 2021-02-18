@@ -96,6 +96,7 @@ set(GAME_CORE_SOURCES
 	${GAME_SRCDIR}/Screens/Movie.cpp
 	${GAME_SRCDIR}/QD3D/Pomme3DMF_API.cpp
 	${GAME_SRCDIR}/QD3D/Pomme3DMF_Parser.cpp
+	${GAME_SRCDIR}/QD3D/QD3DMath.cpp
 	${GAME_SRCDIR}/Main.cpp
 )
 
