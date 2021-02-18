@@ -36,6 +36,7 @@ static const int kKeybindingRow_Done = NUM_REMAPPABLE_NEEDS + 1;
 enum
 {
 	kSettingsState_Off,
+	kSettingsState_FadeIn,
 	kSettingsState_MainPage,
 	kSettingsState_ControlsPage,
 	kSettingsState_ControlsPage_AwaitingPress,
@@ -560,13 +561,34 @@ void DoSettingsScreen(void)
 	glClearColor(((kBGColor >> 16) & 0xFF) / 255.0f, ((kBGColor >> 8) & 0xFF) / 255.0f, (kBGColor & 0xFF) / 255.0f, 1.0f);
 
 	needFullRender = true;
-	gSettingsState = kSettingsState_MainPage;
+	gSettingsState = kSettingsState_FadeIn;
+
+	float gamma = 0;
+
+	QD3D_CalcFramesPerSecond();
 
 	while (gSettingsState != kSettingsState_Off)
 	{
 		UpdateInput();
 		switch (gSettingsState)
 		{
+			case kSettingsState_FadeIn:
+#if ALLOW_FADE
+				gamma += gFramesPerSecondFrac * 100.0f / 0.5f;
+				if (gamma > 100)
+				{
+					gamma = 100;
+					gSettingsState = kSettingsState_MainPage;
+				}
+				Render_SetWindowGamma(gamma);
+#else
+				Render_SetWindowGamma(100);
+				gSettingsState = kSettingsState_MainPage;
+#endif
+				DrawSettingsPage();
+				needFullRender = false;
+				break;
+
 			case kSettingsState_MainPage:
 				DrawSettingsPage();
 				needFullRender = false;
