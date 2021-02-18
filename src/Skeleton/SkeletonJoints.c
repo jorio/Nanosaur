@@ -21,7 +21,6 @@
 #include "main.h"
 
 extern	NewObjectDefinitionType	gNewObjectDefinition;
-extern	TQ3ViewObject			gGameViewObject;
 extern	Boolean					gCanDoMP;
 
 

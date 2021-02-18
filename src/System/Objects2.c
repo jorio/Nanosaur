@@ -37,7 +37,6 @@ extern	GLuint		gShadowGLTextureName;
 extern	ObjNode		*gPlayerObj,*gFirstNodePtr;
 extern	QD3DSetupOutputType		*gGameViewInfoPtr;
 extern	TQ3Point3D	gCoord;
-extern	TQ3Object	gKeepBackfaceStyleObject;
 extern	NewObjectDefinitionType	gNewObjectDefinition;
 extern	PrefsType	gGamePrefs;
 
