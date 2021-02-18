@@ -336,5 +336,5 @@ void Q3TriMeshData_SubdivideTriangles(TQ3TriMeshData* mesh)
 	delete[] triangleEdges;
 
 	Assert(numTrianglesWritten == 4*oldNumTriangles, "unexpected number of triangles written");
-	Assert(numPointsWritten == oldNumPoints + edges.size(), "unexpected number of points written");
+	Assert(numPointsWritten == oldNumPoints + (int)edges.size(), "unexpected number of points written");
 }

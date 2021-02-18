@@ -189,7 +189,7 @@ void UpdateInput(void)
 
 			case SDL_TEXTINPUT:
 				memcpy(gTextInput, event.text.text, sizeof(gTextInput));
-				_Static_assert(sizeof(gTextInput) == sizeof(event.text.text));
+				_Static_assert(sizeof(gTextInput) == sizeof(event.text.text), "size mismatch: gTextInput / event.text.text");
 				break;
 
 /*

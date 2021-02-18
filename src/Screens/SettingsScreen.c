@@ -507,7 +507,7 @@ static void NavigateControlsPage(void)
 		if (controlsHighlightedRow == kKeybindingRow_Reset)
 		{
 			memcpy(gGamePrefs.keys, kDefaultKeyBindings, sizeof(kDefaultKeyBindings));
-			_Static_assert(sizeof(gGamePrefs.keys) == sizeof(gGamePrefs.keys));
+			_Static_assert(sizeof(kDefaultKeyBindings) == sizeof(gGamePrefs.keys), "size mismatch: default keybindings / prefs keybindings");
 			PlayEffect_Parms(EFFECT_CRYSTAL, FULL_CHANNEL_VOLUME/2, kMiddleC-6);
 			needFullRender = true;
 		}

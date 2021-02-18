@@ -132,7 +132,7 @@ OSErr		iErr;
 	gGamePrefs.ambientSounds = true;
 
 	memcpy(gGamePrefs.keys, kDefaultKeyBindings, sizeof(gGamePrefs.keys));
-	_Static_assert(sizeof(gGamePrefs.keys) == sizeof(gGamePrefs.keys));
+	_Static_assert(sizeof(kDefaultKeyBindings) == sizeof(gGamePrefs.keys), "size mismatch: default keybindings / prefs keybinings");
 
 	LoadPrefs(&gGamePrefs);							// attempt to read from prefs file
 
