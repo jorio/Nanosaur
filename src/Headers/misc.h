@@ -9,6 +9,10 @@
 	#include <GL/glu.h>			// gluErrorString, gluPerspective, gluLookAt
 #endif
 
+#if _MSC_VER
+	#define _Static_assert static_assert
+#endif
+
 
 extern	void ShowSystemErr(long err);
 extern void	DoAlert(const char*);
