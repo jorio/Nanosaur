@@ -234,6 +234,17 @@ static inline void __SetClientState(GLenum stateEnum, bool* stateFlagPtr, bool e
 /*    API IMPLEMENTATION    */
 /****************************/
 
+void DoFatalGLError(GLenum error, const char* file, int line)
+{
+	static char alertbuf[1024];
+	snprintf(alertbuf, sizeof(alertbuf), "OpenGL error 0x%x: %s\nin %s:%d",
+		error,
+		(const char*)gluErrorString(error),
+		file,
+		line);
+	DoFatalAlert(alertbuf);
+}
+
 void Render_SetDefaultModifiers(RenderModifiers* dest)
 {
 	memcpy(dest, &kDefaultRenderMods, sizeof(RenderModifiers));

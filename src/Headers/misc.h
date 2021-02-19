@@ -2,17 +2,21 @@
 // misc.h
 //
 
-
-#if __APPLE__
-	#include <OpenGL/glu.h>		// gluErrorString, gluPerspective, gluLookAt
-#else
-	#include <GL/glu.h>			// gluErrorString, gluPerspective, gluLookAt
-#endif
-
 #if _MSC_VER
 	#define _Static_assert static_assert
 #endif
 
+#define GAME_ASSERT(condition)											\
+	do {																\
+		if (!(condition))												\
+			DoAssert(#condition, __func__, __LINE__);					\
+	} while(0)
+
+#define GAME_ASSERT_MESSAGE(condition, message)							\
+	do {																\
+		if (!(condition))												\
+			DoAssert(message, __func__, __LINE__);						\
+	} while(0)
 
 extern	void ShowSystemErr(long err);
 extern void	DoAlert(const char*);
@@ -33,12 +37,3 @@ OSErr DrawPictureToScreen(FSSpec *myFSSpec, short x, short y);
 void DoSettingsScreen(void);
 
 void SetProModeSettings(int isPro);
-
-#define GAME_ASSERT(condition) do { if (!(condition)) DoAssert(#condition, __func__, __LINE__); } while(0)
-#define GAME_ASSERT_MESSAGE(condition, message) do { if (!(condition)) DoAssert(message, __func__, __LINE__); } while(0)
-
-#define CHECK_GL_ERROR()												\
-	do {					 											\
-		GLenum err = glGetError();										\
-		GAME_ASSERT_MESSAGE(err == GL_NO_ERROR, (const char*) gluErrorString(err));	\
-	} while(0)

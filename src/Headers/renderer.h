@@ -2,9 +2,24 @@
 
 #include <QD3D.h>
 
+#if __APPLE__
+#include <OpenGL/glu.h>		// gluErrorString, gluPerspective, gluLookAt
+#else
+#include <GL/glu.h>			// gluErrorString, gluPerspective, gluLookAt
+#endif
+
 #if !defined(ALLOW_FADE) && !_DEBUG
 #define ALLOW_FADE		1
 #endif
+
+#define CHECK_GL_ERROR()												\
+	do {					 											\
+		GLenum err = glGetError();										\
+		if (err != GL_NO_ERROR)											\
+			DoFatalGLError(err, __func__, __LINE__);					\
+	} while(0)
+
+#pragma mark -
 
 typedef struct RenderStats
 {
@@ -46,6 +61,10 @@ typedef enum
 	kRendererTextureFlags_ClampV		= (1 << 1),
 	kRendererTextureFlags_ClampBoth		= kRendererTextureFlags_ClampU | kRendererTextureFlags_ClampV,
 } RendererTextureFlags;
+
+#pragma mark -
+
+void DoFatalGLError(GLenum error, const char* function, int line);
 
 #pragma mark -
 
