@@ -123,6 +123,7 @@ set(GAME_CORE_HEADERS
 	${GAME_SRCDIR}/Headers/objtypes.h
 	${GAME_SRCDIR}/Headers/pickups.h
 	${GAME_SRCDIR}/Headers/player_control.h
+	${GAME_SRCDIR}/Headers/renderer.h
 	${GAME_SRCDIR}/Headers/qd3d_geometry.h
 	${GAME_SRCDIR}/Headers/qd3d_support.h
 	${GAME_SRCDIR}/Headers/skeletonanim.h
