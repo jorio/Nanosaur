@@ -4,7 +4,7 @@
 
 1. Install the prerequisites:
     - Xcode 10+
-    - [CMake](https://formulae.brew.sh/formula/cmake) 3.17+
+    - [CMake](https://formulae.brew.sh/formula/cmake) 3.13+
 1. Clone the repo recursively:
     ```
     git clone --recurse-submodules https://github.com/jorio/Nanosaur
@@ -24,7 +24,7 @@
 
 1. Install the prerequisites:
     - Visual Studio 2019 with the C++ toolchain
-    - [CMake](https://cmake.org/download/) 3.17+
+    - [CMake](https://cmake.org/download/) 3.13+
 1. Clone the repo recursively:
     ```
     git clone --recurse-submodules https://github.com/jorio/Nanosaur
@@ -44,8 +44,9 @@
 
 1. Install the prerequisites from your package manager:
     - Any C++20 compiler
-    - CMake 3.17+
+    - CMake 3.13+
     - SDL2 development library (e.g. "libsdl2-dev" on Debian/Ubuntu, "sdl2" on Arch)
+    - glu
 1. Clone the repo recursively:
     ```
     git clone --recurse-submodules https://github.com/jorio/Nanosaur

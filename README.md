@@ -2,13 +2,11 @@
 
 This is _Nanosaur_ for modern operating systems (macOS, Windows, Linux). This version, at https://github.com/jorio/nanosaur, is approved by Pangea Software.
 
-Get builds for macOS and Windows here: https://github.com/jorio/nanosaur/releases
+- **Get builds for macOS and Windows here:** https://github.com/jorio/nanosaur/releases
+- Arch Linux users, get [`nanosaur` from the AUR](https://aur.archlinux.org/packages/nanosaur).
+- Other systems: please read [BUILD.md](BUILD.md) to build the game yourself. 
 
 ![Screenshot](docs/screenshot.png)
-
-## How to build
-
-To build the game yourself, please read [BUILD.md](BUILD.md).
 
 ## About this port
 
@@ -26,11 +24,18 @@ I took a conservative approach to port the game, in a similar spirit to “Choco
 
 To make it easier to port the game, I wrote an implementation of parts of the Macintosh Toolbox API, which I called “[Pomme](https://github.com/jorio/Pomme)”. You can think of Pomme as a cross-platform reimagining of [Carbon](https://en.wikipedia.org/wiki/Carbon_(API)), albeit at a much smaller scope.
 
-Rendering is handled via [Quesa](https://github.com/jorio/Quesa), an independent implementation of QuickDraw 3D.
+The first release of this port used a [custom fork](https://github.com/jorio/Quesa) of [Quesa](https://github.com/jwwalker/Quesa) to render the game’s 3D graphics. Quesa is an independent implementation of QuickDraw 3D; it was incredibly useful to get the game up and running initially. Nanosaur has switched to a tailor-made renderer as of version 1.4.2.
 
 ### Credits
 
-Nanosaur™ © 1998 Pangea Software, Inc. Ported by Iliyas Jorio with permission by Pangea Software.
+Nanosaur™ © 1998 Pangea Software, Inc.
+- Programming: Brian Greenstone
+- Artwork: Scott Harper 
+- Music: Mike Beckett, Jens Nilsson
+- Cinematics: Chris Ashton
+- Enhanced update: Iliyas Jorio
+
+Nanosaur was updated and re-released here (https://github.com/jorio/nanosaur) with permission by Pangea Software.
 
 ### See also: Bugdom
 

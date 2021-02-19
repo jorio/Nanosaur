@@ -1,8 +1,19 @@
 # Nanosaur changelog
 
-- **v1.4.1 (Dec. 2020)** Nanosaur Extreme is now playable.
+- **v1.4.2 (Feb. 19, 2021)**
+	- Full rewrite of the 3D renderer. Fixes performance on Apple Silicon and other systems (Issue #8).
+	- Keyboard inputs can now be remapped (Issue #2).
+	- Basic gamepad support.
+	- Switching between Extreme and Easy modes is now performed in the game's settings screen (Issue #9, thanks @shpface).
+	- New options in game settings (music, ambient, debug title bar).
+	- Better fade in/out implementation.
 
-- **v1.4.0 (Nov. 2020)** Updated the game to run on today's systems at arbitrary resolutions.
+- **v1.4.1 (Dec. 31, 2020)**
+	- Nanosaur Extreme is now playable.
+	- Note: this is the last version of Nanosaur that uses Quesa, i.e. the last version containing "true" QuickDraw 3D code.
+
+- **v1.4.0 (Nov. 13, 2020)**
+	- Updated the game to run on today's systems at arbitrary resolutions.
 
 ---
 
