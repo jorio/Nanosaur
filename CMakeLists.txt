@@ -5,7 +5,9 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 #set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_CXX_STANDARD 20)
 
-set(CMAKE_OSX_DEPLOYMENT_TARGET "10.11" CACHE STRING "Minimum OS X deployment version")
+# macOS options
+set(CMAKE_OSX_DEPLOYMENT_TARGET "10.11" CACHE STRING "Minimum macOS deployment version")
+set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64" CACHE STRING "Target macOS architectures")
 
 project(Nanosaur
 	VERSION 1.4.2
@@ -19,6 +21,7 @@ set(GAME_ICNS cmake/${PROJECT_NAME}.icns)
 # GLOBAL OPTIONS (BEFORE ADDING SUBDIRECTORIES)
 #------------------------------------------------------------------------------
 
+# MSVC options
 if(MSVC)
 	# This lets us detect that MSVC supports C++20 features via the __cplusplus macro
 	# (See: https://docs.microsoft.com/en-us/cpp/build/reference/zc-cplusplus)
@@ -26,7 +29,6 @@ if(MSVC)
 	add_compile_definitions(UNICODE _UNICODE)
 
 	set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
-
 endif()
 
 #------------------------------------------------------------------------------
@@ -189,8 +191,6 @@ target_include_directories(${GAME_TARGET} PRIVATE
 	extern/Pomme/src/QD3D
 	${GAME_SRCDIR}
 	${GAME_SRCDIR}/Headers
-	${GAME_SRCDIR}/Headers/Glue
-	${GAME_SRCDIR}/Headers/QD3DCompat
 )
 
 target_link_libraries(${GAME_TARGET}
@@ -237,7 +237,7 @@ if(NOT MSVC)
 
 		-Wno-unused-variable
 		-Wno-unused-function
-		-Wno-unused-but-set-variable
+		$<$<CXX_COMPILER_ID:GNU>:-Wno-unused-but-set-variable>
 	)
 else()
 	target_compile_options(${GAME_TARGET} PRIVATE
@@ -248,6 +248,7 @@ else()
 		/wd4201 # nonstandard extension (nameless struct)
 		/wd4244 # conversion from double to float
 		/wd4305 # truncation from double to float
+		/MP
 	)
 endif()
 

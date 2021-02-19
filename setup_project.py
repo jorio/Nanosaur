@@ -16,7 +16,7 @@ libs_dir = os.path.abspath('extern')
 cache_dir = os.path.abspath('cache')
 
 game_name = "Nanosaur"
-game_ver = "1.4.1"
+game_ver = "1.4.2"
 sdl_ver = "2.0.14"
 
 #----------------------------------------------------------------
