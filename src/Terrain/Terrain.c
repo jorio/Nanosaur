@@ -844,9 +844,7 @@ static void BuildTerrainSuperTile_Flat(SuperTileMemoryType	*superTilePtr, long s
 {
 TQ3TriMeshData		*triMeshPtr;
 TQ3Point3D			*pointList;
-TQ3Status			status;
 long				row2,col2,row,col;
-UInt32				validSize,bufferSize;
 UInt16				tile;
 TQ3PlaneEquation	planeEq;
 

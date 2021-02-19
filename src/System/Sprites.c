@@ -64,7 +64,6 @@ short	i;
 
 void LoadFramesFile(FSSpec *inFile, short groupNum)
 {
-OSErr		iErr;
 short		fRefNum;
 
 			/* SEE IF NUKE EXISTING */

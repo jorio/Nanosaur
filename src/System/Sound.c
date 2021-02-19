@@ -219,7 +219,8 @@ OSErr			iErr;
 				ShowSystemErr(iErr);
 		}
 		DetachResource((Handle)gSndHandles[bankNum][i]);				// detach resource from rez file & make a normal Handle
-		if ( (iErr = ResError()) ) 
+		iErr = ResError();
+		if (iErr)
 			ShowSystemErr(iErr);
 						
 		HNoPurge((Handle)gSndHandles[bankNum][i]);						// make non-purgeable
