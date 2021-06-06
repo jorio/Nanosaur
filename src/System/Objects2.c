@@ -225,7 +225,7 @@ ObjNode	*shadowObj;
 	GAME_ASSERT(gShadowGLTextureName != 0);
 	shadowObj->MeshList[0]->diffuseColor = (TQ3ColorRGBA) {0,0,0,1};		// taint shadow black
 	shadowObj->MeshList[0]->glTextureName = gShadowGLTextureName;
-	shadowObj->MeshList[0]->textureHasTransparency = true;
+	shadowObj->MeshList[0]->texturingMode = kQ3TexturingModeAlphaBlend;
 
 	theNode->ShadowNode = shadowObj;
 

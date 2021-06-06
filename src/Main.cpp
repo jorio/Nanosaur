@@ -76,6 +76,9 @@ int CommonMain(int argc, const char** argv)
 	if (0 != SDL_Init(SDL_INIT_VIDEO))
 		throw std::runtime_error("Couldn't initialize SDL video subsystem.");
 
+	// Uncomment the line below to dump resource fork contents to /tmp
+	// Pomme_StartDumpingResources("/tmp/NanoRezDump");
+
 	// Create window
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);

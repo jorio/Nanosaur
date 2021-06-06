@@ -141,7 +141,7 @@ void QD3D_InitParticles(void)
 	{
 		ParticleType* particle = &gParticles[i];
 		particle->isUsed = false;
-		particle->mesh = Q3TriMeshData_New(1, 3);
+		particle->mesh = Q3TriMeshData_New(1, 3, kQ3TriMeshDataFeatureVertexUVs | kQ3TriMeshDataFeatureVertexNormals);
 		for (int v = 0; v < 3; v++)
 			particle->mesh->triangles[0].pointIndices[v] = v;
 	}
@@ -270,8 +270,8 @@ TQ3Point3D			centerPt = {0,0,0};
 
 				/* DO VERTEX UV'S */
 
-		pMesh->hasTexture = inMesh->hasTexture;
-		if (inMesh->hasTexture)											// see if also has UV
+		pMesh->texturingMode = inMesh->texturingMode;
+		if (inMesh->texturingMode != kQ3TexturingModeOff)				// see if also has UV
 		{
 			for (int v = 0; v < 3; v++)									// get vertex u/v's
 			{
@@ -454,7 +454,7 @@ void QD3D_ScrollUVs(int numMeshes, TQ3TriMeshData** meshList, float rawDeltaU, f
 
 				/* SEE IF HAS A TEXTURE */
 
-		if (!mesh->hasTexture)
+		if (mesh->texturingMode == kQ3TexturingModeOff)
 			continue;
 
 		GAME_ASSERT(mesh->vertexUVs);

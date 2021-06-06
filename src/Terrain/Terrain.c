@@ -407,7 +407,8 @@ Ptr						blankTexPtr;
 
 					/* CREATE THE TRIMESH OBJECT */
 
-		TQ3TriMeshData* tmd = Q3TriMeshData_New(NUM_POLYS_IN_SUPERTILE, NUM_VERTICES_IN_SUPERTILE);
+		TQ3TriMeshData* tmd = Q3TriMeshData_New(NUM_POLYS_IN_SUPERTILE, NUM_VERTICES_IN_SUPERTILE,
+				kQ3TriMeshDataFeatureVertexUVs | kQ3TriMeshDataFeatureVertexNormals);
 		GAME_ASSERT(tmd);
 
 		gSuperTileMemoryList[i].triMeshPtr = tmd;
@@ -425,7 +426,7 @@ Ptr						blankTexPtr;
 		tmd->bBox.min.x = tmd->bBox.min.y = tmd->bBox.min.z = 0;
 		tmd->bBox.max.x = tmd->bBox.max.y = tmd->bBox.max.z = TERRAIN_SUPERTILE_UNIT_SIZE;
 
-		tmd->hasTexture = true;
+		tmd->texturingMode = kQ3TexturingModeOpaque;
 		tmd->glTextureName = textureName;
 
 
@@ -433,7 +434,8 @@ Ptr						blankTexPtr;
 			/* NOW CREATE SECONDARY TRIMESH FOR FLAT SUPERTILES */
 			/****************************************************/
 
-		TQ3TriMeshData* tmdFlat = Q3TriMeshData_New(2, 4);			// only 2 triangles in a flat supertile, 4 vertices
+		TQ3TriMeshData* tmdFlat = Q3TriMeshData_New(2, 4,			// only 2 triangles in a flat supertile, 4 vertices
+				kQ3TriMeshDataFeatureVertexUVs | kQ3TriMeshDataFeatureVertexNormals);
 		GAME_ASSERT(tmdFlat);
 
 		gSuperTileMemoryList[i].triMeshPtr2 = tmdFlat;
@@ -460,7 +462,7 @@ Ptr						blankTexPtr;
 		tmdFlat->bBox.min.x = tmdFlat->bBox.min.y = tmdFlat->bBox.min.z = 0;
 		tmdFlat->bBox.max.x = tmdFlat->bBox.max.y = tmdFlat->bBox.max.z = TERRAIN_SUPERTILE_UNIT_SIZE;
 
-		tmdFlat->hasTexture = true;
+		tmdFlat->texturingMode = kQ3TexturingModeOpaque;
 		tmdFlat->glTextureName = textureName;
 	}
 }

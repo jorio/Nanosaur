@@ -377,9 +377,10 @@ void Render_Load3DMFTextures(TQ3MetaFile* metaFile)
 		// Set glTextureName on meshes
 		for (int j = 0; j < metaFile->numMeshes; j++)
 		{
-			if (metaFile->meshes[j]->hasTexture && metaFile->meshes[j]->internalTextureID == i)
+			TQ3TriMeshData* mesh = metaFile->meshes[j];
+			if (mesh->texturingMode != kQ3TexturingModeOff && mesh->internalTextureID == i)
 			{
-				metaFile->meshes[j]->glTextureName = textureDef->glTextureName;
+				mesh->glTextureName = textureDef->glTextureName;
 			}
 		}
 	}
@@ -556,7 +557,7 @@ static void DrawMeshList(int renderPass, const MeshQueueEntry* entry)
 	{
 		const TQ3TriMeshData* mesh = entry->meshPtrList[i];
 
-		bool meshIsTransparent = mesh->textureHasTransparency
+		bool meshIsTransparent = mesh->texturingMode == kQ3TexturingModeAlphaBlend
 				|| mesh->diffuseColor.a < .999f
 				|| entry->mods->diffuseColor.a < .999f;
 
@@ -633,7 +634,7 @@ static void DrawMeshList(int renderPass, const MeshQueueEntry* entry)
 		}
 
 		// Texture mapping
-		if (mesh->hasTexture)
+		if (mesh->texturingMode != kQ3TexturingModeOff)
 		{
 			EnableState(GL_TEXTURE_2D);
 			EnableClientState(GL_TEXTURE_COORD_ARRAY);
