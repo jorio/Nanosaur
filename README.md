@@ -37,6 +37,9 @@ Nanosaur™ © 1998 Pangea Software, Inc.
 
 Nanosaur was updated and re-released here (https://github.com/jorio/nanosaur) with permission by Pangea Software.
 
-### See also: Bugdom
+### Other Pangea game ports
 
-If you like Pangea games, check out [my remastered version of the original Bugdom](https://github.com/jorio/Bugdom).
+If you like games by Pangea Software, you might also enjoy my ports of
+[Bugdom](https://github.com/jorio/Bugdom)
+and [Mighty Mike (aka Power Pete)](https://github.com/jorio/MightyMike).
+
