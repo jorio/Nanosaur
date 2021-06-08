@@ -186,7 +186,7 @@ endif()
 
 target_include_directories(${GAME_TARGET} PRIVATE
 	${SDL2_INCLUDE_DIRS}
-	${OPENGL_INCLUDE_DIRS}
+	${OPENGL_INCLUDE_DIR}
 	extern/Pomme/src
 	extern/Pomme/src/QD3D
 	${GAME_SRCDIR}
