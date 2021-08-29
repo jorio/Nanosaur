@@ -126,20 +126,18 @@ float	dot,angle;
 //
 // Given an arbitrary angle, it limits it to between 0 and 2*PI
 //
-// The easy way to do this is to convert the floating point angle to a fixed point angle
-// and then masking it with a logical AND.  I'm using the PSX format where 360 degrees == 0x1000.
-// So, masking against 0xfff should do the trick!
-//
 
 inline float MaskAngle(float angle)
 {
-unsigned short	n;
+	bool neg = angle < 0;
 
-	n = (angle*(float)0x1000) * (1.0f/PI2);				// convert to 0x1000 based fixed point number for easy masking
-	n &= 0xfff;											// mask it
-	angle = (PI2 * (float)n) * (1.0f / (float)0x1000);	// convert back to float
+	int n = (int)(angle * (1.0f/ PI2));		// see how many times it wraps fully
+	angle -= (float)n * PI2;				// subtract # wrappings to get just the remainder
 
-	return(angle);
+	if (neg)
+		angle += PI2;
+
+	return angle;
 }
 
 
