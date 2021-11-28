@@ -1,5 +1,11 @@
 # How to build the game
 
+## TL;DR: Automated build script
+
+Clone the repo **recursively**, then run `python3 build.py` to execute the build steps described in this document and package up the game.
+
+build.py is the script that is used by the CI setup to produce builds. If you want to build the game manually instead, read on.
+
 ## How to build the game on macOS
 
 1. Install the prerequisites:
@@ -9,7 +15,7 @@
     ```
     git clone --recurse-submodules https://github.com/jorio/Nanosaur
     ```
-1. Download [SDL2-2.0.14.dmg](http://libsdl.org/release/SDL2-2.0.14.dmg), open it, and copy **SDL2.framework** to the **extern** folder
+1. Download [SDL2-2.0.18.dmg](http://libsdl.org/release/SDL2-2.0.18.dmg), open it, and copy **SDL2.framework** to the **extern** folder
 1. Prep the Xcode project:
     ```
     cmake -G Xcode -S . -B build
@@ -29,7 +35,7 @@
     ```
     git clone --recurse-submodules https://github.com/jorio/Nanosaur
     ```
-1. Download [SDL2-devel-2.0.14-VC.zip](http://libsdl.org/release/SDL2-devel-2.0.14-VC.zip) and extract the contents into the **extern** folder
+1. Download [SDL2-devel-2.0.18-VC.zip](http://libsdl.org/release/SDL2-devel-2.0.18-VC.zip) and extract the contents into the **extern** folder
 1. Prep the Visual Studio solution:
     ```
     cmake -G "Visual Studio 16 2019" -A x64 -S . -B build
