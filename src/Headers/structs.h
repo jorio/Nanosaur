@@ -298,7 +298,6 @@ typedef struct
 	Boolean	canDoFog;
 	Boolean	shadows;
 	Boolean	dust;
-	Boolean softerLighting;
 	Boolean fullscreen;
 	Boolean mainMenuHelp;
 	Boolean vsync;
@@ -309,7 +308,7 @@ typedef struct
 	KeyBinding keys[NUM_CONTROL_NEEDS];
 }PrefsType;
 
-#define PREFS_MAGIC "Nanosaur Prefs v3"
+#define PREFS_MAGIC "Nanosaur Prefs v4"
 
 #endif
 

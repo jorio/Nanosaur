@@ -77,7 +77,6 @@ static SettingEntry gSettingEntries[] =
 	{&gGamePrefs.canDoFog			, "Fog"					, nil,						2,	{ "NO", "YES" }, },
 //	{&gGamePrefs.shadows			, "Shadow Decals"		, nil,						2,	{ "NO", "YES" }, },
 //	{&gGamePrefs.dust				, "Dust"				, nil,						2,	{ "NO", "YES" }, },
-	{&gGamePrefs.softerLighting		, "Softer Lighting"		, nil,						2,	{ "NO", "YES" }, },
 	{nil							, nil					, nil,						0,  { NULL } },
 	{&gGamePrefs.mainMenuHelp		, "Show Help in Main Menu"		, nil,				2,	{ "NO", "YES" }, },
 	{&gGamePrefs.debugInfoInTitleBar, "Debug Info in Title Bar",	Callback_DebugInfo,	2,  { "NO", "YES" } },
