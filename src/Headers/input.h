@@ -41,8 +41,6 @@ enum
 	kNeed_ToggleMusic,
 	kNeed_ToggleAmbient,
 	kNeed_ToggleFullscreen,
-	kNeed_RaiseVolume,
-	kNeed_LowerVolume,
 	NUM_REMAPPABLE_NEEDS,
 
 	// ^^^ REMAPPABLE

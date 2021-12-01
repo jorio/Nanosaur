@@ -684,27 +684,6 @@ void DoSoundMaintenance(void)
 		}	
 	}
 
-			/* SEE IF CHANGE VOLUME */
-
-	if (GetNewNeedState(kNeed_RaiseVolume))
-	{
-		if (gCurrentSystemVolume < 0x100)
-			gCurrentSystemVolume += 8;
-		if (gCurrentSystemVolume > 0x100)
-			gCurrentSystemVolume = 0x100;
-		SetDefaultOutputVolume((gCurrentSystemVolume<<16)|gCurrentSystemVolume); // set system volume
-	}
-	else
-	if (GetNewNeedState(kNeed_LowerVolume))
-	{
-		if (gCurrentSystemVolume > 0x000)
-			gCurrentSystemVolume -= 8;
-		if (gCurrentSystemVolume < 0x000)
-			gCurrentSystemVolume = 0;
-		
-		SetDefaultOutputVolume((gCurrentSystemVolume<<16)|gCurrentSystemVolume); // set system volume
-	}
-
 				/* SEE IF STREAMED MUSIC STOPPED - SO RESET */
 				
 	if (gResetSong)
