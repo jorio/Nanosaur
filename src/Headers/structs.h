@@ -144,6 +144,9 @@ typedef struct
 	TQ3Vector3D			*decomposedNormalsList;			// array of shared normals
 
 	TQ3MetaFile			*associated3DMF;					// associated 3DMF file
+
+	int					numTextures;
+	GLuint				*textureNames;
 }SkeletonDefType;
 
 

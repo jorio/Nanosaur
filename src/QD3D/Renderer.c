@@ -338,24 +338,28 @@ GLuint Render_LoadTexture(
 	return textureName;
 }
 
-void Render_Load3DMFTextures(TQ3MetaFile* metaFile)
+void Render_Load3DMFTextures(TQ3MetaFile* metaFile, GLuint* outTextureNames)
 {
 	for (int i = 0; i < metaFile->numTextures; i++)
 	{
-		TQ3Pixmap* textureDef = metaFile->textures[i];
-		GAME_ASSERT_MESSAGE(textureDef->glTextureName == 0, "GL texture already allocated");
+		TQ3TextureShader* textureShader = &metaFile->textures[i];
 
+		GAME_ASSERT(textureShader->pixmap);
+
+		TQ3TexturingMode meshTexturingMode = kQ3TexturingModeOff;
 		GLenum internalFormat;
 		GLenum format;
 		GLenum type;
-		switch (textureDef->pixelType)
+		switch (textureShader->pixmap->pixelType)
 		{
 			case kQ3PixelTypeRGB16:
+				meshTexturingMode = kQ3TexturingModeOpaque;
 				internalFormat = GL_RGB;
 				format = GL_BGRA;
 				type = GL_UNSIGNED_SHORT_1_5_5_5_REV;
 				break;
 			case kQ3PixelTypeARGB16:
+				meshTexturingMode = kQ3TexturingModeAlphaTest;
 				internalFormat = GL_RGBA;
 				format = GL_BGRA;
 				type = GL_UNSIGNED_SHORT_1_5_5_5_REV;
@@ -365,37 +369,23 @@ void Render_Load3DMFTextures(TQ3MetaFile* metaFile)
 				continue;
 		}
 
-		textureDef->glTextureName = Render_LoadTexture(
-					 internalFormat,						// format in OpenGL
-					 textureDef->width,						// width in pixels
-					 textureDef->height,					// height in pixels
-					 format,								// what my format is
-					 type,									// size of each r,g,b
-					 textureDef->image,						// pointer to the actual texture pixels
-					 0);
+		outTextureNames[i] = Render_LoadTexture(
+				internalFormat,						// format in OpenGL
+				textureShader->pixmap->width,		// width in pixels
+				textureShader->pixmap->height,		// height in pixels
+				format,								// what my format is
+				type,								// size of each r,g,b
+				textureShader->pixmap->image,		// pointer to the actual texture pixels
+				0);
 
 		// Set glTextureName on meshes
 		for (int j = 0; j < metaFile->numMeshes; j++)
 		{
-			TQ3TriMeshData* mesh = metaFile->meshes[j];
-			if (mesh->texturingMode != kQ3TexturingModeOff && mesh->internalTextureID == i)
+			if (metaFile->meshes[j]->internalTextureID == i)
 			{
-				mesh->glTextureName = textureDef->glTextureName;
+				metaFile->meshes[j]->glTextureName = outTextureNames[i];
+				metaFile->meshes[j]->texturingMode = meshTexturingMode;
 			}
-		}
-	}
-}
-
-void Render_Dispose3DMFTextures(TQ3MetaFile* metaFile)
-{
-	for (int i = 0; i < metaFile->numTextures; i++)
-	{
-		TQ3Pixmap* textureDef = metaFile->textures[i];
-
-		if (textureDef->glTextureName != 0)
-		{
-			glDeleteTextures(1, &textureDef->glTextureName);
-			textureDef->glTextureName = 0;
 		}
 	}
 }

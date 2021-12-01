@@ -62,7 +62,11 @@ void LoadBonesReferenceModel(FSSpec	*inSpec, SkeletonDefType *skeleton)
 
 			/* UPLOAD TEXTURES TO GPU */
 
-	Render_Load3DMFTextures(the3DMFFile);
+	skeleton->numTextures = skeleton->associated3DMF->numTextures;
+
+	skeleton->textureNames = (GLuint*) NewPtrClear(skeleton->numTextures * sizeof(GLuint));
+
+	Render_Load3DMFTextures(skeleton->associated3DMF, skeleton->textureNames);
 
 			/* DECOMPOSE REFERENCE MODEL */
 

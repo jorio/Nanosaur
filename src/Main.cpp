@@ -100,9 +100,6 @@ int CommonMain(int argc, const char** argv)
 	gCoverWindowPixPtr = (UInt32*) GetPixBaseAddr(GetGWorldPixMap(gCoverWindow));
 
 	fs::path dataPath = FindGameData();
-#if !(__APPLE__)
-	Pomme::Graphics::SetWindowIconFromIcl8Resource(gSDLWindow, 128);
-#endif
 
 	// Init joystick subsystem
 	{

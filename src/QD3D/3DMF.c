@@ -31,6 +31,7 @@
 /*********************/
 
 TQ3MetaFile*				gObjectGroupFile[MAX_3DMF_GROUPS];
+GLuint*						gObjectGroupTextures[MAX_3DMF_GROUPS];
 TQ3TriMeshFlatGroup			gObjectGroupList[MAX_3DMF_GROUPS][MAX_OBJECTS_IN_GROUP];
 float			gObjectGroupRadiusList[MAX_3DMF_GROUPS][MAX_OBJECTS_IN_GROUP];
 TQ3BoundingBox 	gObjectGroupBBoxList[MAX_3DMF_GROUPS][MAX_OBJECTS_IN_GROUP];
@@ -46,9 +47,9 @@ short	i;
 	for (i=0; i < MAX_3DMF_GROUPS; i++)
 	{
 		gObjectGroupFile[i] = nil;
+		gObjectGroupTextures[i] = nil;
 		gNumObjectsInGroupList[i] = 0;
 	}
-
 }
 
 /******************** LOAD GROUPED 3DMF ***********************/
@@ -77,7 +78,9 @@ void LoadGrouped3DMF(FSSpec *spec, Byte groupNum)
 
 			/* UPLOAD TEXTURES TO GPU */
 
-	Render_Load3DMFTextures(the3DMFFile);
+	gObjectGroupTextures[groupNum] = (GLuint *) NewPtrClear(the3DMFFile->numTextures * sizeof(GLuint));
+
+	Render_Load3DMFTextures(the3DMFFile, gObjectGroupTextures[groupNum]);
 
 			/* BUILD OBJECT LIST */
 
@@ -104,9 +107,20 @@ void LoadGrouped3DMF(FSSpec *spec, Byte groupNum)
 
 void Free3DMFGroup(Byte groupNum)
 {
+			/* DISPOSE TEXTURES */
+
+	if (gObjectGroupTextures[groupNum] != nil)
+	{
+		GAME_ASSERT(gObjectGroupFile[groupNum] != nil);
+		glDeleteTextures(gObjectGroupFile[groupNum]->numTextures, gObjectGroupTextures[groupNum]);
+		DisposePtr((Ptr) gObjectGroupTextures[groupNum]);
+		gObjectGroupTextures[groupNum] = nil;
+	}
+
+			/* DISPOSE METAFILE */
+
 	if (gObjectGroupFile[groupNum] != nil)
 	{
-		Render_Dispose3DMFTextures(gObjectGroupFile[groupNum]);
 		Q3MetaFile_Dispose(gObjectGroupFile[groupNum]);
 		gObjectGroupFile[groupNum] = nil;
 	}

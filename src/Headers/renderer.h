@@ -94,10 +94,7 @@ GLuint Render_LoadTexture(
 
 // Uploads all textures from a 3DMF file to the GPU.
 // Requires an OpenGL context to be active.
-void Render_Load3DMFTextures(TQ3MetaFile* metaFile);
-
-// Deletes OpenGL texture names previously loaded from a 3DMF file.
-void Render_Dispose3DMFTextures(TQ3MetaFile* metaFile);
+void Render_Load3DMFTextures(TQ3MetaFile* metaFile, GLuint* outTextureNames);
 
 #pragma mark -
 
