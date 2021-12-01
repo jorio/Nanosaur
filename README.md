@@ -19,9 +19,9 @@ Nanosaur was bundled with the original iMac and ran on Mac OS 8. It’s also not
 In 1999, Pangea released [Nanosaur’s source code](https://www.pangeasoft.net/nano/nanosource.html) to the public. This port is based on that release.
 (Note: the restrictive terms in that link are ancient — Pangea does [endorse the existence of this port today](https://www.pangeasoft.net/nano/files.html).)
 
-### Port philosophy
+### Project goals
 
-I took a conservative approach to port the game, in a similar spirit to “Chocolate Doom”. I aimed to accurately maintain the behavior of the original game. The port has some minor quality-of-life improvements such as support for arbitrary resolutions. Modifications to the gameplay or presentation are out of the scope of this project.
+This port aims to provide the best way to experience Nanosaur today. It introduces some modern comforts (such as support for arbitrary resolutions) and fixes some gameplay bugs. The overall experience is intended to be faithful to the spirit of the original game, so modifications to the game’s design are out of the scope of this project.
 
 To make it easier to port the game, I wrote an implementation of parts of the Macintosh Toolbox API, which I called “[Pomme](https://github.com/jorio/Pomme)”. You can think of Pomme as a cross-platform reimagining of [Carbon](https://en.wikipedia.org/wiki/Carbon_(API)), albeit at a much smaller scope.
 Later, I extended Pomme to port several other Pangea games from the Mac OS 7-9 era (see “other Pangea game ports” below).
