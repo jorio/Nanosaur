@@ -9,36 +9,7 @@
 /*    EXTERNALS             */
 /****************************/
 
-#include "globals.h"
-#include <QD3DMath.h>
-#include "objects.h"
-#include "misc.h"
-#include "myguy.h"
-#include "mobjtypes.h"
-#include 	"terrain.h"
-#include "weapons.h"
-#include "player_control.h"
-#include "skeletonobj.h"
-#include "skeletonanim.h"
-#include "skeletonjoints.h"
-#include "pickups.h"
-#include "qd3d_geometry.h"
-#include "enemy.h"
-#include "3dmath.h"
-#include "collision.h"
-#include "sound2.h"
-#include "infobar.h"
-#include "triggers.h"
-
-extern	TQ3Point3D		gCoord;
-extern	TQ3Vector3D		gDelta;
-extern	NewObjectDefinitionType	gNewObjectDefinition;
-extern	float	gFramesPerSecondFrac,gMostRecentCharacterFloorY;
-extern	short		gNumCollisions;
-extern	KeyControlType	gMyControlBits;
-extern	CollisionRec	gCollisionList[];
-extern	unsigned long gInfobarUpdateBits;
-extern	TQ3Point3D	gMyCoord;
+#include "game.h"
 
 
 /****************************/

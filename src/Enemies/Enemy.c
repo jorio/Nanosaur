@@ -9,33 +9,8 @@
 /*    EXTERNALS             */
 /****************************/
 
-#include <QD3D.h>
+#include "game.h"
 
-#include "globals.h"
-#include "mobjtypes.h"
-#include "objects.h"
-#include "misc.h"
-#include "collision.h"
-#include "enemy.h"
-#include "3dmath.h"
-#include "skeletonanim.h"
-#include "skeletonobj.h"
-#include "skeletonjoints.h"
-#include "myguy.h"
-#include "qd3d_geometry.h"
-#include "infobar.h"
-#include "sound2.h"
-
-extern	NewObjectDefinitionType	gNewObjectDefinition;
-extern	ObjNode					*gCurrentNode,*gFirstNodePtr;
-extern	float				gFramesPerSecondFrac,gFramesPerSecond;
-extern	TQ3Point3D			gCoord;
-extern	TQ3Vector3D			gDelta;
-extern	ObjNode			*gPlayerObj;
-extern	short				gNumItems,gNumCollisions;
-extern	CollisionRec		gCollisionList[];
-
-extern const int EXPLODEGEOMETRY_DENOMINATOR;
 
 /****************************/
 /*    PROTOTYPES            */

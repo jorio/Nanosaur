@@ -9,15 +9,8 @@
 /* EXTERNALS   */
 /***************/
 
-#include <SDL.h>
-#include <qd3d_support.h>
-#include "globals.h"
-#include "misc.h"
-#include "input.h"
-#include "window.h"
+#include "game.h"
 
-extern	SDL_Window*	gSDLWindow;
-extern	PrefsType	gGamePrefs;
 
 /**********************/
 /*     PROTOTYPES     */

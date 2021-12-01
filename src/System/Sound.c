@@ -8,19 +8,9 @@
 /***************/
 /* EXTERNALS   */
 /***************/
-#include "globals.h"
-#include "misc.h"
-#include "sound2.h"
-#include "file.h"
-#include "input.h"
-#include "skeletonobj.h"
 
-extern	PrefsType	gGamePrefs;
-extern	short		gMainAppRezFile;
-extern	short 	gLavaSoundChannel;
-extern	float	gMinLavaDist;
-extern	short 	gSteamSoundChannel;
-extern	float	gMinSteamDist;
+#include "game.h"
+
 
 /****************************/
 /*    PROTOTYPES            */

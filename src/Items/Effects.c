@@ -9,19 +9,8 @@
 /*    EXTERNALS             */
 /****************************/
 
+#include "game.h"
 
-#include "globals.h"
-#include "misc.h"
-#include "objects.h"
-#include "terrain.h"
-#include "mobjtypes.h"
-#include "qd3d_geometry.h"
-#include "effects.h"
-
-extern	float				gFramesPerSecondFrac,gFramesPerSecond;
-extern	TQ3Point3D			gCoord;
-extern	NewObjectDefinitionType	gNewObjectDefinition;
-extern	PrefsType	gGamePrefs;
 
 /****************************/
 /*    PROTOTYPES            */

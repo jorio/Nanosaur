@@ -1,20 +1,4 @@
-#include "structs.h"
-#include "input.h"
-#include "file.h"
-#include "sound2.h"
-#include "qd3d_support.h"
-#include "misc.h"
-#include "window.h"
-
-#include <SDL.h>
-#include "version.h"
-
-extern	WindowPtr				gCoverWindow;
-extern	PrefsType				gGamePrefs;
-extern	float					gFramesPerSecond,gFramesPerSecondFrac;
-extern	SDL_Window*				gSDLWindow;
-extern	const int				PRO_MODE;
-extern	const KeyBinding		kDefaultKeyBindings[NUM_CONTROL_NEEDS];
+#include "game.h"
 
 static const uint32_t kBGColor		= 0x000000;
 static const uint32_t kFGColor		= 0xa0a0a0;

@@ -8,33 +8,8 @@
 /*    EXTERNALS             */
 /****************************/
 
-#include <QD3D.h>
-#include <QD3DMath.h>
-#include <math.h>
-#include "globals.h"
-#include "misc.h"
-#include "objects.h"
-#include "mobjtypes.h"
-#include "mainmenu.h"
-#include "3dmf.h"
-#include "input.h"
-#include "window.h"
-#include "skeletonobj.h"
-#include "sound2.h"
-#include "title.h"
-#include "file.h"
-#include "environmentmap.h"
-#include "highscores.h"
+#include "game.h"
 
-extern	float				gFramesPerSecondFrac,gFramesPerSecond;
-extern	TQ3Point3D			gCoord;
-extern	WindowPtr			gCoverWindow;
-extern	NewObjectDefinitionType	gNewObjectDefinition;
-extern	QD3DSetupOutputType		*gGameViewInfoPtr;
-extern	Boolean				gSongPlayingFlag,gResetSong;
-extern	ObjNode	*gFirstNodePtr;
-extern	PrefsType	gGamePrefs;
-extern	FSSpec		gDataSpec;
 
 /****************************/
 /*    PROTOTYPES             */

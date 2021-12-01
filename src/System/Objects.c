@@ -9,38 +9,8 @@
 /* EXTERNALS   */
 /***************/
 
+#include "game.h"
 
-#include "globals.h"
-
-#include "QD3D.h"
-#include "QD3DMath.h"
-
-#include <string.h>
-
-#include "objects.h"
-#include "misc.h"
-#include "skeletonobj.h"
-#include "skeletonanim.h"
-#include "skeletonjoints.h"
-#include "qd3d_support.h"
-#include "qd3d_geometry.h"
-#include "3dmath.h"
-#include "3dmf.h"
-#include "sound2.h"
-#include "camera.h"
-#include "terrain.h"
-#include "mobjtypes.h"
-#include "bones.h"
-#include "collision.h"
-#include "renderer.h"
-
-extern	TQ3TriMeshFlatGroup	gObjectGroupList[MAX_3DMF_GROUPS][MAX_OBJECTS_IN_GROUP];
-extern	float		gObjectGroupRadiusList[MAX_3DMF_GROUPS][MAX_OBJECTS_IN_GROUP];
-extern	short		gNumObjectsInGroupList[MAX_3DMF_GROUPS];
-extern	float		gFramesPerSecondFrac;
-extern	ObjNode		*gPlayerObj;
-extern	QD3DSetupOutputType		*gGameViewInfoPtr;
-extern	PrefsType	gGamePrefs;
 
 /****************************/
 /*    PROTOTYPES            */

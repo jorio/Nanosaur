@@ -9,40 +9,7 @@
 /*    EXTERNALS             */
 /****************************/
 
-#include <QD3D.h>
-#include <QD3DMath.h>
-#include "globals.h"
-#include "objects.h"
-#include "window.h"
-#include "misc.h"
-#include "infobar.h"
-#include "file.h"
-#include "weapons.h"
-#include "sprites.h"
-#include "objtypes.h"
-#include "mobjtypes.h"
-#include "sound2.h"
-#include "input.h"
-#include "terrain.h"
-#include "3dmath.h"
-#include "enemy.h"
-#include "timeportal.h"
-
-extern	NewObjectDefinitionType	gNewObjectDefinition;
-extern	Byte			gCurrentAttackMode;
-extern	float			gFramesPerSecond,gFramesPerSecondFrac,gCameraRotY,gCameraRotX,gMyHealth;
-extern	WindowPtr				gCoverWindow;
-extern	Boolean			gPossibleAttackModes[],gGameOverFlag;
-extern	short			gWeaponInventory[];
-extern	ObjNode			*gPlayerObj;
-extern	QD3DSetupOutputType		*gGameViewInfoPtr;
-extern	TQ3Matrix4x4	gCameraAdjustMatrix;
-extern	TQ3Point3D	gMyCoord;
-extern	long	gNumSuperTilesDeep,gNumSuperTilesWide;	
-extern	FSSpec		gDataSpec;
-extern	TimePortalType	gTimePortalList[];
-extern	Boolean			gMuteMusicFlag;
-extern	long	gCurrentSystemVolume;
+#include "game.h"
 
 
 /****************************/

@@ -9,19 +9,8 @@
 /*    EXTERNALS             */
 /****************************/
 
-#include <QD3D.h>
-#include <QD3DMath.h>
+#include "game.h"
 
-#include "globals.h"
-#include "misc.h"
-#include "qd3d_geometry.h"
-#include "qd3d_support.h"
-#include "objects.h"
-#include "terrain.h"
-#include "renderer.h"
-
-extern	float				gFramesPerSecondFrac;
-extern	TQ3Point3D			gCoord;
 
 /****************************/
 /*    PROTOTYPES            */

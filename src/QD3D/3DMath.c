@@ -9,16 +9,8 @@
 /*    EXTERNALS             */
 /****************************/
 
-#include <QD3D.h>
-#include <QD3DMath.h>
-#include <math.h>
+#include "game.h"
 
-#include "globals.h"
-#include "misc.h"
-#include "objects.h"
-#include "3dmath.h"
-
-extern	float				gFramesPerSecondFrac,gFramesPerSecond;
 
 /****************************/
 /*    PROTOTYPES            */

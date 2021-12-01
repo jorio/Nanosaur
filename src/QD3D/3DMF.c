@@ -9,11 +9,7 @@
 /*    EXTERNALS             */
 /****************************/
 
-#include <QD3D.h>
-#include "globals.h"
-#include "misc.h"
-#include "3dmf.h"
-#include "qd3d_geometry.h"
+#include "game.h"
 
 
 /****************************/

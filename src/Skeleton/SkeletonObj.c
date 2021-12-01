@@ -9,24 +9,7 @@
 /*    EXTERNALS             */
 /****************************/
 
-
-
-#include <QD3D.h>
-
-#include "globals.h"
-#include "objects.h"
-#include "misc.h"
-#include "skeletonanim.h"
-#include "skeletonobj.h"
-#include "skeletonjoints.h"
-#include "3dmath.h"
-#include "file.h"
-#include "qd3d_geometry.h"
-#include "sound2.h"
-#include "bones.h"
-
-extern	NewObjectDefinitionType	gNewObjectDefinition;
-extern	QD3DSetupOutputType		*gGameViewInfoPtr;
+#include "game.h"
 
 
 /****************************/

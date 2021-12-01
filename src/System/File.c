@@ -9,37 +9,8 @@
 /* EXTERNALS   */
 /***************/
 
-#include 	<QD3D.h>
-#include	<string.h>
-#include	"globals.h"
-#include 	"objects.h"
-#include	"misc.h"
-#include	"skeletonanim.h"
-#include	"skeletonobj.h"
-#include	"skeletonjoints.h"
-#include	"3dmf.h"
-#include 	"mobjtypes.h"
-#include	"file.h"
-#include    "window.h"
-#include 	"main.h"
-#include 	"terrain.h"
-#include 	"sprites.h"
-#include 	"bones.h"
-#include 	"sound2.h"
-#include	"structformats.h"
+#include "game.h"
 
-extern	short			gMainAppRezFile;
-extern	short	gPrefsFolderVRefNum;
-extern	long	gPrefsFolderDirID,gNumTerrainTextureTiles;
-extern	Ptr		gTerrainPtr,gTerrainHeightMapPtrs[];
-extern	long	gTerrainTileWidth,gTerrainTileDepth,gTerrainUnitWidth,gTerrainUnitDepth;		
-extern	long	gNumSuperTilesDeep,gNumSuperTilesWide;
-extern	UInt16	**gTerrainTextureLayer,**gTerrainHeightMapLayer,**gTerrainPathLayer,*gTileDataPtr;
-extern	TileAttribType	*gTileAttributes;
-extern	long	gCurrentSuperTileRow,gCurrentSuperTileCol;
-extern	long	gMyStartX,gMyStartZ;
-extern	FSSpec	gDataSpec;
-extern	const int	PRO_MODE;
 
 /****************************/
 /*    PROTOTYPES            */

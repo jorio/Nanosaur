@@ -4,7 +4,7 @@
 
 #define	HITHER_DISTANCE	10.0f
 
-extern const float YON_DISTANCE;
+extern float YON_DISTANCE;
 
 
 enum

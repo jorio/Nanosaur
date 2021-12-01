@@ -9,31 +9,8 @@
 /*    EXTERNALS             */
 /****************************/
 
+#include "game.h"
 
-#include "globals.h"
-#include "misc.h"
-#include "objects.h"
-#include "terrain.h"
-#include "items.h"
-#include "mobjtypes.h"
-#include "qd3d_geometry.h"
-#include "collision.h"
-#include "3dmath.h"
-#include "3dmf.h"
-#include "infobar.h"
-#include "sound2.h"
-#include "enemy.h"
-#include "effects.h"
-
-extern	float				gFramesPerSecondFrac,gFramesPerSecond,gFuel;
-extern	TQ3Point3D			gCoord,gMyCoord;
-extern	TQ3Vector3D			gDelta;
-extern	NewObjectDefinitionType	gNewObjectDefinition;
-extern	TQ3TriMeshFlatGroup gObjectGroupList[MAX_3DMF_GROUPS][MAX_OBJECTS_IN_GROUP];
-extern	TQ3BoundingBox 		gObjectGroupBBoxList[MAX_3DMF_GROUPS][MAX_OBJECTS_IN_GROUP];
-extern	unsigned long 		gInfobarUpdateBits;
-extern	short				gAmbientEffect;
-extern	PrefsType			gGamePrefs;
 
 /****************************/
 /*    PROTOTYPES            */

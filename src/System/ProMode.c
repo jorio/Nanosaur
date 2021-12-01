@@ -3,10 +3,7 @@
 // PRO_MODE preprocessor define. However, the source port lets you pick either
 // version of the game with the same build.
 
-#include <SDL.h>
-#include <string.h>
-#include <stdio.h>
-#include "version.h"
+#include "game.h"
 
 int		PRO_MODE;
 int		SUPERTILE_ACTIVE_RANGE;

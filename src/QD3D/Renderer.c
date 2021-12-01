@@ -10,12 +10,8 @@
 #include <SDL.h>
 #include <SDL_opengl.h>
 #include <SDL_opengl_glext.h>
-#include <QD3D.h>
-#include "misc.h"	// assertions
-#include "environmentmap.h"
-#include "renderer.h"
-#include "globals.h"	// status bits
 #include <stdlib.h>		// qsort
+#include "game.h"
 
 extern TQ3Param2D				gEnvMapUVs[];
 extern RenderStats				gRenderStats;

@@ -9,36 +9,8 @@
 /* EXTERNALS   */
 /***************/
 
-#include "globals.h"
+#include "game.h"
 
-#include "QD3D.h"
-#include "QD3DMath.h"
-
-#include "objects.h"
-#include "misc.h"
-#include "skeletonobj.h"
-#include "skeletonanim.h"
-#include "skeletonjoints.h"
-#include "qd3d_support.h"
-#include "qd3d_geometry.h"
-#include "3dmath.h"
-#include "3dmf.h"
-#include "sound2.h"
-#include "camera.h"
-#include "terrain.h"
-#include "mobjtypes.h"
-#include "environmentmap.h"
-#include "bones.h"
-#include "collision.h"
-#include "frustumculling.h"
-
-extern	float		gFramesPerSecondFrac;
-extern	GLuint		gShadowGLTextureName;
-extern	ObjNode		*gPlayerObj,*gFirstNodePtr;
-extern	QD3DSetupOutputType		*gGameViewInfoPtr;
-extern	TQ3Point3D	gCoord;
-extern	NewObjectDefinitionType	gNewObjectDefinition;
-extern	PrefsType	gGamePrefs;
 
 /****************************/
 /*    PROTOTYPES            */

@@ -9,37 +9,7 @@
 /*    EXTERNALS             */
 /****************************/
 
-#include <QD3D.h>
-
-#include "globals.h"
-#include "3dmath.h"
-#include "objects.h"
-#include "misc.h"
-#include "skeletonanim.h"
-#include "collision.h"
-#include "player_control.h"
-#include "sound2.h"
-#include "main.h"
-#include "file.h"
-#include "input.h"
-#include "myguy.h"
-#include "terrain.h"
-#include "effects.h"
-#include "infobar.h"
-#include "mobjtypes.h"
-#include "skeletonjoints.h"
-#include "camera.h"
-#include "pickups.h"
-
-extern	ObjNode		*gCurrentNode,*gInventoryObject;
-extern	float		gFramesPerSecondFrac,gFramesPerSecond,gFuel;
-extern	Byte		gCameraMode;
-extern	TQ3Point3D		gCoord;
-extern	TQ3Vector3D		gDelta;
-extern	Byte			gNumPlayers;
-extern	TQ3Vector3D		gRecentTerrainNormal;
-extern	NewObjectDefinitionType	gNewObjectDefinition;
-extern	UInt16			gMyLatestPathTileNum,gMyLatestTileAttribs;
+#include "game.h"
 
 
 /****************************/

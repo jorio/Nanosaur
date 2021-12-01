@@ -9,19 +9,7 @@
 /*    EXTERNALS             */
 /****************************/
 
-
-#include <QD3D.h>
-#include <QD3DMath.h>
-
-#include "globals.h"
-#include "objects.h"
-#include "misc.h"
-#include "skeletonanim.h"
-#include "skeletonjoints.h"
-#include "main.h"
-
-extern	NewObjectDefinitionType	gNewObjectDefinition;
-extern	Boolean					gCanDoMP;
+#include "game.h"
 
 
 /****************************/

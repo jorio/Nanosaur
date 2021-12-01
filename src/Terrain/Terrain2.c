@@ -2,38 +2,12 @@
 /*   	TERRAIN2.C 	        */
 /****************************/
 
-
-#include "globals.h"
-#include "terrain.h"
-#include "misc.h"
-#include "main.h"
-#include "objects.h"
-#include "mobjtypes.h"
-#include "items.h"
-#include "pickups.h"
-#include "triggers.h"
-#include "3dmath.h"
-#include "enemy.h"
-#include "mytraps.h"
-#include "timeportal.h"
-#include "structformats.h"
-
 /***************/
 /* EXTERNALS   */
 /***************/
 
-extern	long	gTerrainTileWidth,gTerrainTileDepth;
-extern	Ptr		gTerrainPtr;
-extern	long	gTerrainItemDeleteWindow_Near,gTerrainItemDeleteWindow_Far,
-				gTerrainItemDeleteWindow_Left,gTerrainItemDeleteWindow_Right;
-extern	ObjNode		*gThisNodePtr;
-extern	long		gMyStartX,gMyStartZ;
-extern	long	gNumTerrainTextureTiles;
-extern	long	gNumSuperTilesDeep,gNumSuperTilesWide;
-extern	long	gTerrainUnitWidth,gTerrainUnitDepth;
-extern	UInt16	**gTerrainHeightMapLayer,**gTerrainPathLayer;
-extern	TQ3Point3D	gCoord,gMyCoord;
-extern	Byte		gMyStartAim;
+#include "game.h"
+
 
 /****************************/
 /*    PROTOTYPES            */

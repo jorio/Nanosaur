@@ -7,30 +7,7 @@
 /* EXTERNALS   */
 /***************/
 
-
-#include "QD3D.h"
-
-#include "globals.h"
-#include "objects.h"
-#include "main.h"
-#include "terrain.h"
-#include "misc.h"
-#include "file.h"
-#include "3dmath.h"
-#include "camera.h"
-#include "mobjtypes.h"
-#include "frustumculling.h"
-
-#include <QD3DMath.h>
-#include <stdlib.h>
-#include <string.h>
-#include "qd3d_geometry.h"
-#include "renderer.h"
-
-extern	TerrainItemEntryType	**gTerrainItemLookupTableX;
-extern	Ptr			gTileFilePtr;
-extern	NewObjectDefinitionType	gNewObjectDefinition;
-extern	TQ3Point3D		gMyCoord;
+#include "game.h"
 
 #define TILE_TEXTURE_INTERNAL_FORMAT	GL_RGB
 #define TILE_TEXTURE_FORMAT				GL_BGRA_EXT

@@ -9,15 +9,7 @@
 /*    EXTERNALS             */
 /****************************/
 
-#include "globals.h"
-#include "misc.h"
-#include "sprites.h"
-#include "window.h"
-#include "structformats.h"
-
-extern	short		gMainAppRezFile;
-extern	UInt32		*gCoverWindowPixPtr;
-
+#include "game.h"
 
 
 /****************************/

@@ -9,41 +9,8 @@
 /*    EXTERNALS             */
 /****************************/
 
-#include <QD3D.h>
-#include <QD3DMath.h>
-#include <math.h>
+#include "game.h"
 
-#include "globals.h"
-#include "misc.h"
-#include "objects.h"
-#include "title.h"
-#include "3dmf.h"
-#include "mobjtypes.h"
-#include "window.h"
-#include "input.h"
-#include "file.h"
-#include "skeletonobj.h"
-#include "environmentmap.h"
-#include "sound2.h"
-#include "skeletonanim.h"
-
-#include "version.h"
-#include <string.h>
-#include <stdlib.h>
-#include <SDL.h>
-
-extern	float				gFramesPerSecondFrac,gFramesPerSecond;
-extern	TQ3Point3D			gCoord;
-extern	WindowPtr			gCoverWindow;
-extern	NewObjectDefinitionType	gNewObjectDefinition;
-extern	QD3DSetupOutputType		*gGameViewInfoPtr;
-extern	Boolean		gSongPlayingFlag,gResetSong,gDisableAnimSounds;
-extern	FSSpec		gDataSpec;
-extern	PrefsType	gGamePrefs;
-extern	const int	PRO_MODE;
-extern	SDL_Window*	gSDLWindow;
-extern	UInt32*const				gCoverWindowPixPtr;
-extern	TQ3TriMeshFlatGroup			gObjectGroupList[MAX_3DMF_GROUPS][MAX_OBJECTS_IN_GROUP];
 
 /****************************/
 /*    PROTOTYPES            */

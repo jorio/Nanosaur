@@ -9,18 +9,8 @@
 /*    EXTERNALS             */
 /****************************/
 
+#include "game.h"
 
-
-#include <QD3D.h>
-#include <QD3DMath.h>
-
-#include "globals.h"
-#include "misc.h"
-#include "bones.h"
-#include "objects.h"
-#include "3dmf.h"
-#include "3dmath.h"
-#include "skeletonjoints.h"
 
 /****************************/
 /*    PROTOTYPES            */

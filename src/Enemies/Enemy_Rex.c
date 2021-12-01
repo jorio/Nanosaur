@@ -9,32 +9,8 @@
 /*    EXTERNALS             */
 /****************************/
 
-#include <QD3D.h>
-#include <QD3DMath.h>
+#include "game.h"
 
-
-#include "globals.h"
-#include "objects.h"
-#include "misc.h"
-#include "enemy.h"
-#include "skeletonobj.h"
-#include "skeletonanim.h"
-#include "3dmath.h"
-#include "myguy.h"
-#include "sound2.h"
-#include "effects.h"
-
-extern	NewObjectDefinitionType	gNewObjectDefinition;
-extern	ObjNode					*gPlayerNode[],*gCurrentNode,*gPlayerNode[];
- 
-extern	TQ3Point3D				gCoord,gMyCoord;
-extern	short					gNumItems,gNumEnemies;
-extern	Byte					gNumPlayers;
-extern	float					gFramesPerSecondFrac;
-extern	TQ3Vector3D			gDelta;
-extern	signed char			gNumEnemyOfKind[];
-
-extern const int MAX_REX;
 
 /****************************/
 /*    PROTOTYPES            */

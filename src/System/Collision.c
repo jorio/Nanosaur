@@ -9,22 +9,7 @@
 /* EXTERNALS   */
 /***************/
 
-#include "QD3D.h"
-#include "globals.h"
-#include "objects.h"
-#include "collision.h"
-#include "3dmath.h"
-#include "triggers.h"
-#include "terrain.h"
-#include "misc.h"
-#include "pickups.h"
-
- 
-extern	TQ3Point3D	gCoord;
-extern	TQ3Vector3D	gDelta;
-extern	ObjNode		*gFirstNodePtr;
-extern	long	gTerrainUnitDepth,gTerrainUnitWidth;
-extern	float		gFramesPerSecond,gFramesPerSecondFrac;
+#include "game.h"
 
 
 /****************************/

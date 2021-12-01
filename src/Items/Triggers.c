@@ -9,26 +9,8 @@
 /*    EXTERNALS             */
 /****************************/
 
-#include "globals.h"
-#include "triggers.h"
-#include "objects.h"
-#include "mobjtypes.h"
-#include "misc.h"
-#include "main.h"
-#include "terrain.h"
-#include "qd3d_geometry.h"
-#include "weapons.h"
-#include "sound2.h"
-#include "infobar.h"
-#include "items.h"
-#include "myguy.h"
+#include "game.h"
 
-
-extern	NewObjectDefinitionType	gNewObjectDefinition;
-extern	ObjNode					*gFirstNodePtr,*gPlayerObj;
-extern	TQ3Point3D				gCoord;
-extern	float					gFramesPerSecondFrac,gMyHealth;
-extern	unsigned long 			gInfobarUpdateBits;
 
 /*******************/
 /*   PROTOTYPES    */

@@ -67,16 +67,6 @@ set(GAME_ALL_SOURCES
 source_group(TREE ${GAME_SRCDIR} PREFIX "" FILES ${GAME_ALL_SOURCES})
 
 #------------------------------------------------------------------------------
-# SOURCE FILE PROPERTIES
-#------------------------------------------------------------------------------
-
-if(NOT MSVC)
-	set_source_files_properties(${GAME_SOURCES} PROPERTIES COMPILE_FLAGS "-include Pomme.h")
-else()
-	set_source_files_properties(${GAME_SOURCES} PROPERTIES COMPILE_FLAGS /FIPomme.h)
-endif()
-
-#------------------------------------------------------------------------------
 # EXECUTABLE TARGET
 #------------------------------------------------------------------------------
 

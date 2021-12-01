@@ -1,3 +1,5 @@
+#include "game.h"
+
 #include "Pomme.h"
 #include "PommeFiles.h"
 #include "PommeGraphics.h"
@@ -6,20 +8,6 @@
 
 #include <SDL.h>
 #include <SDL_opengl.h>
-
-extern "C"
-{
-#include "sound2.h"
-#include "structs.h"
-#include "input.h"
-#include "movie.h" // PlayAMovie
-#include "misc.h" // asserts
-#include "window.h" // GAME_VIEW_WIDTH, GAME_VIEW_HEIGHT
-#include "renderer.h"
-
-extern SDL_Window* gSDLWindow;
-extern PrefsType gGamePrefs;
-}
 
 //-----------------------------------------------------------------------------
 // Movie

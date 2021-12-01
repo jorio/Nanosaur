@@ -9,20 +9,9 @@
 /* EXTERNALS   */
 /***************/
 
-#include	"globals.h"
-#include    "window.h"
-#include	"misc.h"
-#include "objects.h"
-#include "file.h"
-#include "input.h"
+#include "game.h"
 
 static void MoveFadeEvent(ObjNode *theNode);
-
-extern	NewObjectDefinitionType	gNewObjectDefinition;
-extern	float	gFramesPerSecondFrac,gAdditionalClipping;
-extern  WindowPtr				gCoverWindow;
-extern	PrefsType	gGamePrefs;
-extern	SDL_Window*				gSDLWindow;
 
 /******************** MAKE FADE EVENT *********************/
 //

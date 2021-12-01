@@ -9,20 +9,7 @@
 /*    EXTERNALS             */
 /****************************/
 
-
-#include <QD3D.h>
-#include "QD3DMath.h"
-
-#include "globals.h"
-#include "misc.h"
-#include "skeletonanim.h"
-#include "skeletonjoints.h"
-#include "sound2.h"
-#include "bones.h"
-#include "3dmath.h"
-
-extern	float				gFramesPerSecondFrac;
-extern	TQ3Point3D			gMyCoord;
+#include "game.h"
 
 
 /****************************/

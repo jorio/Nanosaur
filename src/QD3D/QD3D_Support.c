@@ -9,32 +9,7 @@
 /*    EXTERNALS             */
 /****************************/
 
-#include <SDL.h>
-#include <QD3D.h>
-#include <QD3DMath.h>
-
-#include <frustumculling.h>
-#include <stdio.h>
-#include <version.h>
-
-#include "globals.h"
-#include "misc.h"
-#include "qd3d_support.h"
-#include "input.h"
-#include "window.h"
-#include "camera.h"
-#include "3dmath.h"
-#include "environmentmap.h"
-
-#include "renderer.h"
-
-extern	SDL_Window	*gSDLWindow;
-extern	long		gScreenXOffset,gScreenYOffset;
-extern	PrefsType	gGamePrefs;
-extern	QD3DSetupOutputType		*gGameViewInfoPtr;
-extern	const int				PRO_MODE;
-extern	RenderStats				gRenderStats;
-extern	TQ3Point3D				gMyCoord;
+#include "game.h"
 
 
 /****************************/

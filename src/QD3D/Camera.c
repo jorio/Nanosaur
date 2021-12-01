@@ -9,31 +9,7 @@
 /*    EXTERNALS             */
 /****************************/
 
-#include <QD3D.h>
-#include <QD3DMath.h>
-
-#include "globals.h"
-#include "objects.h"
-#include "camera.h"
-#include "qd3d_support.h"
-#include "3dmath.h"
-#include "misc.h"
-#include "player_control.h"
-#include "input.h"
-#include "mobjtypes.h"
-#include "collision.h"
-#include "skeletonjoints.h"
-#include "sound2.h"
-#include "terrain.h"
-#include "myguy.h"
-#include "enemy.h"
-
-extern	NewObjectDefinitionType	gNewObjectDefinition;
-extern	QD3DSetupOutputType		*gGameViewInfoPtr;
-extern	float					gFramesPerSecond,gFramesPerSecondFrac,gMyHeightOffGround;
-extern	ObjNode					*gPlayerObj;
-extern	TQ3Point3D				gMyCoord;
-extern	Boolean					gPlayerGotKilledFlag;
+#include "game.h"
 
 
 /****************************/

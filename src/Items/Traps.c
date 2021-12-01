@@ -9,25 +9,8 @@
 /*    EXTERNALS             */
 /****************************/
 
+#include "game.h"
 
-#include "globals.h"
-#include "misc.h"
-#include "objects.h"
-#include "terrain.h"
-#include "items.h"
-#include "mobjtypes.h"
-#include "mytraps.h"
-#include "collision.h"
-#include "3dmath.h"
-#include "qd3d_geometry.h"
-#include "effects.h"
-#include "sound2.h"
-
-extern	float				gFramesPerSecondFrac;
-extern	TQ3Point3D			gCoord,gMyCoord;
-extern	TQ3Vector3D			gDelta;
-extern	NewObjectDefinitionType	gNewObjectDefinition;
-extern	TQ3Vector3D			gRecentTerrainNormal;
 
 /****************************/
 /*    PROTOTYPES            */

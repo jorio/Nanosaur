@@ -9,27 +9,8 @@
 /*    EXTERNALS             */
 /****************************/
 
+#include "game.h"
 
-#include "globals.h"
-#include "misc.h"
-#include "objects.h"
-#include "terrain.h"
-#include "timeportal.h"
-#include "mobjtypes.h"
-#include "qd3d_geometry.h"
-#include "collision.h"
-#include "3dmath.h"
-#include "infobar.h"
-#include "sound2.h"
-
-extern	float				gFramesPerSecondFrac,gFramesPerSecond;
-extern	TQ3Point3D			gCoord,gMyCoord;
-extern	TQ3Vector3D			gDelta;
-extern	NewObjectDefinitionType	gNewObjectDefinition;
-extern	short				gNumTerrainItems;
-extern	TerrainItemEntryType 	*gMasterItemList;
-extern	unsigned long 	gInfobarUpdateBits;
-extern	Boolean				gWonGameFlag,gGameOverFlag;
 
 /****************************/
 /*    PROTOTYPES            */

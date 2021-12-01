@@ -9,51 +9,8 @@
 /*    EXTERNALS             */
 /****************************/
 
-#include <SDL.h>
-#include <QD3D.h>
-#include <QD3DMath.h>
-#include <string.h>
-#include <stdio.h>
-#include "globals.h"
-#include "mobjtypes.h"
-#include "objects.h"
-#include "window.h"
-#include "main.h"
-#include "misc.h"
-#include "skeletonobj.h"
-#include "skeletonanim.h"
-#include "camera.h"
-#include "player_control.h"
-#include "sound2.h"
-#include "3dmf.h"
-#include "file.h"
-#include 	"input.h"
-#include 	"terrain.h"
-#include 	"title.h"
-#include "myguy.h"
-#include "enemy.h"
-#include "infobar.h"
-#include "sprites.h"
-#include "3dmath.h"
-#include "weapons.h"
-#include "mainmenu.h"
-#include "timeportal.h"
-#include "items.h"
-#include "movie.h"
-#include "highscores.h"
-#include "pickups.h"
-#include "qd3d_geometry.h"
+#include "game.h"
 
-extern	Boolean			gSongPlayingFlag;
-extern	NewObjectDefinitionType	gNewObjectDefinition;
-extern	float			gFramesPerSecond,gFramesPerSecondFrac,gTimeRemaining,gMyHealth,gFuel;
-extern	WindowPtr	gCoverWindow;
-extern	TQ3Point3D	gCoord;
-extern	long	gMyStartX,gMyStartZ;
-extern	unsigned long 	gInfobarUpdateBits,gScore;
-extern	ObjNode		*gPlayerObj;
-
-extern const KeyBinding kDefaultKeyBindings[NUM_CONTROL_NEEDS];
 
 /****************************/
 /*    PROTOTYPES            */

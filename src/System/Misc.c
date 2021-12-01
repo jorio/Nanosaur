@@ -9,29 +9,8 @@
 /* EXTERNALS   */
 /***************/
 
-#include <QD3D.h>
-#include <math.h>
+#include "game.h"
 
-#include	"globals.h"
-#include	"misc.h"
-#include    "window.h"
-#include "sound2.h"
-#include "file.h"
-#include "player_control.h"
-#include "objects.h"
-#include "input.h"
-#include "3dmf.h"
-#include "skeletonobj.h"
-#include "title.h"
-#include "terrain.h"
-
-#include <SDL.h> // source port addition for message boxes
-
-extern	short		gMainAppRezFile;
-extern	Boolean		gGameOverFlag;
-extern	QD3DSetupOutputType		*gGameViewInfoPtr;
-extern	Boolean		gQD3DInitialized;
-extern  PrefsType	gGamePrefs;
 
 /****************************/
 /*    CONSTANTS             */

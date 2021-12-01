@@ -9,32 +9,8 @@
 /*    EXTERNALS             */
 /****************************/
 
-#include "globals.h"
+#include "game.h"
 
-#include <QD3D.h>
-#include <math.h>
-
-#include "objects.h"
-#include "mobjtypes.h"
-#include "misc.h"
-#include "highscores.h"
-#include "qd3d_support.h"
-#include "3dmf.h"
-#include "sound2.h"
-#include "title.h"
-#include "input.h"
-#include "file.h"
-#include "window.h"
-
-extern	NewObjectDefinitionType	gNewObjectDefinition;
-extern	QD3DSetupOutputType		*gGameViewInfoPtr;
-extern	float			gFramesPerSecond,gFramesPerSecondFrac;
-extern	WindowPtr		gCoverWindow;
-extern	short	gPrefsFolderVRefNum;
-extern	long	gPrefsFolderDirID;
-extern	FSSpec	gDataSpec;
-extern	char			gTextInput[SDL_TEXTINPUTEVENT_TEXT_SIZE];
-extern	TQ3TriMeshFlatGroup			gObjectGroupList[MAX_3DMF_GROUPS][MAX_OBJECTS_IN_GROUP];
 
 /****************************/
 /*    PROTOTYPES            */

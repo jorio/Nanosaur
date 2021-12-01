@@ -9,31 +9,7 @@
 /*    EXTERNALS             */
 /****************************/
 
-
-#include "globals.h"
-#include "misc.h"
-#include "objects.h"
-#include "terrain.h"
-#include "pickups.h"
-#include "mobjtypes.h"
-#include "qd3d_geometry.h"
-#include "collision.h"
-#include "skeletonjoints.h"
-#include "infobar.h"
-#include "sound2.h"
-#include "timeportal.h"
-#include "skeletonanim.h"
-#include "myguy.h"
-
-extern	float				gFramesPerSecondFrac,gFramesPerSecond;
-extern	TQ3Point3D		gCoord,gMyCoord;
-extern	TQ3Vector3D		gDelta;
-extern	NewObjectDefinitionType	gNewObjectDefinition;
-extern	CollisionRec	gCollisionList[];
-extern	TQ3Vector3D		gRecentTerrainNormal;
-extern	ObjNode			*gMyTimePortal,*gPlayerObj;
-extern	short			gRecoveredEggs[];
-extern	unsigned long 	gInfobarUpdateBits;
+#include "game.h"
 
 
 /****************************/
