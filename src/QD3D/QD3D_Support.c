@@ -484,8 +484,13 @@ void MakeShadowTexture(void)
 
 			/* LOAD IMAGE FROM RESOURCE */
 
-	PicHandle picHandle = GetPicture(129);
+	FSSpec spec;
+	OSErr err = FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":Images:Shadow.tga", &spec);
+	GAME_ASSERT(!err);
+
+	PicHandle picHandle = GetPictureFromTGA(&spec);
 	GAME_ASSERT(picHandle);
+	GAME_ASSERT(*picHandle);
 
 
 		/* GET QD3D PIXMAP DATA INFO */

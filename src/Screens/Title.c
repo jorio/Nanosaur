@@ -329,18 +329,9 @@ static void MovePangeaLogoPart(ObjNode *theNode)
 
 /*************** SLIDESHOW (source port refactor) **********************/
 
-enum SlideshowEntryOpcode
-{
-	SLIDESHOW_STOP,
-	SLIDESHOW_FILE,
-	SLIDESHOW_RESOURCE
-};
-
 struct SlideshowEntry
 {
-	int opcode;
 	const char* imagePath;
-	short pictResource;
 	void (*postDrawCallback)(void);
 };
 
@@ -356,29 +347,16 @@ static void Slideshow(const struct SlideshowEntry* slides)
 	Render_InitState();
 	Render_Alloc2DCover(GAME_VIEW_WIDTH, GAME_VIEW_HEIGHT);
 
-	for (int i = 0; slides[i].opcode != SLIDESHOW_STOP; i++)
+	for (int i = 0; slides[i].imagePath != NULL; i++)
 	{
 		const struct SlideshowEntry* slide = &slides[i];
-		PicHandle picHandle = nil;
+		
+		OSErr result = FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, slide->imagePath, &spec);
+		GAME_ASSERT(result == noErr);
 
-		if (slide->opcode == SLIDESHOW_RESOURCE)
-		{
-			picHandle = GetPicture(slide->pictResource);
-			GAME_ASSERT(picHandle);
-		}
-		else if (slide->opcode == SLIDESHOW_FILE)
-		{
-			OSErr result = FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, slide->imagePath, &spec);
-			GAME_ASSERT(result == noErr);
-
-			picHandle = GetPictureFromFile(&spec);
-			GAME_ASSERT(picHandle);
-		}
-		else
-		{
-			DoAlert("unsupported slideshow opcode");
-			continue;
-		}
+		PicHandle picHandle = GetPictureFromTGA(&spec);
+		GAME_ASSERT(picHandle);
+		GAME_ASSERT(*picHandle);
 
 		DrawPicture(picHandle, &(**picHandle).picFrame);
 		DisposeHandle((Handle)picHandle);
@@ -475,12 +453,12 @@ static void ShowCharity_SourcePortCreditOverlay(void)
 
 void ShowCharity(void)
 {
-	const char* firstImage = PRO_MODE ? ":images:Boot1Pro.pict" : ":images:Boot1.pict";
+	const char* firstImage = PRO_MODE ? ":images:Boot1Pro.tga" : ":images:Boot1.tga";
 
 	const struct SlideshowEntry slides[] = {
-			{ SLIDESHOW_FILE, firstImage, 0, ShowCharity_SourcePortVersionOverlay },
-			{ SLIDESHOW_FILE, ":images:Boot2.pict", 0, ShowCharity_SourcePortCreditOverlay },
-			{ SLIDESHOW_STOP, NULL, 0, NULL },
+			{ firstImage, ShowCharity_SourcePortVersionOverlay },
+			{ ":images:Boot2.tga", ShowCharity_SourcePortCreditOverlay },
+			{ NULL, NULL },
 	};
 	Slideshow(slides);
 }
@@ -491,22 +469,10 @@ void ShowCharity(void)
 void ShowHelp(void)
 {
 	const struct SlideshowEntry slides[] = {
-			{ SLIDESHOW_FILE, ":images:Help1.pict", 0, NULL },
-			{ SLIDESHOW_FILE, ":images:Help2.pict", 0, NULL },
-			{ SLIDESHOW_STOP, NULL, 0, NULL },
+			{ ":images:Help1.tga", NULL },
+			{ ":images:Help2.tga", NULL },
+			{ NULL, NULL },
 	};
 	Slideshow(slides);
 }
 
-
-
-/******************* SHOW BUGDOM AD *************************/
-
-void ShowBugdomAd(void)
-{
-	const struct SlideshowEntry slides[] = {
-			{ SLIDESHOW_RESOURCE, NULL, 130, NULL },
-			{ SLIDESHOW_STOP, NULL, 0, NULL },
-	};
-	Slideshow(slides);
-}

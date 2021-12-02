@@ -122,10 +122,10 @@ OSErr	err;
 
 			/* DRAW INFOBAR */
 
-	err = FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":Images:Infobar.pict", &spec);
+	err = FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":Images:Infobar.tga", &spec);
 	GAME_ASSERT(err == noErr);
 
-	PicHandle picHandle = GetPictureFromFile(&spec);
+	PicHandle picHandle = GetPictureFromTGA(&spec);
 	GAME_ASSERT(picHandle);
 
 	DrawPicture(picHandle, &(**picHandle).picFrame);
@@ -511,6 +511,7 @@ OSErr					myErr;
 PicHandle			pict;
 GDHandle				oldGD;
 GWorldPtr				oldGW;
+FSSpec					spec;
 
 static TQ3Param2D				uvs[4] = {{0,0},	{1,0},	{1,1},	{0,1}};		// NOTE: flipped V coords wrt original QuickDraw 3D version
 static TQ3TriMeshTriangleData	triangles[2] = { {{0,3,1}},  {{1,3,2}} };
@@ -542,7 +543,10 @@ static TQ3Point3D				points[4] = { { -GPS_DISPLAY_SIZE,  GPS_DISPLAY_SIZE, 0 },
 
 			/* DRAW FULL-SIZE IMAGE INTO GWORLD */
 			
-	pict = GetPicture(128);													// load map PICT
+	myErr = FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":Images:Map.tga", &spec);
+	GAME_ASSERT(!myErr);
+
+	pict = GetPictureFromTGA(&spec);										// load map PICT
 	GAME_ASSERT(pict);
 
 	r = (*pict)->picFrame;													// get size of PICT
