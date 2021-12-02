@@ -132,7 +132,6 @@ extern	QD3DSetupOutputType*	gGameViewInfoPtr;
 extern	RenderStats				gRenderStats;
 extern	SDL_Window*				gSDLWindow;
 extern	short					gAmbientEffect;
-extern	short					gMainAppRezFile;
 extern	short					gNumCollisions;
 extern	short					gNumEnemies;
 extern	short					gNumItems;

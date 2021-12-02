@@ -33,7 +33,6 @@ static void PlayLevel(void);
 /****************************/
 
 
-short		gMainAppRezFile;
 Boolean		gGameOverFlag;
 Boolean		gPlayerGotKilledFlag,gWonGameFlag;
 
@@ -57,7 +56,7 @@ void ToolBoxInit(void)
 {
 OSErr		iErr;
 
-	gMainAppRezFile = CurResFile();
+//	gMainAppRezFile = CurResFile();
 
 
 			/* MAKE FSSPEC FOR DATA FOLDER */

@@ -22,9 +22,6 @@ extern "C"
 	// Lets the game know where to find its asset files
 	extern FSSpec gDataSpec;
 
-
-	extern int PRO_MODE;
-
 	// Tell Windows graphics driver that we prefer running on a dedicated GPU if available
 #if 0 //_WIN32
 	__declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
@@ -59,11 +56,6 @@ static fs::path FindGameData()
 
 	// Set data spec
 	gDataSpec = Pomme::Files::HostPathToFSSpec(dataPath / "Skeletons");
-
-	// Use application resource file
-	auto applicationSpec = Pomme::Files::HostPathToFSSpec(dataPath / "System" / "Application");
-	short resFileRefNum = FSpOpenResFile(&applicationSpec, fsRdPerm);
-	UseResFile(resFileRefNum);
 
 	return dataPath;
 }

@@ -81,8 +81,6 @@ short		fRefNum;
 			
 	CloseResFile(fRefNum);
 	GAME_ASSERT(noErr == ResError());
-
-	UseResFile(gMainAppRezFile);		
 }
 
 

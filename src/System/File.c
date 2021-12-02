@@ -106,7 +106,6 @@ const char* modelName = "Unknown";
 			/* CLOSE REZ FILE */
 			
 	CloseResFile(fRefNum);
-	UseResFile(gMainAppRezFile);
 		
 		
 	return(skeleton);

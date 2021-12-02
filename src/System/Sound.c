@@ -225,7 +225,6 @@ OSErr			iErr;
 		Pomme_DecompressSoundResource(&gSndHandles[bankNum][i], &gSndOffsets[bankNum][i]);
 	}
 
-	UseResFile(gMainAppRezFile );								// go back to normal res file
 	CloseResFile(srcFile1);
 
 	gNumSndsInBank[bankNum] = numSoundsInBank;					// remember how many sounds we've got

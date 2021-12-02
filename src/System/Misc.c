@@ -106,8 +106,6 @@ static	Boolean beenHere = false;
 	{
 		beenHere = true;
 		
-		UseResFile(gMainAppRezFile);
-		
 		StopAllEffectChannels();
 		KillSong();
 
