@@ -249,17 +249,17 @@ else()
 		COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/Data ${APP_PARENT_DIR}/Data)
 endif()
 
-# Copy SDL2 DLLs to output folder on Windows
+# Windows-specific libraries
 if(WIN32)
+	# Copy SDL2 DLLs to output folder on Windows for convenience
 	foreach(DLL ${SDL2_DLLS})
 		add_custom_command(TARGET ${GAME_TARGET} POST_BUILD
 			COMMAND ${CMAKE_COMMAND} -E copy_if_different ${DLL} ${APP_PARENT_DIR})
 	endforeach()
+
+	# When installing (cmake --install), copy Visual Studio redistributable DLLs to install location
+	include(InstallRequiredSystemLibraries)
 endif()
 
 # Copy documentation to output folder
-if(WIN32)
-	configure_file(${CMAKE_CURRENT_SOURCE_DIR}/packaging/ReadMe-Win32.txt.in ${CMAKE_CURRENT_BINARY_DIR}/ReadMe.txt)
-else()
-	configure_file(${CMAKE_CURRENT_SOURCE_DIR}/packaging/ReadMe.txt.in ${CMAKE_CURRENT_BINARY_DIR}/ReadMe.txt)
-endif()
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/packaging/ReadMe.txt.in ${CMAKE_CURRENT_BINARY_DIR}/ReadMe.txt)

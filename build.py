@@ -243,13 +243,19 @@ def copy_documentation(proj, appdir, full=True):
             shutil.copy(docfile, F"{appdir}/Documentation")
 
 def package_windows(proj):
+    windows_dlls = ["SDL2.dll", "msvcp140.dll", "vcruntime140.dll", "vcruntime140_1.dll"]
+
+    # Prep DLLs with cmake (copied to {cache_dir}/install/bin)
+    call(["cmake", "--install", proj.dir_name, "--prefix", F"{cache_dir}/install"])
+
     appdir = F"{cache_dir}/{game_name}-{game_ver}"
     rmtree_if_exists(appdir)
     os.makedirs(F"{appdir}", exist_ok=True)
 
     # Copy executable, libs and assets
+    for dll in windows_dlls:
+        shutil.copy(F"{cache_dir}/install/bin/{dll}", appdir)
     shutil.copy(F"{proj.dir_name}/Release/{game_name}.exe", appdir)
-    shutil.copy(F"extern/SDL2-{sdl_ver}/lib/x64/SDL2.dll", appdir)
     shutil.copytree("Data", F"{appdir}/Data")
 
     copy_documentation(proj, appdir)

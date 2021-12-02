@@ -35,6 +35,9 @@ if(WIN32)
         if(_SDL2_use_main)
             list(APPEND SDL2_LIBRARIES "${SDL2_ROOT}/lib/${_SDL2_ARCH}/SDL2main.lib")
         endif()
+
+        # When installing, copy DLLs to install location
+        install(FILES ${SDL2_DLLS} DESTINATION bin)
     endif()
 
     mark_as_advanced(SDL2_ROOT)
