@@ -731,9 +731,6 @@ FSSpec	spec;
 	FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":models:Global_Models.3dmf", &spec);
 	LoadGrouped3DMF(&spec,MODEL_GROUP_GLOBAL);	
 			
-	FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":Audio:Main.sounds", &spec);
-	LoadSoundBank(&spec, SOUND_BANK_DEFAULT);
-	
 			/* LOAD LEVEL SPECIFIC STUFF */
 			
 	switch(levelNum)

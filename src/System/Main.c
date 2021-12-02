@@ -360,13 +360,10 @@ unsigned long	someLong;
 
 	GetDateTime ((unsigned long *)(&someLong));		// init random seed
 	SetMyRandomSeed(someLong);
-#if 0
-	HideCursor();
-#endif
 	
-				/* DO CHARITY SCREEN */
-			
 	ShowCharity();
+
+	LoadSoundBank();								// load sound bank for entire game
 
 	while(true)
 	{

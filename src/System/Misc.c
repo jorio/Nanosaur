@@ -108,6 +108,7 @@ static	Boolean beenHere = false;
 		
 		StopAllEffectChannels();
 		KillSong();
+		DisposeSoundBank();
 
 //		ShowBugdomAd();
 		

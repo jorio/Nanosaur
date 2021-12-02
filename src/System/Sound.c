@@ -27,17 +27,7 @@ static short EmergencyFreeChannel(void);
 
 // Source port note: this was 11 in "non-pro mode" (i.e. not Nanosaur Extreme).
 #define		MAX_CHANNELS			14
-#define		MAX_SOUND_BANKS			5
 #define		MAX_EFFECTS				30
-
-
-typedef struct
-{
-	Byte	bank,sound;
-}EffectType;
-
-
-#define	STREAM_BUFFER_SIZE	100000
 
 typedef struct
 {
@@ -50,8 +40,8 @@ typedef struct
 /*     VARIABLES      */
 /**********************/
 
-static	SndListHandle		gSndHandles[MAX_SOUND_BANKS][MAX_EFFECTS];		// handles to ALL sounds
-static  long				gSndOffsets[MAX_SOUND_BANKS][MAX_EFFECTS];
+static	SndListHandle	gSndHandles[MAX_EFFECTS];		// handles to ALL sounds
+static  long			gSndOffsets[MAX_EFFECTS];
 
 static	SndChannelPtr	gSndChannel[MAX_CHANNELS];
 static	SndChannelPtr	gMusicChannel=nil;
@@ -60,8 +50,8 @@ static short			gMaxChannels = 0;
 static short			gCurrentMusicChannel = -1;
 static short			gMusicFileRefNum = 0x0ded;
 
-static	ChannelInfoType		gChannelInfo[MAX_CHANNELS];
-static	short			gNumSndsInBank[MAX_SOUND_BANKS] = {0,0,0,0,0};
+static	ChannelInfoType	gChannelInfo[MAX_CHANNELS];
+static	short			gNumSndsInBank = 0;
 
 static short				gCurrentSong = -1;
 
@@ -74,38 +64,35 @@ long	gOriginalSystemVolume,gCurrentSystemVolume;
 
 Boolean			gMuteMusicFlag = false;
 
-static Ptr				gMusicBuffer = nil;					// buffers to use for streaming play
-
 		/*****************/
 		/* EFFECTS TABLE */
 		/*****************/
-		
-static EffectType	gEffectsTable[] =
-{
-	{ SOUND_BANK_DEFAULT, SOUND_DEFAULT_HEATSEEK },				// EFFECT_HEATSEEK
-	{ SOUND_BANK_DEFAULT, SOUND_DEFAULT_BLASTER },				// EFFECT_BLASTER
-	{ SOUND_BANK_DEFAULT, SOUND_DEFAULT_SELECT },				// EFFECT_SELECT
-	{ SOUND_BANK_DEFAULT, SOUND_DEFAULT_EXPLODE },				// EFFECT_EXPLODE
-	{ SOUND_BANK_DEFAULT, SOUND_DEFAULT_POWPICKUP },			// EFFECT_POWPICKUP
-	{ SOUND_BANK_DEFAULT, SOUND_DEFAULT_CRUNCH },				// EFFECT_CRUNCH
-	{ SOUND_BANK_DEFAULT, SOUND_DEFAULT_ALARM },				// EFFECT_ALARM
-	{ SOUND_BANK_DEFAULT, SOUND_DEFAULT_ENEMYDIE },				// EFFECT_ENEMYDIE
-	{ SOUND_BANK_DEFAULT, SOUND_DEFAULT_JETLOOP },				// EFFECT_JETLOOP
-	{ SOUND_BANK_DEFAULT, SOUND_DEFAULT_JUMP },					// EFFECT_JUMP
-	{ SOUND_BANK_DEFAULT, SOUND_DEFAULT_ROAR },					// EFFECT_ROAR
-	{ SOUND_BANK_DEFAULT, SOUND_DEFAULT_FOOTSTEP },				// EFFECT_FOOTSTEP
-	{ SOUND_BANK_DEFAULT, SOUND_DEFAULT_DILOATTACK },			// EFFECT_DILOATTACK
-	{ SOUND_BANK_DEFAULT, SOUND_DEFAULT_WINGFLAP },				// EFFECT_WINGFLAP
-	{ SOUND_BANK_DEFAULT, SOUND_DEFAULT_PORTAL },				// EFFECT_PORTAL
-	{ SOUND_BANK_DEFAULT, SOUND_DEFAULT_BUBBLES },				// EFFECT_BUBBLES
-	{ SOUND_BANK_DEFAULT, SOUND_DEFAULT_CRYSTAL },				// EFFECT_CRYSTAL
-	{ SOUND_BANK_DEFAULT, SOUND_DEFAULT_STEAM },				// EFFECT_STEAM
-	{ SOUND_BANK_DEFAULT, SOUND_DEFAULT_ROCKSLAM },				// EFFECT_ROCKSLAM
-	{ SOUND_BANK_DEFAULT, SOUND_DEFAULT_AMBIENT },				// EFFECT_AMBIENT
-	{ SOUND_BANK_DEFAULT, SOUND_DEFAULT_SHIELD },				// EFFECT_SHIELD
-	{ SOUND_BANK_DEFAULT, SOUND_DEFAULT_SONIC },				// EFFECT_SONIC
 
-	{ SOUND_BANK_MENU, SOUND_MENU_CHANGE }						// EFFECT_MENUCHANGE
+static const char*	kEffectNames[] =
+{
+	[EFFECT_HEATSEEK]	= "HeatSeek",
+	[EFFECT_BLASTER]	= "Blaster",
+	[EFFECT_SELECT]		= "Select",
+	[EFFECT_EXPLODE]	= "Explode",
+	[EFFECT_POWPICKUP]	= "POWPickup",
+	[EFFECT_CRUNCH]		= "Crunch",
+	[EFFECT_ALARM]		= "Alarm",
+	[EFFECT_ENEMYDIE]	= "EnemyDie",
+	[EFFECT_JETLOOP]	= "JetLoop",
+	[EFFECT_JUMP]		= "Jump",
+	[EFFECT_ROAR]		= "Roar",
+	[EFFECT_FOOTSTEP]	= "Footstep",
+	[EFFECT_DILOATTACK]	= "DiloAttack",
+	[EFFECT_WINGFLAP]	= "WingFlap",
+	[EFFECT_PORTAL]		= "Portal",
+	[EFFECT_BUBBLES]	= "Bubbles",
+	[EFFECT_CRYSTAL]	= "Crystal",
+	[EFFECT_STEAM]		= "Steam",
+	[EFFECT_ROCKSLAM]	= "RockSlam",
+	[EFFECT_AMBIENT]	= "Ambient",
+	[EFFECT_SHIELD]		= "Shield",
+	[EFFECT_SONIC]		= "Sonic",
+	[EFFECT_MENUCHANGE]	= "MenuChange",
 };
 
 short	gAmbientEffect = -1;
@@ -116,7 +103,6 @@ short	gAmbientEffect = -1;
 void InitSoundTools(void)
 {
 OSErr		iErr;
-short		i;
 
 			/* SET SYSTEM VOLUME INFO */
 			
@@ -128,9 +114,12 @@ short		i;
 	gMaxChannels = 0;
 
 			/* INIT BANK INFO */
-			
-	for (i = 0; i < MAX_SOUND_BANKS; i++)
-		gNumSndsInBank[i] = 0;
+
+	gNumSndsInBank = 0;
+
+	memset(gSndHandles, 0, sizeof(gSndHandles));
+	memset(gSndOffsets, 0, sizeof(gSndOffsets));
+
 
 			/******************/
 			/* ALLOC CHANNELS */
@@ -152,117 +141,95 @@ short		i;
 			break;
 			
 	}
-	
+}
 
-		/* INIT MUSIC STREAMING BUFFER */
-		
-	if (gMusicBuffer == nil)
+
+/******************* LOAD A SOUND EFFECT ************************/
+
+void LoadSoundEffect(int effectNum)
+{
+char path[256];
+FSSpec spec;
+short refNum;
+OSErr err;
+
+	GAME_ASSERT_MESSAGE(effectNum >= 0 && effectNum < NUM_EFFECTS, "illegal effect number");
+
+	if (gSndHandles[effectNum])
 	{
-		gMusicBuffer = AllocPtr(STREAM_BUFFER_SIZE);
-		if (gMusicBuffer == nil)
-			DoFatalAlert("InitSoundTools: gMusicBuffer == nil");
+		// already loaded
+		return;
+	}
+
+	snprintf(path, sizeof(path), ":Audio:SoundBank:%s.aiff", kEffectNames[effectNum]);
+
+	err = FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, path, &spec);
+	GAME_ASSERT_MESSAGE(err == noErr, path);
+
+	err = FSpOpenDF(&spec, fsRdPerm, &refNum);
+	GAME_ASSERT_MESSAGE(err == noErr, path);
+
+	gSndHandles[effectNum] = Pomme_SndLoadFileAsResource(refNum);
+	GAME_ASSERT_MESSAGE(gSndHandles[effectNum], path);
+
+			/* GET OFFSET INTO IT */
+
+	GetSoundHeaderOffset(gSndHandles[effectNum], &gSndOffsets[effectNum]);
+
+			/* DECOMPRESS IT AHEAD OF TIME */
+
+	Pomme_DecompressSoundResource(&gSndHandles[effectNum], &gSndOffsets[effectNum]);
+}
+
+
+/******************* DISPOSE OF A SOUND EFFECT ************************/
+
+void DisposeSoundEffect(int effectNum)
+{
+	GAME_ASSERT_MESSAGE(effectNum >= 0 && effectNum < NUM_EFFECTS, "illegal effect number");
+
+	if (gSndHandles[effectNum])
+	{
+		DisposeHandle((Handle) gSndHandles[effectNum]);
+		gSndHandles[effectNum] = nil;
 	}
 }
 
 
 /******************* LOAD SOUND BANK ************************/
 
-void LoadSoundBank(FSSpec *spec, long bankNum)
+void LoadSoundBank(void)
 {
-short			srcFile1,numSoundsInBank,i;
-OSErr			iErr;
-
 	StopAllEffectChannels();
 
-	if (bankNum >= MAX_SOUND_BANKS)
-		DoFatalAlert("LoadSoundBank: bankNum >= MAX_SOUND_BANKS");
-
-			/* DISPOSE OF EXISTING BANK */
-			
-	DisposeSoundBank(bankNum);
-
-
-			/* OPEN APPROPRIATE REZ FILE */
-			
-	srcFile1 = FSpOpenResFile(spec, fsRdPerm);
-	if (srcFile1 == -1)
-		DoFatalAlert("LoadSoundBank: OpenResFile failed!");
-
-
+			/****************************/
 			/* LOAD ALL EFFECTS IN BANK */
+			/****************************/
 
-	UseResFile( srcFile1 );												// open sound resource fork
-	numSoundsInBank = Count1Resources('snd ');							// count # snd's in this bank
-	if (numSoundsInBank > MAX_EFFECTS)
-		DoFatalAlert("LoadSoundBank: numSoundsInBank > MAX_EFFECTS");
-
-	for (i=0; i < numSoundsInBank; i++)
+	for (int i = 0; i < NUM_EFFECTS; i++)
 	{
-		gSndHandles[bankNum][i] = (SndListResource **)GetResource('snd ',BASE_EFFECT_RESOURCE+i);
-		if (gSndHandles[bankNum][i] == nil) 
-		{
-			iErr = ResError();
-			DoAlert("LoadSoundBank: GetResource failed!");
-			if (iErr == memFullErr)
-				DoFatalAlert("LoadSoundBank: Out of Memory");		
-			else
-				ShowSystemErr(iErr);
-		}
-		DetachResource((Handle)gSndHandles[bankNum][i]);				// detach resource from rez file & make a normal Handle
-		iErr = ResError();
-		if (iErr)
-			ShowSystemErr(iErr);
-						
-		HNoPurge((Handle)gSndHandles[bankNum][i]);						// make non-purgeable
-		HLockHi((Handle)gSndHandles[bankNum][i]);
-
-				/* GET OFFSET INTO IT */
-				
-		GetSoundHeaderOffset(gSndHandles[bankNum][i], &gSndOffsets[bankNum][i]);		
-
-				/* PRE-DECOMPRESS IT (Source port addition) */
-		
-		Pomme_DecompressSoundResource(&gSndHandles[bankNum][i], &gSndOffsets[bankNum][i]);
+		LoadSoundEffect(i);
 	}
-
-	CloseResFile(srcFile1);
-
-	gNumSndsInBank[bankNum] = numSoundsInBank;					// remember how many sounds we've got
 }
 
 
 /******************** DISPOSE SOUND BANK **************************/
 
-void DisposeSoundBank(short bankNum)
+void DisposeSoundBank(void)
 {
 short	i; 
-
-	if (bankNum > MAX_SOUND_BANKS)
-		return;
 
 	StopAllEffectChannels();									// make sure all sounds are stopped before nuking any banks
 
 			/* FREE ALL SAMPLES */
 			
-	for (i=0; i < gNumSndsInBank[bankNum]; i++)
-		DisposeHandle((Handle)gSndHandles[bankNum][i]);
+	for (i=0; i < gNumSndsInBank; i++)
+		DisposeHandle((Handle)gSndHandles[i]);
 
 
-	gNumSndsInBank[bankNum] = 0;
+	gNumSndsInBank = 0;
 }
 
-
-/******************* DISPOSE ALL SOUND BANKS *****************/
-
-void DisposeAllSoundBanks(void)
-{
-short	i;
-
-	for (i = 0; i < MAX_SOUND_BANKS; i++)
-	{
-		DisposeSoundBank(i);
-	}
-}
 
 /********************* STOP A CHANNEL **********************/
 //
@@ -389,7 +356,7 @@ static	SndCommand 		mySndCmd;
 				break;
 
 		case	2:
-				OpenGameFile(":Audio:Song_Pangea",&gMusicFileRefNum,errStr);
+				OpenGameFile(":Audio:Song_Pangea.aiff",&gMusicFileRefNum,errStr);
 				break;
 	
 
@@ -424,8 +391,15 @@ static	SndCommand 		mySndCmd;
 			/* START PLAYING FROM FILE */
 
 stream_again:					
-	iErr = SndStartFilePlay(gMusicChannel, gMusicFileRefNum, 0, STREAM_BUFFER_SIZE, gMusicBuffer,
-							nil, NewFilePlayCompletionProc(SongCompletionProc), true);
+	iErr = SndStartFilePlay(
+		gMusicChannel,
+		gMusicFileRefNum,
+		0,
+		/*STREAM_BUFFER_SIZE*/ 0,
+		/*gMusicBuffer*/ nil,
+		nil,
+		NewFilePlayCompletionProc(SongCompletionProc),
+		true);
 	if (iErr)
 	{
 		FSClose(gMusicFileRefNum);								// close the file
@@ -517,19 +491,14 @@ short PlayEffect_Parms(short effectNum, unsigned char volume, unsigned long freq
 static	SndCommand 		mySndCmd;
 static	SndChannelPtr	chanPtr;
 short					theChan;
-Byte					bankNum,soundNum;
 OSErr	myErr;
 	
-			/* GET BANK & SOUND #'S FROM TABLE */
-			
-	bankNum = gEffectsTable[effectNum].bank;
-	soundNum = gEffectsTable[effectNum].sound;
 
-	if (soundNum >= gNumSndsInBank[bankNum])					// see if illegal sound #
-	{
-		DoAlert("Illegal sound number!");
-		ShowSystemErr(effectNum);	
-	}
+			/* GET BANK & SOUND #'S FROM TABLE */
+
+	GAME_ASSERT_MESSAGE(effectNum >= 0 && effectNum < NUM_EFFECTS, "illegal effect number");
+	GAME_ASSERT_MESSAGE(gSndHandles[effectNum], "effect wasn't loaded!");
+
 
 			/* LOOK FOR FREE CHANNEL */
 			
@@ -559,7 +528,7 @@ OSErr	myErr;
 
 	mySndCmd.cmd = soundCmd;											// install sample in the channel
 	mySndCmd.param1 = 0;
-	mySndCmd.ptr = ((Ptr)*gSndHandles[bankNum][soundNum])+gSndOffsets[bankNum][soundNum];	// pointer to SoundHeader
+	mySndCmd.ptr = ((Ptr)*gSndHandles[effectNum]) + gSndOffsets[effectNum];	// pointer to SoundHeader
 	myErr = SndDoImmediate(chanPtr, &mySndCmd);
 	if (myErr)
 		return(-1);

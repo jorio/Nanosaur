@@ -127,18 +127,11 @@ do_again:
 	}
 
 
-			/* LOAD ART & SOUND */
+			/* LOAD ART */
 			
 	FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":models:MenuInterface.3dmf", &file);
 	LoadGrouped3DMF(&file, MODEL_GROUP_MENU);
 	LoadASkeleton(SKELETON_TYPE_DEINON);
-
-	// Source port addition: load main sounds for settings screen
-	FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":Audio:Main.sounds", &file);
-	LoadSoundBank(&file, SOUND_BANK_DEFAULT);
-
-	FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":Audio:Menu.sounds", &file);
-	LoadSoundBank(&file, SOUND_BANK_MENU);
 
 
 			/* BUILD SCENE */
@@ -200,7 +193,6 @@ do_again:
 	DeleteAll3DMFGroups();
 	FreeAllSkeletonFiles(-1);
 	QD3D_DisposeWindowSetup(&gGameViewInfoPtr);
-	DisposeSoundBank(SOUND_BANK_MENU);
 
 
 			/* HANDLE SELECTION */
