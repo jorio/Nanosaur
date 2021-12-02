@@ -32,6 +32,7 @@ extern "C"
 #endif
 
 	void GameMain(void);
+	void Enter2D(void);
 }
 
 static fs::path FindGameData()
@@ -145,6 +146,7 @@ int main(int argc, char** argv)
 	}
 
 	std::cerr << "Uncaught exception: " << uncaught << "\n";
+	Enter2D();
 	SDL_ShowSimpleMessageBox(0, "Uncaught Exception", uncaught.c_str(), nullptr);
 	return 1;
 }

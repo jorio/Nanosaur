@@ -115,6 +115,37 @@ GWorldPtr	oldGW;
 }
 
 
+/************************** ENTER 2D *************************/
+
+void Enter2D(void)
+{
+	// Linux: work around game window sent to background after showing a dialog box
+	// Windows: work around alert box appearing behind game
+#if !__APPLE__
+	if (gSDLWindow)
+	{
+		SDL_SetWindowFullscreen(gSDLWindow, false);
+		SDL_HideWindow(gSDLWindow);
+		SDL_PumpEvents();
+	}
+#endif
+}
+
+
+/************************** EXIT 2D *************************/
+
+void Exit2D(void)
+{
+#if !__APPLE__
+	if (gSDLWindow)
+	{
+		SDL_PumpEvents();
+		SDL_ShowWindow(gSDLWindow);
+		SetFullscreenMode();
+	}
+#endif
+}
+
 
 /*********************** SET FULLSCREEN MODE **********************/
 
