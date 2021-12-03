@@ -2,12 +2,6 @@
 
 #include <QD3D.h>
 
-#if __APPLE__
-#include <OpenGL/glu.h>		// gluErrorString, gluPerspective, gluLookAt
-#else
-#include <GL/glu.h>			// gluErrorString, gluPerspective, gluLookAt
-#endif
-
 #if !defined(ALLOW_FADE) && !_DEBUG
 #define ALLOW_FADE		1
 #endif

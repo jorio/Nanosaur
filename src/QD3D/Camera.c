@@ -210,6 +210,59 @@ float	fps = gFramesPerSecondFrac;
 }
 
 
+/********************** FILL PROJECTION MATRIX ************************/
+//
+// Equivalent to gluPerspective
+//
+
+static void FillProjectionMatrix(TQ3Matrix4x4* m, float fov, float aspect, float hither, float yon)
+{
+	float f = 1.0f / tanf(fov/2.0f);
+
+#define M(x,y) m->value[x][y]
+	M(0,0) = f/aspect;		M(1,0) = 0;			M(2,0) = 0;							M(3,0) = 0;
+	M(0,1) = 0;				M(1,1) = f;			M(2,1) = 0;							M(3,1) = 0;
+	M(0,2) = 0;				M(1,2) = 0;			M(2,2) = (yon+hither)/(hither-yon);	M(3,2) = 2*yon*hither/(hither-yon);
+	M(0,3) = 0;				M(1,3) = 0;			M(2,3) = -1;						M(3,3) = 0;
+#undef M
+}
+
+
+/********************** FILL LOOKAT MATRIX ************************/
+//
+// Equivalent to gluLookAt
+//
+
+static void FillLookAtMatrix(
+		TQ3Matrix4x4* m,
+		const TQ3Point3D* eye,
+		const TQ3Point3D* target,
+		const TQ3Vector3D* upDir)
+{
+	TQ3Vector3D forward;
+	Q3Point3D_Subtract(eye, target, &forward);
+	Q3Vector3D_Normalize(&forward, &forward);
+
+	TQ3Vector3D left;
+	Q3Vector3D_Cross(upDir, &forward, &left);
+	Q3Vector3D_Normalize(&left, &left);
+
+	TQ3Vector3D up;
+	Q3Vector3D_Cross(&forward, &left, &up);
+
+	float tx = Q3Vector3D_Dot((TQ3Vector3D*)eye, &left);
+	float ty = Q3Vector3D_Dot((TQ3Vector3D*)eye, &up);
+	float tz = Q3Vector3D_Dot((TQ3Vector3D*)eye, &forward);
+
+#define M(x,y) m->value[x][y]
+	M(0,0) = left.x;	M(1,0) = left.y;	M(2,0) = left.z;		M(3,0) = -tx;
+	M(0,1) = up.x;		M(1,1) = up.y;		M(2,1) = up.z;			M(3,1) = -ty;
+	M(0,2) = forward.x;	M(1,2) = forward.y;	M(2,2) = forward.z;		M(3,2) = -tz;
+	M(0,3) = 0;			M(1,3) = 0;			M(2,3) = 0;				M(3,3) = 1;
+#undef M
+}
+
+
 /********************** CALC CAMERA MATRIX INFO ************************/
 
 void CalcCameraMatrixInfo(QD3DSetupOutputType *setupInfo)
@@ -217,22 +270,28 @@ void CalcCameraMatrixInfo(QD3DSetupOutputType *setupInfo)
 			/* INIT PROJECTION MATRIX */
 
 	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
 
-	gluPerspective (Q3Math_RadiansToDegrees(setupInfo->fov),	// fov
-					QD3D_GetCurrentViewportAspectRatio(setupInfo),		// aspect
-					setupInfo->hither,		// hither
-					setupInfo->yon);		// yon
+	FillProjectionMatrix(
+		&gCameraViewToFrustumMatrix,
+		setupInfo->fov,
+		QD3D_GetCurrentViewportAspectRatio(setupInfo),
+		setupInfo->hither,
+		setupInfo->yon);
+
+	glLoadMatrixf((const GLfloat*)&gCameraViewToFrustumMatrix.value[0][0]);
 
 
 			/* INIT MODELVIEW MATRIX */
 
 	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	TQ3CameraPlacement* placement = &setupInfo->cameraPlacement;
-	gluLookAt(placement->cameraLocation.x, placement->cameraLocation.y, placement->cameraLocation.z,
-			  placement->pointOfInterest.x, placement->pointOfInterest.y, placement->pointOfInterest.z,
-			  placement->upVector.x, placement->upVector.y, placement->upVector.z);
+
+	FillLookAtMatrix(
+		&gCameraWorldToViewMatrix,
+		&setupInfo->cameraPlacement.cameraLocation,
+		&setupInfo->cameraPlacement.pointOfInterest,
+		&setupInfo->cameraPlacement.upVector);
+
+	glLoadMatrixf((const GLfloat*)&gCameraWorldToViewMatrix.value[0][0]);
 
 
 

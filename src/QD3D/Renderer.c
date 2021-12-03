@@ -233,11 +233,7 @@ static inline void __SetClientState(GLenum stateEnum, bool* stateFlagPtr, bool e
 void DoFatalGLError(GLenum error, const char* file, int line)
 {
 	static char alertbuf[1024];
-	snprintf(alertbuf, sizeof(alertbuf), "OpenGL error 0x%x: %s\nin %s:%d",
-		error,
-		(const char*)gluErrorString(error),
-		file,
-		line);
+	snprintf(alertbuf, sizeof(alertbuf), "OpenGL error 0x%x\nin %s:%d", error, file, line);
 	DoFatalAlert(alertbuf);
 }
 

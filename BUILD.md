@@ -52,7 +52,6 @@ build.py is the script that is used by the CI setup to produce builds. If you wa
     - Any C++20 compiler
     - CMake 3.13+
     - SDL2 development library (e.g. "libsdl2-dev" on Debian/Ubuntu, "sdl2" on Arch)
-    - glu
 1. Clone the repo recursively:
     ```
     git clone --recurse-submodules https://github.com/jorio/Nanosaur
