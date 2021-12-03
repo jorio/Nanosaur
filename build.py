@@ -201,7 +201,6 @@ def prepare_dependencies_macos():
 
     if "CODE_SIGN_IDENTITY" in os.environ:
         call(["codesign", "--force", "--timestamp", "--sign", os.environ["CODE_SIGN_IDENTITY"], sdl2_framework_target_path])
-        call(["codesign", "--force", "--timestamp", "--sign", os.environ["CODE_SIGN_IDENTITY"], F"{sdl2_framework_target_path}/Versions/Current/Frameworks/hidapi.framework"])
     else:
         print("SDL will not be codesigned. Set the CODE_SIGN_IDENTITY environment variable if you want to sign it.")
 
