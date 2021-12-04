@@ -40,7 +40,14 @@ set(POMME_NO_INPUT true)  # the game has its own input system
 add_subdirectory(extern/Pomme)
 
 find_package(SDL2 REQUIRED COMPONENTS main)
-find_package(OpenGL REQUIRED)
+find_package(OpenGL QUIET)
+if(OpenGL_FOUND)
+  message(STATUS "Using OpenGL GLX for OpenGL")
+else(OpenGL_FOUND)
+  # If we couldn't find old GLX package, try to use modern libglvnd libOpenGL.so instead.
+  message(STATUS "Using GLVND for OpenGL")
+  FIND_LIBRARY(OPENGL_LIBRARIES OpenGL)
+endif(OpenGL_FOUND)
 
 #------------------------------------------------------------------------------
 # GAME SOURCES
@@ -73,7 +80,7 @@ source_group(TREE ${GAME_SRCDIR} PREFIX "" FILES ${GAME_ALL_SOURCES})
 set(GAME_LIBRARIES
 	Pomme
 	${SDL2_LIBRARIES}
-	OpenGL::GL
+	${OPENGL_LIBRARIES}
 )
 
 if(WIN32)
