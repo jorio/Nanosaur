@@ -180,9 +180,9 @@ Boolean					hasMask;
 			UInt16 px = *pixelPtr++;
 			UInt16 mask = hasMask ? ~(*maskPtr++) : 0xFFFF;	// opaque is stored as 0; we use the opposite convention for alpha
 			destPixelPtr[0] = mask >> 8;					// alpha
-			destPixelPtr[1] = ((px >> 10) & 0x1F) << 3;		// red
-			destPixelPtr[2] = ((px >>  5) & 0x1F) << 3;		// green
-			destPixelPtr[3] = ((px >>  0) & 0x1F) << 3;		// blue
+			destPixelPtr[1] = (((px >> 10) & 0x1F) * 255) / 31;		// red
+			destPixelPtr[2] = (((px >>  5) & 0x1F) * 255) / 31;		// green
+			destPixelPtr[3] = (((px >>  0) & 0x1F) * 255) / 31;		// blue
 			destPixelPtr += 4;
 		}
 
@@ -344,8 +344,7 @@ UInt32	*srcPtr,*destPtr;
 		{
 			for (v = 0; v < height; v++)
 			{
-				for (h = 0; h < width; h++)
-					destPtr[h] = srcPtr[h];		
+				memcpy(destPtr, srcPtr, width*4);
 				destPtr += GAME_VIEW_WIDTH;
 				srcPtr += width;
 			}
