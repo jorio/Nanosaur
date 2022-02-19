@@ -139,16 +139,15 @@ struct SuperTileMemoryType
 	TQ3Point3D			coord;									// world coords
 	long				left,back;								// integer coords of back/left corner
 	TQ3TriMeshData		*triMeshPtr;							// trimeshes for the supertile
-	TQ3TriMeshData		*triMeshPtr2;							// for 4  point flat supertiles
 	Byte				splitAngle[SUPERTILE_SIZE][SUPERTILE_SIZE];		// 0 = /  1 = \ .
 	TQ3PlaneEquation	tilePlanes1[SUPERTILE_SIZE][SUPERTILE_SIZE];		// plane equation for each tile poly A
 	TQ3PlaneEquation	tilePlanes2[SUPERTILE_SIZE][SUPERTILE_SIZE];		// plane equation for each tile poly B
-	
+
 	float				radius;									// radius of this supertile
 
-	Boolean				isFlat;
-
 #if !(HQ_TERRAIN)
+	Boolean				isFlat;
+	TQ3TriMeshData		*triMeshPtr2;							// for 4  point flat supertiles
 	uint16_t			*textureData;
 #endif
 

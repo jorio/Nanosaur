@@ -31,9 +31,9 @@ static void CreateSuperTileMemoryList(void);
 static short	BuildTerrainSuperTile(long	startCol, long startRow);
 static void UpdateSuperTileTexture(SuperTileMemoryType* superTilePtr);
 static void DrawTileIntoMipmap(UInt16 tile, short row, short col, UInt16 *buffer);
-static void BuildTerrainSuperTile_Flat(SuperTileMemoryType *, long startCol, long startRow);
 
 #if !(HQ_TERRAIN)
+static void BuildTerrainSuperTile_Flat(SuperTileMemoryType *, long startCol, long startRow);
 static void ShrinkSuperTileTextureMap(const uint16_t* srcPtr, uint16_t* dstPtr, int targetSize);
 #endif // !(HQ_TERRAIN)
 
@@ -253,11 +253,13 @@ void DisposeTerrain(void)
 				superTile->triMeshPtr = nil;
 			}
 
+#if !(HQ_TERRAIN)
 			if (superTile->triMeshPtr2)
 			{
 				Q3TriMeshData_Dispose(superTile->triMeshPtr2);
 				superTile->triMeshPtr2 = nil;
 			}
+#endif
 		}
 		DisposePtr((Ptr) gSuperTileMemoryList);
 		gSuperTileMemoryList = nil;
@@ -282,8 +284,9 @@ TQ3TriMeshTriangleData	newTriangle[NUM_POLYS_IN_SUPERTILE];
 //TQ3Vector3D				faceNormals[NUM_POLYS_IN_SUPERTILE];
 TQ3Vector3D				vertexNormals[NUM_VERTICES_IN_SUPERTILE];
 TQ3Param2D				uvs[NUM_VERTICES_IN_SUPERTILE];
+#if !(HQ_TERRAIN)
 TQ3Param2D				uvsFlat[4] = {{0,0}, {1,0}, {0,1}, {1,1}};
-Ptr						blankTexPtr;
+#endif
 
 			/**********************************/
 			/* ALLOCATE MEMORY FOR SUPERTILES */
@@ -334,14 +337,6 @@ Ptr						blankTexPtr;
 		}	
 	}
 
-#if HQ_TERRAIN
-	for (i = 0; i < 4; i++)
-	{
-		uvsFlat[i].u = (1.0f + uvsFlat[i].u * SUPERTILE_SIZE) / (SUPERTILE_SIZE + 2.0f);
-		uvsFlat[i].v = (1.0f + uvsFlat[i].v * SUPERTILE_SIZE) / (SUPERTILE_SIZE + 2.0f);
-	}
-#endif
-
 			/* INIT FACES & FACE NORMALS */
 				
 	j = 0;
@@ -376,9 +371,60 @@ Ptr						blankTexPtr;
 
 	gNumFreeSupertiles = MAX_SUPERTILES;
 
+#if HQ_TERRAIN
+
+	Ptr blankTexPtr = NewPtrClear(SUPERTILE_TEXMAP_SIZE * SUPERTILE_TEXMAP_SIZE * sizeof(uint16_t));
+	GAME_ASSERT(blankTexPtr);
+
 	for (i = 0; i < MAX_SUPERTILES; i++)
 	{
-		blankTexPtr = AllocPtr(SUPERTILE_TEXMAP_SIZE * SUPERTILE_TEXMAP_SIZE * sizeof(uint16_t));
+		GLuint textureName = Render_LoadTexture(
+				TILE_TEXTURE_INTERNAL_FORMAT,
+				SUPERTILE_TEXMAP_SIZE,
+				SUPERTILE_TEXMAP_SIZE,
+				TILE_TEXTURE_FORMAT,
+				TILE_TEXTURE_TYPE,
+				blankTexPtr,
+				kRendererTextureFlags_ClampBoth
+				);
+
+					/* SET DATA */
+
+		gSuperTileMemoryList[i].mode = SUPERTILE_MODE_FREE;						// it's free for use
+		gSuperTileMemoryList[i].glTextureName = textureName;
+
+					/* CREATE THE TRIMESH OBJECT */
+
+		TQ3TriMeshData* tmd = Q3TriMeshData_New(NUM_POLYS_IN_SUPERTILE, NUM_VERTICES_IN_SUPERTILE,
+				kQ3TriMeshDataFeatureVertexUVs | kQ3TriMeshDataFeatureVertexNormals);
+		GAME_ASSERT(tmd);
+
+		gSuperTileMemoryList[i].triMeshPtr = tmd;
+
+		memcpy(tmd->triangles,		newTriangle,	sizeof(tmd->triangles[0]) * NUM_POLYS_IN_SUPERTILE);
+		memcpy(tmd->vertexUVs,		uvs,			sizeof(tmd->vertexUVs[0]) * NUM_VERTICES_IN_SUPERTILE);
+		for (int pointIndex = 0; pointIndex < NUM_VERTICES_IN_SUPERTILE; pointIndex++)
+		{
+			tmd->points[pointIndex] = (TQ3Point3D) { 0, 0, 0 };					// clear point list
+			tmd->vertexNormals[pointIndex] = (TQ3Vector3D) { 0, 1, 0 };			// set dummy vertex normals (point up)
+		}
+
+		tmd->bBox.isEmpty = kQ3False;					// calc bounding box
+		tmd->bBox.min.x = tmd->bBox.min.y = tmd->bBox.min.z = 0;
+		tmd->bBox.max.x = tmd->bBox.max.y = tmd->bBox.max.z = TERRAIN_SUPERTILE_UNIT_SIZE;
+
+		tmd->texturingMode = kQ3TexturingModeOpaque;
+		tmd->glTextureName = textureName;
+	}
+
+	DisposePtr(blankTexPtr);
+	blankTexPtr = nil;
+
+#else
+
+	for (i = 0; i < MAX_SUPERTILES; i++)
+	{
+		Ptr blankTexPtr = NewPtrClear(SUPERTILE_TEXMAP_SIZE * SUPERTILE_TEXMAP_SIZE * sizeof(uint16_t));
 		GAME_ASSERT(blankTexPtr);
 
 		GLuint textureName = Render_LoadTexture(
@@ -395,9 +441,7 @@ Ptr						blankTexPtr;
 
 		gSuperTileMemoryList[i].mode = SUPERTILE_MODE_FREE;						// it's free for use
 
-#if !(HQ_TERRAIN)
 		gSuperTileMemoryList[i].textureData = (uint16_t*) blankTexPtr;
-#endif
 		gSuperTileMemoryList[i].glTextureName = textureName;
 
 					/* CREATE THE TRIMESH OBJECT */
@@ -457,6 +501,8 @@ Ptr						blankTexPtr;
 		tmdFlat->texturingMode = kQ3TexturingModeOpaque;
 		tmdFlat->glTextureName = textureName;
 	}
+
+#endif
 }
 
 
@@ -571,8 +617,9 @@ SuperTileMemoryType	*superTilePtr;
 		superTilePtr->radius = gSuperTileRadius;
 
 
+#if !(HQ_TERRAIN)
 			/* SEE IF IT'S A FLAT SUPER-TILE */
-			
+
 	if (maxy == miny)
 	{
 		superTilePtr->isFlat = true;
@@ -581,7 +628,7 @@ SuperTileMemoryType	*superTilePtr;
 	}
 	else
 		superTilePtr->isFlat = false;
-	
+#endif
 
 
 			/******************************/
@@ -806,6 +853,8 @@ SuperTileMemoryType	*superTilePtr;
 
 
 
+#if !(HQ_TERRAIN)
+
 /************************* BUILD TERRAIN SUPERTILE: FLAT ************************************/
 
 static void BuildTerrainSuperTile_Flat(SuperTileMemoryType	*superTilePtr, long startCol, long startRow) 
@@ -867,6 +916,8 @@ TQ3PlaneEquation	planeEq;
 
 	UpdateSuperTileTexture(superTilePtr);
 }
+
+#endif // !(HQ_TERRAIN)
 
 
 
@@ -1216,11 +1267,15 @@ void DrawTerrain(QD3DSetupOutputType *setupInfo)
 
 			/* DRAW THE TRIMESH IN THIS SUPERTILE */
 
+#if HQ_TERRAIN
+		Render_SubmitMesh(gSuperTileMemoryList[i].triMeshPtr, nil, nil, &gSuperTileMemoryList[i].coord);
+#else
 		TQ3TriMeshData* mesh = gSuperTileMemoryList[i].isFlat
 				? gSuperTileMemoryList[i].triMeshPtr2
 				: gSuperTileMemoryList[i].triMeshPtr;
 
 		Render_SubmitMesh(mesh, nil, nil, &gSuperTileMemoryList[i].coord);
+#endif
 	}
 
 
