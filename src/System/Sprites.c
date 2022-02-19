@@ -16,320 +16,147 @@
 /*    PROTOTYPES            */
 /****************************/
 
-static void DisassembleFrameFile(short groupNum);
+typedef struct
+{
+	int width;
+	int height;
+	uint8_t* pixels;
+	uint8_t* mask;
+} SpriteFrame;
 
 
 /****************************/
 /*    CONSTANTS             */
 /****************************/
 
-#define	MAX_SPRITE_GROUPS		50
+#define	MAX_SPRITE_GROUPS		1
+#define MAX_SHAPE_ANIMS			50
 
 
 /*********************/
 /*    VARIABLES      */
 /*********************/
 
-ShapeTableHeader	gShapeTables[MAX_SPRITE_GROUPS];
+static int			gNumFrames[MAX_SPRITE_GROUPS];
+static SpriteFrame	gSpriteFrames[MAX_SPRITE_GROUPS][MAX_SHAPE_ANIMS];
 
 
 /******************* INIT SPRITE MANAGER *************************/
 
 void InitSpriteManager(void)
 {
-short	i;
-
-	for (i=0; i < MAX_SPRITE_GROUPS; i++)
-	{
-		gShapeTables[i].numFrames = 0;
-		gShapeTables[i].numAnims = 0;
-		gShapeTables[i].frameHeaders = nil;
-	}
+	memset(gNumFrames, 0, sizeof(gNumFrames));
+	memset(gSpriteFrames, 0, sizeof(gSpriteFrames));
 }
 
 
-/*************** LOAD FRAMES FILE **************/
-//
-// INPUT: 	inFile = spec of file to load
-//			groupNum = group # to load file into
-//
+/*************** LOAD SPRITE GROUP **************/
 
-void LoadFramesFile(FSSpec *inFile, short groupNum)
+void LoadSpriteGroup(const char* groupName, short groupNum, int numFrames)
 {
-short		fRefNum;
+	GAME_ASSERT(groupNum >= 0);
+	GAME_ASSERT(groupNum < MAX_SPRITE_GROUPS);
 
 			/* SEE IF NUKE EXISTING */
-			
-	if (gShapeTables[groupNum].frameHeaders)
+
+	if (gNumFrames[groupNum])
 		DisposeSpriteGroup(groupNum);
 
+	GAME_ASSERT(gNumFrames[groupNum] == 0);
 
-				/* OPEN THE REZ-FORK */
-			
-	fRefNum = FSpOpenResFile(inFile,fsRdPerm);
-	GAME_ASSERT(fRefNum != -1);
+			/* LOAD ALL SPRITE FILES */
 
-	UseResFile(fRefNum);
-	GAME_ASSERT(noErr == ResError());
+	for (int i = 0; i < numFrames; i++)
+	{
+		char path[256];
+		OSErr err;
+		uint8_t* pixels;
+		TGAHeader header;
 
-			/* EXTRACT INFO FROM FILE */
+		snprintf(path, sizeof(path), ":sprites:%s%d.tga", groupName, 1000 + i);
 
-	DisassembleFrameFile(groupNum);
+		FSSpec spec;
+		err = FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, path, &spec);
+		GAME_ASSERT(noErr == err);
 
-		
-			/* CLOSE REZ FILE */
-			
-	CloseResFile(fRefNum);
-	GAME_ASSERT(noErr == ResError());
+			/* READ TGA */
+
+		err = ReadTGA(&spec, &pixels, &header, true);
+		GAME_ASSERT(noErr == err);
+
+			/* GENERATE MASK */
+
+		bool hasMask = false;
+		uint8_t* mask = (uint8_t*) NewPtr(header.width * header.height * 4);
+		for (int p = 0; p < header.width*header.height; p++)
+		{
+			if (pixels[p*4 + 0] == 0)
+			{
+				hasMask = true;
+				((uint32_t*) mask)[p] = 0xFFFFFFFF;
+				((uint32_t*) pixels)[p] = 0;
+			}
+			else
+			{
+				((uint32_t*) mask)[p] = 0;
+			}
+		}
+
+			/* TOSS MASK IF FULLY OPAQUE */
+
+		if (!hasMask)
+		{
+			DisposePtr((Ptr) mask);
+			mask = nil;
+		}
+
+			/* SAVE FRAME INFO */
+
+		gSpriteFrames[groupNum][i].width = header.width;
+		gSpriteFrames[groupNum][i].height = header.height;
+		gSpriteFrames[groupNum][i].pixels = pixels;
+		gSpriteFrames[groupNum][i].mask = mask;
+		gNumFrames[groupNum]++;
+	}
 }
-
-
-/********************* DISASSEMBLE FRAME FILE *************************/
-
-static void DisassembleFrameFile(short groupNum)
-{
-Handle					hand;
-FramesFile_Header_Type	*headerPtr;
-FrameHeaderType			*frameHeaderPtr;
-long					i,w,h,j;
-UInt16					*pixelPtr = nil;
-UInt16					*maskPtr = nil;
-Ptr						destPixelPtr = nil;
-short					numAnims,numFrames,numLines;
-ShapeFrameHeader		*sfh;
-Boolean					hasMask;
-
-			/* READ HEADER RESOURCE */
-
-	hand = GetResource('Hedr',1000);
-	if (hand == nil)
-	{
-		DoAlert("Error reading header resource!");
-		return;
-	}
-	
-	headerPtr = (FramesFile_Header_Type *) *hand;
-	ByteswapStructs(STRUCTFORMAT_FramesFile_Header_Type, sizeof(FramesFile_Header_Type), 1, headerPtr);
-	
-	numAnims = headerPtr->numAnims;									// get # anims
-	numFrames = headerPtr->numFrames;								// get # frames
-	ReleaseResource(hand);
-
-	if (numAnims > MAX_SHAPE_ANIMS)									// see if overload
-		DoFatalAlert("numAnims > MAX_SHAPE_ANIMS");
-
-	gShapeTables[groupNum].numFrames = numFrames;				// set # frames
-	gShapeTables[groupNum].numAnims = numAnims;					// set # anims
-
-
-			/* ALLOC MEM FOR SHAPE FRAME HEADERS */
-				
-	gShapeTables[groupNum].frameHeaders = (ShapeFrameHeader **)AllocHandle(sizeof(ShapeFrameHeader) * numFrames);
-	if (gShapeTables[groupNum].frameHeaders == nil)
-		DoFatalAlert("LoadFramesFile: AllocHandle failed");
-
-
-
-		/***************/
-		/* READ FRAMES */
-		/***************/
-
-	for (i=0; i < numFrames; i++)
-	{
-			/* READ HEADER */
-			
-		hand = GetResource('FrHd',1000+i);
-		frameHeaderPtr = (FrameHeaderType *) (*hand);
-		ByteswapStructs(STRUCTFORMAT_FrameHeaderType, sizeof(FrameHeaderType), 1, frameHeaderPtr);
-		
-		sfh = (*gShapeTables[groupNum].frameHeaders)+i;		// get ptr to Shape Frame Header[i]
-		sfh->width = frameHeaderPtr->width;						// get width
-		sfh->height = frameHeaderPtr->height;					// get height
-		sfh->xoffset = frameHeaderPtr->xoffset;					// get xoffset
-		sfh->yoffset = frameHeaderPtr->yoffset;					// get yoffset
-		hasMask = sfh->hasMask = frameHeaderPtr->hasMask;		// get hasMask
-		ReleaseResource(hand);		
-
-			
-			/* READ PIXELS/MASK */
-		
-		hand = GetResource('Fram',1000+i);
-		
-
-		sfh = (*gShapeTables[groupNum].frameHeaders)+i;		// renew ptr
-		w = sfh->width;			
-		h = sfh->height;		
-								
-		// --------- Begin source port mod ------------
-		// Rewrote this part to unpack 16-bit (with optional 16-bit mask) to 32-bit ARGB
-		pixelPtr = (UInt16 *) (*hand);										// get ptr to file's data
-		ByteswapInts(sizeof(UInt16), w*h, pixelPtr);
-		if (sfh->hasMask)
-		{
-			maskPtr = (UInt16 *) (*hand + w*h * 2);							// mask data is stored after color data
-			ByteswapInts(sizeof(UInt16), w*h, maskPtr);
-		}
-		else
-			maskPtr = nil;
-
-		sfh->pixelData = AllocHandle(w*h*4);								// alloc mem for pix & mask
-		destPixelPtr = *sfh->pixelData;										// get ptr to dest
-
-		for (j = 0; j < (w*h); j++)
-		{
-			UInt16 px = *pixelPtr++;
-			UInt16 mask = hasMask ? ~(*maskPtr++) : 0xFFFF;	// opaque is stored as 0; we use the opposite convention for alpha
-			destPixelPtr[0] = mask >> 8;					// alpha
-			destPixelPtr[1] = (((px >> 10) & 0x1F) * 255) / 31;		// red
-			destPixelPtr[2] = (((px >>  5) & 0x1F) * 255) / 31;		// green
-			destPixelPtr[3] = (((px >>  0) & 0x1F) * 255) / 31;		// blue
-			destPixelPtr += 4;
-		}
-
-		char dumpFN[128];
-		sprintf(dumpFN, "/tmp/Infobar%ld.%d.%d.tga", 1000+i, sfh->xoffset, sfh->yoffset);
-		FILE* tga = fopen(dumpFN, "wb");
-		uint8_t tgaHdr[] = {
-			0, // idfl
-			0, // cmty
-			2, // imty
-			0, 0, // palOr
-			0, 0, // palCnt
-			0, // palBpp
-			0, 0, //xo
-			0, 0, //yo
-			sfh->width, sfh->width >> 8,
-			sfh->height, sfh->height >> 8,
-			hasMask? 32: 24,
-			1 << 5,
-		};
-		fwrite(tgaHdr, sizeof(tgaHdr), 1, tga);
-		for (int z = 0; z < w*h; z++)
-		{
-			char* pd = &(*sfh->pixelData)[z*4];
-			fwrite(&pd[3], 1, 1, tga); // blue
-			fwrite(&pd[2], 1, 1, tga);
-			fwrite(&pd[1], 1, 1, tga);
-			if (hasMask)
-				fwrite(&pd[0], 1, 1, tga);
-		}
-		fclose(tga);
-
-		// --------- End source port mod ------------
-
-		ReleaseResource(hand);				
-	}
-
-
-
-			/****************/
-			/*  READ ANIMS  */
-			/****************/
-			// SOURCE PORT NOTE: Nanosaur doesn't use sprite animations at all. We could remove this and all associated anim structures.
-			
-	for (i = 0; i < numAnims; i++)
-	{
-			/* READ ANIM HEADER */
-
-		hand = GetResource('AnHd',1000+i);		
-		ByteswapStructs(STRUCTFORMAT_AnimHeaderType, sizeof(AnimHeaderType), 1, *hand);
-		numLines = gShapeTables[groupNum].anims[i].numLines =
-					(**(AnimHeaderType **)hand).numLines;							// get # lines in anim
-		ReleaseResource(hand);
-
-			/* SEE IF WE HAVE ANIM DATA AT ALL */
-			/* (Source port fix to avoid illegal memory access if 0 anims) */
-
-		if (!numLines)
-		{
-			gShapeTables[groupNum].anims[i].animData = nil;
-			continue;
-		}
-
-			/* ALLOC MEMORY FOR ANIM DATA */
-			
-		gShapeTables[groupNum].anims[i].animData =
-								(AnimEntryType **)AllocHandle(sizeof(AnimEntryType) * numLines);
-		
-			/* READ ANIM DATA */
-	
-		hand = GetResource('Anim',1000+i);
-		ByteswapStructs(STRUCTFORMAT_AnimEntryType, sizeof(AnimEntryType), numLines, *hand);
-		**(gShapeTables[groupNum].anims[i].animData) = **(AnimEntryType **)hand;		
-		BlockMove(*hand,*gShapeTables[groupNum].anims[i].animData,numLines*sizeof(AnimEntryType));
-		ReleaseResource(hand);
-	}
-
-}
-
 
 
 /**************** DISPOSE SPRITE GROUP ***********************/
 
 void DisposeSpriteGroup(short groupNum)
 {
-long	numFrames,i,numAnims;
-ShapeFrameHeader	*sfh;
-
-	if (gShapeTables[groupNum].frameHeaders == nil)					// see if already nuked
-		return;
-
-				/* NUKE ALL OF THE FRAMES INFO */
-
-	numFrames = gShapeTables[groupNum].numFrames;
-	for (i = 0; i < numFrames; i++)
+	for (int i = 0; i < gNumFrames[groupNum]; i++)
 	{
-		sfh = *gShapeTables[groupNum].frameHeaders;
-		DisposeHandle((Handle)(sfh+i)->pixelData);						// nuke pixel data
+		if (gSpriteFrames[groupNum][i].pixels)
+		{
+			DisposePtr((Ptr) gSpriteFrames[groupNum][i].pixels);
+		}
+
+		if (gSpriteFrames[groupNum][i].mask)
+		{
+			DisposePtr((Ptr) gSpriteFrames[groupNum][i].mask);
+		}
 	}
-	DisposeHandle((Handle)gShapeTables[groupNum].frameHeaders);		// nuke array of frame headers		
-	gShapeTables[groupNum].frameHeaders = nil;						// should set this to nil so we can tell it's an empty group
-	
-	
-				/* NUKE ALL OF THE ANIM INFO */
-				
-	numAnims = 	gShapeTables[groupNum].numAnims;
-	for (i = 0; i < numAnims; i++)
-	{
-		if (!(Handle)gShapeTables[groupNum].anims[i].animData)				// don't nuke if we had no animData (source port fix)
-			continue;
-		DisposeHandle((Handle)gShapeTables[groupNum].anims[i].animData);	// nuke anim data
-	}
-	
+
+	memset(&gSpriteFrames[groupNum], 0, sizeof(gSpriteFrames[groupNum]));
+	gNumFrames[groupNum] = 0;
 }	
-	
-	
-	
+
+
 /**************** DRAW SPRITE FRAME TO SCREEN ********************/
-//
-//
-//
-// Source port note: modified this to use ARGB32 as unpacked in DisassembleFrameFile.
 
-void DrawSpriteFrameToScreen(UInt32 group, UInt32 frame, long x, long y)
+void DrawSpriteFrameToScreen(short group, int frame, int x, int y)
 {
-ShapeFrameHeader	*sfh;
-UInt32	width,height,h,v;
-long	xoff,yoff;
-Boolean	hasMask;
-UInt32	*srcPtr,*destPtr;
-
-	if (frame >= gShapeTables[group].numFrames)
-		DoFatalAlert("DrawSpriteFrameToScreen: illegal frame #");
+	GAME_ASSERT(frame >= 0);
+	GAME_ASSERT(frame < gNumFrames[group]);
 
 
-	sfh = *gShapeTables[group].frameHeaders;						// get ptr to frame header array
-	sfh += frame;													// point to the desired frame
+	SpriteFrame* sfh = &gSpriteFrames[group][frame];		// point to desired frame
 
-	width 	= sfh->width;								// get frame width
-	height 	= sfh->height;								// get frame height
-	xoff 	= sfh->xoffset;								// get frame xoffset
-	yoff 	= sfh->yoffset;								// get frame yoffset
-	hasMask = sfh->hasMask;								// get frame has mask flag
-	srcPtr 	= (UInt32 *)*(sfh->pixelData);				// get ptr to pixel/mask data
-
-	x += xoff;											// adjust draw coords
-	y += yoff;
+	int width 	= sfh->width;								// get frame width
+	int height 	= sfh->height;								// get frame height
+	const uint32_t* srcMaskPtr	= (uint32_t *) sfh->mask;	// get frame mask
+	const uint32_t* srcPtr		= (uint32_t *) sfh->pixels;	// get ptr to pixel data
 
 			/*******************************/
 			/* SEE IF USE CLIPPING VERSION */
@@ -345,28 +172,28 @@ UInt32	*srcPtr,*destPtr;
 			/**************/
 	else
 	{
-		destPtr = (UInt32 *)(gCoverWindowPixPtr + (y * GAME_VIEW_WIDTH) + x);		// calc start addr
+		uint32_t* destPtr = (uint32_t *)(gCoverWindowPixPtr + (y * GAME_VIEW_WIDTH) + x);		// calc start addr
 	
 	
 				/* DRAW WITH MASK */
 				
-		if (hasMask)
+		if (srcMaskPtr)
 		{
-			for (v = 0; v < height; v++)
+			for (int v = 0; v < height; v++)
 			{
-				for (h = 0; h < width; h++)
+				for (int h = 0; h < width; h++)
 				{
-					if (*(char*)&srcPtr[h])											// alpha is not 0 (first component in ARGB32)
-						destPtr[h] = srcPtr[h];										// draw masked pixel
+					destPtr[h] = (destPtr[h] & srcMaskPtr[h]) | srcPtr[h];
 				}
 				destPtr += GAME_VIEW_WIDTH;
 				srcPtr += width;
+				srcMaskPtr += width;
 			}
 		}
 				/* DRAW NO MASK */
 		else
 		{
-			for (v = 0; v < height; v++)
+			for (int h = 0; h < height; h++)
 			{
 				memcpy(destPtr, srcPtr, width*4);
 				destPtr += GAME_VIEW_WIDTH;
@@ -379,15 +206,3 @@ UInt32	*srcPtr,*destPtr;
 	DamagePortRegion(&damage);
 }
 
-
-
-
-
-
-	
-	
-	
-	
-	
-	
-	

@@ -767,11 +767,8 @@ FSSpec	spec;
 					
 				/* LOAD SPRITES FILES */
 
-				FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":sprites:infobar.frames", &spec);
-				LoadFramesFile(&spec, 0);
+				LoadSpriteGroup("Infobar", 0, 50);
 				break;
-
-	
 
 		default:
 				DoFatalAlert("LoadLevelArt: unsupported level #");

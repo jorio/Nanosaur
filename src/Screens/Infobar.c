@@ -36,18 +36,21 @@ static void MoveGPS(ObjNode *theNode);
 #define	HEALTH_METER_HEIGHT	9
 #define	TIME_REM_X			38
 #define	TIME_REM_Y			58
-#define	EGG_X				476
-#define	EGG_Y				435
+#define	EGG_X				(476-13)
+#define	EGG_Y				(435-20)
 #define	WEAPON_ICON_X		21
 #define	WEAPON_ICON_Y		133
 #define	WEAPON_QUAN_X		71
 #define	WEAPON_QUAN_Y		219
 #define	SCORE_X				270
 #define	SCORE_Y				419
-#define	FUEL_X				52
-#define	FUEL_Y				327
+#define	FUEL_X				(52-14)
+#define	FUEL_Y				(327-53)
 #define	LIVES_X				51
 #define	LIVES_Y				458
+#define NUMBERS_XOFF		(-7)
+#define NUMBERS_YOFF		(-6)
+#define NUMBERS_WIDTH		(16)
 
 #define	HEALTH_METER_COLOR16	(((0x14 << 10) << 16) | (0x14 << 10))
 
@@ -249,12 +252,15 @@ static void PrintNumber(unsigned long num, short numDigits, long x, long y)
 unsigned long digit;
 short i;
 
+	x += NUMBERS_XOFF;
+	y += NUMBERS_YOFF;
+
 	for (i = 0; i < numDigits; i++)
 	{
 		digit = num % 10;				// get digit value
 		num /= 10;
 		DrawSpriteFrameToScreen(SPRITE_GROUP_INFOBAR, INFOBAR_FRAMENUM_0+digit, x, y);
-		x -= 16;
+		x -= NUMBERS_WIDTH;
 	}
 
 }
