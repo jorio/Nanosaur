@@ -26,13 +26,13 @@ game_name           = "Nanosaur"  # no spaces
 game_name_human     = "Nanosaur"  # spaces and other special characters allowed
 game_ver            = "1.4.2"
 
-sdl_ver             = "2.0.18"
+sdl_ver             = "2.0.20"
 appimagetool_ver    = "13"
 
 lib_hashes = {  # sha-256
-    "SDL2-2.0.18.tar.gz":           "94d40cd73dbfa10bb6eadfbc28f355992bb2d6ef6761ad9d4074eff95ee5711c",
-    "SDL2-2.0.18.dmg":              "bd9cf6b51b37bb29a4e0631ecfca5b894dc6d553cc913a4760197c90d76dd5ca",
-    "SDL2-devel-2.0.18-VC.zip":     "d4a56e2ee7c0eae2ef0d511201d3bd38c5ab255662e4b571d4d630762473bf42",
+    "SDL2-2.0.20.tar.gz":           "c56aba1d7b5b0e7e999e4a7698c70b63a3394ff9704b5f6e1c57e0c16f04dd06",
+    "SDL2-2.0.20.dmg":              "e46a3694f5008c4c5ffd33e1dfdffbee64179ad15088781f2f70806dd0102d4d",
+    "SDL2-devel-2.0.20-VC.zip":     "5b1512ca6c9d2427bd2147da01e5e954241f8231df12f54a7074dccde416df18",
     "appimagetool-x86_64.AppImage": "df3baf5ca5facbecfc2f3fa6713c29ab9cefa8fd8c1eac5d283b79cab33e4acb", # appimagetool v13
 }
 
