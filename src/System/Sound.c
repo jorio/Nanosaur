@@ -172,6 +172,8 @@ OSErr err;
 	gSndHandles[effectNum] = Pomme_SndLoadFileAsResource(refNum);
 	GAME_ASSERT_MESSAGE(gSndHandles[effectNum], path);
 
+	FSClose(refNum);
+
 			/* GET OFFSET INTO IT */
 
 	GetSoundHeaderOffset(gSndHandles[effectNum], &gSndOffsets[effectNum]);
