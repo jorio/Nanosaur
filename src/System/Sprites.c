@@ -186,11 +186,35 @@ Boolean					hasMask;
 			destPixelPtr += 4;
 		}
 
-		/*
-		std::stringstream dumpFN;
-		dumpFN << "spriteframe" << "_" << i << "_" << w << "x" << h << "_a" << (int)sfh->hasMask << ".tga";
-		Pomme::DumpTGA(dumpFN.str().c_str(), sfh->width, sfh->height, (const char*)*sfh->pixelData);
-		*/
+		char dumpFN[128];
+		sprintf(dumpFN, "/tmp/Infobar%ld.%d.%d.tga", 1000+i, sfh->xoffset, sfh->yoffset);
+		FILE* tga = fopen(dumpFN, "wb");
+		uint8_t tgaHdr[] = {
+			0, // idfl
+			0, // cmty
+			2, // imty
+			0, 0, // palOr
+			0, 0, // palCnt
+			0, // palBpp
+			0, 0, //xo
+			0, 0, //yo
+			sfh->width, sfh->width >> 8,
+			sfh->height, sfh->height >> 8,
+			hasMask? 32: 24,
+			1 << 5,
+		};
+		fwrite(tgaHdr, sizeof(tgaHdr), 1, tga);
+		for (int z = 0; z < w*h; z++)
+		{
+			char* pd = &(*sfh->pixelData)[z*4];
+			fwrite(&pd[3], 1, 1, tga); // blue
+			fwrite(&pd[2], 1, 1, tga);
+			fwrite(&pd[1], 1, 1, tga);
+			if (hasMask)
+				fwrite(&pd[0], 1, 1, tga);
+		}
+		fclose(tga);
+
 		// --------- End source port mod ------------
 
 		ReleaseResource(hand);				
