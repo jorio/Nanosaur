@@ -29,9 +29,13 @@ static void CalcNewItemDeleteWindow(void);
 static float	GetTerrainHeightAtRowCol(long row, long col);
 static void CreateSuperTileMemoryList(void);
 static short	BuildTerrainSuperTile(long	startCol, long startRow);
+static void UpdateSuperTileTexture(SuperTileMemoryType* superTilePtr);
 static void DrawTileIntoMipmap(UInt16 tile, short row, short col, UInt16 *buffer);
 static void BuildTerrainSuperTile_Flat(SuperTileMemoryType *, long startCol, long startRow);
+
+#if !(HQ_TERRAIN)
 static void ShrinkSuperTileTextureMap(const uint16_t* srcPtr, uint16_t* dstPtr, int targetSize);
+#endif // !(HQ_TERRAIN)
 
 
 /****************************/
@@ -229,11 +233,13 @@ void DisposeTerrain(void)
 		{
 			SuperTileMemoryType* superTile = &gSuperTileMemoryList[i];
 
+#if !(HQ_TERRAIN)
 			if (superTile->textureData)
 			{
 				DisposePtr((Ptr) superTile->textureData);
 				superTile->textureData = nil;
 			}
+#endif
 
 			if (superTile->glTextureName)
 			{
@@ -273,13 +279,11 @@ static void CreateSuperTileMemoryList(void)
 short					u,v,i,j;
 TQ3Point3D				p[NUM_VERTICES_IN_SUPERTILE];
 TQ3TriMeshTriangleData	newTriangle[NUM_POLYS_IN_SUPERTILE];
-TQ3Vector3D				faceNormals[NUM_POLYS_IN_SUPERTILE];
+//TQ3Vector3D				faceNormals[NUM_POLYS_IN_SUPERTILE];
 TQ3Vector3D				vertexNormals[NUM_VERTICES_IN_SUPERTILE];
 TQ3Param2D				uvs[NUM_VERTICES_IN_SUPERTILE];
-TQ3Param2D				uvs2[4] = {{0,0}, {1,0}, {0,1}, {1,1}};
-
+TQ3Param2D				uvsFlat[4] = {{0,0}, {1,0}, {0,1}, {1,1}};
 Ptr						blankTexPtr;
-
 
 			/**********************************/
 			/* ALLOCATE MEMORY FOR SUPERTILES */
@@ -319,11 +323,24 @@ Ptr						blankTexPtr;
 	{
 		for (u = 0; u <= SUPERTILE_SIZE; u++)
 		{
+#if HQ_TERRAIN
+			uvs[i].u = (1.0f + u) / (SUPERTILE_SIZE + 2.0f);
+			uvs[i].v = (1.0f + v) / (SUPERTILE_SIZE + 2.0f);
+#else
 			uvs[i].u = (float)u / (float)SUPERTILE_SIZE;
 			uvs[i].v = (float)v / (float)SUPERTILE_SIZE;
+#endif
 			i++;
 		}	
 	}
+
+#if HQ_TERRAIN
+	for (i = 0; i < 4; i++)
+	{
+		uvsFlat[i].u = (1.0f + uvsFlat[i].u * SUPERTILE_SIZE) / (SUPERTILE_SIZE + 2.0f);
+		uvsFlat[i].v = (1.0f + uvsFlat[i].v * SUPERTILE_SIZE) / (SUPERTILE_SIZE + 2.0f);
+	}
+#endif
 
 			/* INIT FACES & FACE NORMALS */
 				
@@ -343,10 +360,12 @@ Ptr						blankTexPtr;
 			newTriangle[i].pointIndices[1] = gTileTriangles1_A[j/SUPERTILE_SIZE][j%SUPERTILE_SIZE][1];
 			newTriangle[i].pointIndices[2] = gTileTriangles1_A[j/SUPERTILE_SIZE][j%SUPERTILE_SIZE][2];
 		}
-		
+
+#if 0
 		faceNormals[i].x = faceNormals[i].z = 0;							// set dummy face normals (pointing up!)
 		faceNormals[i].y = 1;			
 		Q3Vector3D_Normalize(&faceNormals[i],&faceNormals[i]);
+#endif
 	}
 
 
@@ -376,11 +395,10 @@ Ptr						blankTexPtr;
 
 		gSuperTileMemoryList[i].mode = SUPERTILE_MODE_FREE;						// it's free for use
 
-
+#if !(HQ_TERRAIN)
 		gSuperTileMemoryList[i].textureData = (uint16_t*) blankTexPtr;
+#endif
 		gSuperTileMemoryList[i].glTextureName = textureName;
-
-		// TODO NOQUESA: do we need face normals at all?
 
 					/* CREATE THE TRIMESH OBJECT */
 
@@ -397,7 +415,6 @@ Ptr						blankTexPtr;
 			tmd->points[pointIndex] = (TQ3Point3D) { 0, 0, 0 };					// clear point list
 			tmd->vertexNormals[pointIndex] = (TQ3Vector3D) { 0, 1, 0 };			// set dummy vertex normals (point up)
 		}
-		// TODO: face normals?
 
 		tmd->bBox.isEmpty = kQ3False;					// calc bounding box
 		tmd->bBox.min.x = tmd->bBox.min.y = tmd->bBox.min.z = 0;
@@ -432,9 +449,7 @@ Ptr						blankTexPtr;
 			tmdFlat->vertexNormals[pointIndex] = (TQ3Vector3D) {0, 1, 0 };		// set dummy vertex normals (point up)
 		}
 
-		memcpy(tmdFlat->vertexUVs, uvs2, 4 * sizeof(tmdFlat->vertexUVs[0]));
-		// TODO: face normals?
-
+		memcpy(tmdFlat->vertexUVs, uvsFlat, 4 * sizeof(tmdFlat->vertexUVs[0]));
 		tmdFlat->bBox.isEmpty = kQ3False;					// calc bounding box
 		tmdFlat->bBox.min.x = tmdFlat->bBox.min.y = tmdFlat->bBox.min.z = 0;
 		tmdFlat->bBox.max.x = tmdFlat->bBox.max.y = tmdFlat->bBox.max.z = TERRAIN_SUPERTILE_UNIT_SIZE;
@@ -491,7 +506,7 @@ short				superTileNum;
 float				height,miny,maxy;
 TQ3Vector3D			normals[SUPERTILE_SIZE+1][SUPERTILE_SIZE+1];
 TQ3TriMeshData		*triMeshPtr;
-TQ3Vector3D			*normalPtr,*vertexNormalList;
+TQ3Vector3D			*vertexNormalList;
 UInt16				tile;
 short				h1,h2,h3,h4;
 TQ3Point3D			*pointList;
@@ -712,7 +727,6 @@ SuperTileMemoryType	*superTilePtr;
 	pointList = triMeshPtr->points;												// get ptr to point/vertex list
 	triangleList = triMeshPtr->triangles;										// get ptr to triangle index list
 	vertexNormalList = triMeshPtr->vertexNormals;								// get ptr to vertex normals
-	normalPtr = nil;	// TODO QUESA: FACE NORMALS!							// get ptr to face normals
 
 	
 			/* SET BOUNDING BOX */
@@ -738,11 +752,6 @@ SuperTileMemoryType	*superTilePtr;
 	
 
 				/* UPDATE TRIMESH DATA WITH NEW INFO */
-			
-#if _DEBUG
-	memset(gTempTextureBuffer, 0xFF, TEMP_TEXTURE_BUFF_SIZE*TEMP_TEXTURE_BUFF_SIZE*2);
-#endif
-
 
 	i = 0;			
 	for (row2 = 0; row2 < SUPERTILE_SIZE; row2++)
@@ -751,13 +760,7 @@ SuperTileMemoryType	*superTilePtr;
 
 		for (col2 = 0; col2 < SUPERTILE_SIZE; col2++)
 		{
-
 			col = col2 + startCol;
-
-					/* ADD TILE TO PIXMAP */
-					
-			tile = gTerrainTextureLayer[row][col];									// get tile from map
-			DrawTileIntoMipmap(tile,row2,col2,gTempTextureBuffer);		// draw into mipmap & return anim flag
 
 					/* SET SPLITTING INFO */
 
@@ -795,25 +798,7 @@ SuperTileMemoryType	*superTilePtr;
 			/* UPDATE TEXTURE */
 			/******************/
 
-			/* GET MIPMAP BUFFER */
-
-	// store a resized copy of the texture in the supertile's textureData buffer
-	ShrinkSuperTileTextureMap(gTempTextureBuffer, superTilePtr->textureData, SUPERTILE_TEXMAP_SIZE);
-
-				/* UPDATE THE TRIMESH */
-
-	Render_BindTexture(superTilePtr->glTextureName);
-	glTexSubImage2D(
-			GL_TEXTURE_2D,
-			0,
-			0,
-			0,
-			SUPERTILE_TEXMAP_SIZE,
-			SUPERTILE_TEXMAP_SIZE,
-			TILE_TEXTURE_FORMAT,
-			TILE_TEXTURE_TYPE,
-			superTilePtr->textureData);
-	CHECK_GL_ERROR();
+	UpdateSuperTileTexture(superTilePtr);
 
 
 	return(superTileNum);
@@ -827,8 +812,7 @@ static void BuildTerrainSuperTile_Flat(SuperTileMemoryType	*superTilePtr, long s
 {
 TQ3TriMeshData		*triMeshPtr;
 TQ3Point3D			*pointList;
-long				row2,col2,row,col;
-UInt16				tile;
+long				row2,col2;
 TQ3PlaneEquation	planeEq;
 
 			/*********************************/
@@ -869,20 +853,10 @@ TQ3PlaneEquation	planeEq;
 
 	CalcPlaneEquationOfTriangle(&planeEq, &pointList[0], &pointList[1],&pointList[2]);// calc plane equation for entire supertile
 
-
-				/* UPDATE TEXTURE MAP */
-		
 	for (row2 = 0; row2 < SUPERTILE_SIZE; row2++)
 	{
-		row = row2 + startRow;
-
 		for (col2 = 0; col2 < SUPERTILE_SIZE; col2++)
 		{
-			col = col2 + startCol;
-			tile = gTerrainTextureLayer[row][col];									// get tile from map
-			DrawTileIntoMipmap(tile,row2,col2,gTempTextureBuffer);					// draw into mipmap
-			
-			
 			superTilePtr->tilePlanes1[row2][col2] = 								// calc plane equation for triangles
 			superTilePtr->tilePlanes2[row2][col2] = planeEq;			
 			superTilePtr->splitAngle[row2][col2] = SPLIT_ARBITRARY;					// set split to arbitrary (since there isn't any)
@@ -891,8 +865,73 @@ TQ3PlaneEquation	planeEq;
 
 				/* UPDATE TEXTURE */
 
+	UpdateSuperTileTexture(superTilePtr);
+}
+
+
+
+/********************* UPDATE SUPERTILE TEXTURE *************************/
+
+static void UpdateSuperTileTexture(SuperTileMemoryType* superTilePtr)
+{
+#if _DEBUG
+	memset(gTempTextureBuffer, 0xFF, TEMP_TEXTURE_BUFF_SIZE*TEMP_TEXTURE_BUFF_SIZE*2);
+#endif
+
+			/******************/
+			/* UPDATE TEXTURE */
+			/******************/
+
+#if HQ_TERRAIN
+	int minRow = -1;
+	int minCol = -1;
+	int maxRow = minRow + SUPERTILE_SIZE + 2;
+	int maxCol = minCol + SUPERTILE_SIZE + 2;
+#else
+	int minRow = 0;
+	int minCol = 0;
+	int maxRow = minRow + SUPERTILE_SIZE;
+	int maxCol = minCol + SUPERTILE_SIZE;
+#endif
+
+	for (int row2 = minRow; row2 < maxRow; row2++)
+	{
+		int row = row2 + superTilePtr->row;
+
+		for (int col2 = minCol; col2 < maxCol; col2++)
+		{
+			int col = col2 + superTilePtr->col;
+
+					/* ADD TILE TO PIXMAP */
+
+			UInt16 tile = 0;
+
+			if (row >= 0 && row < gTerrainTileDepth &&
+				col >= 0 && col < gTerrainTileWidth)
+			{
+				tile = gTerrainTextureLayer[row][col];						// get tile from map
+			}
+
+#if HQ_TERRAIN
+			DrawTileIntoMipmap(tile, row2+1, col2+1, gTempTextureBuffer);	// draw into mipmap
+#else
+			DrawTileIntoMipmap(tile, row2, col2, gTempTextureBuffer);		// draw into mipmap
+#endif
+		}
+	}
+
+
+#if HQ_TERRAIN
+	UInt16* textureData = gTempTextureBuffer;
+#else
+			/* GET MIPMAP BUFFER */
+
 	// store a resized copy of the texture in the supertile's textureData buffer
 	ShrinkSuperTileTextureMap(gTempTextureBuffer, superTilePtr->textureData, SUPERTILE_TEXMAP_SIZE);
+	UInt16* textureData = superTilePtr->textureData;
+#endif
+
+			/* RECREATE TEXTURE */
 
 	Render_BindTexture(superTilePtr->glTextureName);
 	glTexSubImage2D(
@@ -904,7 +943,7 @@ TQ3PlaneEquation	planeEq;
 			SUPERTILE_TEXMAP_SIZE,
 			TILE_TEXTURE_FORMAT,
 			TILE_TEXTURE_TYPE,
-			superTilePtr->textureData);
+			textureData);
 	CHECK_GL_ERROR();
 }
 
@@ -1071,6 +1110,7 @@ const int tileSize = OREOMAP_TILE_SIZE;
 
 
 
+#if !(HQ_TERRAIN)
 
 /************ SHRINK SUPERTILE TEXTURE MAP ********************/
 //
@@ -1122,7 +1162,7 @@ static void ShrinkSuperTileTextureMap(const uint16_t* srcPtr, uint16_t* dstPtr, 
 			break;
 
 		case 160:
-			memcpy(dstPtr, srcPtr, 160 * 160 * sizeof(UInt16));
+			memcpy(dstPtr, srcPtr, dstSize * dstSize * sizeof(uint16_t));
 			break;
 
 		default:
@@ -1130,6 +1170,8 @@ static void ShrinkSuperTileTextureMap(const uint16_t* srcPtr, uint16_t* dstPtr, 
 			break;
 	}
 }
+
+#endif // !(HQ_TERRAIN)
 
 
 /******************* RELEASE SUPERTILE OBJECT *******************/

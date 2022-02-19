@@ -16,9 +16,6 @@
 
 
 
-#define	PICT_HEADER_SIZE	512
-#define REMOVE_ALL_EVENTS	 0
-
 #define	GRAVITY_CONSTANT	1400.0f
 
 
@@ -37,7 +34,6 @@
 		DisposePtr((Ptr)array[0]);		\
 		DisposePtr((Ptr)array);			\
 		array = nil;
-
 
 
 #define	PI					kQ3Pi	//3.141592654

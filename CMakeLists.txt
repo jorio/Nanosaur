@@ -118,9 +118,8 @@ add_compile_definitions(
 )
 
 target_compile_definitions(${GAME_TARGET} PRIVATE
-	SOURCE_PORT_ENHANCEMENTS
-	GL_SILENCE_DEPRECATION
-)
+	HQ_TERRAIN=1
+	GL_SILENCE_DEPRECATION)
 
 if(WIN32)
 	# On Win32, we need NOGDI and NOUSER to be able to define some Mac functions

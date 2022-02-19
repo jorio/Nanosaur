@@ -2,8 +2,12 @@
 // Terrain.h
 //
 
-#ifndef TERRAIN_H
-#define TERRAIN_H
+#pragma once
+
+// Compile the game with HQ_TERRAIN=0 to turn off the source port's enhanced terrain rendering.
+#if !defined(HQ_TERRAIN)
+	#define HQ_TERRAIN 1
+#endif
 
 #include "qd3d_support.h"
 
@@ -72,29 +76,29 @@ enum
 	SUPERTILE_MODE_USED
 };
 
-#if TWO_MEG_VERSION
-#define	SUPERTILE_TEXMAP_SIZE	64						// the width & height of a supertile's texture
-#elif SOURCE_PORT_ENHANCEMENTS
-#define SUPERTILE_TEXMAP_SIZE	160						// original size as stored in terrain files
-#else
-#define	SUPERTILE_TEXMAP_SIZE	128						// the width & height of a supertile's texture
-#endif
-
 #define	OREOMAP_TILE_SIZE		32 						// pixel w/h of texture tile
 #define TERRAIN_HMTILE_SIZE		32						// pixel w/h of heightmap tile
 #define	TERRAIN_POLYGON_SIZE	140						// size in world units of terrain polygon
 
+#if HQ_TERRAIN
+	#define	TEMP_TEXTURE_BUFF_SIZE	(OREOMAP_TILE_SIZE * (SUPERTILE_SIZE + 2))
+	#define SUPERTILE_OVERLAP		0.0
+#else
+	#define	TEMP_TEXTURE_BUFF_SIZE	(OREOMAP_TILE_SIZE * SUPERTILE_SIZE)
+	#define SUPERTILE_OVERLAP		1.0
+#endif
+
+#if HQ_TERRAIN
+	#define SUPERTILE_TEXMAP_SIZE	TEMP_TEXTURE_BUFF_SIZE	// best available texture size (as stored in terrain files)
+#elif TWO_MEG_VERSION
+	#define	SUPERTILE_TEXMAP_SIZE	64						// the width & height of a supertile's texture
+#else
+	#define	SUPERTILE_TEXMAP_SIZE	128						// the width & height of a supertile's texture
+#endif
+
 #define	TERRAIN_POLYGON_SIZE_Frac	((float)1.0/(float)TERRAIN_POLYGON_SIZE)
 
 #define	SUPERTILE_SIZE			5  						// size of a super-tile / terrain object zone
-
-#if SOURCE_PORT_ENHANCEMENTS
-#define SUPERTILE_OVERLAP		0.0
-#else
-#define SUPERTILE_OVERLAP		1.0
-#endif
-
-#define	TEMP_TEXTURE_BUFF_SIZE	(OREOMAP_TILE_SIZE * SUPERTILE_SIZE)
 
 #define	MAP2UNIT_VALUE			((float)TERRAIN_POLYGON_SIZE/OREOMAP_TILE_SIZE)	//value to xlate Oreo map pixel coords to 3-space unit coords
 
@@ -144,7 +148,10 @@ struct SuperTileMemoryType
 
 	Boolean				isFlat;
 
+#if !(HQ_TERRAIN)
 	uint16_t			*textureData;
+#endif
+
 	uint32_t 			glTextureName;
 };
 typedef struct SuperTileMemoryType SuperTileMemoryType;
@@ -219,6 +226,4 @@ extern 	void MakeBackupOfItemList(void);
 extern	UInt16	GetPathTileNumAtRowCol(long row, long col);
 extern	void RotateOnTerrain(ObjNode *theNode, float sideOff, float endOff);
 extern	void DoMyTerrainUpdate(void);
-
-#endif
 
