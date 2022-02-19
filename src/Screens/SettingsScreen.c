@@ -320,7 +320,7 @@ static void DrawControlsPage(void)
 	bool blinkFlux = SDL_GetTicks() % 500 < 300;
 	static float fluc = 0.0;
 
-	fluc += gFramesPerSecondFrac * 6;
+	fluc += gFramesPerSecondFrac * 8;
 	if (fluc > PI2) fluc = 0.0;
 
 	SetPort(gCoverWindow);
