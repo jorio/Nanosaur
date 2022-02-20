@@ -1,6 +1,6 @@
 name: Full Compile Check
 
-on: [workflow_dispatch]
+on: [push, workflow_dispatch]
 
 jobs:
   full-compile-check:
