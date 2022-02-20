@@ -7,7 +7,7 @@ set(GAME_MAC_COPYRIGHT		"© 1998 Pangea Software, Inc.\n© 2021 Iliyas Jorio.")
 set(GAME_MAC_BUNDLE_ID		"io.jor.nanosaur")
 
 set(CMAKE_MODULE_PATH		"${CMAKE_SOURCE_DIR}/cmake")
-set(CMAKE_C_STANDARD		11)
+set(CMAKE_C_STANDARD		17)
 set(CMAKE_CXX_STANDARD		20)
 
 set(CMAKE_OSX_DEPLOYMENT_TARGET "10.11" CACHE STRING "Minimum OS X deployment version")
