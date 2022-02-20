@@ -305,7 +305,7 @@ float		offXSign,offZSign,offYSign;
 Byte		base,target;
 ObjNode		*targetObj = nil;
 CollisionBoxType *baseBoxPtr = nil, *targetBoxPtr = nil;
-long		leftSide,rightSide,frontSide,backSide,bottomSide;
+long		leftSide,rightSide,frontSide,backSide;
 CollisionBoxType *boxList = nil;
 
 	theNode->PlatformNode = nil;							// assume not on any platforms
@@ -330,7 +330,7 @@ CollisionBoxType *boxList = nil;
 	rightSide = boxList->right;
 	frontSide = boxList->front;
 	backSide = boxList->back;
-	bottomSide = boxList->bottom;
+//	bottomSide = boxList->bottom;
 
 
 			/* SCAN THRU ALL RETURNED COLLISIONS */	

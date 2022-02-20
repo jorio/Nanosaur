@@ -260,6 +260,10 @@ long			realX,realZ;
 
 Boolean NilAdd(TerrainItemEntryType *itemPtr,long x, long z)
 {
+	(void) itemPtr;
+	(void) x;
+	(void) z;
+
 	return(false);
 }
 

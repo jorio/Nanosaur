@@ -146,6 +146,8 @@ ObjNode	*hitObj;
 
 Boolean EnemyGotHurt(ObjNode *theEnemy, ObjNode *theHurter, float damage)
 {
+	(void) theHurter;
+
 
 			/* LOSE HEALTH */
 			

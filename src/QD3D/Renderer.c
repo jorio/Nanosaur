@@ -764,7 +764,6 @@ static void Render_Draw2DFullscreenQuad(int fit)
 	float screenRight  = (float)gWindowWidth;
 	float screenTop    = 0.0f;
 	float screenBottom = (float)gWindowHeight;
-	bool needClear = false;
 
 	// Adjust screen coordinates if we want to pillarbox/letterbox the image.
 	if (fit & (kCoverQuadLetterbox | kCoverQuadPillarbox))
@@ -779,7 +778,6 @@ static void Render_Draw2DFullscreenQuad(int fit)
 		else if ((fit & kCoverQuadLetterbox) && sourceAspectRatio > targetAspectRatio)
 		{
 			// source is wider than window -- letterbox
-			needClear = true;
 			float letterboxedHeight = gWindowWidth / sourceAspectRatio;
 			screenTop = (gWindowHeight - letterboxedHeight) / 2;
 			screenBottom = screenTop + letterboxedHeight;
@@ -787,7 +785,6 @@ static void Render_Draw2DFullscreenQuad(int fit)
 		else if ((fit & kCoverQuadPillarbox) && sourceAspectRatio < targetAspectRatio)
 		{
 			// source is narrower than window -- pillarbox
-			needClear = true;
 			float pillarboxedWidth = sourceAspectRatio * gWindowWidth / targetAspectRatio;
 			screenLeft = (gWindowWidth / 2.0f) - (pillarboxedWidth / 2.0f);
 			screenRight = screenLeft + pillarboxedWidth;

@@ -18,7 +18,6 @@
 
 static short FindSilentChannel(void);
 static void SongCompletionProc(SndChannelPtr chan);
-static short EmergencyFreeChannel(void);
 
 
 /****************************/
@@ -249,7 +248,7 @@ short		c = *channelNum;
 		return;
 
 	myErr = SndChannelStatus(gSndChannel[c],sizeof(SCStatus),&theStatus);	// get channel info
-	if (theStatus.scChannelBusy)					// if channel busy, then stop it
+	if (myErr == noErr && theStatus.scChannelBusy)					// if channel busy, then stop it
 	{
 
 		mySndCmd.cmd = flushCmd;	
@@ -433,6 +432,8 @@ stream_again:
 
 static void SongCompletionProc(SndChannelPtr chan)
 {
+	(void) chan;
+
 	if (gSongPlayingFlag)
 		gResetSong = true;
 }
@@ -720,34 +721,6 @@ SCStatus	theStatus;
 	return(-1);										
 }
 
-
-/***************** EMERGENCY FREE CHANNEL **************************/
-//
-// This is used by the music streamer when all channels are used.
-// Since we must have a channel to play music, we arbitrarily kill some other channel.
-//
-
-static short EmergencyFreeChannel(void)
-{
-short	i;
-
-	for (i = 0; i < gMaxChannels; i++)
-	{
-		if ((i != gLavaSoundChannel) &&				// try not to free one of the streaming channels
-			(i != gSteamSoundChannel) &&
-			(i != gAmbientEffect))
-		{
-		    short   x = i;
-			StopAChannel(&x);
-			return(i);
-		}	
-	}
-	
-		/* TOO BAD, GOTTA NUKE ONE OF THE STREAMING CHANNELS IT SEEMS */
-			
-	StopAChannel(0);
-	return(0);
-}
 
 //=====================================================================================
 //=====================================================================================

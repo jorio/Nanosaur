@@ -406,6 +406,8 @@ TQ3Matrix4x4	matrix,matrix2;
 
 void QD3D_DrawParticles(QD3DSetupOutputType *setupInfo)
 {
+	(void) setupInfo;
+
 	if (gNumParticles == 0)												// quick check if any particles at all
 		return;
 

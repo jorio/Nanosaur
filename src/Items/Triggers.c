@@ -315,20 +315,21 @@ del:
 
 static Boolean DoTrig_PowerUp(ObjNode *theNode, ObjNode *whoNode, Byte sideBits)
 {
+	(void) sideBits;										// unused
+
 	theNode->TerrainItemPtr = nil;							// it aint never comin' back
 
 			/* HANDLE THE POW */
-			
+
 	switch(theNode->Kind)
 	{
 		case	POW_KIND_HEATSEEK:
 				GetWeaponPowerUp(ATTACK_MODE_HEATSEEK,theNode->PowerUpQuan);
 				break;
-		
+
 		case	POW_KIND_LASER:
 				GetWeaponPowerUp(ATTACK_MODE_BLASTER,theNode->PowerUpQuan);
 				break;
-
 
 		case	POW_KIND_TRIBLAST:
 				GetWeaponPowerUp(ATTACK_MODE_TRIBLAST,theNode->PowerUpQuan);
@@ -337,7 +338,7 @@ static Boolean DoTrig_PowerUp(ObjNode *theNode, ObjNode *whoNode, Byte sideBits)
 		case	POW_KIND_NUKE:
 				GetWeaponPowerUp(ATTACK_MODE_NUKE,theNode->PowerUpQuan);
 				break;
-				
+
 		case	POW_KIND_SONIC:
 				GetWeaponPowerUp(ATTACK_MODE_SONICSCREAM,theNode->PowerUpQuan);
 				break;
@@ -345,12 +346,12 @@ static Boolean DoTrig_PowerUp(ObjNode *theNode, ObjNode *whoNode, Byte sideBits)
 		case	POW_KIND_HEALTH:
 				GetHealth(.33);
 				break;
-				
+
 		case	POW_KIND_SHIELD:
 				StartMyShield(whoNode);
 				break;
-	}	
-	
+	}
+
 	PlayEffect(EFFECT_POWPICKUP);
 
 	return(false);
@@ -433,6 +434,9 @@ del:
 
 static Boolean DoTrig_Crystal(ObjNode *theNode, ObjNode *whoNode, Byte sideBits)
 {
+	(void) whoNode;
+	(void) sideBits;
+
 	PlayEffect(EFFECT_CRYSTAL);
 	theNode->TerrainItemPtr = nil;							// it aint never comin' back
 	return(true);
@@ -566,6 +570,9 @@ static void MoveStepStone(ObjNode *theNode)
 
 static Boolean DoTrig_StepStone(ObjNode *theNode, ObjNode *whoNode, Byte sideBits)
 {
+	(void) whoNode;
+	(void) sideBits;
+
 	if (theNode->StepStoneMode == STEPSTONE_MODE_IDLE)
 	{
 		theNode->StepStoneMode = STEPSTONE_MODE_FALL;

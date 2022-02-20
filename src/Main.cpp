@@ -62,6 +62,9 @@ static fs::path FindGameData()
 
 int CommonMain(int argc, const char** argv)
 {
+	(void) argc;
+	(void) argv;
+
 	// Start our "machine"
 	Pomme::Init();
 

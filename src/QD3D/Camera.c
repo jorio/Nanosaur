@@ -110,6 +110,8 @@ void ResetCameraSettings(void)
 void MoveCamera(ObjNode *theNode)
 {
 float	fps = gFramesPerSecondFrac;
+
+	(void) theNode;
 	
 			/* SEE IF TOGGLE MODES */
 			

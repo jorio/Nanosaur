@@ -389,6 +389,7 @@ void OnJoystickRemoved(SDL_JoystickID which)
 	TryOpenController(false);
 }
 
+/*
 static TQ3Vector2D GetThumbStickVector(bool rightStick)
 {
 	Sint16 dxRaw = SDL_GameControllerGetAxis(gSDLController, rightStick ? SDL_CONTROLLER_AXIS_RIGHTX : SDL_CONTROLLER_AXIS_LEFTX);
@@ -403,3 +404,5 @@ static TQ3Vector2D GetThumbStickVector(bool rightStick)
 	else
 		return (TQ3Vector2D) { dx, dy };
 }
+*/
+

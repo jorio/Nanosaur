@@ -1022,6 +1022,8 @@ static void KillPlayer(ObjNode *theNode)
 
 void StartMyShield(ObjNode *theNode)
 {
+	(void) theNode;
+
 	gShieldTimer = SHIELD_TIME;
 
 		/* MAKE SHIELD GEOMETRY */

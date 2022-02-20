@@ -814,27 +814,25 @@ SuperTileMemoryType	*superTilePtr;
 			if (gSuperTileMemoryList[superTileNum].splitAngle[row2][col2] == SPLIT_BACKWARD)	// set coords & uv's based on splitting
 			{
 					/* \ */
-				// SOURCE PORT NOTE: changed winding to 0-2-1 for both tris.
-				triMeshPtr->triangles[i].pointIndices[0] = gTileTriangles1_B[row2][col2][0];
-				triMeshPtr->triangles[i].pointIndices[1] = gTileTriangles1_B[row2][col2][2];
-				triMeshPtr->triangles[i].pointIndices[2] = gTileTriangles1_B[row2][col2][1];
+				triangleList[i].pointIndices[0] = gTileTriangles1_B[row2][col2][0];
+				triangleList[i].pointIndices[1] = gTileTriangles1_B[row2][col2][2];
+				triangleList[i].pointIndices[2] = gTileTriangles1_B[row2][col2][1];
 				i++;
-				triMeshPtr->triangles[i].pointIndices[0] = gTileTriangles2_B[row2][col2][0];
-				triMeshPtr->triangles[i].pointIndices[1] = gTileTriangles2_B[row2][col2][2];
-				triMeshPtr->triangles[i].pointIndices[2] = gTileTriangles2_B[row2][col2][1];
+				triangleList[i].pointIndices[0] = gTileTriangles2_B[row2][col2][0];
+				triangleList[i].pointIndices[1] = gTileTriangles2_B[row2][col2][2];
+				triangleList[i].pointIndices[2] = gTileTriangles2_B[row2][col2][1];
 				i++;
 			}
 			else
 			{
 					/* / */
-				// SOURCE PORT NOTE: changed winding to 0-2-1 for both tris.
-				triMeshPtr->triangles[i].pointIndices[0] = gTileTriangles1_A[row2][col2][0];
-				triMeshPtr->triangles[i].pointIndices[1] = gTileTriangles1_A[row2][col2][2];
-				triMeshPtr->triangles[i].pointIndices[2] = gTileTriangles1_A[row2][col2][1];
+				triangleList[i].pointIndices[0] = gTileTriangles1_A[row2][col2][0];
+				triangleList[i].pointIndices[1] = gTileTriangles1_A[row2][col2][2];
+				triangleList[i].pointIndices[2] = gTileTriangles1_A[row2][col2][1];
 				i++;
-				triMeshPtr->triangles[i].pointIndices[0] = gTileTriangles2_A[row2][col2][0];
-				triMeshPtr->triangles[i].pointIndices[1] = gTileTriangles2_A[row2][col2][2];
-				triMeshPtr->triangles[i].pointIndices[2] = gTileTriangles2_A[row2][col2][1];
+				triangleList[i].pointIndices[0] = gTileTriangles2_A[row2][col2][0];
+				triangleList[i].pointIndices[1] = gTileTriangles2_A[row2][col2][2];
+				triangleList[i].pointIndices[2] = gTileTriangles2_A[row2][col2][1];
 				i++;
 			}			
 		}

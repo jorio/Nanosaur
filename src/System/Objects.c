@@ -332,6 +332,8 @@ void DrawObjects(QD3DSetupOutputType *setupInfo)
 ObjNode		*theNode;
 unsigned long	statusBits;
 
+	(void) setupInfo;
+
 	if (gFirstNodePtr == nil)							// see if there are any objects
 		return;
 
