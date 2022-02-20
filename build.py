@@ -26,6 +26,10 @@ game_name           = "Nanosaur"  # no spaces
 game_name_human     = "Nanosaur"  # spaces and other special characters allowed
 game_ver            = "1.4.2"
 
+source_check        = "src/Enemies/Enemy_TriCer.c"  # some file that's likely to be from the game's source tree
+
+release_config      = "RelWithDebInfo"
+
 sdl_ver             = "2.0.20"
 appimagetool_ver    = "13"
 
@@ -255,7 +259,7 @@ def package_windows(proj):
     # Copy executable, libs and assets
     for dll in windows_dlls:
         shutil.copy(F"{cache_dir}/install/bin/{dll}", appdir)
-    shutil.copy(F"{proj.dir_name}/Release/{game_name}.exe", appdir)
+    shutil.copy(F"{proj.dir_name}/{release_config}/{game_name}.exe", appdir)
     shutil.copytree("Data", F"{appdir}/Data")
 
     copy_documentation(proj, appdir)
@@ -263,7 +267,7 @@ def package_windows(proj):
     zipdir(F"{dist_dir}/{get_artifact_name()}", appdir, F"{game_name}-{game_ver}")
 
 def package_macos(proj):
-    appdir = F"{proj.dir_name}/Release"
+    appdir = F"{proj.dir_name}/{release_config}"
 
     # Human-friendly name for .app
     os.rename(F"{appdir}/{game_name}.app", F"{appdir}/{game_name_human}.app")
@@ -326,7 +330,7 @@ if not (args.dependencies or args.configure or args.build or args.package):
     args.package = True
 
 # Make sure we're running from the correct directory...
-if not os.path.exists("src/Enemies/Enemy_TriCer.c"):  # some file that's likely to be from the game's source tree
+if not os.path.exists(source_check):  # some file that's likely to be from the game's source tree
     die(F"STOP - Please run this script from the root of the {game_name} source repo")
 
 #----------------------------------------------------------------
@@ -345,7 +349,7 @@ if SYSTEM == "Windows":
     projects = [Project(
         dir_name="build-msvc",
         gen_args=common_gen_args,
-        build_configs=["Release", "Debug"],
+        build_configs=[release_config, "Debug"],
         build_args=["-m"]  # multiprocessor compilation
     )]
 
@@ -353,7 +357,7 @@ elif SYSTEM == "Darwin":
     projects = [Project(
         dir_name="build-xcode",
         gen_args=common_gen_args,
-        build_configs=["Release"],
+        build_configs=[release_config],
         build_args=["-j", str(NPROC), "-quiet"]
     )]
 
@@ -363,8 +367,8 @@ elif SYSTEM == "Linux":
         gen_env["SDL2DIR"] = F"{libs_dir}/SDL2-{sdl_ver}/build"
 
     projects.append(Project(
-        dir_name="build-release",
-        gen_args=common_gen_args + ["-DCMAKE_BUILD_TYPE=Release"],
+        dir_name=F"build-{release_config.lower()}",
+        gen_args=common_gen_args + [F"-DCMAKE_BUILD_TYPE={release_config}"],
         gen_env=gen_env,
         build_args=["-j", str(NPROC)]
     ))

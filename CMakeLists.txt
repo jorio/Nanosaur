@@ -217,11 +217,15 @@ if(APPLE)
 	if(NOT "$ENV{CODE_SIGN_IDENTITY}" STREQUAL "")
 		set_target_properties(${GAME_TARGET} PROPERTIES
 			XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY[variant=Release] "$ENV{CODE_SIGN_IDENTITY}"
+			XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY[variant=RelWithDebInfo] "$ENV{CODE_SIGN_IDENTITY}"
 			XCODE_ATTRIBUTE_DEVELOPMENT_TEAM[variant=Release] "$ENV{CODE_SIGN_IDENTITY}"
+			XCODE_ATTRIBUTE_DEVELOPMENT_TEAM[variant=RelWithDebInfo] "$ENV{CODE_SIGN_IDENTITY}"
 
 			# The following is to pass notarization requirements
 			XCODE_ATTRIBUTE_CODE_SIGN_INJECT_BASE_ENTITLEMENTS[variant=Release] "NO"
+			XCODE_ATTRIBUTE_CODE_SIGN_INJECT_BASE_ENTITLEMENTS[variant=RelWithDebInfo] "NO"
 			XCODE_ATTRIBUTE_OTHER_CODE_SIGN_FLAGS[variant=Release] "--options=runtime --timestamp"
+			XCODE_ATTRIBUTE_OTHER_CODE_SIGN_FLAGS[variant=RelWithDebInfo] "--options=runtime --timestamp"
 		)
 		message("Release build will be code signed!")
 	endif()
