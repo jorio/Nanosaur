@@ -266,6 +266,9 @@ def package_windows(proj):
 
     zipdir(F"{dist_dir}/{get_artifact_name()}", appdir, F"{game_name}-{game_ver}")
 
+    # Copy PDB
+    shutil.copy(F"{proj.dir_name}/{release_config}/{game_name}.pdb", dist_dir)
+
 def package_macos(proj):
     appdir = F"{proj.dir_name}/{release_config}"
 
