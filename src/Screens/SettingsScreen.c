@@ -190,19 +190,21 @@ static void Callback_Done(void)
 
 static void DrawDebugInfo(void)
 {
-	RGBForeColor2(kMutedColor);
-	MoveTo(8, 480 - 12 - 16 * 3);
-	DrawStringC("Renderer: ");  DrawStringC((const char*)glGetString(GL_RENDERER));
-	MoveTo(8, 480 - 12 - 16 * 2);
-	DrawStringC("OpenGL: ");
-	DrawStringC((const char*)glGetString(GL_VERSION));
-	MoveTo(8, 480 - 12 - 16 * 1);
-	DrawStringC("GLSL: ");
-	DrawStringC((const char*)glGetString(GL_SHADING_LANGUAGE_VERSION));
+	char text[256];
 
-	MoveTo(8, 480 - 12 - 16 * 0);
-	RGBForeColor2(kFGColor);
-	DrawStringC("Game version: "); DrawStringC(PROJECT_VERSION);
+	RGBForeColor2(kMutedColor);
+
+	snprintf(text, sizeof(text), "Game version: %s", PROJECT_VERSION);
+	MoveTo(640 - 8 - TextWidthC(text), 480 - 12 - 14 * 2);
+	DrawStringC(text);
+
+	snprintf(text, sizeof(text), "OpenGL %s", glGetString(GL_VERSION));
+	MoveTo(640 - 8 - TextWidthC(text), 480 - 12 - 14 * 1);
+	DrawStringC(text);
+
+	snprintf(text, sizeof(text), "%s", glGetString(GL_RENDERER));
+	MoveTo(640 - 8 - TextWidthC(text), 480 - 12 - 14 * 0);
+	DrawStringC(text);
 }
 
 static void DrawRow(
@@ -270,7 +272,7 @@ static void DrawSettingsPage(void)
 		Rect r = gCoverWindow->portRect;
 		EraseRect(&r);
 
-//		DrawDebugInfo();
+		DrawDebugInfo();
 
 		const char* title = PRO_MODE ? "NANOSAUR EXTREME SETTINGS" : "NANOSAUR SETTINGS";
 		MoveTo(kColumnX[0], 50);
