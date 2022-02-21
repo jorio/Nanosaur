@@ -162,8 +162,12 @@ else()
 		/wd4244 # conversion from double to float
 		/wd4305 # truncation from double to float
 		/wd5105 # see https://developercommunity.visualstudio.com/t/1249671
-		/MP
+		/MP		# multiprocessor build
+		/Zi		# output info to PDB
 	)
+
+	# Let executable be debugged with PDB
+	target_link_options(${GAME_TARGET} PRIVATE /DEBUG)
 endif()
 
 #------------------------------------------------------------------------------
