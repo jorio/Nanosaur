@@ -30,9 +30,9 @@ static void MoveGPS(ObjNode *theNode);
 /*    CONSTANTS             */
 /****************************/
 
-#define	HEALTH_METER_X		190
+#define	HEALTH_METER_X		189
 #define	HEALTH_METER_Y		457
-#define	HEALTH_METER_WIDTH	210.0f
+#define	HEALTH_METER_WIDTH	213.0f
 #define	HEALTH_METER_HEIGHT	9
 #define	TIME_REM_X			38
 #define	TIME_REM_Y			58
