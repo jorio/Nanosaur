@@ -348,7 +348,11 @@ CollisionBoxType *boxList = nil;
 			targetBoxPtr = targetObj->CollisionBoxes;	
 			targetBoxPtr += target;
 		}
-		
+		else
+		{
+			targetBoxPtr = nil;
+		}
+
 				/*********************************************/
 				/* HANDLE ANY SPECIAL OBJECT COLLISION TYPES */
 				/*********************************************/
@@ -616,6 +620,7 @@ Boolean		checkAltTiles = cType & CTYPE_BGROUND2;		// see if check alt tiles also
 			{
 				gCollisionList[gNumCollisions].sides = SIDE_BITS_FRONT;
 				gCollisionList[gNumCollisions].type = COLLISION_TYPE_TILE;
+				gCollisionList[gNumCollisions].objectPtr = nil;
 				gNumCollisions++;
 				gTotalSides |= SIDE_BITS_FRONT;
 				goto check_x;
@@ -645,6 +650,7 @@ Boolean		checkAltTiles = cType & CTYPE_BGROUND2;		// see if check alt tiles also
 			{
 				gCollisionList[gNumCollisions].sides = SIDE_BITS_BACK;
 				gCollisionList[gNumCollisions].type = COLLISION_TYPE_TILE;
+				gCollisionList[gNumCollisions].objectPtr = nil;
 				gNumCollisions++;
 				gTotalSides |= SIDE_BITS_BACK;
 				goto check_x;
@@ -680,6 +686,7 @@ check_x:
 			{
 				gCollisionList[gNumCollisions].sides = SIDE_BITS_RIGHT;
 				gCollisionList[gNumCollisions].type = COLLISION_TYPE_TILE;
+				gCollisionList[gNumCollisions].objectPtr = nil;
 				gNumCollisions++;
 				gTotalSides |= SIDE_BITS_RIGHT;
 				return;
@@ -709,6 +716,7 @@ check_x:
 			{
 				gCollisionList[gNumCollisions].sides = SIDE_BITS_LEFT;
 				gCollisionList[gNumCollisions].type = COLLISION_TYPE_TILE;
+				gCollisionList[gNumCollisions].objectPtr = nil;
 				gNumCollisions++;
 				gTotalSides |= SIDE_BITS_LEFT;
 				return;
