@@ -144,6 +144,7 @@ if(NOT MSVC)
 		-Werror=return-type
 		-Wno-multichar
 		-Wno-unknown-pragmas
+		-Wstrict-aliasing=2
 	)
 else()
 	# By default, MSVC may add /EHsc to CMAKE_CXX_FLAGS, which we don't want (we use /EHs below)

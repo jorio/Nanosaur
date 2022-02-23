@@ -252,9 +252,10 @@ static void FillLookAtMatrix(
 	TQ3Vector3D up;
 	Q3Vector3D_Cross(&forward, &left, &up);
 
-	float tx = Q3Vector3D_Dot((TQ3Vector3D*)eye, &left);
-	float ty = Q3Vector3D_Dot((TQ3Vector3D*)eye, &up);
-	float tz = Q3Vector3D_Dot((TQ3Vector3D*)eye, &forward);
+	TQ3Vector3D eyeVec = {eye->x, eye->y, eye->z};
+	float tx = Q3Vector3D_Dot(&eyeVec, &left);
+	float ty = Q3Vector3D_Dot(&eyeVec, &up);
+	float tz = Q3Vector3D_Dot(&eyeVec, &forward);
 
 #define M(x,y) m->value[x][y]
 	M(0,0) = left.x;	M(1,0) = left.y;	M(2,0) = left.z;		M(3,0) = -tx;
@@ -316,8 +317,8 @@ void CalcCameraMatrixInfo(QD3DSetupOutputType *setupInfo)
 
 			/* GET CAMERA VIEW MATRIX INFO */
 
-	glGetFloatv(GL_MODELVIEW_MATRIX, (GLfloat *)&gCameraWorldToViewMatrix);				// get camera's world to view matrix
-	glGetFloatv(GL_PROJECTION_MATRIX, (GLfloat *)&gCameraViewToFrustumMatrix);			// get camera's view to frustrum matrix (to calc screen coords)
+	glGetFloatv(GL_MODELVIEW_MATRIX, (GLfloat *)&gCameraWorldToViewMatrix.value[0][0]);		// get camera's world to view matrix
+	glGetFloatv(GL_PROJECTION_MATRIX, (GLfloat *)&gCameraViewToFrustumMatrix.value[0][0]);	// get camera's view to frustrum matrix (to calc screen coords)
 	Q3Matrix4x4_Multiply(&gCameraWorldToViewMatrix, &gCameraViewToFrustumMatrix, &gCameraWorldToFrustumMatrix);		// calc world to frustum matrix
 
 

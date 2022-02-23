@@ -534,7 +534,6 @@ Ptr		data;
 
 void LoadTerrainTileset(FSSpec *fsSpec)
 {
-SInt32		*longPtr;
 long		fileSize;
 
 			/* LOAD THE FILE */
@@ -547,16 +546,14 @@ long		fileSize;
 			/* EXTRACT SOME DATA */
 			/*********************/
 
-	longPtr = (SInt32 *)gTileFilePtr;
-
 				/* GET # TEXTURES */
 
-	SInt32 numTerrainTextureTiles =  *longPtr++;												// get # texture tiles
-	ByteswapInts(sizeof(SInt32), 1, &numTerrainTextureTiles);
-	gNumTerrainTextureTiles = numTerrainTextureTiles;
+	gNumTerrainTextureTiles = Byteswap32Signed(gTileFilePtr);						// get # texture tiles
 	GAME_ASSERT(gNumTerrainTextureTiles <= MAX_TERRAIN_TILES);
 
-	gTileDataPtr = (UInt16 *)longPtr;															// point to tile data
+				/* GET TILE DATA */
+
+	gTileDataPtr = (UInt16 *)(gTileFilePtr + 4);									// point to tile data
 
 				/* CONVERT TEXTURES TO LITTLE-ENDIAN */
 
@@ -701,8 +698,13 @@ long		dummy1,dummy2;
 
 				/* BUILD ITEM LIST */
 
-	BuildTerrainItemList();
-	FindMyStartCoordItem();										// look thru items for my start coords
+	offset = *((SInt32 *)(gTerrainPtr+12));									// get offset to OBJECT_LIST
+	{
+		long numItems = Byteswap32Signed(gTerrainPtr + offset);
+		TerrainItemEntryType* itemList = (TerrainItemEntryType*) (gTerrainPtr + offset + 4);
+		BuildTerrainItemList(numItems, itemList);
+		FindMyStartCoordItem();												// look thru items for my start coords
+	}
 
 
 				/* INITIALIZE CURRENT SCROLL SETTINGS */

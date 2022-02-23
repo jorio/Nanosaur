@@ -68,10 +68,8 @@ Boolean (*gTerrainItemAddRoutines[])(TerrainItemEntryType *, long, long) =
 // Build sorted lists of terrain items
 //
 
-void BuildTerrainItemList(void)
+void BuildTerrainItemList(long numItems, TerrainItemEntryType* itemList)
 {
-long			offset;
-SInt32			*longPtr;
 long			col,itemCol,itemNum,nextCol,prevCol;
 TerrainItemEntryType *lastPtr;
 
@@ -84,16 +82,11 @@ TerrainItemEntryType *lastPtr;
 
 					/* GET BASIC INFO */
 
-	offset = *((SInt32 *)(gTerrainPtr+12));							// get offset to OBJECT_LIST
-	longPtr = (SInt32  *)(gTerrainPtr+offset);	  					// get pointer to OBJECT_LIST
-
-	SInt32 numTerrainItemsAsLong = *longPtr++;						// get # items in file
-	ByteswapInts(sizeof(SInt32), 1, &numTerrainItemsAsLong);
-	gNumTerrainItems = numTerrainItemsAsLong;
+	gNumTerrainItems = numItems;		// get # items in file
 	if (gNumTerrainItems == 0)
 		return;
 
-	gMasterItemList = (TerrainItemEntryType *)longPtr;				// point to items in file
+	gMasterItemList = itemList;			// point to items in file
 	ByteswapStructs(STRUCTFORMAT_TerrainItemEntryType, sizeof(TerrainItemEntryType), gNumTerrainItems, gMasterItemList);
 
 

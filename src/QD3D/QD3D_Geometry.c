@@ -99,12 +99,11 @@ float QD3D_CalcObjectRadius(int numMeshes, TQ3TriMeshData** meshList)
 
 	for (int i = 0; i < numMeshes; i++)
 	{
-		TQ3TriMeshData* mesh = meshList[i];
-		for (int v = 0; v < mesh->numPoints; v++)						// scan thru all verts
+		const TQ3Point3D* points = meshList[i]->points;
+		for (int v = 0; v < meshList[i]->numPoints; v++)	// scan thru all verts
 		{
-			TQ3Point3D tmPoint = mesh->points[v];						// get point
-
-			float dist = Q3Vector3D_Length((TQ3Vector3D*) &tmPoint);	// calc dist
+			TQ3Vector3D vector = {points[v].x, points[v].y, points[v].z};
+			float dist = Q3Vector3D_Length(&vector);		// calc dist
 			if (dist > maxRadius)
 				maxRadius = dist;
 		}

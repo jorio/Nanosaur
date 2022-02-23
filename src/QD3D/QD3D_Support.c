@@ -171,7 +171,7 @@ QD3DSetupOutputType	*outputPtr;
 		glFogi(GL_FOG_MODE,		GL_LINEAR);
 		glFogf(GL_FOG_START,	camHither + fogHither * (camYon - camHither));
 		glFogf(GL_FOG_END,		camHither + fogYon    * (camYon - camHither));
-		glFogfv(GL_FOG_COLOR,	(float *)&setupDefPtr->view.clearColor);
+		glFogfv(GL_FOG_COLOR,	&setupDefPtr->view.clearColor.r);
 		//glFogf(GL_FOG_DENSITY,	0.5f);
 	}
 	else

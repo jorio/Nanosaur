@@ -213,7 +213,7 @@ extern	float	GetTerrainHeightAtCoord_Planar(float x, float z);
 
 
 
-extern 	void BuildTerrainItemList(void);
+void BuildTerrainItemList(long numItems, TerrainItemEntryType* itemList);
 extern 	void ScanForPlayfieldItems(long top, long bottom, long left, long right);
 extern 	Boolean TrackTerrainItem(ObjNode *theNode);
 extern 	Boolean NilAdd(TerrainItemEntryType *itemPtr,long x, long z);

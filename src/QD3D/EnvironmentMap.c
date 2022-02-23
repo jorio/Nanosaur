@@ -64,8 +64,8 @@ void EnvironmentMapTriMesh(
 
 					/* CALC VECTOR TO VERTEX */
 
-		TQ3Vector3D eyeVector;
-		Q3Vector3D_Transform((const TQ3Vector3D*)&mesh->points[vertNum], transform, &eyeVector);
+		TQ3Vector3D eyeVector = {mesh->points[vertNum].x, mesh->points[vertNum].y, mesh->points[vertNum].z};
+		Q3Vector3D_Transform(&eyeVector, transform, &eyeVector);
 		eyeVector.x -= camCoord->x;
 		eyeVector.y -= camCoord->y;
 		eyeVector.z -= camCoord->z;
