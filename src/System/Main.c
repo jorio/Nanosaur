@@ -207,6 +207,7 @@ static void CleanupLevel(void)
 	FreeAllSkeletonFiles(-1);
 	DisposeTerrain();
 	DisposeSpriteGroup(0);
+	QD3D_DisposeParticles();
 	DeleteAll3DMFGroups();
 	Render_FreezeFrameFadeOut();
 	QD3D_DisposeWindowSetup(&gGameViewInfoPtr);

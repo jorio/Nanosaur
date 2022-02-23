@@ -161,9 +161,8 @@ void InitTerrainManager(void)
 	
 	
 			/* ALLOC TEMP TEXTURE BUFF */
-			
-	if (gTempTextureBuffer == nil)
-		gTempTextureBuffer = (UInt16 *)AllocPtr(TEMP_TEXTURE_BUFF_SIZE * TEMP_TEXTURE_BUFF_SIZE * sizeof(UInt16));
+
+	gTempTextureBuffer = (UInt16 *)AllocPtr(TEMP_TEXTURE_BUFF_SIZE * TEMP_TEXTURE_BUFF_SIZE * sizeof(UInt16));
 }
 
 
@@ -265,6 +264,12 @@ void DisposeTerrain(void)
 		gSuperTileMemoryList = nil;
 	}
 	gNumFreeSupertiles = 0;
+
+	if (gTempTextureBuffer != nil)
+	{
+		DisposePtr((Ptr) gTempTextureBuffer);
+		gTempTextureBuffer = nil;
+	}
 }
 
 

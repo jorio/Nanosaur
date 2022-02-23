@@ -318,7 +318,7 @@ OSErr ReadTGA(const FSSpec* spec, uint8_t** outPtr, TGAHeader* outHeader, bool f
 	if (outHeader != nil)
 		*outHeader = header;
 	*outPtr = pixelData;
-	
+
 	return noErr;
 }
 
@@ -348,6 +348,7 @@ PicHandle GetPictureFromTGA(const FSSpec* spec)
 	picPtr->__pomme_pixelsARGB32 = picPixels;
 
 	memcpy(picPixels, pixelData, payloadSize);
+	DisposePtr((Ptr) pixelData);
 
 	return picHandle;
 }

@@ -50,7 +50,6 @@ static short			gCurrentMusicChannel = -1;
 static short			gMusicFileRefNum = 0x0ded;
 
 static	ChannelInfoType	gChannelInfo[MAX_CHANNELS];
-static	short			gNumSndsInBank = 0;
 
 static short				gCurrentSong = -1;
 
@@ -113,8 +112,6 @@ OSErr		iErr;
 	gMaxChannels = 0;
 
 			/* INIT BANK INFO */
-
-	gNumSndsInBank = 0;
 
 	memset(gSndHandles, 0, sizeof(gSndHandles));
 	memset(gSndOffsets, 0, sizeof(gSndOffsets));
@@ -218,17 +215,17 @@ void LoadSoundBank(void)
 
 void DisposeSoundBank(void)
 {
-short	i; 
-
 	StopAllEffectChannels();									// make sure all sounds are stopped before nuking any banks
 
 			/* FREE ALL SAMPLES */
 			
-	for (i=0; i < gNumSndsInBank; i++)
-		DisposeHandle((Handle)gSndHandles[i]);
-
-
-	gNumSndsInBank = 0;
+	for (int i = 0; i < NUM_EFFECTS; i++)
+	{
+		if (gSndHandles[i] != nil)
+		{
+			DisposeHandle((Handle) gSndHandles[i]);
+		}
+	}
 }
 
 

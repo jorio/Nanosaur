@@ -28,10 +28,11 @@ typedef struct
 
 float QD3D_CalcObjectRadius(int numMeshes, TQ3TriMeshData** meshList);
 void QD3D_CalcObjectBoundingBox(int numMeshes, TQ3TriMeshData** meshList, TQ3BoundingBox* boundingBox);
-extern	void QD3D_ExplodeGeometry(ObjNode *theNode, float boomForce, Byte particleMode, long particleDensity, float particleDecaySpeed);
+void QD3D_ExplodeGeometry(ObjNode *theNode, float boomForce, Byte particleMode, long particleDensity, float particleDecaySpeed);
 void QD3D_ScrollUVs(int numMeshes, TQ3TriMeshData** meshList, float rawDeltaU, float rawDeltaV);
-extern	void QD3D_InitParticles(void);
-extern	void QD3D_MoveParticles(void);
-extern	void QD3D_DrawParticles(QD3DSetupOutputType *setupInfo);
+void QD3D_InitParticles(void);
+void QD3D_DisposeParticles(void);
+void QD3D_MoveParticles(void);
+void QD3D_DrawParticles(QD3DSetupOutputType *setupInfo);
 
 

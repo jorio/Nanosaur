@@ -133,6 +133,9 @@ OSErr	err;
 
 	DrawPicture(picHandle, &(**picHandle).picFrame);
 
+	DisposeHandle((Handle) picHandle);
+	picHandle = nil;
+
 
 			/* MAKE COMPASS */
 
