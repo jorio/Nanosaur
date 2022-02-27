@@ -81,6 +81,9 @@ OSErr		iErr;
 	gGamePrefs.shadows = true;
 	gGamePrefs.dust = true;
 	gGamePrefs.fullscreen = true;
+#if !(__APPLE__)
+	gGamePrefs.preferredDisplay = 0;
+#endif
 	gGamePrefs.vsync = true;
 	gGamePrefs.mainMenuHelp = true;
 	gGamePrefs.extreme = false;

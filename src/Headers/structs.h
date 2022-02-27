@@ -2,8 +2,7 @@
 // structs.h
 //
 
-#ifndef STRUCTS_H
-#define STRUCTS_H
+#pragma once
 
 
 #include <QD3D.h>
@@ -302,6 +301,11 @@ typedef struct
 	Boolean	shadows;
 	Boolean	dust;
 	Boolean fullscreen;
+#if !(__APPLE__)
+	Byte preferredDisplay;
+#else
+	Byte preferredDisplay_UNUSED;
+#endif
 	Boolean mainMenuHelp;
 	Boolean vsync;
 	Boolean extreme;
@@ -312,9 +316,4 @@ typedef struct
 }PrefsType;
 
 #define PREFS_MAGIC "Nanosaur Prefs v4"
-
-#endif
-
-
-
 

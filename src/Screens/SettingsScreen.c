@@ -1,5 +1,7 @@
 #include "game.h"
 
+#define MAX_CHOICES 16
+
 static const uint32_t kBGColor		= 0x000000;
 static const uint32_t kFGColor		= 0xa0a0a0;
 static const uint32_t kMutedColor	= 0x404040;
@@ -34,7 +36,7 @@ typedef struct SettingEntry
 	const char*		label;
 	void			(*callback)(void);
 	unsigned int	numChoices;
-	const char*		choices[8];
+	const char*		choices[MAX_CHOICES];
 } SettingEntry;
 
 
@@ -44,6 +46,8 @@ static void Callback_Music(void);
 static void Callback_VSync(void);
 static void Callback_DebugInfo(void);
 static void Callback_Done(void);
+
+static char gMonitorNameBuffers[MAX_CHOICES][64];
 
 static SettingEntry gSettingEntries[] =
 {
@@ -56,6 +60,9 @@ static SettingEntry gSettingEntries[] =
 	{nil							, nil					, nil,						0,  { NULL } },
 	{&gGamePrefs.fullscreen			, "Fullscreen"			, SetFullscreenMode,		2,	{ "NO", "YES" }, },
 	{&gGamePrefs.vsync				, "V-Sync"				, Callback_VSync,			2,	{ "NO", "YES" }, },
+#if !(__APPLE__)
+	{&gGamePrefs.preferredDisplay	, "Preferred Display"	, SetFullscreenMode,		1,	{ "Default" }, },
+#endif
 	{nil							, nil					, nil,						0,  { NULL } },
 	{&gGamePrefs.highQualityTextures, "Texture Filtering"	, nil,						2,	{ "NO", "YES" }, },
 	{&gGamePrefs.canDoFog			, "Fog"					, nil,						2,	{ "NO", "YES" }, },
@@ -298,9 +305,10 @@ static void DrawSettingsPage(void)
 		if (entry->valuePtr)
 		{
 			unsigned int settingByte = (unsigned int) *entry->valuePtr;
-			if (settingByte > entry->numChoices)
-				settingByte = 0;
-			columnText[1] = entry->choices[settingByte];
+			if (settingByte >= entry->numChoices)
+				columnText[1] = "???";
+			else
+				columnText[1] = entry->choices[settingByte];
 		}
 
 		DrawRow(
@@ -532,6 +540,39 @@ static void NavigateControlsPage_AwaitingPress(void)
 	}
 }
 
+static void InitDisplayPref(void)
+{
+#if !(__APPLE__)
+	// Init display pref
+	for (size_t i = 0; i < sizeof(gSettingEntries)/sizeof(gSettingEntries[0]); i++)
+	{
+		SettingEntry* entry = &gSettingEntries[i];
+		if (entry->valuePtr == &gGamePrefs.preferredDisplay)
+		{
+			entry->numChoices = SDL_GetNumVideoDisplays();
+
+			if (entry->numChoices > MAX_CHOICES)
+			{
+				entry->numChoices = MAX_CHOICES;
+			}
+
+			for (size_t j = 0; j < entry->numChoices; j++)
+			{
+				snprintf(gMonitorNameBuffers[j], 64, "Monitor #%d (%s)", (int) j+1, SDL_GetDisplayName(j));
+				entry->choices[j] = gMonitorNameBuffers[j];
+			}
+
+			for (size_t j = entry->numChoices; j < MAX_CHOICES; j++)
+			{
+				snprintf(gMonitorNameBuffers[j], 64, "Disconnected monitor #%d", (int) j+1);
+			}
+
+			break;
+		}
+	}
+#endif
+}
+
 void DoSettingsScreen(void)
 {
 	SDL_GLContext glContext = SDL_GL_CreateContext(gSDLWindow);
@@ -545,6 +586,8 @@ void DoSettingsScreen(void)
 
 	needFullRender = true;
 	gSettingsState = kSettingsState_FadeIn;
+
+	InitDisplayPref();
 
 	float gamma = 0;
 

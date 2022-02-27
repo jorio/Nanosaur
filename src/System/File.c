@@ -423,6 +423,7 @@ PrefsType	prefs;
 	if (count != sizeof(PrefsType))
 	{
 		// size of file doesn't match size of struct
+		printf("prefs appear to be corrupt\n");
 		FSClose(refNum);
 		return badFileFormat;
 	}
@@ -434,6 +435,7 @@ PrefsType	prefs;
 		|| count < (long)sizeof(PrefsType)
 		|| 0 != strncmp(PREFS_MAGIC, prefs.magic, sizeof(prefs.magic)))
 	{
+		printf("prefs appear to be corrupt\n");
 		return(iErr);
 	}
 	

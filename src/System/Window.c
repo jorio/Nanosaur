@@ -146,14 +146,52 @@ void Exit2D(void)
 #endif
 }
 
+/******************** MOVE WINDOW TO PREFERRED DISPLAY *******************/
+//
+// This works best in windowed mode.
+// Turn off fullscreen before calling this!
+//
+
+static void MoveToPreferredDisplay(void)
+{
+#if !(__APPLE__)
+	int currentDisplay = SDL_GetWindowDisplayIndex(gSDLWindow);
+
+	if (currentDisplay != gGamePrefs.preferredDisplay)
+	{
+		SDL_SetWindowPosition(
+				gSDLWindow,
+				SDL_WINDOWPOS_CENTERED_DISPLAY(gGamePrefs.preferredDisplay),
+				SDL_WINDOWPOS_CENTERED_DISPLAY(gGamePrefs.preferredDisplay));
+	}
+#endif
+}
 
 /*********************** SET FULLSCREEN MODE **********************/
 
 void SetFullscreenMode(void)
 {
-	SDL_SetWindowFullscreen(
-			gSDLWindow,
-			gGamePrefs.fullscreen? SDL_WINDOW_FULLSCREEN_DESKTOP: 0);
+	if (!gGamePrefs.fullscreen)
+	{
+		SDL_SetWindowFullscreen(gSDLWindow, 0);
+		MoveToPreferredDisplay();
+	}
+	else
+	{
+#if !(__APPLE__)
+		int currentDisplay = SDL_GetWindowDisplayIndex(gSDLWindow);
+
+		if (currentDisplay != gGamePrefs.preferredDisplay)
+		{
+			// We must switch back to windowed mode for the preferred monitor to take effect
+			SDL_SetWindowFullscreen(gSDLWindow, 0);
+			MoveToPreferredDisplay();
+		}
+#endif
+
+		// Enter fullscreen mode
+		SDL_SetWindowFullscreen(gSDLWindow, SDL_WINDOW_FULLSCREEN_DESKTOP);
+	}
 
 	// Ensure the clipping pane gets resized properly after switching in or out of fullscreen mode
 	int width, height;
@@ -162,3 +200,4 @@ void SetFullscreenMode(void)
 
 	SDL_ShowCursor(gGamePrefs.fullscreen? 0: 1);
 }
+
