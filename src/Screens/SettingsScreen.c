@@ -18,6 +18,8 @@ static const int kNumKeybindingRows = NUM_REMAPPABLE_NEEDS + 2;  // +2 extra row
 static const int kKeybindingRow_Reset = NUM_REMAPPABLE_NEEDS + 0;
 static const int kKeybindingRow_Done = NUM_REMAPPABLE_NEEDS + 1;
 
+static bool gShowAntialiasingWarning = false;
+
 
 enum
 {
@@ -44,6 +46,7 @@ static void Callback_EnterControls(void);
 static void Callback_Difficulty(void);
 static void Callback_Music(void);
 static void Callback_VSync(void);
+static void Callback_Antialiasing(void);
 static void Callback_DebugInfo(void);
 static void Callback_Done(void);
 
@@ -62,6 +65,7 @@ static SettingEntry gSettingEntries[] =
 	{&gGamePrefs.vsync				, "V-Sync"				, Callback_VSync,			2,	{ "NO", "YES" }, },
 #if !(__APPLE__)
 	{&gGamePrefs.preferredDisplay	, "Preferred Display"	, SetFullscreenMode,		1,	{ "Default" }, },
+	{&gGamePrefs.antialiasingLevel	, "Antialiasing"		, Callback_Antialiasing,	4,	{ "NO", "MSAA 2x", "MSAA 4x", "MSAA 8x" }, },
 #endif
 	{nil							, nil					, nil,						0,  { NULL } },
 	{&gGamePrefs.highQualityTextures, "Texture Filtering"	, nil,						2,	{ "NO", "YES" }, },
@@ -71,7 +75,6 @@ static SettingEntry gSettingEntries[] =
 	{nil							, nil					, nil,						0,  { NULL } },
 	{&gGamePrefs.mainMenuHelp		, "Show Help in Main Menu"		, nil,				2,	{ "NO", "YES" }, },
 	{&gGamePrefs.debugInfoInTitleBar, "Debug Info in Title Bar",	Callback_DebugInfo,	2,  { "NO", "YES" } },
-	{nil							, nil					, nil,						0,  { NULL } },
 	{nil							, nil					, nil,						0,  { NULL } },
 	{nil							, nil					, nil,						0,  { NULL } },
 	{nil							, nil					, nil,						0,  { NULL } },
@@ -164,6 +167,11 @@ static void Callback_Music(void)
 static void Callback_VSync(void)
 {
 	SDL_GL_SetSwapInterval(gGamePrefs.vsync ? 1 : 0);
+}
+
+static void Callback_Antialiasing(void)
+{
+	gShowAntialiasingWarning = true;
 }
 
 static void Callback_DebugInfo(void)
@@ -285,6 +293,13 @@ static void DrawSettingsPage(void)
 		MoveTo(kColumnX[0], 50);
 		RGBForeColor2(kTitleColor);
 		DrawStringC(title);
+
+		if (gShowAntialiasingWarning)
+		{
+			RGBForeColor2(0xFFFF9900);
+			MoveTo(8, 480 - 12 - 14 * 1); DrawStringC("The new antialiasing level will take");
+			MoveTo(8, 480 - 12 - 14 * 0); DrawStringC("effect when you restart the game.");
+		}
 	}
 
 	for (int i = 0; i < numSettingEntries; i++)

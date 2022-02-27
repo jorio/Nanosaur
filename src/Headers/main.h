@@ -9,6 +9,6 @@ enum
 
 //=================================================
 
-extern	void ToolBoxInit(void);
-
+void ToolBoxInit(void);
+void GameMain(void);
 

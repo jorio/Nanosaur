@@ -14,7 +14,7 @@
 
 extern "C"
 {
-	// bare minimum from Windows.c to satisfy externs in game code
+	// bare minimum from Window.c to satisfy externs in game code
 	SDL_Window* gSDLWindow = nullptr;
 	WindowPtr gCoverWindow = nullptr;
 	UInt32* gCoverWindowPixPtr = nullptr;
@@ -28,8 +28,7 @@ extern "C"
 	__declspec(dllexport) unsigned long NvOptimusEnablement = 1;
 #endif
 
-	void GameMain(void);
-	void Enter2D(void);
+	#include "game.h"
 }
 
 static fs::path FindGameData()
@@ -60,7 +59,7 @@ static fs::path FindGameData()
 	return dataPath;
 }
 
-int CommonMain(int argc, const char** argv)
+void Boot(int argc, const char** argv)
 {
 	(void) argc;
 	(void) argv;
@@ -68,33 +67,62 @@ int CommonMain(int argc, const char** argv)
 	// Start our "machine"
 	Pomme::Init();
 
+	// Load game prefs before starting
+	InitDefaultPrefs();
+	LoadPrefs(&gGamePrefs);
+
+retry:
 	// Initialize SDL video subsystem
 	if (0 != SDL_Init(SDL_INIT_VIDEO))
+	{
 		throw std::runtime_error("Couldn't initialize SDL video subsystem.");
+	}
 
-	// Uncomment the line below to dump resource fork contents to /tmp
-	// Pomme_StartDumpingResources("/tmp/NanoRezDump");
+	if (gGamePrefs.preferredDisplay >= SDL_GetNumVideoDisplays())
+	{
+		gGamePrefs.preferredDisplay = 0;
+	}
 
 	// Create window
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
-//	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-//	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
+	if (gGamePrefs.antialiasingLevel != 0)
+	{
+		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 1 << gGamePrefs.antialiasingLevel);
+	}
+
 	gSDLWindow = SDL_CreateWindow(
-			"Nanosaur",
-			SDL_WINDOWPOS_UNDEFINED,
-			SDL_WINDOWPOS_UNDEFINED,
+			"Nanosaur " PROJECT_VERSION,
+			SDL_WINDOWPOS_CENTERED_DISPLAY(gGamePrefs.preferredDisplay),
+			SDL_WINDOWPOS_CENTERED_DISPLAY(gGamePrefs.preferredDisplay),
 			640,
 			480,
 			SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_SHOWN);
+
 	if (!gSDLWindow)
-		throw std::runtime_error("Couldn't create SDL window.");
+	{
+		if (gGamePrefs.antialiasingLevel != 0)
+		{
+			printf("Couldn't create SDL window with the requested MSAA level. Retrying without MSAA...\n");
+
+			// retry without MSAA
+			gGamePrefs.antialiasingLevel = 0;
+			SDL_QuitSubSystem(SDL_INIT_VIDEO);
+			goto retry;
+		}
+		else
+		{
+			throw std::runtime_error("Couldn't create SDL window.");
+		}
+	}
 
 	// Set up globals that the game expects
 	gCoverWindow = Pomme::Graphics::GetScreenPort();
 	gCoverWindowPixPtr = (UInt32*) GetPixBaseAddr(GetGWorldPixMap(gCoverWindow));
 
+	// Init gDataSpec
 	fs::path dataPath = FindGameData();
 
 	// Init joystick subsystem
@@ -106,42 +134,56 @@ int CommonMain(int argc, const char** argv)
 			SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, "Nanosaur", "Couldn't load gamecontrollerdb.txt!", gSDLWindow);
 		}
 	}
+}
 
-	// Start the game
+static void Shutdown()
+{
+	Pomme::Shutdown();
+
+	SDL_Quit();
+}
+
+int main(int argc, char** argv)
+{
+	bool success = true;
+	std::string uncaught;
+
 	try
 	{
+		// Start the game
+		Boot(argc, const_cast<const char**>(argv));
+
+		// Run the game
 		GameMain();
 	}
 	catch (Pomme::QuitRequest&)
 	{
 		// no-op, the game may throw this exception to shut us down cleanly
 	}
-
-	// Clean up
-	Pomme::Shutdown();
-
-	return 0;
-}
-
-int main(int argc, char** argv)
-{
-	std::string uncaught;
-
-	try
-	{
-		return CommonMain(argc, const_cast<const char**>(argv));
-	}
+#if !(_DEBUG)  // Skip last-resort catch in debug builds so we get a stack trace
 	catch (std::exception& ex)
 	{
+		success = false;
 		uncaught = ex.what();
 	}
 	catch (...)
 	{
+		success = false;
 		uncaught = "unknown";
 	}
+#endif
 
-	std::cerr << "Uncaught exception: " << uncaught << "\n";
-	Enter2D();
-	SDL_ShowSimpleMessageBox(0, "Uncaught Exception", uncaught.c_str(), nullptr);
-	return 1;
+	if (success)
+	{
+		// Clean up
+		Shutdown();
+		return 0;
+	}
+	else
+	{
+		std::cerr << "Uncaught exception: " << uncaught << "\n";
+		Enter2D();
+		SDL_ShowSimpleMessageBox(0, "Uncaught Exception", uncaught.c_str(), nullptr);
+		return 1;
+	}
 }

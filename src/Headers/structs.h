@@ -301,11 +301,8 @@ typedef struct
 	Boolean	shadows;
 	Boolean	dust;
 	Boolean fullscreen;
-#if !(__APPLE__)
+	Byte antialiasingLevel;
 	Byte preferredDisplay;
-#else
-	Byte preferredDisplay_UNUSED;
-#endif
 	Boolean mainMenuHelp;
 	Boolean vsync;
 	Boolean extreme;

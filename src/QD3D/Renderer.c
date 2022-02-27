@@ -16,7 +16,7 @@
 extern TQ3Param2D				gEnvMapUVs[];
 extern RenderStats				gRenderStats;
 extern PrefsType				gGamePrefs;
-extern UInt32*const				gCoverWindowPixPtr;
+extern UInt32*					gCoverWindowPixPtr;
 extern int						gWindowWidth;
 extern int						gWindowHeight;
 extern SDL_Window*				gSDLWindow;

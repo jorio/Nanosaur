@@ -48,6 +48,28 @@ FSSpec		gDataSpec;
 //======================================================================================
 
 
+void InitDefaultPrefs(void)
+{
+	memset(&gGamePrefs, 0, sizeof(gGamePrefs));
+	snprintf(gGamePrefs.magic, sizeof(gGamePrefs.magic), "%s", PREFS_MAGIC);
+
+	gGamePrefs.highQualityTextures = true;			// set the defaults
+	gGamePrefs.canDoFog = true;
+	gGamePrefs.shadows = true;
+	gGamePrefs.dust = true;
+	gGamePrefs.fullscreen = true;
+	gGamePrefs.preferredDisplay = 0;
+	gGamePrefs.antialiasingLevel = 0;
+	gGamePrefs.vsync = true;
+	gGamePrefs.mainMenuHelp = true;
+	gGamePrefs.extreme = false;
+	gGamePrefs.music = true;
+	gGamePrefs.ambientSounds = true;
+
+	memcpy(gGamePrefs.keys, kDefaultKeyBindings, sizeof(gGamePrefs.keys));
+	_Static_assert(sizeof(kDefaultKeyBindings) == sizeof(gGamePrefs.keys), "size mismatch: default keybindings / prefs keybinings");
+}
+
 /*****************/
 /* TOOLBOX INIT  */
 /*****************/
@@ -73,26 +95,8 @@ OSErr		iErr;
 
 
 			/* INIT PREFERENCES */
-			
-	memset(&gGamePrefs, 0, sizeof(gGamePrefs));
-	snprintf(gGamePrefs.magic, sizeof(gGamePrefs.magic), "%s", PREFS_MAGIC);
-	gGamePrefs.highQualityTextures = true;			// set the defaults
-	gGamePrefs.canDoFog = true;
-	gGamePrefs.shadows = true;
-	gGamePrefs.dust = true;
-	gGamePrefs.fullscreen = true;
-#if !(__APPLE__)
-	gGamePrefs.preferredDisplay = 0;
-#endif
-	gGamePrefs.vsync = true;
-	gGamePrefs.mainMenuHelp = true;
-	gGamePrefs.extreme = false;
-	gGamePrefs.music = true;
-	gGamePrefs.ambientSounds = true;
 
-	memcpy(gGamePrefs.keys, kDefaultKeyBindings, sizeof(gGamePrefs.keys));
-	_Static_assert(sizeof(kDefaultKeyBindings) == sizeof(gGamePrefs.keys), "size mismatch: default keybindings / prefs keybinings");
-
+	InitDefaultPrefs();
 	LoadPrefs(&gGamePrefs);							// attempt to read from prefs file
 
 	SetFullscreenMode();
