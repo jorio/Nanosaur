@@ -1,4 +1,4 @@
-# How to build the game
+# How to build Nanosaur
 
 ## TL;DR: Automated build script
 
@@ -22,14 +22,14 @@ build.py is the script that is used by the CI setup to produce builds. If you wa
     ```
 1. Now you can open `build/Nanosaur.xcodeproj` in Xcode, or you can just go ahead and build the game:
     ```
-    cmake --build build --config Release
+    cmake --build build --config RelWithDebInfo
     ```
-1. The game gets built in `build/Release/Nanosaur.app`. Enjoy!
+1. The game gets built in `build/RelWithDebInfo/Nanosaur.app`. Enjoy!
 
 ## How to build the game on Windows
 
 1. Install the prerequisites:
-    - Visual Studio 2019 with the C++ toolchain
+    - Visual Studio 2022 with the C++ toolchain
     - [CMake](https://cmake.org/download/) 3.13+
 1. Clone the repo recursively:
     ```
@@ -59,8 +59,8 @@ build.py is the script that is used by the CI setup to produce builds. If you wa
     ```
 1. Build the game:
     ```
-    cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+    cmake -S . -B build -DCMAKE_BUILD_TYPE=RelWithDebInfo
     cmake --build build
     ```
-1. The game gets built in `build/Release/Nanosaur`. Enjoy!
+1. The game gets built in `build/Nanosaur`. Enjoy!
 

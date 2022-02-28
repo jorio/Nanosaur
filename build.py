@@ -24,7 +24,7 @@ dist_dir = os.path.abspath("dist")
 
 game_name           = "Nanosaur"  # no spaces
 game_name_human     = "Nanosaur"  # spaces and other special characters allowed
-game_ver            = "1.4.2"
+game_ver            = "1.4.3"
 
 source_check        = "src/Enemies/Enemy_TriCer.c"  # some file that's likely to be from the game's source tree
 

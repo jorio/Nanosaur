@@ -1,5 +1,11 @@
 # Nanosaur changelog
 
+- **v1.4.3 (Feb. 28, 2022)**
+	- Seamless terrain texturing.
+	- Stability fixes.
+	- macOS: Builds are now notarized.
+	- Windows/Linux: New video settings.
+
 - **v1.4.2 (Feb. 19, 2021)**
 	- Full rewrite of the 3D renderer. Fixes performance on Apple Silicon and other systems (Issue #8).
 	- Keyboard inputs can now be remapped (Issue #2).

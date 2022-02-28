@@ -1,18 +1,22 @@
-# Nanosaur source port
+# Nanosaur
 
-This is _Nanosaur_ for modern operating systems (macOS, Windows, Linux). This version, at https://github.com/jorio/nanosaur, is approved by Pangea Software.
+This is Pangea Software’s **Nanosaur** updated to run on modern systems. Originally released in 1998 as a Mac-only game, Nanosaur casts a cybernetic dinosaur from the future who’s sent back in time 20 minutes before a giant asteroid hits the Earth.
 
-- **Get builds for macOS and Windows here:** https://github.com/jorio/nanosaur/releases
-- Arch Linux users, get [`nanosaur` from the AUR](https://aur.archlinux.org/packages/nanosaur).
-- Other systems: please read [BUILD.md](BUILD.md) to build the game yourself. 
+**Download the game for macOS, Windows or Linux here:** https://github.com/jorio/Nanosaur/releases
 
 ![Screenshot](docs/screenshot.png)
+
+## Documentation
+
+- [BUILD](BUILD.md) — How to build Nanosaur on macOS, Windows or Linux.
+- [CHANGELOG](CHANGELOG.md) — Nanosaur version history.
+- [LICENSE](LICENSE.md) — Licensing information (see also below).
+- [Instructions](docs/Nanosaur%20Instructions.pdf) — Original instruction manual.
+- [Game Engine Information](docs/Nanosaur%20Game%20Engine%20Docs.md) — An overview of Nanosaur’s game engine, written by Brian Greenstone.
 
 ## About this port
 
 ### Context
-
-Nanosaur is a 1998 Macintosh game by Pangea Software. In it, you’re a cybernetic dinosaur from the future who’s sent back in time 20 minutes before a giant asteroid hits the Earth. And you get to shoot at T-Rexes with nukes.
 
 Nanosaur was bundled with the original iMac and ran on Mac OS 8. It’s also notable for being a prominent showcase of [QuickDraw 3D](https://en.wikipedia.org/wiki/QuickDraw_3D)’s capabilities, which was Apple’s high-level 3D graphics API during the 90s.
 
@@ -46,5 +50,5 @@ This version of Nanosaur is licensed under [CC NC-BY-SA 4.0](LICENSE.md).
 ### Other Pangea game ports
 
 If you like games by Pangea Software, you might also enjoy my ports of
-[Bugdom](https://github.com/jorio/Bugdom), [Otto Matic](https://github.com/jorio/OttoMatic), and [Mighty Mike (aka Power Pete)](https://github.com/jorio/MightyMike).
+[Bugdom](https://github.com/jorio/Bugdom), [Otto Matic](https://github.com/jorio/OttoMatic), and [Mighty Mike/Power Pete](https://github.com/jorio/MightyMike).
 

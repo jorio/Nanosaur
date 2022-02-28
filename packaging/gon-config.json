@@ -1,6 +1,6 @@
 {
     "notarize": [{
-        "path": "./dist/Nanosaur-1.4.2-mac.dmg",
+        "path": "./dist/Nanosaur-1.4.3-mac.dmg",
         "bundle_id": "io.jor.nanosaur",
         "staple": true
     }]

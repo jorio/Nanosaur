@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.13)
 
 set(GAME_TARGET				"Nanosaur")
-set(GAME_VERSION			"1.4.2")
+set(GAME_VERSION			"1.4.3")
 set(GAME_MAC_ICNS			"packaging/${GAME_TARGET}.icns")
-set(GAME_MAC_COPYRIGHT		"© 1998 Pangea Software, Inc.\n© 2021 Iliyas Jorio.")
+set(GAME_MAC_COPYRIGHT		"© 1998 Pangea Software, Inc.\n© 2022 Iliyas Jorio.")
 set(GAME_MAC_BUNDLE_ID		"io.jor.nanosaur")
 
 set(CMAKE_MODULE_PATH		"${CMAKE_SOURCE_DIR}/cmake")
