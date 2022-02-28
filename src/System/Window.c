@@ -141,7 +141,7 @@ void Exit2D(void)
 	{
 		SDL_PumpEvents();
 		SDL_ShowWindow(gSDLWindow);
-		SetFullscreenMode();
+		SetFullscreenMode(false);
 	}
 #endif
 }
@@ -169,23 +169,30 @@ static void MoveToPreferredDisplay(void)
 
 /*********************** SET FULLSCREEN MODE **********************/
 
-void SetFullscreenMode(void)
+void SetFullscreenMode(bool enforceDisplayPref)
 {
 	if (!gGamePrefs.fullscreen)
 	{
 		SDL_SetWindowFullscreen(gSDLWindow, 0);
-		MoveToPreferredDisplay();
+
+		if (enforceDisplayPref)
+		{
+			MoveToPreferredDisplay();
+		}
 	}
 	else
 	{
 #if !(__APPLE__)
-		int currentDisplay = SDL_GetWindowDisplayIndex(gSDLWindow);
-
-		if (currentDisplay != gGamePrefs.preferredDisplay)
+		if (enforceDisplayPref)
 		{
-			// We must switch back to windowed mode for the preferred monitor to take effect
-			SDL_SetWindowFullscreen(gSDLWindow, 0);
-			MoveToPreferredDisplay();
+			int currentDisplay = SDL_GetWindowDisplayIndex(gSDLWindow);
+
+			if (currentDisplay != gGamePrefs.preferredDisplay)
+			{
+				// We must switch back to windowed mode for the preferred monitor to take effect
+				SDL_SetWindowFullscreen(gSDLWindow, 0);
+				MoveToPreferredDisplay();
+			}
 		}
 #endif
 

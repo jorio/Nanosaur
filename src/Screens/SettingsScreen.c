@@ -45,6 +45,7 @@ typedef struct SettingEntry
 static void Callback_EnterControls(void);
 static void Callback_Difficulty(void);
 static void Callback_Music(void);
+static void Callback_Fullscreen(void);
 static void Callback_VSync(void);
 static void Callback_Antialiasing(void);
 static void Callback_DebugInfo(void);
@@ -61,10 +62,10 @@ static SettingEntry gSettingEntries[] =
 	{&gGamePrefs.music				, "Music"				, Callback_Music,			2,	{ "NO", "YES" }, },
 	{&gGamePrefs.ambientSounds		, "Ambient Sounds"		, nil,						2,	{ "NO", "YES" }, },
 	{nil							, nil					, nil,						0,  { NULL } },
-	{&gGamePrefs.fullscreen			, "Fullscreen"			, SetFullscreenMode,		2,	{ "NO", "YES" }, },
+	{&gGamePrefs.fullscreen			, "Fullscreen"			, Callback_Fullscreen,		2,	{ "NO", "YES" }, },
 	{&gGamePrefs.vsync				, "V-Sync"				, Callback_VSync,			2,	{ "NO", "YES" }, },
 #if !(__APPLE__)
-	{&gGamePrefs.preferredDisplay	, "Preferred Display"	, SetFullscreenMode,		1,	{ "Default" }, },
+	{&gGamePrefs.preferredDisplay	, "Preferred Display"	, Callback_Fullscreen,		1,	{ "Default" }, },
 	{&gGamePrefs.antialiasingLevel	, "Antialiasing"		, Callback_Antialiasing,	4,	{ "NO", "MSAA 2x", "MSAA 4x", "MSAA 8x" }, },
 #endif
 	{nil							, nil					, nil,						0,  { NULL } },
@@ -162,6 +163,11 @@ static void Callback_Music(void)
 		KillSong();
 	else
 		PlaySong(1, true);
+}
+
+static void Callback_Fullscreen(void)
+{
+	SetFullscreenMode(true);
 }
 
 static void Callback_VSync(void)

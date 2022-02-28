@@ -99,7 +99,7 @@ OSErr		iErr;
 	InitDefaultPrefs();
 	LoadPrefs(&gGamePrefs);							// attempt to read from prefs file
 
-	SetFullscreenMode();
+	SetFullscreenMode(true);
 	SetProModeSettings(gGamePrefs.extreme);
 
 

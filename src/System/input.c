@@ -268,7 +268,7 @@ void UpdateInput(void)
 	if (GetNewNeedState(kNeed_ToggleFullscreen))
 	{
 		gGamePrefs.fullscreen = gGamePrefs.fullscreen ? 0 : 1;
-		SetFullscreenMode();
+		SetFullscreenMode(false);
 	}
 }
 
