@@ -10,7 +10,7 @@ build.py is the script that is used by the CI setup to produce builds. If you wa
 
 1. Install the prerequisites:
     - Xcode 10+
-    - [CMake](https://formulae.brew.sh/formula/cmake) 3.13+
+    - [CMake](https://formulae.brew.sh/formula/cmake) 3.21+
 1. Clone the repo recursively:
     ```
     git clone --recurse-submodules https://github.com/jorio/Nanosaur
@@ -30,7 +30,7 @@ build.py is the script that is used by the CI setup to produce builds. If you wa
 
 1. Install the prerequisites:
     - Visual Studio 2022 with the C++ toolchain
-    - [CMake](https://cmake.org/download/) 3.13+
+    - [CMake](https://cmake.org/download/) 3.21+
 1. Clone the repo recursively:
     ```
     git clone --recurse-submodules https://github.com/jorio/Nanosaur
@@ -50,7 +50,7 @@ build.py is the script that is used by the CI setup to produce builds. If you wa
 
 1. Install the prerequisites from your package manager:
     - Any C++20 compiler
-    - CMake 3.13+
+    - CMake 3.21+
     - SDL2 development library (e.g. "libsdl2-dev" on Debian/Ubuntu, "sdl2" on Arch)
     - OpenGL development libraries (e.g. "libgl1-mesa-dev" on Ubuntu)
 1. Clone the repo recursively:
