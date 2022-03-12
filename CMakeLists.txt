@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.13)
+cmake_minimum_required(VERSION 3.16)
 
 set(GAME_TARGET				"Nanosaur")
 set(GAME_VERSION			"1.4.3")
@@ -7,8 +7,14 @@ set(GAME_MAC_COPYRIGHT		"© 1998 Pangea Software, Inc.\n© 2022 Iliyas Jorio.")
 set(GAME_MAC_BUNDLE_ID		"io.jor.nanosaur")
 
 set(CMAKE_MODULE_PATH		"${CMAKE_SOURCE_DIR}/cmake")
-set(CMAKE_C_STANDARD		17)
+
 set(CMAKE_CXX_STANDARD		20)
+
+if (${CMAKE_VERSION} VERSION_LESS "3.21")
+	set(CMAKE_C_STANDARD	11)
+else()
+	set(CMAKE_C_STANDARD	17)
+endif()
 
 set(CMAKE_OSX_DEPLOYMENT_TARGET "10.11" CACHE STRING "Minimum OS X deployment version")
 set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64" CACHE STRING "Target macOS architectures")
@@ -60,10 +66,7 @@ set(GAME_ALL_SOURCES
 	${GAME_HEADERS}
 )
 
-#------------------------------------------------------------------------------
-# SOURCE GROUPS
-#------------------------------------------------------------------------------
-
+# Make source groups match file tree
 source_group(TREE ${GAME_SRCDIR} PREFIX "" FILES ${GAME_ALL_SOURCES})
 
 #------------------------------------------------------------------------------
@@ -109,7 +112,7 @@ target_include_directories(${GAME_TARGET} PRIVATE
 target_link_libraries(${GAME_TARGET} ${GAME_LIBRARIES})
 
 #------------------------------------------------------------------------------
-# DEFINES
+# COMPILER/LINKER OPTIONS
 #------------------------------------------------------------------------------
 
 add_compile_definitions(
@@ -119,21 +122,6 @@ add_compile_definitions(
 target_compile_definitions(${GAME_TARGET} PRIVATE
 	HQ_TERRAIN=1
 	GL_SILENCE_DEPRECATION)
-
-if(WIN32)
-	# On Win32, we need NOGDI and NOUSER to be able to define some Mac functions
-	# whose names are otherwise taken by Windows APIs.
-	target_compile_definitions(${GAME_TARGET} PRIVATE
-		WIN32_LEAN_AND_MEAN
-		NOGDI
-		NOUSER
-		_CRT_SECURE_NO_WARNINGS  # quit whining about snprintf_s
-	)
-endif()
-
-#------------------------------------------------------------------------------
-# COMPILER OPTIONS
-#------------------------------------------------------------------------------
 
 if(NOT MSVC)
 	target_compile_options(${GAME_TARGET} PRIVATE
@@ -147,13 +135,12 @@ if(NOT MSVC)
 		-Wstrict-aliasing=2
 	)
 else()
-	# By default, MSVC may add /EHsc to CMAKE_CXX_FLAGS, which we don't want (we use /EHs below)
-	string(REPLACE "/EHsc" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
-
-	# By default, MSVC may add /W3 to CMAKE_CXX_FLAGS, which we don't want (we use /W4 below)
-	# Note that this is not required with "cmake_minimum_required(VERSION 3.15)" or later
-	string(REPLACE "/W3" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
-	string(REPLACE "/W3" "" CMAKE_C_FLAGS ${CMAKE_C_FLAGS})
+	target_compile_definitions(${GAME_TARGET} PRIVATE
+		WIN32_LEAN_AND_MEAN
+		NOGDI						# avoid name clashes with Mac functions
+		NOUSER						# avoid name clashes with Mac functions
+		_CRT_SECURE_NO_WARNINGS		# quit whining about snprintf_s
+	)
 
 	target_compile_options(${GAME_TARGET} PRIVATE
 		/EHs	# synchronous exceptions; also, extern "C" functions may throw exceptions
@@ -167,8 +154,12 @@ else()
 		/Zi		# output info to PDB
 	)
 
-	# Let executable be debugged with PDB
+	# Let executable be debugged with PDB, even in Release builds
 	target_link_options(${GAME_TARGET} PRIVATE /DEBUG)
+
+	# Enable console for debug builds
+	set_target_properties(${GAME_TARGET} PROPERTIES LINK_FLAGS_DEBUG "/SUBSYSTEM:CONSOLE")
+	set_target_properties(${GAME_TARGET} PROPERTIES COMPILE_DEFINITIONS_DEBUG "_CONSOLE")
 endif()
 
 #------------------------------------------------------------------------------
