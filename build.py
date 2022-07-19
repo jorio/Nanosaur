@@ -32,14 +32,16 @@ sdl_ver             = "2.0.20"
 appimagetool_ver    = "13"
 
 lib_hashes = {  # sha-256
-    "SDL2-2.0.20.tar.gz":           "c56aba1d7b5b0e7e999e4a7698c70b63a3394ff9704b5f6e1c57e0c16f04dd06",
-    "SDL2-2.0.20.dmg":              "e46a3694f5008c4c5ffd33e1dfdffbee64179ad15088781f2f70806dd0102d4d",
-    "SDL2-devel-2.0.20-VC.zip":     "5b1512ca6c9d2427bd2147da01e5e954241f8231df12f54a7074dccde416df18",
-    "appimagetool-x86_64.AppImage": "df3baf5ca5facbecfc2f3fa6713c29ab9cefa8fd8c1eac5d283b79cab33e4acb", # appimagetool v13
+    "SDL2-2.0.20.tar.gz":            "c56aba1d7b5b0e7e999e4a7698c70b63a3394ff9704b5f6e1c57e0c16f04dd06",
+    "SDL2-2.0.20.dmg":               "e46a3694f5008c4c5ffd33e1dfdffbee64179ad15088781f2f70806dd0102d4d",
+    "SDL2-devel-2.0.20-VC.zip":      "5b1512ca6c9d2427bd2147da01e5e954241f8231df12f54a7074dccde416df18",
+    "appimagetool-x86_64.AppImage":  "df3baf5ca5facbecfc2f3fa6713c29ab9cefa8fd8c1eac5d283b79cab33e4acb", # appimagetool v13
+    "appimagetool-aarch64.AppImage": "334e77beb67fc1e71856c29d5f3f324ca77b0fde7a840fdd14bd3b88c25c341f",
 }
 
 NPROC = multiprocessing.cpu_count()
 SYSTEM = platform.system()
+MACHINE = platform.machine()
 
 if SYSTEM == "Windows":
     os.system("")  # hack to get ANSI color escapes to work
@@ -228,7 +230,7 @@ def get_artifact_name():
     elif SYSTEM == "Darwin":
         return F"{game_name}-{game_ver}-mac.dmg"
     elif SYSTEM == "Linux":
-        return F"{game_name}-{game_ver}-linux-x86_64.AppImage"
+        return F"{game_name}-{game_ver}-linux-{MACHINE}.AppImage"
     else:
         die("Unknown system for print_artifact_name")
 
@@ -284,7 +286,7 @@ def package_macos(proj: Project):
         F"{dist_dir}/{get_artifact_name()}"])
 
 def package_linux(proj):
-    appimagetool_path = get_package(F"https://github.com/AppImage/AppImageKit/releases/download/{appimagetool_ver}/appimagetool-x86_64.AppImage")
+    appimagetool_path = get_package(F"https://github.com/AppImage/AppImageKit/releases/download/{appimagetool_ver}/appimagetool-{MACHINE}.AppImage")
     os.chmod(appimagetool_path, 0o755)
 
     appdir = F"{cache_dir}/{game_name}-{game_ver}.AppDir"
