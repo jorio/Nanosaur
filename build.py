@@ -186,7 +186,7 @@ def zipdir(zipname, topleveldir, arc_topleveldir):
 def prepare_dependencies_windows():
     rmtree_if_exists(F"{libs_dir}/SDL2-{sdl_ver}")
 
-    sdl_zip_path = get_package(F"http://libsdl.org/release/SDL2-devel-{sdl_ver}-VC.zip")
+    sdl_zip_path = get_package(F"https://libsdl.org/release/SDL2-devel-{sdl_ver}-VC.zip")
     shutil.unpack_archive(sdl_zip_path, libs_dir)
 
 def prepare_dependencies_macos():
@@ -195,7 +195,7 @@ def prepare_dependencies_macos():
 
     rmtree_if_exists(sdl2_framework_target_path)
 
-    sdl_dmg_path = get_package(F"http://libsdl.org/release/SDL2-{sdl_ver}.dmg")
+    sdl_dmg_path = get_package(F"https://libsdl.org/release/SDL2-{sdl_ver}.dmg")
 
     # Mount the DMG and copy SDL2.framework to extern/
     with tempfile.TemporaryDirectory() as mount_point:
@@ -214,7 +214,7 @@ def prepare_dependencies_linux():
         sdl_build_dir = F"{sdl_source_dir}/build"
         rmtree_if_exists(sdl_source_dir)
 
-        sdl_zip_path = get_package(F"http://libsdl.org/release/SDL2-{sdl_ver}.tar.gz")
+        sdl_zip_path = get_package(F"https://libsdl.org/release/SDL2-{sdl_ver}.tar.gz")
         shutil.unpack_archive(sdl_zip_path, libs_dir)
 
         with chdir(sdl_source_dir):
