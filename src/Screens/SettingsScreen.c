@@ -64,8 +64,8 @@ static SettingEntry gSettingEntries[] =
 	{nil							, nil					, nil,						0,  { NULL } },
 	{&gGamePrefs.fullscreen			, "Fullscreen"			, Callback_Fullscreen,		2,	{ "NO", "YES" }, },
 	{&gGamePrefs.vsync				, "V-Sync"				, Callback_VSync,			2,	{ "NO", "YES" }, },
-#if !(__APPLE__)
 	{&gGamePrefs.preferredDisplay	, "Preferred Display"	, Callback_Fullscreen,		1,	{ "Default" }, },
+#if !(__APPLE__)
 	{&gGamePrefs.antialiasingLevel	, "Antialiasing"		, Callback_Antialiasing,	4,	{ "NO", "MSAA 2x", "MSAA 4x", "MSAA 8x" }, },
 #endif
 	{nil							, nil					, nil,						0,  { NULL } },
@@ -564,7 +564,6 @@ static void NavigateControlsPage_AwaitingPress(void)
 
 static void InitDisplayPref(void)
 {
-#if !(__APPLE__)
 	// Init display pref
 	for (size_t i = 0; i < sizeof(gSettingEntries)/sizeof(gSettingEntries[0]); i++)
 	{
@@ -580,7 +579,7 @@ static void InitDisplayPref(void)
 
 			for (size_t j = 0; j < entry->numChoices; j++)
 			{
-				snprintf(gMonitorNameBuffers[j], 64, "Monitor #%d (%s)", (int) j+1, SDL_GetDisplayName(j));
+				snprintf(gMonitorNameBuffers[j], 64, "Monitor #%d", (int) j+1);
 				entry->choices[j] = gMonitorNameBuffers[j];
 			}
 
@@ -592,7 +591,6 @@ static void InitDisplayPref(void)
 			break;
 		}
 	}
-#endif
 }
 
 void DoSettingsScreen(void)
