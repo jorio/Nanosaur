@@ -2,10 +2,7 @@
 // qd3d_support.h
 //
 
-#ifndef QD3D_SUP
-#define QD3D_SUP
-
-
+#pragma once
 
 #include <QD3D.h>
 
@@ -86,7 +83,8 @@ typedef struct
 
 //===========================================================
 
-extern	void QD3D_Boot(void);
+void QD3D_Boot(void);
+void QD3D_Shutdown(void);
 extern	void QD3D_SetupWindow(QD3DSetupInputType *setupDefPtr, QD3DSetupOutputType **outputHandle);
 extern	void QD3D_DisposeWindowSetup(QD3DSetupOutputType **dataHandle);
 extern	void QD3D_UpdateCameraFromTo(QD3DSetupOutputType *setupInfo, TQ3Point3D *from, TQ3Point3D *to);
@@ -98,15 +96,7 @@ extern	void QD3D_NewViewDef(QD3DSetupInputType *viewDef);
 
 void MakeShadowTexture(void);
 
-extern	void QD3D_OnWindowResized(int windowWidth, int windowHeight);
-
+void QD3D_OnWindowResized(void);
 
 float QD3D_GetCurrentViewportAspectRatio(const QD3DSetupOutputType *setupInfo);
-
-
-
-#endif
-
-
-
 

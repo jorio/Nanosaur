@@ -156,7 +156,7 @@ void UpdateInput(void)
 						return;
 
 					case SDL_WINDOWEVENT_RESIZED:
-						QD3D_OnWindowResized(event.window.data1, event.window.data2);
+						QD3D_OnWindowResized();
 						break;
 
 /*

@@ -111,9 +111,8 @@ static	Boolean beenHere = false;
 		DisposeSoundBank();
 
 //		ShowBugdomAd();
-		
-//		if (gQD3DInitialized)
-//			Q3Exit();
+
+		QD3D_Shutdown();
 	}
 
 	// Source port addition: save prefs before quitting if any setting was

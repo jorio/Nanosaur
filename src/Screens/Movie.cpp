@@ -32,11 +32,6 @@ void PlayAMovie(FSSpec* spec)
 
 	CinepakContext cinepak(movie.width, movie.height);
 
-	SDL_GLContext glContext = SDL_GL_CreateContext(gSDLWindow);
-	GAME_ASSERT(glContext);
-
-	SDL_GL_SetSwapInterval(gGamePrefs.vsync ? 1 : 0);
-
 	Render_InitState();
 	Render_Alloc2DCover(movie.width, movie.height);
 	glClearColor(0,0,0,1);
@@ -105,5 +100,4 @@ void PlayAMovie(FSSpec* spec)
 	Render_FreezeFrameFadeOut();
 
 	Render_Dispose2DCover();
-	SDL_GL_DeleteContext(glContext);
 }

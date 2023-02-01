@@ -339,11 +339,6 @@ static void Slideshow(const struct SlideshowEntry* slides)
 {
 	FSSpec spec;
 
-	SDL_GLContext glContext = SDL_GL_CreateContext(gSDLWindow);
-	GAME_ASSERT(glContext);
-	
-	SDL_GL_SetSwapInterval(gGamePrefs.vsync ? 1 : 0);
-	
 	Render_InitState();
 	Render_Alloc2DCover(GAME_VIEW_WIDTH, GAME_VIEW_HEIGHT);
 
@@ -421,7 +416,6 @@ static void Slideshow(const struct SlideshowEntry* slides)
 	Render_FreezeFrameFadeOut();
 
 	Render_Dispose2DCover();
-	SDL_GL_DeleteContext(glContext);
 }
 
 

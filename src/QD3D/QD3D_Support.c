@@ -1,7 +1,8 @@
 /****************************/
 /*   	QD3D SUPPORT.C	    */
-/* (c)1997 Pangea Software  */
 /* By Brian Greenstone      */
+/* (c)1997 Pangea Software  */
+/* (c)2023 Iliyas Jorio     */
 /****************************/
 
 
@@ -29,7 +30,7 @@ static TQ3Area GetAdjustedPane(Rect paneClip);
 /*    VARIABLES      */
 /*********************/
 
-SDL_GLContext					gGLContext;
+SDL_GLContext					gGLContext = NULL;
 RenderStats						gRenderStats;
 
 GLuint 							gShadowGLTextureName = 0;
@@ -53,8 +54,24 @@ static char				gDebugTextBuffer[1024];
 void QD3D_Boot(void)
 {
 				/* LET 'ER RIP! */
+
+	GAME_ASSERT_MESSAGE(gSDLWindow, "Gotta have a window to create a context");
+
+	gGLContext = SDL_GL_CreateContext(gSDLWindow);									// also makes it current
+	GAME_ASSERT_MESSAGE(gGLContext, "Couldn't create an OpenGL context!");
 }
 
+
+/******************** QD3D: SHUTDOWN ***************************/
+
+void QD3D_Shutdown(void)
+{
+	if (gGLContext)
+	{
+		SDL_GL_DeleteContext(gGLContext);
+		gGLContext = NULL;
+	}
+}
 
 
 //=======================================================================================================
@@ -130,7 +147,6 @@ QD3DSetupOutputType	*outputPtr;
 
 			/* CREATE & SET DRAW CONTEXT */
 
-	gGLContext = SDL_GL_CreateContext(gSDLWindow);									// also makes it current
 	GAME_ASSERT(gGLContext);
 
 				/* PASS BACK INFO */
@@ -156,7 +172,7 @@ QD3DSetupOutputType	*outputPtr;
 
 			/* SET UP OPENGL RENDERER PROPERTIES NOW THAT WE HAVE A CONTEXT */
 
-	SDL_GL_SetSwapInterval(gGamePrefs.vsync ? 1 : 0);
+	Render_InitState();									// set up default GL state
 
 	CreateLights(&setupDefPtr->lights);
 
@@ -177,19 +193,6 @@ QD3DSetupOutputType	*outputPtr;
 	else
 		glDisable(GL_FOG);
 
-	glAlphaFunc(GL_GREATER, 0.4999f);
-
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-	// Normalize normal vectors. Required so lighting looks correct on scaled meshes.
-	glEnable(GL_NORMALIZE);
-
-	glCullFace(GL_BACK);
-	glFrontFace(GL_CCW);									// CCW is front face
-
-	glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
-
-	Render_InitState();
 	Render_Alloc2DCover(GAME_VIEW_WIDTH, GAME_VIEW_HEIGHT);
 
 	glClearColor(setupDefPtr->view.clearColor.r, setupDefPtr->view.clearColor.g, setupDefPtr->view.clearColor.b, 1.0f);
@@ -220,9 +223,6 @@ QD3DSetupOutputType	*data;
 		glDeleteTextures(1, &gShadowGLTextureName);
 		gShadowGLTextureName = 0;
 	}
-
-	SDL_GL_DeleteContext(gGLContext);						// dispose GL context
-	gGLContext = nil;
 
 	data->isActive = false;									// now inactive
 	
@@ -306,7 +306,7 @@ void QD3D_DrawScene(QD3DSetupOutputType *setupInfo, void (*drawRoutine)(QD3DSetu
 {
 	GAME_ASSERT(setupInfo);
 	GAME_ASSERT(setupInfo->isActive);							// make sure it's legit
-
+	GAME_ASSERT(gGLContext);
 
 			/* START RENDERING */
 
@@ -564,10 +564,12 @@ static TQ3Area GetAdjustedPane(Rect paneClip)
 
 // Called when the game window gets resized.
 // Adjusts the clipping pane and camera aspect ratio.
-void QD3D_OnWindowResized(int windowWidth, int windowHeight)
+void QD3D_OnWindowResized(void)
 {
-	gWindowWidth	= windowWidth;
-	gWindowHeight	= windowHeight;
+	if (!gSDLWindow)
+		return;
+
+	SDL_GL_GetDrawableSize(gSDLWindow, &gWindowWidth, &gWindowHeight);
 
 	if (!gGameViewInfoPtr)
 		return;

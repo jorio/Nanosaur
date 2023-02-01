@@ -595,11 +595,6 @@ static void InitDisplayPref(void)
 
 void DoSettingsScreen(void)
 {
-	SDL_GLContext glContext = SDL_GL_CreateContext(gSDLWindow);
-	GAME_ASSERT(glContext);
-
-	SDL_GL_SetSwapInterval(gGamePrefs.vsync ? 1 : 0);
-
 	Render_InitState();
 	Render_Alloc2DCover(GAME_VIEW_WIDTH, GAME_VIEW_HEIGHT);
 	glClearColor(((kBGColor >> 16) & 0xFF) / 255.0f, ((kBGColor >> 8) & 0xFF) / 255.0f, (kBGColor & 0xFF) / 255.0f, 1.0f);
@@ -671,5 +666,4 @@ void DoSettingsScreen(void)
 
 	Render_FreezeFrameFadeOut();
 	Render_Dispose2DCover();
-	SDL_GL_DeleteContext(glContext);
 }

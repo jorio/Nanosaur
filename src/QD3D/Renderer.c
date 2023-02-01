@@ -41,6 +41,7 @@ typedef struct RendererState
 	bool		hasClientState_GL_VERTEX_ARRAY;
 	bool		hasClientState_GL_COLOR_ARRAY;
 	bool		hasClientState_GL_NORMAL_ARRAY;
+	bool		hasState_GL_NORMALIZE;
 	bool		hasState_GL_CULL_FACE;
 	bool		hasState_GL_ALPHA_TEST;
 	bool		hasState_GL_DEPTH_TEST;
@@ -228,13 +229,11 @@ void Render_SetDefaultModifiers(RenderModifiers* dest)
 
 void Render_InitState(void)
 {
-	// On Windows, proc addresses are only valid for the current context, so we must get fetch everytime we recreate the context.
-	//Render_GetGLProcAddresses();
-
 	SetInitialClientState(GL_VERTEX_ARRAY,				true);
 	SetInitialClientState(GL_NORMAL_ARRAY,				true);
 	SetInitialClientState(GL_COLOR_ARRAY,				false);
-	SetInitialClientState(GL_TEXTURE_COORD_ARRAY,		true);
+	SetInitialClientState(GL_TEXTURE_COORD_ARRAY,		false);
+	SetInitialState(GL_NORMALIZE,		true);		// Normalize normal vectors. Required so lighting looks correct on scaled meshes.
 	SetInitialState(GL_CULL_FACE,		true);
 	SetInitialState(GL_ALPHA_TEST,		true);
 	SetInitialState(GL_DEPTH_TEST,		true);
@@ -243,19 +242,39 @@ void Render_InitState(void)
 	SetInitialState(GL_TEXTURE_2D,		false);
 	SetInitialState(GL_BLEND,			false);
 	SetInitialState(GL_LIGHTING,		true);
-//	SetInitialState(GL_FOG,				true);
-
-
+//	SetInitialState(GL_FOG,				true);		// Let game code manage fog
 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+//	gState.blendFuncIsAdditive = false;		// must match glBlendFunc call above!  --No additive blending in Nanosaur
 
-	gState.hasFlag_glDepthMask = true;		// initially active on a fresh context
+	glDepthMask(true);
+	gState.hasFlag_glDepthMask = true;		// must match glDepthMask call above!
+
+	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+//	gState.wantColorMask = true;			// must match glColorMask call above!
+
+	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+	glClearColor(0.0f, 0.0f, 0.5f, 1.0f);
 
 	gState.boundTexture = 0;
+//	gState.sceneHasFog = false;
+//	gState.currentTransform = NULL;
 
+	// Set misc GL defaults that apply throughout the entire game
+	glAlphaFunc(GL_GREATER, 0.4999f);
+	glCullFace(GL_BACK);
+	glFrontFace(GL_CCW);
+	glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+
+	// Set up mesh queue
 	gMeshQueueSize = 0;
 	for (int i = 0; i < MESHQUEUE_MAX_SIZE; i++)
 		gMeshQueuePtrs[i] = &gMeshQueueBuffer[i];
+
+	// Clear the buffers
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	CHECK_GL_ERROR();
 }
 
 #pragma mark -
@@ -392,6 +411,7 @@ void Render_SetViewport(bool scissor, int x, int y, int w, int h)
 	}
 	else
 	{
+		DisableState(GL_SCISSOR_TEST);
 		glViewport	(x,y,w,h);
 	}
 }
