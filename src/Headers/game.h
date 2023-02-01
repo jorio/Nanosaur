@@ -80,6 +80,7 @@ extern	float					gCameraDistFromMe;
 extern	float					gCameraRotX;
 extern	float					gCameraRotY;
 extern	float					gCameraViewYAngle;
+extern	float					gFadeOverlayOpacity;
 extern	float					gFramesPerSecond;
 extern	float					gFramesPerSecondFrac;
 extern	float					gFuel;

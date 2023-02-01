@@ -210,13 +210,13 @@ TQ3ColorRGB		c2 = { 1, .9, .6 };
 static void CleanupLevel(void)
 {
 	StopAllEffectChannels();
+	Render_FreezeFrameFadeOut();
 	DeleteAllObjects();
 	FreeAllSkeletonFiles(-1);
 	DisposeTerrain();
 	DisposeSpriteGroup(0);
 	QD3D_DisposeParticles();
 	DeleteAll3DMFGroups();
-	Render_FreezeFrameFadeOut();
 	QD3D_DisposeWindowSetup(&gGameViewInfoPtr);
 }
 

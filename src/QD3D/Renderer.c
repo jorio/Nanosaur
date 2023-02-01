@@ -113,14 +113,6 @@ static const TQ3Param2D kFullscreenQuadUVs[4] =
 	{1, 0},
 };
 
-static const TQ3Param2D kFullscreenQuadUVsFlipped[4] =
-{
-	{0, 0},
-	{1, 0},
-	{0, 1},
-	{1, 1},
-};
-
 
 #pragma mark -
 
@@ -134,7 +126,7 @@ static	GLuint			gCoverWindowTextureName = 0;
 static	GLuint			gCoverWindowTextureWidth = 0;
 static	GLuint			gCoverWindowTextureHeight = 0;
 
-static	float			gFadeOverlayOpacity = 0;
+float					gFadeOverlayOpacity = 0;
 
 #pragma mark -
 
@@ -920,85 +912,55 @@ void Render_SetWindowGamma(float percent)
 
 void Render_FreezeFrameFadeOut(void)
 {
-#if ALLOW_FADE
-	//-------------------------------------------------------------------------
-	// Capture window contents into texture
-
-	int width4rem = gWindowWidth % 4;
-	int width4ceil = gWindowWidth - width4rem + (width4rem == 0? 0: 4);
-
-	GLint textureWidth = width4ceil;
-	GLint textureHeight = gWindowHeight;
-	char* textureData = NewPtrClear(textureWidth * textureHeight * 3);
-
-	//SDL_GL_SwapWindow(gSDLWindow);
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	glPixelStorei(GL_UNPACK_ROW_LENGTH, textureWidth);
-	glReadPixels(0, 0, textureWidth, textureHeight, GL_BGR, GL_UNSIGNED_BYTE, textureData);
-	CHECK_GL_ERROR();
-
-	GLuint textureName = Render_LoadTexture(
-			GL_RGB,
-			textureWidth,
-			textureHeight,
-			GL_BGR,
-			GL_UNSIGNED_BYTE,
-			textureData,
-			kRendererTextureFlags_ClampBoth
-			);
-	CHECK_GL_ERROR();
-
-	//-------------------------------------------------------------------------
-	// Set up 2D viewport
-
-	glViewport(0, 0, gWindowWidth, gWindowHeight);
-	Render_Enter2D();
-	DisableState(GL_BLEND);
-	EnableState(GL_TEXTURE_2D);
-	EnableClientState(GL_TEXTURE_COORD_ARRAY);
-	glVertexPointer(2, GL_FLOAT, 0, kFullscreenQuadPointsNDC);
-	glTexCoordPointer(2, GL_FLOAT, 0, kFullscreenQuadUVsFlipped);
-
-	//-------------------------------------------------------------------------
-	// Fade out
+#if !ALLOW_FADE
+	return;
+#endif
 
 	Uint32 startTicks = SDL_GetTicks();
-	Uint32 endTicks = startTicks + kFreezeFrameFadeOutDuration * 1000.0f;
+//	gFadeOverlayOpacity = 0;
 
-	for (Uint32 ticks = startTicks; ticks <= endTicks; ticks = SDL_GetTicks())
+	while (gFadeOverlayOpacity < 1)
 	{
-		float gGammaFadePercent = 1.0f - ((ticks - startTicks) / 1000.0f / kFreezeFrameFadeOutDuration);
-		if (gGammaFadePercent < 0.0f)
-			gGammaFadePercent = 0.0f;
+		Uint32 ticks = SDL_GetTicks();
+		gFadeOverlayOpacity = ((ticks - startTicks) / 1000.0f / kFreezeFrameFadeOutDuration);
+		if (gFadeOverlayOpacity > 1.0f)
+			gFadeOverlayOpacity = 1.0f;
 
-		glColor4f(gGammaFadePercent, gGammaFadePercent, gGammaFadePercent, 1.0f);
-		glDrawElements(GL_TRIANGLES, 3*2, GL_UNSIGNED_BYTE, kFullscreenQuadTriangles);
-		CHECK_GL_ERROR();
-		SDL_GL_SwapWindow(gSDLWindow);
-		SDL_Delay(15);
+		UpdateInput();
+
+		if (!gGameViewInfoPtr)
+		{
+			Render_StartFrame();
+			Render_Draw2DCover(kCoverQuadFit);
+			Render_EndFrame();
+			SDL_GL_SwapWindow(gSDLWindow);
+		}
+		else if (gTerrainPtr)
+		{
+			QD3D_DrawScene(gGameViewInfoPtr, DrawTerrain);
+		}
+		else
+		{
+			QD3D_DrawScene(gGameViewInfoPtr, DrawObjects);
+		}
+
+//		if (fadeSound)
+//		{
+//			FadeGlobalVolume(gGammaFadeFactor);
+//		}
+
+		QD3D_CalcFramesPerSecond();
+//		DoSDLMaintenance();
 	}
 
-	//-------------------------------------------------------------------------
-	// Hold full blackness for a little bit
+	gFadeOverlayOpacity = 1;		// hold pitch black until fading back in
 
-	startTicks = SDL_GetTicks();
-	endTicks = startTicks + .1f * 1000.0f;
-	glClearColor(0,0,0,1);
-	for (Uint32 ticks = startTicks; ticks <= endTicks; ticks = SDL_GetTicks())
-	{
-		glClear(GL_COLOR_BUFFER_BIT);
-		SDL_GL_SwapWindow(gSDLWindow);
-		SDL_Delay(15);
-	}
-
-	//-------------------------------------------------------------------------
-	// Clean up
-
-	Render_Exit2D();
-
-	DisposePtr(textureData);
-	glDeleteTextures(1, &textureName);
-
-	gFadeOverlayOpacity = 1;
-#endif
+//	if (fadeSound)
+//	{
+//		StopAllEffectChannels();
+//		KillSong();
+//		FadeGlobalVolume(1);
+//	}
+//
+//	FlushMouseButtonPress();
 }

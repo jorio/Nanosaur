@@ -14,6 +14,8 @@
 
 void PlayAMovie(FSSpec* spec)
 {
+	gFadeOverlayOpacity = 0;
+
 	KillSong();
 
 	Pomme::Video::Movie movie;
@@ -79,7 +81,7 @@ void PlayAMovie(FSSpec* spec)
 		DamagePortRegion(&damage);
 
 		Render_StartFrame();
-		Render_Draw2DCover(kCoverQuadLetterbox);
+		Render_Draw2DCover(kCoverQuadFit);
 		SDL_GL_SwapWindow(gSDLWindow);
 
 		unsigned int endTicks = SDL_GetTicks();
