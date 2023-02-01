@@ -146,3 +146,11 @@ void Render_Draw2DCover(int fit);
 void Render_SetWindowGamma(float percent);
 
 void Render_FreezeFrameFadeOut(void);
+
+#pragma mark -
+
+TQ3Vector2D FitRectKeepAR(
+		int logicalWidth,
+		int logicalHeight,
+		float displayWidth,
+		float displayHeight);

@@ -93,12 +93,22 @@ retry:
 		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 1 << gGamePrefs.antialiasingLevel);
 	}
 
+	// Prepare window dimensions
+	int display = gGamePrefs.preferredDisplay;
+	float screenFillRatio = 2.0f / 3.0f;
+
+	SDL_Rect displayBounds = { .x = 0, .y = 0, .w = GAME_VIEW_WIDTH, .h = GAME_VIEW_HEIGHT };
+	SDL_GetDisplayUsableBounds(display, &displayBounds);
+	TQ3Vector2D fitted = FitRectKeepAR(GAME_VIEW_WIDTH, GAME_VIEW_HEIGHT, displayBounds.w, displayBounds.h);
+	int initialWidth  = (int) (fitted.x * screenFillRatio);
+	int initialHeight = (int) (fitted.y * screenFillRatio);
+
 	gSDLWindow = SDL_CreateWindow(
 			"Nanosaur " PROJECT_VERSION,
 			SDL_WINDOWPOS_CENTERED_DISPLAY(gGamePrefs.preferredDisplay),
 			SDL_WINDOWPOS_CENTERED_DISPLAY(gGamePrefs.preferredDisplay),
-			640,
-			480,
+			initialWidth,
+			initialHeight,
 			SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_SHOWN);
 
 	if (!gSDLWindow)

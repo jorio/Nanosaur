@@ -799,6 +799,25 @@ static void Render_Draw2DFullscreenQuad(int fit)
 
 //=======================================================================================================
 
+TQ3Vector2D FitRectKeepAR(
+		int logicalWidth,
+		int logicalHeight,
+		float displayWidth,
+		float displayHeight)
+{
+	float displayAR = (float)displayWidth / (float)displayHeight;
+	float logicalAR = (float)logicalWidth / (float)logicalHeight;
+
+	if (displayAR >= logicalAR)
+	{
+		return (TQ3Vector2D) { displayHeight * logicalAR, displayHeight };
+	}
+	else
+	{
+		return (TQ3Vector2D) { displayWidth, displayWidth / logicalAR };
+	}
+}
+
 /*******************************************/
 /*    BACKDROP/OVERLAY (COVER WINDOW)      */
 /*******************************************/
