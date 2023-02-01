@@ -16,6 +16,8 @@ extern "C"
 {
 #endif
 
+#define HQ_TERRAIN		1	// seamless terrain texturing
+
 #include "globals.h"
 #include "sprites.h"
 #include "mobjtypes.h"

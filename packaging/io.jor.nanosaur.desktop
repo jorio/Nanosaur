@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=Nanosaur
+Comment=Send dinosaur eggs to the future before a meteor hits the Earth!
+Comment[fr]=Téléportez des œufs de dinos vers le futur avant qu’une météorite ne pulvérise la Terre
+Icon=io.jor.nanosaur
+Exec=Nanosaur
+Terminal=false
+Categories=Game;

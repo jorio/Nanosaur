@@ -49,6 +49,12 @@ This version of Nanosaur is licensed under [CC NC-BY-SA 4.0](LICENSE.md).
 
 ### Other Pangea game ports
 
-If you like games by Pangea Software, you might also enjoy my ports of
-[Bugdom](https://github.com/jorio/Bugdom), [Otto Matic](https://github.com/jorio/OttoMatic), and [Mighty Mike/Power Pete](https://github.com/jorio/MightyMike).
+If you like games by Pangea Software, you might enjoy my other ports:
 
+- [Billy Frontier](https://github.com/jorio/BillyFrontier)
+- [Bugdom](https://github.com/jorio/Bugdom)
+- [Cro-Mag Rally](https://github.com/jorio/CroMagRally)
+- [Mighty Mike (Power Pete)](https://github.com/jorio/MightyMike)
+- [Nanosaur](https://github.com/jorio/Nanosaur)
+- [Nanosaur II](https://github.com/jorio/Nanosaur2)
+- [Otto Matic](https://github.com/jorio/OttoMatic)

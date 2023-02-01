@@ -1,9 +1,0 @@
-[Desktop Entry]
-Type=Application
-Version=1.0
-Name=Nanosaur
-Comment=Play as a cybernetic dinosaur in this third-person shooter
-Icon=nanosaur-desktopicon
-Exec=Nanosaur
-Terminal=false
-Categories=Game;
