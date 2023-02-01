@@ -73,6 +73,9 @@ const char* modelName = "Unknown";
 	snprintf(filename, sizeof(filename), ":Skeletons:%s.skeleton", modelName);
 	FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, filename, &fsSpecSkel);
 
+	if (gGamePrefs.nanosaurTeethFix && skeletonType == SKELETON_TYPE_DEINON)
+		modelName = "DeinonTeethFix";
+
 	snprintf(filename, sizeof(filename), ":Skeletons:%s.3dmf", modelName);
 	FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, filename, &fsSpec3DMF);
 

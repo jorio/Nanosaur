@@ -309,8 +309,9 @@ typedef struct
 	Boolean	music;
 	Boolean	ambientSounds;
 	Boolean	debugInfoInTitleBar;
+	Boolean	nanosaurTeethFix;
 	KeyBinding keys[NUM_CONTROL_NEEDS];
 }PrefsType;
 
-#define PREFS_MAGIC "Nanosaur Prefs v4"
+#define PREFS_MAGIC "Nanosaur Prefs v5"
 

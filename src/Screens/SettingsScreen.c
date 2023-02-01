@@ -71,6 +71,7 @@ static SettingEntry gSettingEntries[] =
 	{nil							, nil					, nil,						0,  { NULL } },
 	{&gGamePrefs.highQualityTextures, "Texture Filtering"	, nil,						2,	{ "NO", "YES" }, },
 	{&gGamePrefs.canDoFog			, "Fog"					, nil,						2,	{ "NO", "YES" }, },
+	{&gGamePrefs.nanosaurTeethFix	, "Nano's Dentist Is"	, nil				,		2,	{ "Extinct", "Alive" } },
 //	{&gGamePrefs.shadows			, "Shadow Decals"		, nil,						2,	{ "NO", "YES" }, },
 //	{&gGamePrefs.dust				, "Dust"				, nil,						2,	{ "NO", "YES" }, },
 	{nil							, nil					, nil,						0,  { NULL } },

@@ -65,6 +65,7 @@ void InitDefaultPrefs(void)
 	gGamePrefs.extreme = false;
 	gGamePrefs.music = true;
 	gGamePrefs.ambientSounds = true;
+	gGamePrefs.nanosaurTeethFix = true;
 
 	memcpy(gGamePrefs.keys, kDefaultKeyBindings, sizeof(gGamePrefs.keys));
 	_Static_assert(sizeof(kDefaultKeyBindings) == sizeof(gGamePrefs.keys), "size mismatch: default keybindings / prefs keybinings");
