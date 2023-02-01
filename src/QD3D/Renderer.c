@@ -850,7 +850,7 @@ void Render_Dispose2DCover(void)
 
 void Render_Clear2DCover(UInt32 argb)
 {
-	UInt32 bgra = Byteswap32(&argb);
+	UInt32 bgra = UnpackU32BE(&argb);
 
 	UInt32* backdropPixPtr = gCoverWindowPixPtr;
 

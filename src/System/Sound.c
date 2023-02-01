@@ -560,6 +560,20 @@ OSErr	myErr;
 }
 
 
+/*************** PAUSE ALL SOUND CHANNELS **************/
+
+void PauseAllChannels(Boolean pause)
+{
+	SndCommand cmd = { .cmd = pause ? pommePausePlaybackCmd : pommeResumePlaybackCmd };
+
+	for (int c = 0; c < gMaxChannels; c++)
+	{
+		SndDoImmediate(gSndChannel[c], &cmd);
+	}
+
+	SndDoImmediate(gMusicChannel, &cmd);
+}
+
 
 /*************** CHANGE CHANNEL FREQUENCY **************/
 //

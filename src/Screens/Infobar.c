@@ -368,12 +368,8 @@ void DoPaused(void)
 ObjNode	*resume,*quit;
 Byte	selected = 0;
 float	fluc = 0;
-Boolean	toggleMusic = !gMuteMusicFlag;
 
-	if (toggleMusic)
-		ToggleMusic();								// pause music
-
-	Pomme_PauseAllChannels(true);					// Source port addition: pause all looping channels
+	PauseAllChannels(true);
 
 			/***************/
 			/* MAKE RESUME */
@@ -452,11 +448,7 @@ Boolean	toggleMusic = !gMuteMusicFlag;
 			
 	DeleteObject(quit);
 	DeleteObject(resume);
-	
-	if (toggleMusic)
-		ToggleMusic();										// restart music
-
-	Pomme_PauseAllChannels(false);						// Source port addition: unpause looping channels
+	PauseAllChannels(false);
 	
 	if (selected == 1)									// see if want out
 	{

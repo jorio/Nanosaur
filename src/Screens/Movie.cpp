@@ -41,6 +41,10 @@ void PlayAMovie(FSSpec* spec)
 
 	movie.audioStream.Play();
 
+	// Safely remove movie.audioStream from the mixer when this guard goes out of scope
+	// (whether by exiting the function or if UpdateInput throws Pomme::QuitRequest)
+	cmixer::SourceMixGuard audioStreamGuard(movie.audioStream);
+
 	bool movieAbortedByUser = false;
 
 	while (!movieAbortedByUser && !movie.videoFrames.empty())
@@ -95,8 +99,6 @@ void PlayAMovie(FSSpec* spec)
 		UpdateInput();
 		movieAbortedByUser = UserWantsOut();
 	}
-
-	movie.audioStream.Stop();
 
 	Render_FreezeFrameFadeOut();
 

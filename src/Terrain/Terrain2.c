@@ -87,7 +87,7 @@ TerrainItemEntryType *lastPtr;
 		return;
 
 	gMasterItemList = itemList;			// point to items in file
-	ByteswapStructs(STRUCTFORMAT_TerrainItemEntryType, sizeof(TerrainItemEntryType), gNumTerrainItems, gMasterItemList);
+	UnpackStructs(STRUCTFORMAT_TerrainItemEntryType, sizeof(TerrainItemEntryType), gNumTerrainItems, gMasterItemList);
 
 
 				/* BUILD HORIZ LOOKUP TABLE */

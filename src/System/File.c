@@ -138,7 +138,7 @@ SkeletonFile_AnimHeader_Type	*animHeaderPtr;
 	GAME_ASSERT(hand);
 
 	headerPtr = (SkeletonFile_Header_Type *) *hand;
-	ByteswapStructs(STRUCTFORMAT_SkeletonFile_Header_Type, sizeof(SkeletonFile_Header_Type), 1, headerPtr);
+	UnpackStructs(STRUCTFORMAT_SkeletonFile_Header_Type, sizeof(SkeletonFile_Header_Type), 1, headerPtr);
 	version = headerPtr->version;
 	GAME_ASSERT_MESSAGE(version == SKELETON_FILE_VERS_NUM, "Skeleton file has wrong version #");
 
@@ -179,7 +179,7 @@ SkeletonFile_AnimHeader_Type	*animHeaderPtr;
 		GAME_ASSERT(hand);
 		HLock(hand);
 		bonePtr = (File_BoneDefinitionType *) *hand;
-		ByteswapStructs(STRUCTFORMAT_File_BoneDefinitionType, sizeof(File_BoneDefinitionType), 1, bonePtr);
+		UnpackStructs(STRUCTFORMAT_File_BoneDefinitionType, sizeof(File_BoneDefinitionType), 1, bonePtr);
 
 
 			/* COPY BONE DATA INTO ARRAY */
@@ -248,7 +248,7 @@ SkeletonFile_AnimHeader_Type	*animHeaderPtr;
 	else
 	{
 		pointPtr = (TQ3Point3D *) *hand;
-		ByteswapStructs(STRUCTFORMAT_TQ3Point3D, sizeof(TQ3Point3D), skeleton->numDecomposedPoints, pointPtr);
+		UnpackStructs(STRUCTFORMAT_TQ3Point3D, sizeof(TQ3Point3D), skeleton->numDecomposedPoints, pointPtr);
 
 		for (i = 0; i < skeleton->numDecomposedPoints; i++)
 			skeleton->decomposedPointList[i].boneRelPoint = pointPtr[i];
@@ -269,7 +269,7 @@ SkeletonFile_AnimHeader_Type	*animHeaderPtr;
 		GAME_ASSERT(hand);
 		HLock(hand);
 		animHeaderPtr = (SkeletonFile_AnimHeader_Type *) *hand;
-		ByteswapStructs(STRUCTFORMAT_SkeletonFile_AnimHeader_Type, sizeof(SkeletonFile_AnimHeader_Type), 1, animHeaderPtr);
+		UnpackStructs(STRUCTFORMAT_SkeletonFile_AnimHeader_Type, sizeof(SkeletonFile_AnimHeader_Type), 1, animHeaderPtr);
 
 		skeleton->NumAnimEvents[i] = animHeaderPtr->numAnimEvents;			// copy # anim events in anim	
 		ReleaseResource(hand);
@@ -280,7 +280,7 @@ SkeletonFile_AnimHeader_Type	*animHeaderPtr;
 		hand = GetResource('Evnt',1000+i);
 		GAME_ASSERT(hand);
 		animEventPtr = (AnimEventType *) *hand;
-		ByteswapStructs(STRUCTFORMAT_AnimEventType, sizeof(AnimEventType), skeleton->NumAnimEvents[i], animEventPtr);
+		UnpackStructs(STRUCTFORMAT_AnimEventType, sizeof(AnimEventType), skeleton->NumAnimEvents[i], animEventPtr);
 		for (j=0;  j < skeleton->NumAnimEvents[i]; j++)
 			skeleton->AnimEventsList[i][j] = *animEventPtr++;
 		ReleaseResource(hand);		
@@ -318,7 +318,7 @@ SkeletonFile_AnimHeader_Type	*animHeaderPtr;
 			hand = GetResource('KeyF',1000+(i*100)+j);
 			GAME_ASSERT(hand);
 			keyFramePtr = (JointKeyframeType *) *hand;
-			ByteswapStructs(STRUCTFORMAT_JointKeyframeType, sizeof(JointKeyframeType), numKeyframes, keyFramePtr);
+			UnpackStructs(STRUCTFORMAT_JointKeyframeType, sizeof(JointKeyframeType), numKeyframes, keyFramePtr);
 			for (k = 0; k < numKeyframes; k++)												// copy this joint's keyframes for this anim
 				skeleton->JointKeyframes[j].keyFrames[i][k] = *keyFramePtr++;
 			ReleaseResource(hand);		
@@ -550,7 +550,7 @@ long		fileSize;
 
 				/* GET # TEXTURES */
 
-	gNumTerrainTextureTiles = Byteswap32Signed(gTileFilePtr);						// get # texture tiles
+	gNumTerrainTextureTiles = UnpackI32BE(gTileFilePtr);						// get # texture tiles
 	GAME_ASSERT(gNumTerrainTextureTiles <= MAX_TERRAIN_TILES);
 
 				/* GET TILE DATA */
@@ -602,8 +602,8 @@ long		dummy1,dummy2;
 	// 30   short   depth
 	// 32   long    offset to texture attributes
 	// 36   long    [unused] offset to tile anim data
-	//             0  4  8 12 16 20 24 28 32 36
-	ByteswapStructs("l  l  l  l  l  l  l hh  l  l", 40, 1, gTerrainPtr);
+	//              0  4  8 12 16 20 24 28 32 36
+	UnpackStructs(">l  l  l  l  l  l  l hh  l  l", 40, 1, gTerrainPtr);
 
 
 			/*********************/
@@ -681,7 +681,7 @@ long		dummy1,dummy2;
 	SInt32 offsetOfNextChunk = *((SInt32*)(gTerrainPtr + 36));
 	int nTileAttributes = (offsetOfNextChunk - offset) / sizeof(TileAttribType);
 	gTileAttributes = (TileAttribType *)(gTerrainPtr + offset);				// calc ptr to TEXTURE_ATTRIBUTES
-	ByteswapStructs(STRUCTFORMAT_TileAttribType, sizeof(TileAttribType), nTileAttributes, gTileAttributes);
+	UnpackStructs(STRUCTFORMAT_TileAttribType, sizeof(TileAttribType), nTileAttributes, gTileAttributes);
 
 
 			/* GET HEIGHTMAP_TILES */
@@ -702,7 +702,7 @@ long		dummy1,dummy2;
 
 	offset = *((SInt32 *)(gTerrainPtr+12));									// get offset to OBJECT_LIST
 	{
-		long numItems = Byteswap32Signed(gTerrainPtr + offset);
+		long numItems = UnpackI32BE(gTerrainPtr + offset);
 		TerrainItemEntryType* itemList = (TerrainItemEntryType*) (gTerrainPtr + offset + 4);
 		BuildTerrainItemList(numItems, itemList);
 		FindMyStartCoordItem();												// look thru items for my start coords

@@ -57,14 +57,7 @@ extern	void WaitEffectsSilent(void);
 extern	void DisposeSoundBank(void);
 extern	void ChangeChannelFrequency(short channel, long freq);
 extern	short PlayEffect_Parms(short effectNum, unsigned char volume, unsigned long freq);
+void PauseAllChannels(Boolean pause);
 extern	void ChangeChannelVolume(short channel, short volume);
 extern	void StartAmbientEffect(void);
-
-
-
-
-
-
-
-
 
