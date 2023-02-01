@@ -130,8 +130,6 @@ static const TQ3Param2D kFullscreenQuadUVsFlipped[4] =
 
 static RendererState gState;
 
-static PFNGLDRAWRANGEELEMENTSPROC __glDrawRangeElements;
-
 static	GLuint			gCoverWindowTextureName = 0;
 static	GLuint			gCoverWindowTextureWidth = 0;
 static	GLuint			gCoverWindowTextureHeight = 0;
@@ -143,12 +141,6 @@ static	float			gFadeOverlayOpacity = 0;
 /****************************/
 /*    MACROS/HELPERS        */
 /****************************/
-
-static void Render_GetGLProcAddresses(void)
-{
-	__glDrawRangeElements = (PFNGLDRAWRANGEELEMENTSPROC)SDL_GL_GetProcAddress("glDrawRangeElements");  // missing link with something...?
-	GAME_ASSERT(__glDrawRangeElements);
-}
 
 static void __SetInitialState(GLenum stateEnum, bool* stateFlagPtr, bool initialValue)
 {
@@ -245,7 +237,7 @@ void Render_SetDefaultModifiers(RenderModifiers* dest)
 void Render_InitState(void)
 {
 	// On Windows, proc addresses are only valid for the current context, so we must get fetch everytime we recreate the context.
-	Render_GetGLProcAddresses();
+	//Render_GetGLProcAddresses();
 
 	SetInitialClientState(GL_VERTEX_ARRAY,				true);
 	SetInitialClientState(GL_NORMAL_ARRAY,				true);
@@ -665,7 +657,7 @@ static void DrawMeshList(int renderPass, const MeshQueueEntry* entry)
 		CHECK_GL_ERROR();
 
 		// Draw the mesh
-		__glDrawRangeElements(GL_TRIANGLES, 0, mesh->numPoints-1, mesh->numTriangles*3, GL_UNSIGNED_SHORT, mesh->triangles);
+		glDrawElements(GL_TRIANGLES, mesh->numTriangles * 3, GL_UNSIGNED_SHORT, mesh->triangles);
 		CHECK_GL_ERROR();
 
 		// Pass 2 to draw transparent meshes without face culling (see above for an explanation)
@@ -675,7 +667,7 @@ static void DrawMeshList(int renderPass, const MeshQueueEntry* entry)
 			// We've restored glCullFace to GL_BACK, which is the default for all other meshes.
 			
 			// Draw the mesh again
-			__glDrawRangeElements(GL_TRIANGLES, 0, mesh->numPoints - 1, mesh->numTriangles * 3, GL_UNSIGNED_SHORT, mesh->triangles);
+			glDrawElements(GL_TRIANGLES, mesh->numTriangles * 3, GL_UNSIGNED_SHORT, mesh->triangles);
 			CHECK_GL_ERROR();
 		}
 
@@ -808,7 +800,7 @@ static void Render_Draw2DFullscreenQuad(int fit)
 	EnableClientState(GL_TEXTURE_COORD_ARRAY);
 	glVertexPointer(2, GL_FLOAT, 0, pts);
 	glTexCoordPointer(2, GL_FLOAT, 0, kFullscreenQuadUVs);
-	__glDrawRangeElements(GL_TRIANGLES, 0, 3*2, 3*2, GL_UNSIGNED_BYTE, kFullscreenQuadTriangles);
+	glDrawElements(GL_TRIANGLES, 3*2, GL_UNSIGNED_BYTE, kFullscreenQuadTriangles);
 }
 
 #pragma mark -
@@ -915,7 +907,7 @@ static void DrawFadeOverlay(float opacity)
 	DisableClientState(GL_TEXTURE_COORD_ARRAY);
 	glColor4f(0, 0, 0, opacity);
 	glVertexPointer(2, GL_FLOAT, 0, kFullscreenQuadPointsNDC);
-	__glDrawRangeElements(GL_TRIANGLES, 0, 3*2, 3*2, GL_UNSIGNED_BYTE, kFullscreenQuadTriangles);
+	glDrawElements(GL_TRIANGLES, 3*2, GL_UNSIGNED_BYTE, kFullscreenQuadTriangles);
 	Render_Exit2D();
 }
 
@@ -980,7 +972,7 @@ void Render_FreezeFrameFadeOut(void)
 			gGammaFadePercent = 0.0f;
 
 		glColor4f(gGammaFadePercent, gGammaFadePercent, gGammaFadePercent, 1.0f);
-		__glDrawRangeElements(GL_TRIANGLES, 0, 3*2, 3*2, GL_UNSIGNED_BYTE, kFullscreenQuadTriangles);
+		glDrawElements(GL_TRIANGLES, 3*2, GL_UNSIGNED_BYTE, kFullscreenQuadTriangles);
 		CHECK_GL_ERROR();
 		SDL_GL_SwapWindow(gSDLWindow);
 		SDL_Delay(15);
