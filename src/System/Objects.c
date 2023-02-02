@@ -483,12 +483,6 @@ ObjNode *tempNode;
 		FreeSkeletonBaseData(theNode->Skeleton);	// purge all alloced memory for skeleton data
 		theNode->Skeleton = nil;
 	}
-	
-	if (theNode->CollisionBoxes != nil)				// free collision box memory
-	{
-		DisposePtr((Ptr)theNode->CollisionBoxes);
-		theNode->CollisionBoxes = nil;
-	}
 
 	if (theNode->CollisionTriangles)				// free collision triangle memory
 		DisposeCollisionTriangleMemory(theNode);
@@ -634,7 +628,7 @@ void UpdateObject(ObjNode *theNode)
 	theNode->Coord = gCoord;
 	theNode->Delta = gDelta;
 	UpdateObjectTransforms(theNode);
-	if (theNode->CollisionBoxes)
+	if (theNode->NumCollisionBoxes != 0)
 		CalcObjectBoxFromNode(theNode);
 
 

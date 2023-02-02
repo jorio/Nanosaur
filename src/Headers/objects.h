@@ -42,7 +42,6 @@ extern	void CalcNewTargetOffsets(ObjNode *theNode, float scale);
 //===================
 
 
-extern	void AllocateCollisionBoxMemory(ObjNode *theNode, short numBoxes);
 extern	void CalcObjectBoxFromNode(ObjNode *theNode);
 extern	void CalcObjectBoxFromGlobal(ObjNode *theNode);
 extern	void SetObjectCollisionBounds(ObjNode *theNode, short top, short bottom, short left,
@@ -53,10 +52,4 @@ extern	ObjNode	*AttachShadowToObject(ObjNode *theNode, float scaleX, float scale
 extern	void StartObjectStreamEffect(ObjNode *theNode, short effectNum);
 extern	void StopObjectStreamEffect(ObjNode *theNode);
 extern	void KeepOldCollisionBoxes(ObjNode *theNode);
-
-
-
-
-
-
 

@@ -17,6 +17,7 @@
 #define	MAX_LIMBS			MAX_JOINTS
 
 #define MAX_FLAGS_IN_OBJNODE			4		// # flags in ObjNode
+#define MAX_BOXES_PER_OBJNODE			1		// max collision boxes per objnode
 
 
 #define	MAX_DECOMPOSED_POINTS	1200
@@ -245,7 +246,7 @@ struct ObjNode
 	struct	ObjNode	*CarriedObj;		// ptr to object being carried/pickedup
 	
 	Byte				NumCollisionBoxes;
-	CollisionBoxType	*CollisionBoxes;// Ptr to array of collision rectangles
+	CollisionBoxType	CollisionBoxes[MAX_BOXES_PER_OBJNODE];				// array of collision boxes
 	short			LeftOff,RightOff,FrontOff,BackOff,TopOff,BottomOff;		// box offsets (only used by simple objects with 1 collision box)
 	
 	TriangleCollisionList	*CollisionTriangles; // ptr to triangle collision data

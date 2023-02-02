@@ -34,33 +34,6 @@
 
 #pragma mark ----- OBJECT COLLISION ------
 
-/**************** ALLOCATE COLLISION BOX MEMORY *******************/
-
-void AllocateCollisionBoxMemory(ObjNode *theNode, short numBoxes)
-{
-Ptr	mem;
-
-			/* FREE OLD STUFF */
-			
-	if (theNode->CollisionBoxes)
-		DisposePtr((Ptr)theNode->CollisionBoxes);		
-
-				/* SET # */
-				
-	theNode->NumCollisionBoxes = numBoxes;
-	if (numBoxes == 0)
-		DoFatalAlert("AllocateCollisionBoxMemory with 0 boxes?");
-
-
-				/* CURRENT LIST */
-				
-	mem = AllocPtr(sizeof(CollisionBoxType)*numBoxes);
-	if (mem == nil)
-		DoFatalAlert("Couldnt alloc collision box memory");
-	theNode->CollisionBoxes = (CollisionBoxType *)mem;
-}
-
-
 /*******************************  KEEP OLD COLLISION BOXES **************************/
 //
 // Also keeps old coordinate
@@ -68,25 +41,15 @@ Ptr	mem;
 
 void KeepOldCollisionBoxes(ObjNode *theNode)
 {
-signed char	i;
-			
-	i = theNode->NumCollisionBoxes;					// get # boxes for this obj
-	if (i > 0)
+	for (int i = 0; i < theNode->NumCollisionBoxes; i++)
 	{
-		GAME_ASSERT(theNode->CollisionBoxes);
-
-		i -= 1;										// convert counter into index
-
-		do
-		{
-			theNode->CollisionBoxes[i].oldTop = theNode->CollisionBoxes[i].top;
-			theNode->CollisionBoxes[i].oldBottom = theNode->CollisionBoxes[i].bottom;
-			theNode->CollisionBoxes[i].oldLeft = theNode->CollisionBoxes[i].left;
-			theNode->CollisionBoxes[i].oldRight = theNode->CollisionBoxes[i].right;
-			theNode->CollisionBoxes[i].oldFront = theNode->CollisionBoxes[i].front;
-			theNode->CollisionBoxes[i].oldBack = theNode->CollisionBoxes[i].back;
-		}while(--i >= 0);
-	}	
+		theNode->CollisionBoxes[i].oldTop = theNode->CollisionBoxes[i].top;
+		theNode->CollisionBoxes[i].oldBottom = theNode->CollisionBoxes[i].bottom;
+		theNode->CollisionBoxes[i].oldLeft = theNode->CollisionBoxes[i].left;
+		theNode->CollisionBoxes[i].oldRight = theNode->CollisionBoxes[i].right;
+		theNode->CollisionBoxes[i].oldFront = theNode->CollisionBoxes[i].front;
+		theNode->CollisionBoxes[i].oldBack = theNode->CollisionBoxes[i].back;
+	}
 
 	theNode->OldCoord = theNode->Coord;			// remember coord also
 }
@@ -103,8 +66,7 @@ void CalcObjectBoxFromNode(ObjNode *theNode)
 {
 CollisionBoxType *boxPtr;
 
-	if (theNode->CollisionBoxes == nil)
-		DoFatalAlert("CalcObjectBox on objnode with no CollisionBoxType");
+	GAME_ASSERT(theNode->NumCollisionBoxes == 1);
 		
 	boxPtr = theNode->CollisionBoxes;					// get ptr to 1st box (presumed only box)
 
@@ -132,9 +94,8 @@ CollisionBoxType *boxPtr;
 	if (theNode == nil)
 		return;
 
-	if (theNode->CollisionBoxes == nil)
-		DoFatalAlert("CalcObjectBoxFromGlobal: CalcObjectBox on objnode with no CollisionBoxType");
-		
+	GAME_ASSERT(theNode->NumCollisionBoxes == 1);
+
 	boxPtr = theNode->CollisionBoxes;					// get ptr to 1st box (presumed only box)
 
 	boxPtr->left 	= gCoord.x  + theNode->LeftOff;
@@ -154,8 +115,8 @@ CollisionBoxType *boxPtr;
 void SetObjectCollisionBounds(ObjNode *theNode, short top, short bottom, short left,
 							 short right, short front, short back)
 {
+	theNode->NumCollisionBoxes = 1;							// alloc 1 collision box
 
-	AllocateCollisionBoxMemory(theNode, 1);					// alloc 1 collision box
 	theNode->TopOff 		= top;
 	theNode->BottomOff 	= bottom;	
 	theNode->LeftOff 	= left;
@@ -243,32 +204,29 @@ Boolean	updateTrans = false;
 	thisNodePtr = gFirstNodePtr;
 	do
 	{
-		if (thisNodePtr->CType & CTYPE_BLOCKSHADOW)				// look for things which can block the shadow
+		if (thisNodePtr->CType & CTYPE_BLOCKSHADOW				// look for things which can block the shadow
+			&& thisNodePtr->NumCollisionBoxes != 0)
 		{
-			if (thisNodePtr->CollisionBoxes)
+			if (y < thisNodePtr->CollisionBoxes[0].bottom
+				|| x < thisNodePtr->CollisionBoxes[0].left
+				|| x > thisNodePtr->CollisionBoxes[0].right
+				|| z > thisNodePtr->CollisionBoxes[0].front
+				|| z < thisNodePtr->CollisionBoxes[0].back)
 			{
-				if (y < (*thisNodePtr->CollisionBoxes).bottom)
-					goto next;
-				if (x < (*thisNodePtr->CollisionBoxes).left)
-					goto next;
-				if (x > (*thisNodePtr->CollisionBoxes).right)
-					goto next;
-				if (z > (*thisNodePtr->CollisionBoxes).front)
-					goto next;
-				if (z < (*thisNodePtr->CollisionBoxes).back)
-					goto next;
-
+				goto next;
+			}
+			else
+			{
 					/************************/
 					/* SHADOW IS ON OBJECT  */
 					/************************/
 
 				shadowNode->Rot.x = shadowNode->Rot.z = 0;
-				shadowNode->Coord.y = (float)((*thisNodePtr->CollisionBoxes).top) + .5;
+				shadowNode->Coord.y = (float)(thisNodePtr->CollisionBoxes[0].top) + .5;
 				updateTrans = true;
 				goto update;
-				
 			}
-		}		
+		}
 next:					
 		thisNodePtr = (ObjNode *)thisNodePtr->NextNode;		// next node
 	}
