@@ -23,6 +23,7 @@ extern "C"
 #include "mobjtypes.h"
 #include "objtypes.h"
 
+#include "pool.h"
 #include "3dmath.h"
 #include "3dmf.h"
 #include "bones.h"

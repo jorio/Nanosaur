@@ -40,10 +40,9 @@ float		gBoomForce,gShardDecaySpeed;
 Byte		gShardMode;
 int			gShardDensity;
 
-static int			gNumShards = 0;
-static ShardType	gShards[MAX_SHARDS];
-
-static RenderModifiers gShardRenderMods;
+static RenderModifiers	gShardRenderMods;
+static ShardType		gShardMemory[MAX_SHARDS];
+static Pool				*gShardPool = NULL;
 
 
 
@@ -123,12 +122,12 @@ float QD3D_CalcObjectRadius(int numMeshes, TQ3TriMeshData** meshList)
 
 void QD3D_InitShards(void)
 {
-	gNumShards = 0;
+	GAME_ASSERT(!gShardPool);
+	gShardPool = Pool_New(MAX_SHARDS);
 
 	for (int i = 0; i < MAX_SHARDS; i++)
 	{
-		ShardType* shard = &gShards[i];
-		shard->isUsed = false;
+		ShardType* shard = &gShardMemory[i];
 		shard->mesh = Q3TriMeshData_New(1, 3, kQ3TriMeshDataFeatureVertexUVs | kQ3TriMeshDataFeatureVertexNormals);
 		for (int v = 0; v < 3; v++)
 			shard->mesh->triangles[0].pointIndices[v] = v;
@@ -141,37 +140,19 @@ void QD3D_InitShards(void)
 
 void QD3D_DisposeShards(void)
 {
+	GAME_ASSERT(gShardPool);
+	Pool_Free(gShardPool);
+	gShardPool = NULL;
+
 	for (int i = 0; i < MAX_SHARDS; i++)
 	{
-		if (gShards[i].mesh)
+		ShardType* shard = &gShardMemory[i];
+		if (shard->mesh)
 		{
-			Q3TriMeshData_Dispose(gShards[i].mesh);
-			gShards[i].mesh = nil;
+			Q3TriMeshData_Dispose(shard->mesh);
+			shard->mesh = nil;
 		}
-		gShards[i].isUsed = false;
 	}
-
-	gNumShards = 0;
-}
-
-
-/********************* FIND FREE SHARD ***********************/
-//
-// OUTPUT: -1 == none free found
-//
-
-static inline long FindFreeShard(void)
-{
-long	i;
-
-	if (gNumShards >= MAX_SHARDS)
-		return(-1);
-
-	for (i = 0; i < MAX_SHARDS; i++)
-		if (gShards[i].isUsed == false)
-			return(i);
-
-	return(-1);
 }
 
 
@@ -222,6 +203,8 @@ static void ExplodeTriMesh(const TQ3TriMeshData *inMesh, const TQ3Matrix4x4* tra
 {
 TQ3Point3D			centerPt = {0,0,0};
 
+	GAME_ASSERT(gShardPool);
+
 			/*******************************/
 			/* SCAN THRU ALL TRIMESH FACES */
 			/*******************************/
@@ -230,11 +213,11 @@ TQ3Point3D			centerPt = {0,0,0};
 	{
 				/* GET FREE SHARD INDEX */
 
-		long shardIndex = FindFreeShard();
-		if (shardIndex == -1)													// see if all out
+		int shardIndex = Pool_AllocateIndex(gShardPool);
+		if (shardIndex < 0)													// see if all out
 			break;
 
-		ShardType* shard = &gShards[shardIndex];
+		ShardType* shard = &gShardMemory[shardIndex];
 		TQ3TriMeshData* sMesh = shard->mesh;
 
 		const uint16_t* ind = inMesh->triangles[t].pointIndices;						// get indices of 3 points
@@ -320,11 +303,6 @@ TQ3Point3D			centerPt = {0,0,0};
 
 		shard->decaySpeed = gShardDecaySpeed;
 		shard->mode = gShardMode;
-
-				/* SET VALID & INC COUNTER */
-
-		shard->isUsed = true;
-		gNumShards++;
 	}
 }
 
@@ -336,17 +314,16 @@ void QD3D_MoveShards(void)
 float	ty,y,fps,x,z;
 TQ3Matrix4x4	matrix,matrix2;
 
-	if (gNumShards == 0)											// quick check if any shards at all
+	if (!gShardPool || Pool_Empty(gShardPool))						// quick check if any shards at all
 		return;
 
 	fps = gFramesPerSecondFrac;
 
-	for (int i = 0; i < MAX_SHARDS; i++)
+	for (int i = Pool_First(gShardPool); i >= 0; )
 	{
-		if (!gShards[i].isUsed)
-			continue;
+		int nextIndex = Pool_Next(gShardPool, i);
 
-		ShardType* shard = &gShards[i];
+		ShardType* shard = &gShardMemory[i];
 
 				/* ROTATE IT */
 
@@ -364,8 +341,7 @@ TQ3Matrix4x4	matrix,matrix2;
 		x = (shard->coord.x += shard->coordDelta.x * fps);
 		y = (shard->coord.y += shard->coordDelta.y * fps);
 		z = (shard->coord.z += shard->coordDelta.z * fps);
-		
-		
+
 					/* SEE IF BOUNCE */
 					
 		ty = GetTerrainHeightAtCoord_Quick(x,z);				// get terrain height here
@@ -379,7 +355,7 @@ TQ3Matrix4x4	matrix,matrix2;
 				shard->coordDelta.z *= 0.9;
 			}
 			else
-				goto del;
+				goto del;	// nuke it
 		}
 		
 					/* SCALE IT */
@@ -387,11 +363,7 @@ TQ3Matrix4x4	matrix,matrix2;
 		shard->scale -= shard->decaySpeed * fps;
 		if (shard->scale <= 0.0f)
 		{
-				/* DEACTIVATE THIS SHARD */
-	del:	
-			shard->isUsed = false;
-			gNumShards--;
-			continue;
+			goto del;		// nuke it
 		}
 
 			/***************************/
@@ -412,6 +384,14 @@ TQ3Matrix4x4	matrix,matrix2;
 
 		Q3Matrix4x4_SetTranslate(&matrix, shard->coord.x, shard->coord.y, shard->coord.z);
 		Q3Matrix4x4_Multiply(&matrix2,&matrix, &shard->matrix);
+
+		goto next;
+
+del:
+		Pool_ReleaseIndex(gShardPool, i);
+
+next:
+		i = nextIndex;
 	}
 }
 
@@ -422,16 +402,13 @@ void QD3D_DrawShards(QD3DSetupOutputType *setupInfo)
 {
 	(void) setupInfo;
 
-	if (gNumShards == 0)												// quick check if any shards at all
+	if (!gShardPool)												// quick check if any shards at all
 		return;
 
-	for (int i = 0; i < MAX_SHARDS; i++)
+	for (int i = Pool_First(gShardPool); i >= 0; i = Pool_Next(gShardPool, i))
 	{
-		ShardType* shard = &gShards[i];
-		if (shard->isUsed)
-		{
-			Render_SubmitMesh(shard->mesh, &shard->matrix, &gShardRenderMods, &shard->coord);
-		}
+		ShardType* shard = &gShardMemory[i];
+		Render_SubmitMesh(shard->mesh, &shard->matrix, &gShardRenderMods, &shard->coord);
 	}
 }
 
