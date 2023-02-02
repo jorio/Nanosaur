@@ -233,7 +233,13 @@ static	void(*myMoveTable[])(ObjNode *) =
 		gMyTimePortalTimer -= gFramesPerSecondFrac;
 		if (gMyTimePortalTimer <= 0.0f)
 		{
-			theNode->StatusBits &= ~STATUS_BIT_HIDDEN;				// un-hide me
+			gMyTimePortalTimer = 0;
+
+			if (gCameraMode != CAMERA_MODE_FIRSTPERSON)
+			{
+				theNode->StatusBits &= ~STATUS_BIT_HIDDEN;				// un-hide me
+			}
+
 			PlayEffect_Parms(EFFECT_PORTAL,FULL_CHANNEL_VOLUME,kMiddleC+2);			
 		}
 		UpdatePlayer(theNode);			
@@ -798,13 +804,11 @@ static void UpdatePlayer(ObjNode *theNode)
 		
 	if (gMyTimePortal)
 	{
-		if (!(theNode->StatusBits & STATUS_BIT_HIDDEN))
+		if (gMyTimePortalTimer <= 0.0f
+			&& theNode->StatusBits & STATUS_BIT_ONGROUND)
 		{
-			if (theNode->StatusBits & STATUS_BIT_ONGROUND)
-			{
-				DeleteObject(gMyTimePortal);
-				gMyTimePortal = nil;
-			}
+			DeleteObject(gMyTimePortal);
+			gMyTimePortal = nil;
 		}
 	}
 	else
