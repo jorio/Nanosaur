@@ -107,7 +107,7 @@ KeyControlType	bits;
 	if (GetNewNeedState(kNeed_AttackMode))		// attack mode change
 		bits |= KEYCONTROL_ATTACKMODE;
 
-	if (GetNewNeedState(kNeed_PickUp))			// try pickup
+	if (GetNeedState(kNeed_PickUp))				// try pickup
 		bits |= KEYCONTROL_PICKUP;
 		
 
