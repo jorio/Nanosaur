@@ -35,8 +35,8 @@ RenderStats						gRenderStats;
 
 GLuint 							gShadowGLTextureName = 0;
 
-float	gFramesPerSecond = DEFAULT_FPS;				// this is used to maintain a constant timing velocity as frame rates differ
-float	gFramesPerSecondFrac = 1.0f/DEFAULT_FPS;
+float	gFramesPerSecond = MIN_FPS;				// this is used to maintain a constant timing velocity as frame rates differ
+float	gFramesPerSecondFrac = 1.0f/MIN_FPS;
 
 float	gAdditionalClipping = 0;
 
@@ -408,44 +408,59 @@ void QD3D_MoveCameraFromTo(QD3DSetupOutputType *setupInfo, TQ3Vector3D *moveVect
 
 /************** QD3D CALC FRAMES PER SECOND *****************/
 
-void	QD3D_CalcFramesPerSecond(void)
+/************** QD3D CALC FRAMES PER SECOND *****************/
+
+void QD3D_CalcFramesPerSecond(void)
 {
-UnsignedWide	wide;
-unsigned long	now;
-static	unsigned long then = 0;
+	static uint64_t performanceFrequency = 0;
+	static uint64_t prevTime = 0;
+	uint64_t currTime;
 
-			/* DO REGULAR CALCULATION */
-
-	Microseconds(&wide);
-	now = wide.lo;
-	if (then != 0)
+	if (performanceFrequency == 0)
 	{
-		gFramesPerSecond = 1000000.0f/(float)(now-then);
-		if (gFramesPerSecond < DEFAULT_FPS)			// (avoid divide by 0's later)
-			gFramesPerSecond = DEFAULT_FPS;
+		performanceFrequency = SDL_GetPerformanceFrequency();
 	}
-	else
-		gFramesPerSecond = DEFAULT_FPS;
 
-	gFramesPerSecondFrac = 1.0f/gFramesPerSecond;	// calc fractional for multiplication
+	slow_down:
+	currTime = SDL_GetPerformanceCounter();
+	uint64_t deltaTime = currTime - prevTime;
 
-	then = now;										// remember time
-
-	static int holdFramerateCap = 0;
-
-
-			/* CAP FRAME RATE */
-
-	if (gFramesPerSecond > 200 || holdFramerateCap > 0)
+	if (deltaTime <= 0)
 	{
-		SDL_Delay(5);
-		// Keep framerate cap for a while to avoid jitter in game physics
-		holdFramerateCap = 10;
+		gFramesPerSecond = MIN_FPS;						// avoid divide by 0
 	}
 	else
 	{
-		holdFramerateCap--;
+		gFramesPerSecond = performanceFrequency / (float)(deltaTime);
+
+		if (gFramesPerSecond > MAX_FPS)					// keep from cooking the GPU
+		{
+			if (gFramesPerSecond - MAX_FPS > 1000)		// try to sneak in some sleep if we have 1 ms to spare
+			{
+				SDL_Delay(1);
+			}
+			goto slow_down;
+		}
+
+		if (gFramesPerSecond < MIN_FPS)					// (avoid divide by 0's later)
+		{
+			gFramesPerSecond = MIN_FPS;
+		}
 	}
+
+	// In debug builds, speed up with KP_PLUS
+#if _DEBUG
+	if (GetSDLKeyState(SDL_SCANCODE_KP_PLUS))
+#else
+	if (GetSDLKeyState(SDL_SCANCODE_GRAVE) && GetSDLKeyState(SDL_SCANCODE_KP_PLUS))
+#endif
+	{
+		gFramesPerSecond = MIN_FPS;
+	}
+
+	gFramesPerSecondFrac = 1.0f / gFramesPerSecond;		// calc fractional for multiplication
+
+	prevTime = currTime;								// reset for next time interval
 
 
 			/* UPDATE DEBUG TEXT */
@@ -459,12 +474,14 @@ static	unsigned long then = 0;
 			float fps = 1000 * gDebugTextFrameAccumulator / (float)ticksElapsed;
 			snprintf(
 					gDebugTextBuffer, sizeof(gDebugTextBuffer),
-					"%s %s - fps:%d tris:%d meshq:%d - x:%.0f z:%.0f",
-					PRO_MODE ? "Nanosaur Extreme" : "Nanosaur",
+					"%s%s - %dfps %dt %dm %dp %dK x:%.0f z:%.0f",
+					PRO_MODE ? "NanoExtreme" : "Nanosaur",
 					PROJECT_VERSION,
 					(int)round(fps),
 					gRenderStats.trianglesDrawn,
 					gRenderStats.meshQueueSize,
+					(int)Pomme_GetNumAllocs(),
+					(int)(Pomme_GetHeapSize()/1024),
 					gMyCoord.x,
 					gMyCoord.z
 			);

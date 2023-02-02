@@ -7,7 +7,8 @@
 #include <QD3D.h>
 
 
-#define	DEFAULT_FPS			4
+#define	MIN_FPS				4
+#define	MAX_FPS				175
 
 #define	MAX_FILL_LIGHTS		4
 
