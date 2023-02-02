@@ -26,7 +26,7 @@ enum
 			
 extern	ObjNode *MakeEnemySkeleton(Byte skeletonType, float x, float z);
 extern	void DeleteEnemy(ObjNode *theEnemy);
-extern	Boolean DoEnemyCollisionDetect(ObjNode *theEnemy, unsigned long ctype);
+Boolean DoEnemyCollisionDetect(ObjNode *theEnemy, uint32_t ctype);
 extern	void UpdateEnemy(ObjNode *theNode);
 extern	Boolean EnemyGotHurt(ObjNode *theEnemy, ObjNode *theHurter, float damage);
 extern	void InitEnemyManager(void);

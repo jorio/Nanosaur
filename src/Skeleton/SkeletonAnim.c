@@ -335,11 +335,11 @@ long	volume;
 
 void GetModelCurrentPosition(SkeletonObjDataType *skeleton)
 {
-long			jointNum;
-long			numKeyFrames;
-long			keyFrameNum;
+int			jointNum;
+int			numKeyFrames;
+int			keyFrameNum;
 JointKeyframeType	*kfPtr;
-long			animNum;
+int			animNum;
 float			currentAnimTime;
 const SkeletonDefType	*skeletonDef;
 

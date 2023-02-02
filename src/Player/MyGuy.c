@@ -828,7 +828,6 @@ static void UpdatePlayer(ObjNode *theNode)
 
 static Boolean DoPlayerCollisionDetect(ObjNode *theNode)
 {
-short	i;
 ObjNode	*hitObj;
 unsigned long	ctype;
 float		y;
@@ -859,7 +858,7 @@ UInt8		sides;
 			/* SCAN FOR INTERESTING STUFF */
 			/******************************/
 			
-	for (i=0; i < gNumCollisions; i++)						
+	for (int i = 0; i < gNumCollisions; i++)						
 	{
 		if (gCollisionList[i].type == COLLISION_TYPE_OBJ)
 		{

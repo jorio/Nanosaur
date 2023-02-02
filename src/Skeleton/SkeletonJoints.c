@@ -40,7 +40,7 @@
 // INPUT:	jointNum = joint # to rotate
 //
 
-void UpdateJointTransforms(SkeletonObjDataType *skeleton,long jointNum)
+void UpdateJointTransforms(SkeletonObjDataType *skeleton, int jointNum)
 {
 TQ3Matrix4x4			matrix1;
 static TQ3Matrix4x4		matrix2 = {{ {0,0,0,0}, {0,0,0,0}, {0,0,0,0}, {0,0,0,1} }};
@@ -88,7 +88,7 @@ JointKeyframeType		*kfPtr;
 // Returns the 3-space coord of the given joint.
 //
 
-void FindCoordOfJoint(ObjNode *theNode, long jointNum, TQ3Point3D *outPoint)
+void FindCoordOfJoint(ObjNode *theNode, int jointNum, TQ3Point3D *outPoint)
 {
 TQ3Matrix4x4	matrix;
 static TQ3Point3D		point3D = {0,0,0};				// use joint's origin @ 0,0,0
@@ -108,7 +108,7 @@ static TQ3Point3D		point3D = {0,0,0};				// use joint's origin @ 0,0,0
 // is "on" the joint rather than the exact coord of the hinge.
 //
 
-void FindCoordOnJoint(ObjNode *theNode, long jointNum, TQ3Point3D *inPoint, TQ3Point3D *outPoint)
+void FindCoordOnJoint(ObjNode *theNode, int jointNum, const TQ3Point3D *inPoint, TQ3Point3D *outPoint)
 {
 TQ3Matrix4x4	matrix;
 
@@ -123,7 +123,7 @@ TQ3Matrix4x4	matrix;
 // Returns an accumulated matrix for a joint's coordinates.
 //
 
-void FindJointFullMatrix(ObjNode *theNode, long jointNum, TQ3Matrix4x4 *outMatrix)
+void FindJointFullMatrix(ObjNode *theNode, int jointNum, TQ3Matrix4x4 *outMatrix)
 {
 const SkeletonDefType *skeletonDefPtr;
 SkeletonObjDataType	*skeletonPtr;
@@ -151,8 +151,4 @@ BoneDefinitionType	*bonePtr;
 
 	Q3Matrix4x4_Multiply(outMatrix,&theNode->BaseTransformMatrix,outMatrix);
 }
-
-
-
-
 

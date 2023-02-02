@@ -200,13 +200,13 @@ enum
 
 extern 	void DisposeTerrain(void);
 extern	void DrawTerrain(QD3DSetupOutputType *setupInfo);
-extern 	float	GetTerrainHeightAtCoord(float x, float z);
-extern	float	GetTerrainHeightAtCoord_Quick(long x, long z);
+float	GetTerrainHeightAtCoord(float x, float z);
+float	GetTerrainHeightAtCoord_Quick(long x, long z);
 extern 	UInt16	GetTileAttribsAtRowCol(short row, short col);
 extern	UInt16	GetTileCollisionBitsAtRowCol(short row, short col, Boolean checkAlt);
 extern 	UInt16	GetTileCollisionBitsAtRowCol2(short row, short col);
-extern	UInt16	GetTileAttribs(long x, long z);
-extern	void GetSuperTileInfo(long x, long z, long *superCol, long *superRow, long *tileCol, long *tileRow);
+UInt16	GetTileAttribs(long x, long z);
+void GetSuperTileInfo(long x, long z, int *superCol, int *superRow, int *tileCol, int *tileRow);
 extern	void InitTerrainManager(void);
 extern	void ClearScrollBuffer(void);
 extern	float	GetTerrainHeightAtCoord_Planar(float x, float z);

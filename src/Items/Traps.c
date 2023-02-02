@@ -136,7 +136,7 @@ float	oldX,oldZ,delta;
 						gDelta.y = 400.0f;
 						
 					d = CalcQuickDistance(gCoord.x, gCoord.z, gMyCoord.x, gMyCoord.z);	// calc volume based on distance
-					volume = FULL_CHANNEL_VOLUME - (long)(d * .15f);
+					volume = FULL_CHANNEL_VOLUME - (int)(d * .15f);
 					if (volume > 0)
 						PlayEffect_Parms(EFFECT_ROCKSLAM,volume,kMiddleC-10+(MyRandomLong()&3));
 				}

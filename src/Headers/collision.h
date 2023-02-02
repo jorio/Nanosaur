@@ -16,7 +16,7 @@ enum
 struct CollisionRec
 {
 	Byte			baseBox,targetBox;
-	unsigned short	sides;
+	uint16_t		sides;
 	Byte			type;
 	ObjNode			*objectPtr;			// object that collides with (if object type)
 	float			planeIntersectY;	// where intersected triangle
@@ -28,14 +28,11 @@ typedef struct CollisionRec CollisionRec;
 //=================================
 
 
-extern	void CollisionDetect(ObjNode *baseNode,unsigned long CType);
-extern	Byte HandleCollisions(ObjNode *theNode, unsigned long	cType);
-extern	ObjNode *IsPointInPickupCollisionSphere(TQ3Point3D *thePt);
-extern	Boolean IsPointInTriangle(float pt_x, float pt_y, float x0, float y0, float x1, float y1, float x2, float y2);
-extern	short DoSimplePointCollision(TQ3Point3D *thePoint, UInt32 cType);
-extern	void DisposeCollisionTriangleMemory(ObjNode *theNode);
-extern	void CreateCollisionTrianglesForObject(ObjNode *theNode);
-extern	void DoTriangleCollision(ObjNode *theNode, unsigned long CType);
-
-
-
+void CollisionDetect(ObjNode *baseNode, uint32_t cType);
+Byte HandleCollisions(ObjNode *theNode, uint32_t cType);
+ObjNode *IsPointInPickupCollisionSphere(TQ3Point3D *thePt);
+Boolean IsPointInTriangle(float pt_x, float pt_y, float x0, float y0, float x1, float y1, float x2, float y2);
+int DoSimplePointCollision(TQ3Point3D *thePoint, uint32_t cType);
+void DisposeCollisionTriangleMemory(ObjNode *theNode);
+void CreateCollisionTrianglesForObject(ObjNode *theNode);
+void DoTriangleCollision(ObjNode *theNode, uint32_t cType);

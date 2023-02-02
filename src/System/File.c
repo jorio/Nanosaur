@@ -123,8 +123,6 @@ const char* modelName = "Unknown";
 static void ReadDataFromSkeletonFile(SkeletonDefType *skeleton, FSSpec *target)
 {
 Handle				hand;
-long				i,k,j;
-long				numJoints,numAnims,numKeyframes;
 AnimEventType		*animEventPtr;
 JointKeyframeType	*keyFramePtr;
 SkeletonFile_Header_Type	*headerPtr;
@@ -145,8 +143,8 @@ SkeletonFile_AnimHeader_Type	*animHeaderPtr;
 	version = headerPtr->version;
 	GAME_ASSERT_MESSAGE(version == SKELETON_FILE_VERS_NUM, "Skeleton file has wrong version #");
 
-	numAnims = skeleton->NumAnims = headerPtr->numAnims;			// get # anims in skeleton
-	numJoints = skeleton->NumBones = headerPtr->numJoints;			// get # joints in skeleton
+	int numAnims = skeleton->NumAnims = headerPtr->numAnims;		// get # anims in skeleton
+	int numJoints = skeleton->NumBones = headerPtr->numJoints;		// get # joints in skeleton
 	ReleaseResource(hand);
 
 	GAME_ASSERT(numJoints <= MAX_JOINTS);							// check for overload
@@ -171,7 +169,7 @@ SkeletonFile_AnimHeader_Type	*animHeaderPtr;
 		/*  READ BONE DEFINITION RESOURCES */
 		/***********************************/
 
-	for (i=0; i < numJoints; i++)
+	for (int i = 0; i < numJoints; i++)
 	{
 		File_BoneDefinitionType	*bonePtr;
 		UInt16					*indexPtr;
@@ -212,7 +210,7 @@ SkeletonFile_AnimHeader_Type	*animHeaderPtr;
 
 			/* COPY POINT INDEX ARRAY INTO BONE STRUCT */
 
-		for (j=0; j < skeleton->Bones[i].numPointsAttachedToBone; j++)
+		for (int j = 0; j < skeleton->Bones[i].numPointsAttachedToBone; j++)
 			skeleton->Bones[i].pointList[j] = indexPtr[j];
 		ReleaseResource(hand);
 
@@ -227,7 +225,7 @@ SkeletonFile_AnimHeader_Type	*animHeaderPtr;
 			
 			/* COPY NORMAL INDEX ARRAY INTO BONE STRUCT */
 
-		for (j=0; j < skeleton->Bones[i].numNormalsAttachedToBone; j++)
+		for (int j = 0; j < skeleton->Bones[i].numNormalsAttachedToBone; j++)
 			skeleton->Bones[i].normalList[j] = indexPtr[j];
 		ReleaseResource(hand);
 						
@@ -253,7 +251,7 @@ SkeletonFile_AnimHeader_Type	*animHeaderPtr;
 		pointPtr = (TQ3Point3D *) *hand;
 		UnpackStructs(STRUCTFORMAT_TQ3Point3D, sizeof(TQ3Point3D), skeleton->numDecomposedPoints, pointPtr);
 
-		for (i = 0; i < skeleton->numDecomposedPoints; i++)
+		for (int i = 0; i < skeleton->numDecomposedPoints; i++)
 			skeleton->decomposedPointList[i].boneRelPoint = pointPtr[i];
 	}
 
@@ -264,7 +262,7 @@ SkeletonFile_AnimHeader_Type	*animHeaderPtr;
 			/* READ ANIM INFO   */
 			/*********************/
 			
-	for (i=0; i < numAnims; i++)
+	for (int i = 0; i < numAnims; i++)
 	{
 				/* READ ANIM HEADER */
 
@@ -284,7 +282,7 @@ SkeletonFile_AnimHeader_Type	*animHeaderPtr;
 		GAME_ASSERT(hand);
 		animEventPtr = (AnimEventType *) *hand;
 		UnpackStructs(STRUCTFORMAT_AnimEventType, sizeof(AnimEventType), skeleton->NumAnimEvents[i], animEventPtr);
-		for (j=0;  j < skeleton->NumAnimEvents[i]; j++)
+		for (int j = 0; j < skeleton->NumAnimEvents[i]; j++)
 			skeleton->AnimEventsList[i][j] = *animEventPtr++;
 		ReleaseResource(hand);		
 
@@ -293,13 +291,13 @@ SkeletonFile_AnimHeader_Type	*animHeaderPtr;
 					
 		hand = GetResource('NumK',1000+i);									// read array of #'s for this anim
 		GAME_ASSERT(hand);
-		for (j=0; j < numJoints; j++)
+		for (int j = 0; j < numJoints; j++)
 			skeleton->JointKeyframes[j].numKeyFrames[i] = (*hand)[j];
 		ReleaseResource(hand);
 	}
 
 
-	for (j=0; j < numJoints; j++)
+	for (int j = 0; j < numJoints; j++)
 	{
 				/* ALLOC 2D ARRAY FOR KEYFRAMES */
 				
@@ -311,9 +309,9 @@ SkeletonFile_AnimHeader_Type	*animHeaderPtr;
 
 					/* READ THIS JOINT'S KF'S FOR EACH ANIM */
 					
-		for (i=0; i < numAnims; i++)								
+		for (int i = 0; i < numAnims; i++)
 		{
-			numKeyframes = skeleton->JointKeyframes[j].numKeyFrames[i];					// get actual # of keyframes for this joint
+			int numKeyframes = skeleton->JointKeyframes[j].numKeyFrames[i];				// get actual # of keyframes for this joint
 			GAME_ASSERT(numKeyframes <= MAX_KEYFRAMES);
 		
 					/* READ A JOINT KEYFRAME */
@@ -322,7 +320,7 @@ SkeletonFile_AnimHeader_Type	*animHeaderPtr;
 			GAME_ASSERT(hand);
 			keyFramePtr = (JointKeyframeType *) *hand;
 			UnpackStructs(STRUCTFORMAT_JointKeyframeType, sizeof(JointKeyframeType), numKeyframes, keyFramePtr);
-			for (k = 0; k < numKeyframes; k++)												// copy this joint's keyframes for this anim
+			for (int k = 0; k < numKeyframes; k++)										// copy this joint's keyframes for this anim
 				skeleton->JointKeyframes[j].keyFrames[i][k] = *keyFramePtr++;
 			ReleaseResource(hand);		
 		}
@@ -580,10 +578,9 @@ long		fileSize;
 void LoadTerrain(FSSpec *fsSpec)
 {
 UInt16		*shortPtr;
-long		offset;
 Ptr			miscPtr;
-long		row,i,x,y;
-long		dummy1,dummy2;
+int			offset;
+int			dummy1,dummy2;
 
 
 			/* LOAD THE TERRAIN FILE */
@@ -632,7 +629,7 @@ long		dummy1,dummy2;
 	shortPtr = (UInt16 *)(gTerrainPtr + offset);								// calc ptr to TEXTURE_LAYER
 	ByteswapInts(sizeof(UInt16), gTerrainTileDepth * gTerrainTileWidth, shortPtr);
 
-	for (row = 0; row < gTerrainTileDepth; row++)
+	for (int row = 0; row < gTerrainTileDepth; row++)
 	{
 		gTerrainTextureLayer[row] = shortPtr;									// set [row] to point to layer's row(n)
 		shortPtr += gTerrainTileWidth;
@@ -650,7 +647,7 @@ long		dummy1,dummy2;
 		shortPtr = (UInt16 *)(gTerrainPtr + offset);							// calc ptr to HEIGHTMAP_LAYER
 		ByteswapInts(sizeof(UInt16), gTerrainTileDepth * gTerrainTileWidth, shortPtr);
 
-		for (row = 0; row < gTerrainTileDepth; row++)
+		for (int row = 0; row < gTerrainTileDepth; row++)
 		{
 			gTerrainHeightMapLayer[row] = shortPtr;								// set [row] to point to layer's row(n)
 			shortPtr += gTerrainTileWidth;
@@ -669,7 +666,7 @@ long		dummy1,dummy2;
 		shortPtr = (UInt16 *)(gTerrainPtr + offset);							// calc ptr to PATH_LAYER
 		ByteswapInts(sizeof(UInt16), gTerrainTileDepth * gTerrainTileWidth, shortPtr);
 
-		for (row = 0; row < gTerrainTileDepth; row++)
+		for (int row = 0; row < gTerrainTileDepth; row++)
 		{
 			gTerrainPathLayer[row] = shortPtr;									// set [row] to point to layer's row(n)
 			shortPtr += gTerrainTileWidth;
@@ -682,7 +679,7 @@ long		dummy1,dummy2;
 	offset = *((SInt32 *)(gTerrainPtr+32));									// get offset to TEXTURE_ATTRIBUTES
 	// SOURCE PORT CHEAT... don't know how to get the number of tile attributes otherwise..
 	SInt32 offsetOfNextChunk = *((SInt32*)(gTerrainPtr + 36));
-	int nTileAttributes = (offsetOfNextChunk - offset) / sizeof(TileAttribType);
+	int nTileAttributes = (offsetOfNextChunk - offset) / (int) sizeof(TileAttribType);
 	gTileAttributes = (TileAttribType *)(gTerrainPtr + offset);				// calc ptr to TEXTURE_ATTRIBUTES
 	UnpackStructs(STRUCTFORMAT_TileAttribType, sizeof(TileAttribType), nTileAttributes, gTileAttributes);
 
@@ -693,7 +690,7 @@ long		dummy1,dummy2;
 	if (offset > 0)
 	{
 		miscPtr = gTerrainPtr+offset;										// calc ptr to HEIGHTMAP_TILES
-		for (i=0; i < MAX_HEIGHTMAP_TILES; i++)
+		for (int i = 0; i < MAX_HEIGHTMAP_TILES; i++)
 		{
 			gTerrainHeightMapPtrs[i] = miscPtr; 	   						// point to texture(n)
 			miscPtr += (TERRAIN_HMTILE_SIZE * TERRAIN_HMTILE_SIZE);			// skip tile definition
@@ -714,8 +711,8 @@ long		dummy1,dummy2;
 
 				/* INITIALIZE CURRENT SCROLL SETTINGS */
 
-	x = gMyStartX-(SUPERTILE_ACTIVE_RANGE*SUPERTILE_SIZE*TERRAIN_POLYGON_SIZE);
-	y = gMyStartZ-(SUPERTILE_ACTIVE_RANGE*SUPERTILE_SIZE*TERRAIN_POLYGON_SIZE);
+	long x = gMyStartX - (SUPERTILE_ACTIVE_RANGE*SUPERTILE_SIZE*TERRAIN_POLYGON_SIZE);
+	long y = gMyStartZ - (SUPERTILE_ACTIVE_RANGE*SUPERTILE_SIZE*TERRAIN_POLYGON_SIZE);
 	GetSuperTileInfo(x, y, &gCurrentSuperTileCol, &gCurrentSuperTileRow, &dummy1, &dummy2);
 
 

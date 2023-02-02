@@ -63,7 +63,7 @@ typedef struct
 		
 typedef struct
 {
-	long 				parentBone;			 			// index to previous bone
+	int					parentBone;						// index to previous bone
 	TQ3Point3D			coord;							// absolute coord (not relative to parent!) 
 	UInt16				numPointsAttachedToBone;		// # vertices/points that this bone has
 	UInt16				*pointList;						// indecies into gDecomposedPointList
@@ -133,13 +133,13 @@ typedef struct
 
 	BoneDefinitionType	*Bones;							// data which describes bone heirarachy
 
-	long				numDecomposedTriMeshes;			// # trimeshes in skeleton
+	int					numDecomposedTriMeshes;			// # trimeshes in skeleton
 	TQ3TriMeshData		**decomposedTriMeshPtrs;		// array of triMeshData
 
-	long				numDecomposedPoints;			// # shared points in skeleton
+	int					numDecomposedPoints;			// # shared points in skeleton
 	DecomposedPointType	*decomposedPointList;			// array of shared points
 
-	short				numDecomposedNormals ;			// # shared normal vectors
+	int					numDecomposedNormals;			// # shared normal vectors
 	TQ3Vector3D			*decomposedNormalsList;			// array of shared normals
 
 	TQ3MetaFile			*associated3DMF;					// associated 3DMF file
@@ -228,8 +228,8 @@ struct ObjNode
 	float			Accel;				// current acceleration value
 	TQ3Vector2D		TerrainAccel;		// force added by terrain slopes
 	TQ3Point2D		TargetOff;			// target offsets
-	unsigned long	CType;				// collision type bits
-	unsigned long	CBits;				// collision attribute bits
+	uint32_t		CType;				// collision type bits
+	uint32_t		CBits;				// collision attribute bits
 	Byte			Kind;				// kind
 	signed char		Flag[6];
 	long			Special[6];
@@ -238,7 +238,7 @@ struct ObjNode
 	float			Health;				// health 0..1
 	float			Damage;				// damage
 	
-	unsigned long	StatusBits;			// various status bits
+	uint32_t		StatusBits;			// various status bits
 	
 	struct	ObjNode	*ShadowNode;		// ptr to node's shadow (if any)
 	struct	ObjNode	*PlatformNode;		// ptr to object which it on top of.
@@ -276,7 +276,7 @@ typedef struct
 {
 	Byte		genre,group,type,animNum;
 	TQ3Point3D	coord;
-	unsigned long	flags;
+	uint32_t	flags;
 	short		slot;
 	void		(*moveCall)(ObjNode *);
 	float		rot,scale;

@@ -58,9 +58,6 @@ Boolean				gSongPlayingFlag = false;
 Boolean				gResetSong = false;
 Boolean				gLoopSongFlag = true;
 
-
-long	gOriginalSystemVolume,gCurrentSystemVolume;
-
 Boolean			gMuteMusicFlag = false;
 
 		/*****************/
@@ -102,13 +99,6 @@ short	gAmbientEffect = -1;
 void InitSoundTools(void)
 {
 OSErr		iErr;
-
-			/* SET SYSTEM VOLUME INFO */
-			
-	GetDefaultOutputVolume(&gOriginalSystemVolume);		
-	gOriginalSystemVolume &= 0xffff;	
-	gCurrentSystemVolume = gOriginalSystemVolume;
-
 
 	gMaxChannels = 0;
 

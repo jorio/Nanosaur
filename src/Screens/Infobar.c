@@ -16,7 +16,7 @@
 /*    PROTOTYPES            */
 /****************************/
 
-static void PrintNumber(unsigned long num, short numDigits, long x, long y);
+static void PrintNumber(unsigned int num, int numDigits, int x, int y);
 static void ShowTimeRemaining(void);
 static void ShowHealth(void);
 static void UpdateInfobarIcon(ObjNode *theNode);
@@ -75,8 +75,8 @@ enum
 /*    VARIABLES      */
 /*********************/
 
-unsigned long 	gInfobarUpdateBits = 0;
-unsigned long 	gScore;
+uint32_t		gInfobarUpdateBits = 0;
+uint32_t		gScore;
 short			gNumLives;
 float			gFuel;
 float			gTimeRemaining;
@@ -179,7 +179,7 @@ unsigned long	bits;
 		/* SHOW SCORE */
 		
 	if (bits & UPDATE_SCORE)
-		PrintNumber(gScore,8, SCORE_X,SCORE_Y);
+		PrintNumber(gScore, 8, SCORE_X,SCORE_Y);
 
 
 		/* SHOW FUEL GAUGE */
@@ -250,22 +250,18 @@ short	i;
 
 /****************** PRINT NUMBER ******************/
 
-static void PrintNumber(unsigned long num, short numDigits, long x, long y)
+static void PrintNumber(unsigned int num, int numDigits, int x, int y)
 {
-unsigned long digit;
-short i;
-
 	x += NUMBERS_XOFF;
 	y += NUMBERS_YOFF;
 
-	for (i = 0; i < numDigits; i++)
+	for (int i = 0; i < numDigits; i++)
 	{
-		digit = num % 10;				// get digit value
+		int digit = num % 10;				// get digit value
 		num /= 10;
 		DrawSpriteFrameToScreen(SPRITE_GROUP_INFOBAR, INFOBAR_FRAMENUM_0+digit, x, y);
 		x -= NUMBERS_WIDTH;
 	}
-
 }
 
 

@@ -36,7 +36,7 @@ static void AddTriangleCollision(ObjNode *thisNode, float x, float y, float z, f
 
 
 CollisionRec	gCollisionList[MAX_COLLISIONS];
-short			gNumCollisions = 0;
+int				gNumCollisions = 0;
 Byte			gTotalSides;
 
 short				gNumCollTriangles;
@@ -49,7 +49,7 @@ TQ3BoundingBox		gCollTrianglesBBox;
 // NOTE: assumes baseNode only has 1 collision box.
 //
 
-void CollisionDetect(ObjNode *baseNode,unsigned long CType)
+void CollisionDetect(ObjNode *baseNode, uint32_t CType)
 {
 ObjNode 	*thisNode;
 long		sideBits,cBits;
@@ -295,7 +295,7 @@ next:
 // OUTPUT: totalSides
 //
 
-Byte HandleCollisions(ObjNode *theNode, unsigned long	cType)
+Byte HandleCollisions(ObjNode *theNode, uint32_t cType)
 {
 Byte		totalSides;
 short		i;
@@ -312,7 +312,7 @@ CollisionBoxType *boxList = nil;
 
 	CalcObjectBoxFromGlobal(theNode);						// calc current collision box
 
-	CollisionDetect(theNode,cType);							// get collision info
+	CollisionDetect(theNode, cType);						// get collision info
 	
 	originalX = gCoord.x;									// remember starting coords
 	originalY = gCoord.y;									
@@ -1157,7 +1157,7 @@ signed char	wind;										// current winding number
 // OUTPUT: # collisions detected
 //
 
-short DoSimplePointCollision(TQ3Point3D *thePoint, UInt32 cType)
+int DoSimplePointCollision(TQ3Point3D *thePoint, UInt32 cType)
 {
 ObjNode	*thisNode;
 short	targetNumBoxes,target;
@@ -1235,7 +1235,7 @@ next:
 
 /*************************** DO TRIANGLE COLLISION **********************************/
 
-void DoTriangleCollision(ObjNode *theNode, unsigned long CType)
+void DoTriangleCollision(ObjNode *theNode, uint32_t CType)
 {
 ObjNode	*thisNode;
 float	x,y,z,oldX,oldY,oldZ;

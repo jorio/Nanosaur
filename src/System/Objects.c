@@ -330,7 +330,6 @@ ObjNode		*thisNodePtr;
 void DrawObjects(QD3DSetupOutputType *setupInfo)
 {
 ObjNode		*theNode;
-unsigned long	statusBits;
 
 	(void) setupInfo;
 
@@ -349,7 +348,7 @@ unsigned long	statusBits;
 			/***********************/			
 	do
 	{
-		statusBits = theNode->StatusBits;						// get obj's status bits
+		uint32_t statusBits = theNode->StatusBits;				// get obj's status bits
 
 		if (statusBits & STATUS_BIT_ISCULLED)					// see if is culled
 			goto next;

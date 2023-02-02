@@ -70,7 +70,7 @@ Boolean (*gTerrainItemAddRoutines[])(TerrainItemEntryType *, long, long) =
 
 void BuildTerrainItemList(long numItems, TerrainItemEntryType* itemList)
 {
-long			col,itemCol,itemNum,nextCol,prevCol;
+long			col,itemCol,nextCol,prevCol;
 TerrainItemEntryType *lastPtr;
 
 			/* ALLOC MEMORY FOR LOOKUP TABLE */
@@ -98,7 +98,7 @@ TerrainItemEntryType *lastPtr;
 	nextCol = 0;													// start @ col 0
 	prevCol = -1;
 
-	for (itemNum = 0; itemNum < gNumTerrainItems; itemNum++)
+	for (int itemNum = 0; itemNum < gNumTerrainItems; itemNum++)
 	{
 		itemCol = gMasterItemList[itemNum].x / (SUPERTILE_SIZE*OREOMAP_TILE_SIZE);	// get column of item (supertile relative)
 		if (itemCol >= gNumSuperTilesWide)
@@ -148,7 +148,7 @@ trail:
 	
 			/* LINK ALL THE OTHERS */
 				
-	for (itemNum = 1; itemNum < (gNumTerrainItems-1); itemNum++)
+	for (int itemNum = 1; itemNum < (gNumTerrainItems-1); itemNum++)
 	{
 		gMasterItemList[itemNum].prevItemIdx = itemNum - 1;
 		gMasterItemList[itemNum].nextItemIdx = itemNum + 1;

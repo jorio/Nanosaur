@@ -413,8 +413,8 @@ static const TQ3Point3D	inPoint = {0,0,0};
 	theNode->StatusBits &= ~STATUS_BIT_ISCARRYING;					// clear carrying flag
 	theNode->CarriedObj = nil;										// clear carried obj ptr
 	itemObj->StatusBits &= ~STATUS_BIT_DONTCULL;					// let cull again
-	itemObj->CBits = itemObj->OldCBits;								// restore collision info
-	itemObj->CType = itemObj->OldCType;
+	itemObj->CBits = (uint32_t) itemObj->OldCBits;					// restore collision info
+	itemObj->CType = (uint32_t) itemObj->OldCType;
 	itemObj->Delta.y = 0;											// start falling momentum @ 0
 
 	itemObj->Rot.y = theNode->Rot.y;								// match y rotations

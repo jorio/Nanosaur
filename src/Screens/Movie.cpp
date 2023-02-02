@@ -50,7 +50,7 @@ void PlayAMovie(FSSpec* spec)
 
 		{
 			const auto& frame = movie.videoFrames.front();
-			cinepak.DecodeFrame(frame.data(), frame.size());
+			cinepak.DecodeFrame(frame.data(), (int) frame.size());
 			movie.videoFrames.pop();
 		}
 

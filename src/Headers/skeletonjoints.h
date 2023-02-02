@@ -16,9 +16,8 @@ enum
 
 //===========================================
 
-extern	void UpdateJointTransforms(SkeletonObjDataType *skeleton,long jointNum);
-extern	void FindCoordOfJoint(ObjNode *theNode, long jointNum, TQ3Point3D *outPoint);
-extern	void FindCoordOnJoint(ObjNode *theNode, long jointNum, TQ3Point3D *inPoint, TQ3Point3D *outPoint);
-extern	void FindJointFullMatrix(ObjNode *theNode, long jointNum, TQ3Matrix4x4 *outMatrix);
-
+void UpdateJointTransforms(SkeletonObjDataType *skeleton, int jointNum);
+void FindCoordOfJoint(ObjNode *theNode, int jointNum, TQ3Point3D *outPoint);
+void FindCoordOnJoint(ObjNode *theNode, int jointNum, const TQ3Point3D *inPoint, TQ3Point3D *outPoint);
+void FindJointFullMatrix(ObjNode *theNode, int jointNum, TQ3Matrix4x4 *outMatrix);
 

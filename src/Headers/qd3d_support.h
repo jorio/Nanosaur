@@ -48,7 +48,7 @@ typedef	struct
 
 	float			ambientBrightness;
 	TQ3ColorRGB		ambientColor;
-	long			numFillLights;
+	int				numFillLights;
 	TQ3Vector3D		fillDirection[MAX_FILL_LIGHTS];
 	TQ3ColorRGB		fillColor[MAX_FILL_LIGHTS];
 	float			fillBrightness[MAX_FILL_LIGHTS];

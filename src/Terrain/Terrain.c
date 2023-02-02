@@ -19,21 +19,21 @@
 /*  PROTOTYPES             */
 /****************************/
 
-static void ScrollTerrainUp(long superRow, long superCol);
-static void ScrollTerrainDown(long superRow, long superCol);
+static void ScrollTerrainUp(int superRow, int superCol);
+static void ScrollTerrainDown(int superRow, int superCol);
 static void ScrollTerrainLeft(void);
-static void ScrollTerrainRight(long superCol, long superRow, long tileCol, long tileRow);
-static short GetFreeSuperTileMemory(void);
-static inline void ReleaseSuperTileObject(short superTileNum);
+static void ScrollTerrainRight(int superCol, int superRow, int tileCol, int tileRow);
+static int GetFreeSuperTileMemory(void);
+static inline void ReleaseSuperTileObject(int superTileNum);
 static void CalcNewItemDeleteWindow(void);
-static float	GetTerrainHeightAtRowCol(long row, long col);
+static float GetTerrainHeightAtRowCol(int row, int col);
 static void CreateSuperTileMemoryList(void);
-static short	BuildTerrainSuperTile(long	startCol, long startRow);
+static int BuildTerrainSuperTile(int startCol, int startRow);
 static void UpdateSuperTileTexture(SuperTileMemoryType* superTilePtr);
-static void DrawTileIntoMipmap(UInt16 tile, short row, short col, UInt16 *buffer);
+static void DrawTileIntoMipmap(UInt16 tile, int row, int col, UInt16 *buffer);
 
 #if !(HQ_TERRAIN)
-static void BuildTerrainSuperTile_Flat(SuperTileMemoryType *, long startCol, long startRow);
+static void BuildTerrainSuperTile_Flat(SuperTileMemoryType *, int startCol, int startRow);
 static void ShrinkSuperTileTextureMap(const uint16_t* srcPtr, uint16_t* dstPtr, int targetSize);
 #endif // !(HQ_TERRAIN)
 
@@ -67,24 +67,22 @@ UInt16	**gTerrainTextureLayer = nil;					// 2 dimensional array of UInt16s (allo
 UInt16	**gTerrainHeightMapLayer = nil;
 UInt16	**gTerrainPathLayer = nil;
 
-long	gTerrainTileWidth,gTerrainTileDepth;			// width & depth of terrain in tiles
+int		gTerrainTileWidth,gTerrainTileDepth;			// width & depth of terrain in tiles
 long	gTerrainUnitWidth,gTerrainUnitDepth;			// width & depth of terrain in world units (see TERRAIN_POLYGON_SIZE)
 
-long	gNumTerrainTextureTiles = 0;
+int		gNumTerrainTextureTiles = 0;
 Ptr		gTerrainHeightMapPtrs[MAX_HEIGHTMAP_TILES];
 
-long	gNumSuperTilesDeep,gNumSuperTilesWide;	  		// dimensions of terrain in terms of supertiles
-long	gCurrentSuperTileRow,gCurrentSuperTileCol;
+int		gNumSuperTilesDeep,gNumSuperTilesWide;	  		// dimensions of terrain in terms of supertiles
+int		gCurrentSuperTileRow,gCurrentSuperTileCol;
 
-// Source port enhancement: these indices were bytes, changed to shorts
-// so we can have an active supertile area of 8x8 supertiles or more
-static short	gTerrainScrollBuffer[MAX_SUPERTILES_DEEP][MAX_SUPERTILES_WIDE];		// 2D array which has index to supertiles for each possible supertile
+static int	gTerrainScrollBuffer[MAX_SUPERTILES_DEEP][MAX_SUPERTILES_WIDE];		// 2D array which has index to supertiles for each possible supertile
 
-short	gNumFreeSupertiles = 0;
+static int	gNumFreeSupertiles = 0;
 static	SuperTileMemoryType		*gSuperTileMemoryList = NULL;
 
 
-long	gTerrainItemDeleteWindow_Near,gTerrainItemDeleteWindow_Far,
+int		gTerrainItemDeleteWindow_Near,gTerrainItemDeleteWindow_Far,
 		gTerrainItemDeleteWindow_Left,gTerrainItemDeleteWindow_Right;
 
 TileAttribType	*gTileAttributes = nil;
@@ -283,7 +281,6 @@ void DisposeTerrain(void)
 
 static void CreateSuperTileMemoryList(void)
 {
-short					u,v,i,j;
 TQ3Point3D				p[NUM_VERTICES_IN_SUPERTILE];
 TQ3TriMeshTriangleData	newTriangle[NUM_POLYS_IN_SUPERTILE];
 //TQ3Vector3D				faceNormals[NUM_POLYS_IN_SUPERTILE];
@@ -316,7 +313,7 @@ TQ3Param2D				uvsFlat[4] = {{0,0}, {1,0}, {0,1}, {1,1}};
 			
 				/* INIT POINT COORDS & NORMALS */
 				
-	for (i = 0; i < NUM_VERTICES_IN_SUPERTILE; i++)
+	for (int i = 0; i < NUM_VERTICES_IN_SUPERTILE; i++)
 	{
 		p[i].x = p[i].y = p[i].z = 0.0f;										// clear point list
 		vertexNormals[i].x = vertexNormals[i].z = 0;						// set dummy vertex normals (point up)
@@ -326,26 +323,26 @@ TQ3Param2D				uvsFlat[4] = {{0,0}, {1,0}, {0,1}, {1,1}};
 	
 			/* INIT UV'S */
 			
-	i = 0;
-	for (v = 0; v <= SUPERTILE_SIZE; v++)									// sets uv's 0.0 -> 1.0 for single texture map
+	int j = 0;
+	for (int v = 0; v <= SUPERTILE_SIZE; v++)									// sets uv's 0.0 -> 1.0 for single texture map
 	{
-		for (u = 0; u <= SUPERTILE_SIZE; u++)
+		for (int u = 0; u <= SUPERTILE_SIZE; u++)
 		{
 #if HQ_TERRAIN
-			uvs[i].u = (1.0f + u) / (SUPERTILE_SIZE + 2.0f);
-			uvs[i].v = (1.0f + v) / (SUPERTILE_SIZE + 2.0f);
+			uvs[j].u = (1.0f + u) / (SUPERTILE_SIZE + 2.0f);
+			uvs[j].v = (1.0f + v) / (SUPERTILE_SIZE + 2.0f);
 #else
-			uvs[i].u = (float)u / (float)SUPERTILE_SIZE;
-			uvs[i].v = (float)v / (float)SUPERTILE_SIZE;
+			uvs[j].u = (float)u / (float)SUPERTILE_SIZE;
+			uvs[j].v = (float)v / (float)SUPERTILE_SIZE;
 #endif
-			i++;
+			j++;
 		}	
 	}
 
 			/* INIT FACES & FACE NORMALS */
 				
 	j = 0;
-	for (i = 0; i < NUM_POLYS_IN_SUPERTILE; i++)							// create triangle list
+	for (int i = 0; i < NUM_POLYS_IN_SUPERTILE; i++)							// create triangle list
 	{
 		if (i&1)
 		{
@@ -381,7 +378,7 @@ TQ3Param2D				uvsFlat[4] = {{0,0}, {1,0}, {0,1}, {1,1}};
 	Ptr blankTexPtr = NewPtrClear(SUPERTILE_TEXMAP_SIZE * SUPERTILE_TEXMAP_SIZE * sizeof(uint16_t));
 	GAME_ASSERT(blankTexPtr);
 
-	for (i = 0; i < MAX_SUPERTILES; i++)
+	for (int i = 0; i < MAX_SUPERTILES; i++)
 	{
 		GLuint textureName = Render_LoadTexture(
 				TILE_TEXTURE_INTERNAL_FORMAT,
@@ -427,7 +424,7 @@ TQ3Param2D				uvsFlat[4] = {{0,0}, {1,0}, {0,1}, {1,1}};
 
 #else
 
-	for (i = 0; i < MAX_SUPERTILES; i++)
+	for (int i = 0; i < MAX_SUPERTILES; i++)
 	{
 		Ptr blankTexPtr = NewPtrClear(SUPERTILE_TEXMAP_SIZE * SUPERTILE_TEXMAP_SIZE * sizeof(uint16_t));
 		GAME_ASSERT(blankTexPtr);
@@ -519,13 +516,11 @@ TQ3Param2D				uvsFlat[4] = {{0,0}, {1,0}, {0,1}, {1,1}};
 // OUTPUT: index into gSuperTileMemoryList
 //
 
-static short GetFreeSuperTileMemory(void)
+static int GetFreeSuperTileMemory(void)
 {
-short	i;
-
 				/* SCAN FOR A FREE BLOCK */
 
-	for (i = 0; i < MAX_SUPERTILES; i++)
+	for (int i = 0; i < MAX_SUPERTILES; i++)
 	{
 		if (gSuperTileMemoryList[i].mode == SUPERTILE_MODE_FREE)
 		{
@@ -550,16 +545,14 @@ short	i;
 // OUTPUT: index to supertile
 //
 
-static short	BuildTerrainSuperTile(long	startCol, long startRow)
+static int BuildTerrainSuperTile(int startCol, int startRow)
 {
-long	 			row,col,row2,col2,i;
-short				superTileNum;
+int					superTileNum;
 float				height,miny,maxy;
 TQ3Vector3D			normals[SUPERTILE_SIZE+1][SUPERTILE_SIZE+1];
 TQ3TriMeshData		*triMeshPtr;
 TQ3Vector3D			*vertexNormalList;
 UInt16				tile;
-short				h1,h2,h3,h4;
 TQ3Point3D			*pointList;
 TQ3TriMeshTriangleData	*triangleList;
 SuperTileMemoryType	*superTilePtr;
@@ -585,14 +578,14 @@ SuperTileMemoryType	*superTilePtr;
 	miny = 1000000;
 	maxy = -miny;
 	
-	for (row2 = 0; row2 <= SUPERTILE_SIZE; row2++)
+	for (int row2 = 0; row2 <= SUPERTILE_SIZE; row2++)
 	{
-		row = row2 + startRow;
+		int row = row2 + startRow;
 		
-		for (col2 = 0; col2 <= SUPERTILE_SIZE; col2++)
+		for (int col2 = 0; col2 <= SUPERTILE_SIZE; col2++)
 		{
-			col = col2 + startCol;
-			
+			int col = col2 + startCol;
+
 			if ((row >= gTerrainTileDepth) || (col >= gTerrainTileWidth))			// check for edge vertices (off map array)
 				height = 0;
 			else
@@ -640,15 +633,15 @@ SuperTileMemoryType	*superTilePtr;
 			/* CALCULATE VERTEX NORMALS   */
 			/******************************/
 
-	for (row2 = 0; row2 <= SUPERTILE_SIZE; row2++)
+	for (int row2 = 0; row2 <= SUPERTILE_SIZE; row2++)
 	{
-		row = row2 + startRow;
-		
-		for (col2 = 0; col2 <= SUPERTILE_SIZE; col2++)
+		int row = row2 + startRow;
+
+		for (int col2 = 0; col2 <= SUPERTILE_SIZE; col2++)
 		{
 			float	center_h,left_h,right_h,back_h,front_h;
-			
-			col = col2 + startCol;
+
+			int col = col2 + startCol;
 
 					/* GET CENTER HEIGHT */
 					
@@ -696,14 +689,14 @@ SuperTileMemoryType	*superTilePtr;
 				/* DETERMINE SPLITTING ANGLE FOR TILES */
 				/***************************************/
 
-	for (row = 0; row < SUPERTILE_SIZE; row++)
+	for (int row = 0; row < SUPERTILE_SIZE; row++)
 	{
-		for (col = 0; col < SUPERTILE_SIZE; col++)
+		for (int col = 0; col < SUPERTILE_SIZE; col++)
 		{
-			h1 = gWorkGrid[row][col].y;												// get height of all 4 vertices (clockwise)
-			h2 = gWorkGrid[row][col+1].y;
-			h3 = gWorkGrid[row+1][col+1].y;
-			h4 = gWorkGrid[row+1][col].y;
+			int h1 = gWorkGrid[row][col].y;											// get height of all 4 vertices (clockwise)
+			int h2 = gWorkGrid[row][col+1].y;
+			int h3 = gWorkGrid[row+1][col+1].y;
+			int h4 = gWorkGrid[row+1][col].y;
 
 
 					/* QUICK CHECK FOR FLAT POLYS */
@@ -793,9 +786,9 @@ SuperTileMemoryType	*superTilePtr;
 
 					/* SET VERTEX COORDS & NORMALS */
 	
-	i = 0;			
-	for (row = 0; row < (SUPERTILE_SIZE+1); row++)
-		for (col = 0; col < (SUPERTILE_SIZE+1); col++)
+	int i = 0;
+	for (int row = 0; row < (SUPERTILE_SIZE+1); row++)
+		for (int col = 0; col < (SUPERTILE_SIZE+1); col++)
 		{
 			pointList[i] = gWorkGrid[row][col];									// copy from other list
 			vertexNormalList[i] = normals[row][col];
@@ -805,15 +798,11 @@ SuperTileMemoryType	*superTilePtr;
 
 				/* UPDATE TRIMESH DATA WITH NEW INFO */
 
-	i = 0;			
-	for (row2 = 0; row2 < SUPERTILE_SIZE; row2++)
+	i = 0;
+	for (int row2 = 0; row2 < SUPERTILE_SIZE; row2++)
 	{
-		row = row2 + startRow;
-
-		for (col2 = 0; col2 < SUPERTILE_SIZE; col2++)
+		for (int col2 = 0; col2 < SUPERTILE_SIZE; col2++)
 		{
-			col = col2 + startCol;
-
 					/* SET SPLITTING INFO */
 
 			if (gSuperTileMemoryList[superTileNum].splitAngle[row2][col2] == SPLIT_BACKWARD)	// set coords & uv's based on splitting
@@ -839,7 +828,7 @@ SuperTileMemoryType	*superTilePtr;
 				triangleList[i].pointIndices[1] = gTileTriangles2_A[row2][col2][2];
 				triangleList[i].pointIndices[2] = gTileTriangles2_A[row2][col2][1];
 				i++;
-			}			
+			}
 		}
 	}
 
@@ -1005,7 +994,7 @@ static void UpdateSuperTileTexture(SuperTileMemoryType* superTilePtr)
 
 /********************* DRAW TILE INTO MIPMAP *************************/
 
-static void DrawTileIntoMipmap(UInt16 tile, short row, short col, UInt16 *buffer)
+static void DrawTileIntoMipmap(UInt16 tile, int row, int col, UInt16 *buffer)
 {
 UInt16 texMapNum;
 UInt16 flipRotBits;
@@ -1233,7 +1222,7 @@ static void ShrinkSuperTileTextureMap(const uint16_t* srcPtr, uint16_t* dstPtr, 
 // Deactivates the terrain object and releases its memory block
 //
 
-static inline void ReleaseSuperTileObject(short superTileNum)
+static inline void ReleaseSuperTileObject(int superTileNum)
 {
 	gSuperTileMemoryList[superTileNum].mode = SUPERTILE_MODE_FREE;		// it's free!
 	gNumFreeSupertiles++;
@@ -1476,7 +1465,7 @@ TQ3PlaneEquation	*planeEq;
 
 float	GetTerrainHeightAtCoord_Quick(long x, long z)
 {
-long	row,col,offx,offy;
+int		row,col,offx,offy;
 short	height;
 UInt16	tileNum,tile,flipBits;
 Ptr		pixelPtr;
@@ -1527,7 +1516,7 @@ float	heightf;
 // OUTPUT: y = world y coord
 //
 
-static float	GetTerrainHeightAtRowCol(long row, long col)
+static float	GetTerrainHeightAtRowCol(int row, int col)
 {
 long	offx,offy;
 unsigned char	height;
@@ -1579,9 +1568,9 @@ float	heightf;
 // OUTPUT: row/col in tile coords and supertile coords
 //
 
-void GetSuperTileInfo(long x, long z, long *superCol, long *superRow, long *tileCol, long *tileRow)
+void GetSuperTileInfo(long x, long z, int *superCol, int *superRow, int *tileCol, int *tileRow)
 {
-long	row,col;
+int	row,col;
 
 
 //	if ((x < 0) || (y < 0))									// see if out of bounds
@@ -1604,7 +1593,7 @@ long	row,col;
 void DoMyTerrainUpdate(void)
 {
 long	x,y;
-long	superCol,superRow,tileCol,tileRow;
+int	superCol,superRow,tileCol,tileRow;
 
 
 			/* CALC PIXEL COORDS OF FAR LEFT SUPER TILE */
@@ -1668,7 +1657,7 @@ long	superCol,superRow,tileCol,tileRow;
 
 static void CalcNewItemDeleteWindow(void)
 {
-long	temp,temp2;
+int	temp,temp2;
 
 				/* CALC LEFT SIDE OF WINDOW */
 
@@ -1707,11 +1696,10 @@ long	temp,temp2;
 // INPUT: superRow = new supertile row #
 //
 
-static void ScrollTerrainUp(long superRow, long superCol)
+static void ScrollTerrainUp(int superRow, int superCol)
 {
-long	col,i,bottom,left,right;
-short	superTileNum;
-long	tileRow,tileCol;
+int	bottom,left,right;
+int	tileRow,tileCol;
 
 	gHiccupEliminator = 0;															// reset this when about to make a new row/col of supertiles
 
@@ -1719,15 +1707,15 @@ long	tileRow,tileCol;
 
 	if ((gCurrentSuperTileRow < gNumSuperTilesDeep) && (gCurrentSuperTileRow >= 0))	// check if off map
 	{
-		for (i = 0; i < SUPERTILE_DIST_WIDE; i++)
+		for (int i = 0; i < SUPERTILE_DIST_WIDE; i++)
 		{
-			col = gCurrentSuperTileCol+i;
+			int col = gCurrentSuperTileCol+i;
 			if (col >= gNumSuperTilesWide)											// check if off map
 				break;
 			if (col < 0)
 				continue;
 
-			superTileNum = gTerrainScrollBuffer[gCurrentSuperTileRow][col];			// get supertile for that spot
+			int superTileNum = gTerrainScrollBuffer[gCurrentSuperTileRow][col];		// get supertile for that spot
 			if (superTileNum != EMPTY_SUPERTILE)
 			{
 				ReleaseSuperTileObject(superTileNum);						 		// free the supertile
@@ -1749,7 +1737,7 @@ long	tileRow,tileCol;
 
 	tileCol = gCurrentSuperTileCol * SUPERTILE_SIZE;						// calc col # bot left tile col
 
-	for (col = gCurrentSuperTileCol; col < (gCurrentSuperTileCol + SUPERTILE_DIST_WIDE); col++)
+	for (int col = gCurrentSuperTileCol; col < (gCurrentSuperTileCol + SUPERTILE_DIST_WIDE); col++)
 	{
 		if (col >= gNumSuperTilesWide)
 			goto check_items;
@@ -1760,7 +1748,7 @@ long	tileRow,tileCol;
 		{
 			if ((tileCol >= 0) && (tileCol < gTerrainTileWidth))
 			{
-				superTileNum = BuildTerrainSuperTile(tileCol,tileRow); 					// make new terrain object
+				int superTileNum = BuildTerrainSuperTile(tileCol,tileRow); 				// make new terrain object
 				gTerrainScrollBuffer[superRow][col] = superTileNum;						// save into scroll buffer array
 			}
 		}
@@ -1801,29 +1789,28 @@ check_items:
 // INPUT: superRow = new supertile row #
 //
 
-static void ScrollTerrainDown(long superRow, long superCol)
+static void ScrollTerrainDown(int superRow, int superCol)
 {
-long	col,i,row,top,left,right;
-short	superTileNum;
-long	tileRow,tileCol;
+int	top,left,right;
+int	tileRow,tileCol;
 
 	gHiccupEliminator = 0;															// reset this when about to make a new row/col of supertiles
 
 			/* PURGE OLD BOTTOM ROW */
 
-	row = gCurrentSuperTileRow+SUPERTILE_DIST_DEEP-1;						// calc supertile row # for bottom row
+	int row = gCurrentSuperTileRow+SUPERTILE_DIST_DEEP-1;						// calc supertile row # for bottom row
 
 	if ((row < gNumSuperTilesDeep) && (row >= 0))							// check if off map
 	{
-		for (i = 0; i < SUPERTILE_DIST_WIDE; i++)
+		for (int i = 0; i < SUPERTILE_DIST_WIDE; i++)
 		{
-			col = gCurrentSuperTileCol+i;
+			int col = gCurrentSuperTileCol+i;
 			if (col >= gNumSuperTilesWide)									// check if off map
 				break;
 			if (col < 0)
 				continue;
 
-			superTileNum = gTerrainScrollBuffer[row][col];					// get supertile for that spot
+			int superTileNum = gTerrainScrollBuffer[row][col];					// get supertile for that spot
 			if (superTileNum != EMPTY_SUPERTILE)
 			{
 				ReleaseSuperTileObject(superTileNum);	  						// free the terrain object
@@ -1843,7 +1830,7 @@ long	tileRow,tileCol;
 	tileCol = gCurrentSuperTileCol * SUPERTILE_SIZE;						// calc col # bot left tile col
 	tileRow = superRow * SUPERTILE_SIZE;  									// calc col # bot left tile col
 
-	for (col = gCurrentSuperTileCol; col < (gCurrentSuperTileCol + SUPERTILE_DIST_WIDE); col++)
+	for (int col = gCurrentSuperTileCol; col < (gCurrentSuperTileCol + SUPERTILE_DIST_WIDE); col++)
 	{
 		if (col >= gNumSuperTilesWide)										// see if off map
 			goto check_items;
@@ -1854,7 +1841,7 @@ long	tileRow,tileCol;
 		{
 			if ((tileCol >= 0) && (tileCol < gTerrainTileWidth))
 			{
-				superTileNum = BuildTerrainSuperTile(tileCol,tileRow); 				// make new terrain object
+				int superTileNum = BuildTerrainSuperTile(tileCol,tileRow);			// make new terrain object
 				gTerrainScrollBuffer[superRow][col] = superTileNum;					// save into scroll buffer array
 			}
 		}
@@ -1899,28 +1886,26 @@ check_items:
 
 static void ScrollTerrainLeft(void)
 {
-long	row,top,bottom,right;
-short	superTileNum;
-long 	tileCol,tileRow,newSuperCol;
-long	bottomRow;
+int	top,bottom,right;
+int	tileCol,tileRow,newSuperCol;
 
 	gHiccupEliminator = 0;															// reset this when about to make a new row/col of supertiles
 
-	bottomRow = gCurrentSuperTileRow + SUPERTILE_DIST_DEEP;								// calc bottom row (+1)
+	int bottomRow = gCurrentSuperTileRow + SUPERTILE_DIST_DEEP;							// calc bottom row (+1)
 
 
 			/* PURGE OLD LEFT COL */
 
 	if ((gCurrentSuperTileCol < gNumSuperTilesWide) && (gCurrentSuperTileCol >= 0))		// check if on map
 	{
-		for (row = gCurrentSuperTileRow; row < bottomRow; row++)
+		for (int row = gCurrentSuperTileRow; row < bottomRow; row++)
 		{
 			if (row >= gNumSuperTilesDeep)												// check if off map
 				break;
 			if (row < 0)
 				continue;
 
-			superTileNum = gTerrainScrollBuffer[row][gCurrentSuperTileCol]; 			// get supertile for that spot
+			int superTileNum = gTerrainScrollBuffer[row][gCurrentSuperTileCol]; 		// get supertile for that spot
 			if (superTileNum != EMPTY_SUPERTILE)
 			{
 				ReleaseSuperTileObject(superTileNum);									// free the terrain object
@@ -1941,7 +1926,7 @@ long	bottomRow;
 	if (newSuperCol < 0)
 		goto exit;
 
-	for (row = gCurrentSuperTileRow; row < bottomRow; row++)
+	for (int row = gCurrentSuperTileRow; row < bottomRow; row++)
 	{
 		if (row >= gNumSuperTilesDeep)
 			break;
@@ -1950,7 +1935,7 @@ long	bottomRow;
 
 		if (gTerrainScrollBuffer[row][newSuperCol] == EMPTY_SUPERTILE)			// make sure nothing already here
 		{
-			superTileNum = BuildTerrainSuperTile(tileCol,tileRow); 				// make new terrain object
+			int superTileNum = BuildTerrainSuperTile(tileCol,tileRow); 			// make new terrain object
 			gTerrainScrollBuffer[row][newSuperCol] = superTileNum;				// save into scroll buffer array
 		}
 next:
@@ -1990,29 +1975,27 @@ exit:
 
 /********************** SCROLL TERRAIN RIGHT *************************/
 
-static void ScrollTerrainRight(long superCol, long superRow, long tileCol, long tileRow)
+static void ScrollTerrainRight(int superCol, int superRow, int tileCol, int tileRow)
 {
-long	col,i,row;
-short	superTileNum;
-long	top,bottom,left;
+int	top,bottom,left;
 
 	gHiccupEliminator = 0;															// reset this when about to make a new row/col of supertiles
 
 			/* PURGE OLD RIGHT ROW */
 
-	col = gCurrentSuperTileCol+SUPERTILE_DIST_WIDE-1;						// calc supertile col # for right col
+	int col = gCurrentSuperTileCol+SUPERTILE_DIST_WIDE-1;					// calc supertile col # for right col
 
 	if ((col < gNumSuperTilesWide) && (col >= 0))							// check if off map
 	{
-		for (i = 0; i < SUPERTILE_DIST_DEEP; i++)
+		for (int i = 0; i < SUPERTILE_DIST_DEEP; i++)
 		{
-			row = gCurrentSuperTileRow+i;
+			int row = gCurrentSuperTileRow+i;
 			if (row >= gNumSuperTilesDeep)									// check if off map
 				break;
 			if (row < 0)
 				continue;
 
-			superTileNum = gTerrainScrollBuffer[row][col];						// get terrain object for that spot
+			int superTileNum = gTerrainScrollBuffer[row][col];					// get terrain object for that spot
 			if (superTileNum != EMPTY_SUPERTILE)
 			{
 				ReleaseSuperTileObject(superTileNum);		 					// free the terrain object
@@ -2028,7 +2011,7 @@ long	top,bottom,left;
 	if (superCol >= gNumSuperTilesWide)
 		return;
 
-	for (row = gCurrentSuperTileRow; row < (gCurrentSuperTileRow + SUPERTILE_DIST_DEEP); row++)
+	for (int row = gCurrentSuperTileRow; row < (gCurrentSuperTileRow + SUPERTILE_DIST_DEEP); row++)
 	{
 		if (row >= gNumSuperTilesDeep)										// see if off map
 			goto check_items;
@@ -2039,7 +2022,7 @@ long	top,bottom,left;
 		{
 			if ((tileRow >= 0) && (tileRow < gTerrainTileDepth))
 			{
-				superTileNum = BuildTerrainSuperTile(tileCol,tileRow); 				// make new terrain object
+				int superTileNum = BuildTerrainSuperTile(tileCol,tileRow);			// make new terrain object
 				gTerrainScrollBuffer[row][superCol] = superTileNum;					// save into scroll buffer array
 			}
 		}
@@ -2104,7 +2087,7 @@ long	i,w;
 
 UInt16	GetTileAttribs(long x, long z)
 {
-long	row,col;
+int	row,col;
 
 	if ((x < 0) || (z < 0))										// see if out of bounds
 		return(0);
