@@ -150,10 +150,12 @@ Byte		currentAnim;
 			
 		if (fabs(theNode->Speed) < 210.0f)					
 		{
-			if (currentAnim != PLAYER_ANIM_TURNLEFT)
-				if (theNode->StatusBits & STATUS_BIT_ONGROUND)					// must be on ground
-					if (gCameraMode != CAMERA_MODE_FIRSTPERSON)					// dont do it in 1st person camera mode
-						MorphToSkeletonAnim(theNode->Skeleton,PLAYER_ANIM_TURNLEFT,6);
+			if (currentAnim != PLAYER_ANIM_TURNLEFT
+				&& theNode->StatusBits & STATUS_BIT_ONGROUND				// must be on ground
+				&& gCameraMode != CAMERA_MODE_FIRSTPERSON)					// don't do it in 1st person camera mode
+			{
+				MorphToSkeletonAnim(theNode->Skeleton,PLAYER_ANIM_TURNLEFT, 6);
+			}
 		}
 		
 			/* TOO FAST, SEE IF NEED TO STOP TURN ANIM */
@@ -176,10 +178,12 @@ Byte		currentAnim;
 			
 		if (fabs(theNode->Speed) < 210.0f)					
 		{
-			if (currentAnim != PLAYER_ANIM_TURNRIGHT)
-				if (theNode->StatusBits & STATUS_BIT_ONGROUND)					// must be on ground
-					if (gCameraMode != CAMERA_MODE_FIRSTPERSON)					// dont do it in 1st person camera mode
-						MorphToSkeletonAnim(theNode->Skeleton,PLAYER_ANIM_TURNRIGHT,4);
+			if (currentAnim != PLAYER_ANIM_TURNRIGHT
+				&& theNode->StatusBits & STATUS_BIT_ONGROUND				// must be on ground
+				&& gCameraMode != CAMERA_MODE_FIRSTPERSON)					// don't do it in 1st person camera mode
+			{
+				MorphToSkeletonAnim(theNode->Skeleton,PLAYER_ANIM_TURNRIGHT, 4);
+			}
 		}
 		
 			/* TOO FAST, SEE IF NEED TO STOP TURN ANIM */

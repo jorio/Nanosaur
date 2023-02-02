@@ -125,7 +125,6 @@ extern	ObjNode*				gCurrentNode;
 extern	ObjNode*				gFirstNodePtr;
 extern	ObjNode*				gInventoryObject;
 extern	ObjNode*				gMyTimePortal;
-extern	ObjNode*				gPlayerNode[];
 extern	ObjNode*				gPlayerObj;
 extern	Pool*					gObjNodePool;
 extern	PrefsType				gGamePrefs;

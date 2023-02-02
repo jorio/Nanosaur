@@ -257,6 +257,13 @@ static	void(*myMoveTable[])(ObjNode *) =
 	
 	myMoveTable[theNode->Skeleton->AnimNum](theNode);
 
+		/* ALWAYS UPDATE MY SKELETON EVEN IF I'M HIDDEN FOR FIRST-PERSON */
+
+	if (theNode->StatusBits & STATUS_BIT_HIDDEN)
+	{
+		GetModelCurrentPosition(theNode->Skeleton);
+		UpdateSkinnedGeometry(theNode);
+	}
 }
 
 

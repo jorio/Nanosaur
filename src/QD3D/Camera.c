@@ -1,7 +1,8 @@
 /****************************/
 /*   	CAMERA.C    	    */
-/* (c)1997 Pangea Software  */
 /* By Brian Greenstone      */
+/* (c)1997 Pangea Software  */
+/* (c)2023 Iliyas Jorio     */
 /****************************/
 
 
@@ -447,27 +448,61 @@ const TQ3Point3D*	currentCameraCoords	= &gGameViewInfoPtr->cameraPlacement.camer
 }
 
 
+/************ IS THE CAMERA CURRENTLY "STEADY" IN FIRST-PERSON MODE ****************/
+//
+// If the camera isn't "steady" then it directly tracks the player's head limb.
+//
+
+Boolean IsFirstPersonSteadyCamera(void)
+{
+	if (gCameraMode != CAMERA_MODE_FIRSTPERSON
+		|| !gPlayerObj
+		|| !gPlayerObj->Skeleton)
+	{
+		return false;
+	}
+
+	switch (gPlayerObj->Skeleton->AnimNum)
+	{
+			/* MAKE CAM FOLLOW ACTUAL HEAD POSITION FOR THESE SPECIAL ANIMS  */
+
+		case PLAYER_ANIM_PICKUP:
+		case PLAYER_ANIM_THROW:
+			return false;
+
+			/* OTHERWISE STEADY CAM AT FIXED OFFSET FROM OBJNODE'S CENTER POINT */
+
+		default:
+			return true;
+	}
+}
+
+
 /************************ MOVE CAMERA_FIRST PERSON *********************************/
 
 static void MoveCamera_FirstPerson(void)
 {
-static TQ3Point3D	inPt = {0,20,-100};
-static TQ3Point3D	inPt2 = {0,20,20};
-TQ3Point3D outPt,outPt2;
+	TQ3Point3D from, lookAt;
 
-				/* GET LOOK AT PT */
-				
-	FindCoordOnJoint(gPlayerObj, MYGUY_LIMB_HEAD, &inPt, &outPt);
-	
-				/* GET FROM PT */
-				
-	FindCoordOnJoint(gPlayerObj, MYGUY_LIMB_HEAD, &inPt2, &outPt2);
+	if (!IsFirstPersonSteadyCamera())
+	{
+			/* MAKE CAM FOLLOW ACTUAL HEAD POSITION FOR THESE SPECIAL ANIMS  */
 
-	QD3D_UpdateCameraFromTo(gGameViewInfoPtr,&outPt2,&outPt);
+		from	= (TQ3Point3D) {0,20,20};
+		lookAt	= (TQ3Point3D) {0,20,-100};
+		FindCoordOnJoint(gPlayerObj, MYGUY_LIMB_HEAD, &from, &from);
+		FindCoordOnJoint(gPlayerObj, MYGUY_LIMB_HEAD, &lookAt, &lookAt);
+	}
+	else
+	{
+			/* OTHERWISE STEADY CAM AT FIXED OFFSET FROM OBJNODE'S CENTER POINT */
+
+		from	= (TQ3Point3D) {0, 60, -50};
+		lookAt	= (TQ3Point3D) {0, 60, -100};
+		Q3Point3D_Transform(&from, &gPlayerObj->BaseTransformMatrix, &from);
+		Q3Point3D_Transform(&lookAt, &gPlayerObj->BaseTransformMatrix, &lookAt);
+	}
+
+	QD3D_UpdateCameraFromTo(gGameViewInfoPtr, &from, &lookAt);
 }
-
-
-
-
-
 

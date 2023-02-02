@@ -17,5 +17,5 @@ extern	void MakeCameraEvent(void);
 extern	void MoveCamera(ObjNode *theNode);
 extern	void CalcCameraMatrixInfo(QD3DSetupOutputType *);
 extern	void ResetCameraSettings(void);
-
+Boolean IsFirstPersonSteadyCamera(void);
 

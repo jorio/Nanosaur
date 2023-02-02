@@ -1,7 +1,8 @@
 /****************************/
 /*   	PICKUPS.C		    */
-/* (c)1997 Pangea Software  */
 /* By Brian Greenstone      */
+/* (c)1997 Pangea Software  */
+/* (c)2023 Iliyas Jorio     */
 /****************************/
 
 
@@ -245,43 +246,50 @@ float	iScale;
 	if (theNode->WhoHasPickUp)
 	{
 		holderObj = (ObjNode *)theNode->WhoHasPickUp;						// get owner of pickup
-		limbNum = theNode->HoldingLimb;										// which limb of owner is holding this?
-		
-		
+
 		if (holderObj->CType == INVALID_NODE_FLAG)							// make sure holder is legal
 			return;
-		
-		
-			/* BUILD TRANSFORM MATRIX FOR PICKED UP OBJECT */
-			//
-			// Since the limb's matrix may contain scaling info, we need
-			// to cancel that out since we don't want our picked up
-			// object to be scaled.
-			//
-				
-		iScale = (1.0f/holderObj->Scale.x);									// calc amount to reverse scaling by
-		
-					/* SET SCALE-TRANS MATRIX MANUALLY (FASTER) */
-					
-		matrix.value[0][0] = iScale*theNode->Scale.x;	// scale x
-		matrix.value[1][1] = iScale*theNode->Scale.y;	// scale y
-		matrix.value[2][2] = iScale*theNode->Scale.z;	// scale z
-		matrix.value[3][3] = 1;
-		matrix.value[0][1] = 0;
-		matrix.value[0][2] = 0;
-		matrix.value[0][3] = 0;
-		matrix.value[1][0] = 0;
-		matrix.value[1][2] = 0;
-		matrix.value[1][3] = 0;
-		matrix.value[2][0] = 0;
-		matrix.value[2][1] = 0;
-		matrix.value[2][3] = 0;
-		matrix.value[3][0] = 0;							// trans x
-		matrix.value[3][1] = 0;							// trans y
-		matrix.value[3][2] = -55;						// trans z
 
-		FindJointFullMatrix(holderObj,limbNum,&matrix2);						// get full matrix for mouth
-		Q3Matrix4x4_Multiply(&matrix,&matrix2,&theNode->BaseTransformMatrix);	// concat final matrix
+		if (holderObj == gPlayerObj && IsFirstPersonSteadyCamera())			// in first-person steady cam, stabilize egg position
+		{
+			Q3Matrix4x4_SetTranslate(&matrix, 0, 43.35f, -112.5f);			// steady mouth position
+			Q3Matrix4x4_Multiply(&matrix, &holderObj->BaseTransformMatrix, &theNode->BaseTransformMatrix);
+		}
+		else
+		{
+			limbNum = theNode->HoldingLimb;										// which limb of owner is holding this?
+
+				/* BUILD TRANSFORM MATRIX FOR PICKED UP OBJECT */
+				//
+				// Since the limb's matrix may contain scaling info, we need
+				// to cancel that out since we don't want our picked up
+				// object to be scaled.
+				//
+
+			iScale = (1.0f/holderObj->Scale.x);									// calc amount to reverse scaling by
+
+						/* SET SCALE-TRANS MATRIX MANUALLY (FASTER) */
+
+			matrix.value[0][0] = iScale*theNode->Scale.x;	// scale x
+			matrix.value[1][1] = iScale*theNode->Scale.y;	// scale y
+			matrix.value[2][2] = iScale*theNode->Scale.z;	// scale z
+			matrix.value[3][3] = 1;
+			matrix.value[0][1] = 0;
+			matrix.value[0][2] = 0;
+			matrix.value[0][3] = 0;
+			matrix.value[1][0] = 0;
+			matrix.value[1][2] = 0;
+			matrix.value[1][3] = 0;
+			matrix.value[2][0] = 0;
+			matrix.value[2][1] = 0;
+			matrix.value[2][3] = 0;
+			matrix.value[3][0] = 0;							// trans x
+			matrix.value[3][1] = 0;							// trans y
+			matrix.value[3][2] = -55;						// trans z
+
+			FindJointFullMatrix(holderObj,limbNum,&matrix2);						// get full matrix for mouth
+			Q3Matrix4x4_Multiply(&matrix,&matrix2,&theNode->BaseTransformMatrix);	// concat final matrix
+		}
 	}
 	
 			/*****************/
