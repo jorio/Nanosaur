@@ -23,14 +23,14 @@
 #define AllocPtr(size) NewPtr(size)
 #define AllocPtrClear(size) NewPtrClear(size)
 
-extern	void ShowSystemErr(long err);
-extern void	DoAlert(const char*);
-extern void DoAssert(const char* msg, const char* file, int line);
-extern void	DoFatalAlert(const char*);
-extern	void CleanQuit(void);
+POMME_NORETURN void ShowSystemErr(long err);
+void	DoAlert(const char*);
+POMME_NORETURN void DoAssert(const char* msg, const char* file, int line);
+POMME_NORETURN void	DoFatalAlert(const char*);
+POMME_NORETURN void CleanQuit(void);
 extern	void SetMyRandomSeed(unsigned long seed);
 extern	unsigned long MyRandomLong(void);
-extern	void DoFatalAlert2(const char* s1, const char* s2);
+POMME_NORETURN void DoFatalAlert2(const char* s1, const char* s2);
 extern	float RandomFloat(void);
 extern	void ShowSystemErr_NonFatal(long err);
 extern	void ApplyFrictionToDeltas(float f,TQ3Vector3D *d);

@@ -75,6 +75,7 @@ enum
 /*    VARIABLES      */
 /*********************/
 
+Boolean			gGamePaused = false;
 uint32_t		gInfobarUpdateBits = 0;
 uint32_t		gScore;
 short			gNumLives;
@@ -365,6 +366,8 @@ ObjNode	*resume,*quit;
 Byte	selected = 0;
 float	fluc = 0;
 
+	gGamePaused = true;
+
 	PauseAllChannels(true);
 
 			/***************/
@@ -402,6 +405,12 @@ float	fluc = 0;
 				/* SEE IF CHANGE SELECT */
 				
 		UpdateInput();
+
+		if (IsCmdQPressed())
+		{
+			CleanQuit();
+		}
+
 		if (GetNewNeedState(kNeed_UIUp) && (selected > 0))
 		{
 			selected = 0;
@@ -445,6 +454,8 @@ float	fluc = 0;
 	DeleteObject(quit);
 	DeleteObject(resume);
 	PauseAllChannels(false);
+
+	gGamePaused = false;
 	
 	if (selected == 1)									// see if want out
 	{

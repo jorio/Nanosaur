@@ -64,6 +64,7 @@ extern "C"
 #include "window.h"
 
 extern	Boolean					gDisableAnimSounds;
+extern	Boolean					gGamePaused;
 extern	Boolean					gGameOverFlag;
 extern	Boolean					gMuteMusicFlag;
 extern	Boolean					gPlayerGotKilledFlag;

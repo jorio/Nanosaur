@@ -66,6 +66,7 @@ void UpdateInput(void);
 
 bool GetNewSDLKeyState(unsigned short sdlScanCode);
 bool GetSDLKeyState(unsigned short sdlScanCode);
+bool IsCmdQPressed(void);
 bool UserWantsOut(void);
 bool AreAnyNewKeysPressed(void);
 

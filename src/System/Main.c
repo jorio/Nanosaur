@@ -274,8 +274,12 @@ FSSpec	spec;
 				
 			/* SEE IF PAUSE GAME */
 
-		if (GetNewNeedState(kNeed_UIPause))						// see if pause/abort
+		if (GetNewNeedState(kNeed_UIPause)						// see if pause/abort
+			|| IsCmdQPressed())
+		{
 			DoPaused();
+		}
+
 
 			/* CHECK CHEAT KEYS */
 			

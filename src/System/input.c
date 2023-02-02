@@ -1,7 +1,8 @@
 /****************************/
 /*     INPUT.C			    */
-/* (c)1997 Pangea Software  */
 /* By Brian Greenstone      */
+/* (c)1997 Pangea Software  */
+/* (c)2023 Iliyas Jorio     */
 /****************************/
 
 
@@ -265,11 +266,31 @@ void UpdateInput(void)
 	}
 
 
+		/* INTERCEPT SYSTEM KEY CHORDS */
+
 	if (GetNewNeedState(kNeed_ToggleFullscreen))
 	{
 		gGamePrefs.fullscreen = gGamePrefs.fullscreen ? 0 : 1;
 		SetFullscreenMode(false);
 	}
+
+	if ((!gTerrainPtr || gGamePaused) && IsCmdQPressed())
+	{
+		CleanQuit();
+	}
+}
+
+
+/******* DID USER PRESS CMD+Q (MAC ONLY) *******/
+
+bool IsCmdQPressed(void)
+{
+#if __APPLE__
+	return (GetSDLKeyState(SDL_SCANCODE_LGUI) || GetSDLKeyState(SDL_SCANCODE_RGUI))
+		&& GetNewSDLKeyState(SDL_GetScancodeFromKey(SDLK_q));
+#else
+	return false;
+#endif
 }
 
 
