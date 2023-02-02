@@ -612,7 +612,7 @@ void ExplodeBush(ObjNode *theBush)
 	if (theBush->Group != LEVEL0_MGroupNum_Bush)
 		return;
 
-	QD3D_ExplodeGeometry(theBush, 500, PARTICLE_MODE_BOUNCE|PARTICLE_MODE_HEAVYGRAVITY, 2, 1.0);
+	QD3D_ExplodeGeometry(theBush, 500, SHARD_MODE_BOUNCE|SHARD_MODE_HEAVYGRAVITY, 2, 1.0);
 	
 	DeleteObject(theBush);
 }

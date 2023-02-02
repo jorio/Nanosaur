@@ -180,7 +180,7 @@ TQ3ColorRGB		c2 = { 1, .9, .6 };
 
 	LoadLevelArt(LEVEL_NUM_0);
 
-	QD3D_InitParticles();	
+	QD3D_InitShards();	
 	InitWeaponManager();
 	InitItemsManager();
 	InitMyInventory();	
@@ -216,7 +216,7 @@ static void CleanupLevel(void)
 	FreeAllSkeletonFiles(-1);
 	DisposeTerrain();
 	DisposeSpriteGroup(0);
-	QD3D_DisposeParticles();
+	QD3D_DisposeShards();
 	DeleteAll3DMFGroups();
 	QD3D_DisposeWindowSetup(&gGameViewInfoPtr);
 }
@@ -255,7 +255,7 @@ FSSpec	spec;
 				
 		CalcPlayerKeyControls();
 		MoveObjects();
-		QD3D_MoveParticles();
+		QD3D_MoveShards();
 
 				/* SPECIFIC MAINTENANCE */
 				

@@ -36,14 +36,14 @@ static const TQ3Matrix4x4 kIdentity4x4 =
 /*    VARIABLES      */
 /*********************/
 
-float		gBoomForce,gParticleDecaySpeed;
-Byte		gParticleMode;
-long		gParticleDensity;
+float		gBoomForce,gShardDecaySpeed;
+Byte		gShardMode;
+int			gShardDensity;
 
-long				gNumParticles = 0;
-ParticleType		gParticles[MAX_PARTICLES];
+static int			gNumShards = 0;
+static ShardType	gShards[MAX_SHARDS];
 
-static RenderModifiers kParticleRenderingMods;
+static RenderModifiers gShardRenderMods;
 
 
 
@@ -116,59 +116,59 @@ float QD3D_CalcObjectRadius(int numMeshes, TQ3TriMeshData** meshList)
 //===================================================================================================
 //===================================================================================================
 
-#pragma mark =========== particle explosion ==============
+#pragma mark =========== shard explosion ==============
 
 
-/********************** QD3D: INIT PARTICLES **********************/
+/********************** QD3D: INIT SHARDS **********************/
 
-void QD3D_InitParticles(void)
+void QD3D_InitShards(void)
 {
-	gNumParticles = 0;
+	gNumShards = 0;
 
-	for (int i = 0; i < MAX_PARTICLES; i++)
+	for (int i = 0; i < MAX_SHARDS; i++)
 	{
-		ParticleType* particle = &gParticles[i];
-		particle->isUsed = false;
-		particle->mesh = Q3TriMeshData_New(1, 3, kQ3TriMeshDataFeatureVertexUVs | kQ3TriMeshDataFeatureVertexNormals);
+		ShardType* shard = &gShards[i];
+		shard->isUsed = false;
+		shard->mesh = Q3TriMeshData_New(1, 3, kQ3TriMeshDataFeatureVertexUVs | kQ3TriMeshDataFeatureVertexNormals);
 		for (int v = 0; v < 3; v++)
-			particle->mesh->triangles[0].pointIndices[v] = v;
+			shard->mesh->triangles[0].pointIndices[v] = v;
 	}
 
-	Render_SetDefaultModifiers(&kParticleRenderingMods);
-	kParticleRenderingMods.statusBits |= STATUS_BIT_KEEPBACKFACES;			// draw both faces on particles
+	Render_SetDefaultModifiers(&gShardRenderMods);
+	gShardRenderMods.statusBits |= STATUS_BIT_KEEPBACKFACES;			// draw both faces on shards
 }
 
 
-void QD3D_DisposeParticles(void)
+void QD3D_DisposeShards(void)
 {
-	for (int i = 0; i < MAX_PARTICLES; i++)
+	for (int i = 0; i < MAX_SHARDS; i++)
 	{
-		if (gParticles[i].mesh)
+		if (gShards[i].mesh)
 		{
-			Q3TriMeshData_Dispose(gParticles[i].mesh);
-			gParticles[i].mesh = nil;
+			Q3TriMeshData_Dispose(gShards[i].mesh);
+			gShards[i].mesh = nil;
 		}
-		gParticles[i].isUsed = false;
+		gShards[i].isUsed = false;
 	}
 
-	gNumParticles = 0;
+	gNumShards = 0;
 }
 
 
-/********************* FIND FREE PARTICLE ***********************/
+/********************* FIND FREE SHARD ***********************/
 //
 // OUTPUT: -1 == none free found
 //
 
-static inline long FindFreeParticle(void)
+static inline long FindFreeShard(void)
 {
 long	i;
 
-	if (gNumParticles >= MAX_PARTICLES)
+	if (gNumShards >= MAX_SHARDS)
 		return(-1);
 
-	for (i = 0; i < MAX_PARTICLES; i++)
-		if (gParticles[i].isUsed == false)
+	for (i = 0; i < MAX_SHARDS; i++)
+		if (gShards[i].isUsed == false)
 			return(i);
 
 	return(-1);
@@ -181,16 +181,16 @@ long	i;
 // calculates velocity et.al.
 //
 
-void QD3D_ExplodeGeometry(ObjNode *theNode, float boomForce, Byte particleMode, long particleDensity, float particleDecaySpeed)
+void QD3D_ExplodeGeometry(ObjNode *theNode, float boomForce, Byte shardMode, int shardDensity, float shardDecaySpeed)
 {
 	if (theNode->CType == INVALID_NODE_FLAG)				// make sure the node is valid
 		return;
 
 
 	gBoomForce = boomForce;
-	gParticleMode = particleMode;
-	gParticleDensity = particleDensity;
-	gParticleDecaySpeed = particleDecaySpeed;
+	gShardMode = shardMode;
+	gShardDensity = shardDensity;
+	gShardDecaySpeed = shardDecaySpeed;
 
 
 			/* SEE IF EXPLODING SKELETON OR PLAIN GEOMETRY */
@@ -226,16 +226,16 @@ TQ3Point3D			centerPt = {0,0,0};
 			/* SCAN THRU ALL TRIMESH FACES */
 			/*******************************/
 					
-	for (int t = 0; t < inMesh->numTriangles; t += gParticleDensity)	// scan thru all faces
+	for (int t = 0; t < inMesh->numTriangles; t += gShardDensity)	// scan thru all faces
 	{
-				/* GET FREE PARTICLE INDEX */
+				/* GET FREE SHARD INDEX */
 
-		long particleIndex = FindFreeParticle();
-		if (particleIndex == -1)													// see if all out
+		long shardIndex = FindFreeShard();
+		if (shardIndex == -1)													// see if all out
 			break;
 
-		ParticleType* particle = &gParticles[particleIndex];
-		TQ3TriMeshData* pMesh = particle->mesh;
+		ShardType* shard = &gShards[shardIndex];
+		TQ3TriMeshData* sMesh = shard->mesh;
 
 		const uint16_t* ind = inMesh->triangles[t].pointIndices;						// get indices of 3 points
 
@@ -247,55 +247,55 @@ TQ3Point3D			centerPt = {0,0,0};
 
 		for (int v = 0; v < 3; v++)
 		{
-			Q3Point3D_Transform(&inMesh->points[ind[v]], transform, &pMesh->points[v]);		// transform points
+			Q3Point3D_Transform(&inMesh->points[ind[v]], transform, &sMesh->points[v]);		// transform points
 		}
 
-		centerPt.x = (pMesh->points[0].x + pMesh->points[1].x + pMesh->points[2].x) * 0.3333f;		// calc center of polygon
-		centerPt.y = (pMesh->points[0].y + pMesh->points[1].y + pMesh->points[2].y) * 0.3333f;
-		centerPt.z = (pMesh->points[0].z + pMesh->points[1].z + pMesh->points[2].z) * 0.3333f;
+		centerPt.x = (sMesh->points[0].x + sMesh->points[1].x + sMesh->points[2].x) * 0.3333f;		// calc center of polygon
+		centerPt.y = (sMesh->points[0].y + sMesh->points[1].y + sMesh->points[2].y) * 0.3333f;
+		centerPt.z = (sMesh->points[0].z + sMesh->points[1].z + sMesh->points[2].z) * 0.3333f;
 
 		for (int v = 0; v < 3; v++)
 		{
-			pMesh->points[v].x -= centerPt.x;											// offset coords to be around center
-			pMesh->points[v].y -= centerPt.y;
-			pMesh->points[v].z -= centerPt.z;
+			sMesh->points[v].x -= centerPt.x;											// offset coords to be around center
+			sMesh->points[v].y -= centerPt.y;
+			sMesh->points[v].z -= centerPt.z;
 		}
 
-		pMesh->bBox.min = pMesh->bBox.max = centerPt;
-		pMesh->bBox.isEmpty = kQ3False;
+		sMesh->bBox.min = sMesh->bBox.max = centerPt;
+		sMesh->bBox.isEmpty = kQ3False;
 
 				/* DO VERTEX NORMALS */
 
 		for (int v = 0; v < 3; v++)
 		{
-			Q3Vector3D_Transform(&inMesh->vertexNormals[ind[v]], transform, &pMesh->vertexNormals[v]);		// transform normals
-			Q3Vector3D_Normalize(&pMesh->vertexNormals[v], &pMesh->vertexNormals[v]);						// normalize normals
+			Q3Vector3D_Transform(&inMesh->vertexNormals[ind[v]], transform, &sMesh->vertexNormals[v]);		// transform normals
+			Q3Vector3D_Normalize(&sMesh->vertexNormals[v], &sMesh->vertexNormals[v]);						// normalize normals
 		}
 
 				/* DO VERTEX UV'S */
 
-		pMesh->texturingMode = inMesh->texturingMode;
+		sMesh->texturingMode = inMesh->texturingMode;
 		if (inMesh->texturingMode != kQ3TexturingModeOff)				// see if also has UV
 		{
 			for (int v = 0; v < 3; v++)									// get vertex u/v's
 			{
-				pMesh->vertexUVs[v] = inMesh->vertexUVs[ind[v]];
+				sMesh->vertexUVs[v] = inMesh->vertexUVs[ind[v]];
 			}
-			pMesh->glTextureName = inMesh->glTextureName;
-			pMesh->internalTextureID = inMesh->internalTextureID;
+			sMesh->glTextureName = inMesh->glTextureName;
+			sMesh->internalTextureID = inMesh->internalTextureID;
 		}
 
 
 				/* DO VERTEX COLORS */
 
-		pMesh->diffuseColor = inMesh->diffuseColor;
+		sMesh->diffuseColor = inMesh->diffuseColor;
 
-		pMesh->hasVertexColors = inMesh->hasVertexColors;				// has per-vertex colors?
+		sMesh->hasVertexColors = inMesh->hasVertexColors;				// has per-vertex colors?
 		if (inMesh->hasVertexColors)
 		{
 			for (int v = 0; v < 3; v++)									// get per-vertex colors
 			{
-				pMesh->vertexColors[v] = inMesh->vertexColors[ind[v]];
+				sMesh->vertexColors[v] = inMesh->vertexColors[ind[v]];
 			}
 		}
 
@@ -304,67 +304,66 @@ TQ3Point3D			centerPt = {0,0,0};
 			/* SET PHYSICS STUFF */
 			/*********************/
 
-		particle->coord = centerPt;
-		particle->rot = (TQ3Vector3D) {0,0,0};
-		particle->scale = 1.0f;
+		shard->coord = centerPt;
+		shard->rot = (TQ3Vector3D) {0,0,0};
+		shard->scale = 1.0f;
 		
-		particle->coordDelta.x = (RandomFloat() - 0.5f) * gBoomForce;
-		particle->coordDelta.y = (RandomFloat() - 0.5f) * gBoomForce;
-		particle->coordDelta.z = (RandomFloat() - 0.5f) * gBoomForce;
-		if (gParticleMode & PARTICLE_MODE_UPTHRUST)
-			particle->coordDelta.y += 1.5f * gBoomForce;
+		shard->coordDelta.x = (RandomFloat() - 0.5f) * gBoomForce;
+		shard->coordDelta.y = (RandomFloat() - 0.5f) * gBoomForce;
+		shard->coordDelta.z = (RandomFloat() - 0.5f) * gBoomForce;
+		if (gShardMode & SHARD_MODE_UPTHRUST)
+			shard->coordDelta.y += 1.5f * gBoomForce;
 
-		particle->rotDelta.x = (RandomFloat() - 0.5f) * 4.0f;			// random rotation deltas
-		particle->rotDelta.y = (RandomFloat() - 0.5f) * 4.0f;
-		particle->rotDelta.z = (RandomFloat() - 0.5f) * 4.0f;
+		shard->rotDelta.x = (RandomFloat() - 0.5f) * 4.0f;			// random rotation deltas
+		shard->rotDelta.y = (RandomFloat() - 0.5f) * 4.0f;
+		shard->rotDelta.z = (RandomFloat() - 0.5f) * 4.0f;
 
-		particle->decaySpeed = gParticleDecaySpeed;
-		particle->mode = gParticleMode;
+		shard->decaySpeed = gShardDecaySpeed;
+		shard->mode = gShardMode;
 
 				/* SET VALID & INC COUNTER */
 
-		particle->isUsed = true;
-		gNumParticles++;
+		shard->isUsed = true;
+		gNumShards++;
 	}
 }
 
 
-/************************** QD3D: MOVE PARTICLES ****************************/
+/************************** QD3D: MOVE SHARDS ****************************/
 
-void QD3D_MoveParticles(void)
+void QD3D_MoveShards(void)
 {
 float	ty,y,fps,x,z;
-long	i;
 TQ3Matrix4x4	matrix,matrix2;
 
-	if (gNumParticles == 0)												// quick check if any particles at all
+	if (gNumShards == 0)											// quick check if any shards at all
 		return;
 
 	fps = gFramesPerSecondFrac;
 
-	for (i=0; i < MAX_PARTICLES; i++)
+	for (int i = 0; i < MAX_SHARDS; i++)
 	{
-		if (!gParticles[i].isUsed)										// source port fix
+		if (!gShards[i].isUsed)
 			continue;
 
-		ParticleType* particle = &gParticles[i];
+		ShardType* shard = &gShards[i];
 
 				/* ROTATE IT */
 
-		particle->rot.x += particle->rotDelta.x * fps;
-		particle->rot.y += particle->rotDelta.y * fps;
-		particle->rot.z += particle->rotDelta.z * fps;
+		shard->rot.x += shard->rotDelta.x * fps;
+		shard->rot.y += shard->rotDelta.y * fps;
+		shard->rot.z += shard->rotDelta.z * fps;
 					
 					/* MOVE IT */
 					
-		if (particle->mode & PARTICLE_MODE_HEAVYGRAVITY)
-			particle->coordDelta.y -= fps * GRAVITY_CONSTANT/2;		// gravity
+		if (shard->mode & SHARD_MODE_HEAVYGRAVITY)
+			shard->coordDelta.y -= fps * GRAVITY_CONSTANT/2;		// gravity
 		else
-			particle->coordDelta.y -= fps * GRAVITY_CONSTANT/3;		// gravity
+			shard->coordDelta.y -= fps * GRAVITY_CONSTANT/3;		// gravity
 			
-		x = (particle->coord.x += particle->coordDelta.x * fps);
-		y = (particle->coord.y += particle->coordDelta.y * fps);
-		z = (particle->coord.z += particle->coordDelta.z * fps);
+		x = (shard->coord.x += shard->coordDelta.x * fps);
+		y = (shard->coord.y += shard->coordDelta.y * fps);
+		z = (shard->coord.z += shard->coordDelta.z * fps);
 		
 		
 					/* SEE IF BOUNCE */
@@ -372,12 +371,12 @@ TQ3Matrix4x4	matrix,matrix2;
 		ty = GetTerrainHeightAtCoord_Quick(x,z);				// get terrain height here
 		if (y <= ty)
 		{
-			if (particle->mode & PARTICLE_MODE_BOUNCE)
+			if (shard->mode & SHARD_MODE_BOUNCE)
 			{
-				particle->coord.y  = ty;
-				particle->coordDelta.y *= -0.5;
-				particle->coordDelta.x *= 0.9;
-				particle->coordDelta.z *= 0.9;
+				shard->coord.y  = ty;
+				shard->coordDelta.y *= -0.5;
+				shard->coordDelta.x *= 0.9;
+				shard->coordDelta.z *= 0.9;
 			}
 			else
 				goto del;
@@ -385,13 +384,13 @@ TQ3Matrix4x4	matrix,matrix2;
 		
 					/* SCALE IT */
 					
-		particle->scale -= particle->decaySpeed * fps;
-		if (particle->scale <= 0.0f)
+		shard->scale -= shard->decaySpeed * fps;
+		if (shard->scale <= 0.0f)
 		{
-				/* DEACTIVATE THIS PARTICLE */
+				/* DEACTIVATE THIS SHARD */
 	del:	
-			particle->isUsed = false;
-			gNumParticles--;
+			shard->isUsed = false;
+			gNumShards--;
 			continue;
 		}
 
@@ -402,36 +401,36 @@ TQ3Matrix4x4	matrix,matrix2;
 
 				/* SET SCALE MATRIX */
 
-		Q3Matrix4x4_SetScale(&particle->matrix, particle->scale,	particle->scale, particle->scale);
+		Q3Matrix4x4_SetScale(&shard->matrix, shard->scale,	shard->scale, shard->scale);
 	
 					/* NOW ROTATE IT */
 
-		Q3Matrix4x4_SetRotate_XYZ(&matrix, particle->rot.x, particle->rot.y, particle->rot.z);
-		Q3Matrix4x4_Multiply(&particle->matrix,&matrix, &matrix2);
+		Q3Matrix4x4_SetRotate_XYZ(&matrix, shard->rot.x, shard->rot.y, shard->rot.z);
+		Q3Matrix4x4_Multiply(&shard->matrix,&matrix, &matrix2);
 	
 					/* NOW TRANSLATE IT */
 
-		Q3Matrix4x4_SetTranslate(&matrix, particle->coord.x, particle->coord.y, particle->coord.z);
-		Q3Matrix4x4_Multiply(&matrix2,&matrix, &particle->matrix);
+		Q3Matrix4x4_SetTranslate(&matrix, shard->coord.x, shard->coord.y, shard->coord.z);
+		Q3Matrix4x4_Multiply(&matrix2,&matrix, &shard->matrix);
 	}
 }
 
 
-/************************* QD3D: DRAW PARTICLES ****************************/
+/************************* QD3D: DRAW SHARDS ****************************/
 
-void QD3D_DrawParticles(QD3DSetupOutputType *setupInfo)
+void QD3D_DrawShards(QD3DSetupOutputType *setupInfo)
 {
 	(void) setupInfo;
 
-	if (gNumParticles == 0)												// quick check if any particles at all
+	if (gNumShards == 0)												// quick check if any shards at all
 		return;
 
-	for (int i = 0; i < MAX_PARTICLES; i++)
+	for (int i = 0; i < MAX_SHARDS; i++)
 	{
-		ParticleType* particle = &gParticles[i];
-		if (particle->isUsed)
+		ShardType* shard = &gShards[i];
+		if (shard->isUsed)
 		{
-			Render_SubmitMesh(particle->mesh, &particle->matrix, &kParticleRenderingMods, &particle->coord);
+			Render_SubmitMesh(shard->mesh, &shard->matrix, &gShardRenderMods, &shard->coord);
 		}
 	}
 }

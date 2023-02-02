@@ -287,7 +287,7 @@ float	d,y;
 	if (d < POD_BURST_DIST)
 	{
 		PodShootSpores(theNode);
-		QD3D_ExplodeGeometry(theNode, 120, PARTICLE_MODE_UPTHRUST, 3, 1.0);
+		QD3D_ExplodeGeometry(theNode, 120, SHARD_MODE_UPTHRUST, 3, 1.0);
 		theNode->TerrainItemPtr = nil;						// never coming back
 		DeleteObject(theNode);		
 		PlayEffect_Parms(EFFECT_EXPLODE,FULL_CHANNEL_VOLUME,kMiddleC-5);	// play sound		

@@ -1273,7 +1273,7 @@ void DrawTerrain(QD3DSetupOutputType *setupInfo)
 		/* DRAW OBJECTS */
 		
 	DrawObjects(setupInfo);												// draw objNodes
-	QD3D_DrawParticles(setupInfo);
+	QD3D_DrawShards(setupInfo);
 }
 
 
