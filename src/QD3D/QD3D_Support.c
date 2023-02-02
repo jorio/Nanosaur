@@ -474,12 +474,13 @@ void QD3D_CalcFramesPerSecond(void)
 			float fps = 1000 * gDebugTextFrameAccumulator / (float)ticksElapsed;
 			snprintf(
 					gDebugTextBuffer, sizeof(gDebugTextBuffer),
-					"%s%s - %dfps %dt %dm %dp %dK x:%.0f z:%.0f",
+					"%s%s - %dfps %dt %dm %dn %dp %dK x:%.0f z:%.0f",
 					PRO_MODE ? "NanoExtreme" : "Nanosaur",
 					PROJECT_VERSION,
 					(int)round(fps),
 					gRenderStats.trianglesDrawn,
 					gRenderStats.meshQueueSize,
+					gObjNodePool? Pool_Size(gObjNodePool): 0,
 					(int)Pomme_GetNumAllocs(),
 					(int)(Pomme_GetHeapSize()/1024),
 					gMyCoord.x,

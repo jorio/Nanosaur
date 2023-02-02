@@ -73,8 +73,10 @@ signed char	i;
 	i = theNode->NumCollisionBoxes;					// get # boxes for this obj
 	if (i > 0)
 	{
+		GAME_ASSERT(theNode->CollisionBoxes);
+
 		i -= 1;										// convert counter into index
-	
+
 		do
 		{
 			theNode->CollisionBoxes[i].oldTop = theNode->CollisionBoxes[i].top;

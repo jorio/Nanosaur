@@ -18,6 +18,11 @@
 			DoAssert(message, __func__, __LINE__);						\
 	} while(0)
 
+#define AllocHandle(size) NewHandle(size)
+#define AllocHandleClear(size) NewHandleClear(size)
+#define AllocPtr(size) NewPtr(size)
+#define AllocPtrClear(size) NewPtrClear(size)
+
 extern	void ShowSystemErr(long err);
 extern void	DoAlert(const char*);
 extern void DoAssert(const char* msg, const char* file, int line);
@@ -25,8 +30,6 @@ extern void	DoFatalAlert(const char*);
 extern	void CleanQuit(void);
 extern	void SetMyRandomSeed(unsigned long seed);
 extern	unsigned long MyRandomLong(void);
-extern	Handle	AllocHandle(long size);
-extern	Ptr	AllocPtr(long size);
 extern	void DoFatalAlert2(const char* s1, const char* s2);
 extern	float RandomFloat(void);
 extern	void ShowSystemErr_NonFatal(long err);

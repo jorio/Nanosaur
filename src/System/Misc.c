@@ -179,40 +179,6 @@ void SetMyRandomSeed(unsigned long seed)
 }
 
 
-
-/****************** ALLOC HANDLE ********************/
-
-Handle	AllocHandle(long size)
-{
-Handle	hand;
-OSErr	err;
-
-	hand = NewHandleClear(size);					// alloc in APPL
-	if (hand == nil)
-	{
-		hand = TempNewHandle(size,&err);			// try TEMP mem
-		if (hand == nil)
-		{
-			DoFatalAlert("AllocHandle: failed!");
-			return(nil);
-		}
-		else
-			return(hand);							// use TEMP
-	}
-
-	return(hand);									// use APPL	
-}
-
-
-/****************** ALLOC PTR ********************/
-
-Ptr	AllocPtr(long size)
-{
-	return NewPtr(size);
-}
-
-
-
 #pragma mark -
 
 /***************** APPLY FICTION TO DELTAS ********************/

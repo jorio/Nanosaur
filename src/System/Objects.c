@@ -1,7 +1,8 @@
 /*********************************/
 /*    OBJECT MANAGER 		     */
-/* (c)1993-1997 Pangea Software  */
 /* By Brian Greenstone      	 */
+/* (c)1993-1997 Pangea Software  */
+/* (c)2023 Iliyas Jorio          */
 /*********************************/
 
 
@@ -16,6 +17,7 @@
 /*    PROTOTYPES            */
 /****************************/
 
+static void DisposeObjNodeMemory(ObjNode* node);
 static void FlushObjectDeleteQueue(int qid);
 
 
@@ -23,18 +25,23 @@ static void FlushObjectDeleteQueue(int qid);
 /*    CONSTANTS             */
 /****************************/
 
-#define	OBJ_DEL_Q_SIZE	4096	// number of ObjNodes that can be deleted during any given frame
+#define	OBJ_DEL_Q_SIZE	1024	// number of ObjNodes that can be deleted during any given frame
+#define	OBJ_BUDGET		1024
 
 
 /**********************/
 /*     VARIABLES      */
 /**********************/
 
+static ObjNode		gObjNodeMemory[OBJ_BUDGET];
+Pool				*gObjNodePool = NULL;
+
 											// OBJECT LIST
 ObjNode		*gFirstNodePtr = nil;
 					
 ObjNode		*gCurrentNode,*gMostRecentlyAddedNode, *gNextNode;
-										
+
+
 NewObjectDefinitionType	gNewObjectDefinition;
 
 TQ3Point3D	gCoord;
@@ -60,15 +67,19 @@ extern RenderStats	gRenderStats;
 
 void InitObjectManager(void)
 {
+		/* INIT LINKED LIST */
 
-				/* INIT LINKED LIST */
-
-															
 	gCurrentNode = nil;
-	
-					/* CLEAR ENTIRE OBJECT LIST */
-		
 	gFirstNodePtr = nil;									// no node yet
+
+		/* INIT OBJECT POOL */
+
+	memset(gObjNodeMemory, 0, sizeof(gObjNodeMemory));
+
+	if (!gObjNodePool)
+		gObjNodePool = Pool_New(OBJ_BUDGET);
+	else
+		Pool_Reset(gObjNodePool);
 }
 
 
@@ -81,11 +92,30 @@ void InitObjectManager(void)
 
 ObjNode	*MakeNewObject(NewObjectDefinitionType *newObjDef)
 {
+	ObjNode* newNodePtr;
+
+		/* TRY TO GET AN OBJECT FROM THE POOL */
+
+	GAME_ASSERT(gObjNodePool);
+
+	int pooledIndex = Pool_AllocateIndex(gObjNodePool);
+	if (pooledIndex >= 0)
+	{
+		newNodePtr = &gObjNodeMemory[pooledIndex];
+	}
+	else
+	{
+		// pool full, alloc new node on heap
+		newNodePtr = (ObjNode*) AllocPtr(sizeof(ObjNode));
+	}
+
+		/* MAKE SURE WE GOT ONE */
+
+	GAME_ASSERT(newNodePtr);
+
 				/* INITIALIZE NEW NODE */
 
-	// NewPtrClear allocates and zeroes out the memory so we don't need to set most fields to 0 initially
-	ObjNode* newNodePtr = (ObjNode *) NewPtrClear(sizeof(ObjNode));
-	GAME_ASSERT(newNodePtr);
+	memset(newNodePtr, 0, sizeof(ObjNode));
 
 	newNodePtr->Slot		= newObjDef->slot;
 	newNodePtr->Type		= newObjDef->type;
@@ -94,16 +124,12 @@ ObjNode	*MakeNewObject(NewObjectDefinitionType *newObjDef)
 	newNodePtr->Genre		= newObjDef->genre;
 	newNodePtr->Coord		= newNodePtr->OldCoord = newObjDef->coord;	// save coords
 	newNodePtr->StatusBits	= newObjDef->flags;
-	newNodePtr->Rot = (TQ3Vector3D){ 0, newObjDef->rot, 0 };
-	newNodePtr->Scale = (TQ3Vector3D){ newObjDef->scale, newObjDef->scale, newObjDef->scale };
-	newNodePtr->Radius = 4;								// set default radius
-	
+	newNodePtr->Rot			= (TQ3Vector3D){ 0, newObjDef->rot, 0 };
+	newNodePtr->Scale		= (TQ3Vector3D){ newObjDef->scale, newObjDef->scale, newObjDef->scale };
+	newNodePtr->Radius		= 4;								// set default radius
 	newNodePtr->TerrainAccel.x = newNodePtr->TerrainAccel.y = 0;
-
 	newNodePtr->StreamingEffect = -1;					// no streaming sound effect
-
 	newNodePtr->TerrainItemPtr = nil;					// assume not a terrain item
-
 	newNodePtr->Skeleton = nil;
 
 	newNodePtr->RenderModifiers.statusBits = 0;
@@ -531,7 +557,7 @@ ObjNode *tempNode;
 	{
 		// We're out of room in the delete queue. Just delete the node immediately,
 		// but that might cause the game to become instable (unless we're here from DeleteAllNodes).
-		DisposePtr((Ptr) theNode);
+		DisposeObjNodeMemory(theNode);
 	}
 	else
 	{
@@ -540,12 +566,41 @@ ObjNode *tempNode;
 	}
 }
 
+
+/***************** DISPOSE OBJECT MEMORY ****************/
+
+static void DisposeObjNodeMemory(ObjNode* node)
+{
+	GAME_ASSERT(node != NULL);
+
+	ptrdiff_t poolIndex = node - gObjNodeMemory;
+
+	if (poolIndex >= 0 && poolIndex < OBJ_BUDGET)
+	{
+		// node is pooled, put back into pool
+		GAME_ASSERT_MESSAGE(Pool_IsUsed(gObjNodePool, (int) poolIndex), "double-free on pooled node!");
+		Pool_ReleaseIndex(gObjNodePool, (int) poolIndex);
+	}
+	else
+	{
+		// node was allocated on heap
+		DisposePtr((Ptr) node);
+	}
+}
+
+
 /***************** FLUSH OBJECT DELETE QUEUE ****************/
 
 static void FlushObjectDeleteQueue(int qid)
 {
 	for (int i = 0; i < gNumObjsInDeleteQueue[qid]; i++)
-		DisposePtr((Ptr)gObjectDeleteQueue[qid][i]);
+	{
+		if (gObjectDeleteQueue[qid][i])
+		{
+			DisposeObjNodeMemory(gObjectDeleteQueue[qid][i]);
+			gObjectDeleteQueue[qid][i] = NULL;
+		}
+	}
 
 	gNumObjsInDeleteQueue[qid] = 0;
 }

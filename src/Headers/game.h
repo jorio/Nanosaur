@@ -127,6 +127,7 @@ extern	ObjNode*				gInventoryObject;
 extern	ObjNode*				gMyTimePortal;
 extern	ObjNode*				gPlayerNode[];
 extern	ObjNode*				gPlayerObj;
+extern	Pool*					gObjNodePool;
 extern	PrefsType				gGamePrefs;
 extern	Ptr						gTerrainHeightMapPtrs[];
 extern	Ptr						gTerrainPtr;
