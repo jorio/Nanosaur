@@ -1082,18 +1082,11 @@ float	s;
 			
 	s = theNode->Scale.x = theNode->Scale.y = theNode->Scale.z += fps * 80;	
 	SetObjectCollisionBounds(theNode,s*10,s*-10,s*-10,s*10,s*10,s*-10);
-		
-		
+
+	theNode->Radius = s*10;
+
+
 			/* UPATE */
 			
 	UpdateObjectTransforms(theNode);
-
 }
-
-
-
- 
- 
- 
- 
- 
