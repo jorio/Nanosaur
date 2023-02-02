@@ -294,6 +294,13 @@ static void CreateLights(QD3DLightDefType *lightDefPtr)
 
 		glEnable(GL_LIGHT0+i);								// enable the light
 	}
+
+			/* KILL OTHER LIGHTS */
+
+	for (int i = lightDefPtr->numFillLights; i < MAX_FILL_LIGHTS; i++)
+	{
+		glDisable(GL_LIGHT0+i);
+	}
 }
 
 
