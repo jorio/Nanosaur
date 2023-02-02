@@ -52,11 +52,10 @@ static inline bool IsSphereFacingFrustumPlane(const TQ3Point3D* worldPt, float r
 
 bool IsSphereInFrustum_XZ(const TQ3Point3D* worldPt, float radius)
 {
-	return IsSphereFacingFrustumPlane(worldPt, radius, kFrustumPlaneNear)
-		&& IsSphereFacingFrustumPlane(worldPt, radius, kFrustumPlaneFar)
+	return IsSphereFacingFrustumPlane(worldPt, radius, kFrustumPlaneRight)
 		&& IsSphereFacingFrustumPlane(worldPt, radius, kFrustumPlaneLeft)
-		&& IsSphereFacingFrustumPlane(worldPt, radius, kFrustumPlaneRight);
-;
+		&& IsSphereFacingFrustumPlane(worldPt, radius, kFrustumPlaneNear)
+		&& IsSphereFacingFrustumPlane(worldPt, radius, kFrustumPlaneFar);
 }
 
 bool IsSphereInFrustum_XYZ(const TQ3Point3D* worldPt, float radius)

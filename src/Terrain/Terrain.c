@@ -1,6 +1,8 @@
 /****************************/
 /*     TERRAIN.C           */
 /* By Brian Greenstone      */
+/* (C)1998 Pangea Software  */
+/* (C)2023 Iliyas Jorio     */
 /****************************/
 
 /***************/
@@ -91,8 +93,6 @@ UInt16		gTileFlipRotBits;
 short		gTileAttribParm0;
 Byte		gTileAttribParm1,gTileAttribParm2;
 
-float		gSuperTileRadius;			// normal x/z radius
-
 float		gUnitToPixel = 1.0/(TERRAIN_POLYGON_SIZE/TERRAIN_HMTILE_SIZE);
 
 const float gOneOver_TERRAIN_POLYGON_SIZE = (1.0 / TERRAIN_POLYGON_SIZE);
@@ -152,8 +152,6 @@ TQ3Vector3D		gRecentTerrainNormal;							// from _Planar
 
 void InitTerrainManager(void)
 {
- 	gSuperTileRadius = sqrt(2) * (TERRAIN_SUPERTILE_UNIT_SIZE/2);
-
 	CreateSuperTileMemoryList();
 	ClearScrollBuffer();
 	
@@ -417,6 +415,8 @@ TQ3Param2D				uvsFlat[4] = {{0,0}, {1,0}, {0,1}, {1,1}};
 
 		tmd->texturingMode = kQ3TexturingModeOpaque;
 		tmd->glTextureName = textureName;
+
+		gSuperTileMemoryList[i].radius = Q3Point3D_Distance(&tmd->bBox.min, &tmd->bBox.max);
 	}
 
 	DisposePtr(blankTexPtr);
@@ -548,7 +548,7 @@ static int GetFreeSuperTileMemory(void)
 static int BuildTerrainSuperTile(int startCol, int startRow)
 {
 int					superTileNum;
-float				height,miny,maxy;
+float				miny,maxy;
 TQ3Vector3D			normals[SUPERTILE_SIZE+1][SUPERTILE_SIZE+1];
 TQ3TriMeshData		*triMeshPtr;
 TQ3Vector3D			*vertexNormalList;
@@ -567,6 +567,7 @@ SuperTileMemoryType	*superTilePtr;
 
 	superTilePtr->coord.x = (startCol * TERRAIN_POLYGON_SIZE) + (TERRAIN_SUPERTILE_UNIT_SIZE/2);		// also remember world coords
 	superTilePtr->coord.z = (startRow * TERRAIN_POLYGON_SIZE) + (TERRAIN_SUPERTILE_UNIT_SIZE/2);
+	superTilePtr->coord.y = 0;		// Y, as the center of the bounding sphere, is filled in later, once we have min/max slope Y's
 
 	superTilePtr->left = (startCol * TERRAIN_POLYGON_SIZE);		// also save left/back coord
 	superTilePtr->back = (startRow * TERRAIN_POLYGON_SIZE);
@@ -586,6 +587,7 @@ SuperTileMemoryType	*superTilePtr;
 		{
 			int col = col2 + startCol;
 
+			float height;
 			if ((row >= gTerrainTileDepth) || (col >= gTerrainTileWidth))			// check for edge vertices (off map array)
 				height = 0;
 			else
@@ -605,15 +607,6 @@ SuperTileMemoryType	*superTilePtr;
 
 	superTilePtr->coord.y = (miny+maxy)/2;						// This y coord is not used to translate since the terrain has no translation matrix
 																// Instead, this is used by the cone-of-vision routine for culling tests
-
-			/* CALC RADIUS */
-			
-	height = (maxy-miny)/2;
-	if (height > gSuperTileRadius)
-		superTilePtr->radius = height;
-	else						
-		superTilePtr->radius = gSuperTileRadius;
-
 
 #if !(HQ_TERRAIN)
 			/* SEE IF IT'S A FLAT SUPER-TILE */
@@ -782,7 +775,16 @@ SuperTileMemoryType	*superTilePtr;
 	triMeshPtr->bBox.max.y = maxy;
 	triMeshPtr->bBox.min.z = gWorkGrid[0][0].z;
 	triMeshPtr->bBox.max.z = triMeshPtr->bBox.min.z + TERRAIN_SUPERTILE_UNIT_SIZE;
-				
+
+			/* CALC COORD & RADIUS FOR CULLING SPHERE */
+
+	// Calc center Y coord as average of top & bottom.
+	// This Y coord is not used to translate since the terrain has no translation matrix.
+	// Instead, this is used as the center of the frustum culling sphere.
+	superTilePtr->coord.y = (miny + maxy) * .5f;
+
+	// Calc radius of supertile bounding sphere for frustum culling.
+	superTilePtr->radius = 0.5f * Q3Point3D_Distance(&triMeshPtr->bBox.min, &triMeshPtr->bBox.max);
 
 					/* SET VERTEX COORDS & NORMALS */
 	
@@ -1239,20 +1241,20 @@ void DrawTerrain(QD3DSetupOutputType *setupInfo)
 
 	for (int i = 0; i < MAX_SUPERTILES; i++)
 	{
-		if (gSuperTileMemoryList[i].mode != SUPERTILE_MODE_USED)		// if supertile is being used, then draw it
+		SuperTileMemoryType* superTile = &gSuperTileMemoryList[i];
+
+		if (superTile->mode != SUPERTILE_MODE_USED)		// if supertile is being used, then draw it
 			continue;
-		
-#if !TWO_MEG_VERSION		
-		if (gSuperTileMemoryList[i].hiccupTimer != 0)					// see if this supertile is still in hiccup prevention mode
+
+#if !TWO_MEG_VERSION
+		if (superTile->hiccupTimer != 0)				// see if this supertile is still in hiccup prevention mode
 		{
-			gSuperTileMemoryList[i].hiccupTimer--;
+			superTile->hiccupTimer--;
 			continue;
 		}
 #endif		
 
-		if (!IsSphereInFrustum_XZ(										// make sure it's visible
-				&gSuperTileMemoryList[i].coord,
-				1.25f*gSuperTileMemoryList[i].radius))
+		if (!IsSphereInFrustum_XZ(&superTile->coord, superTile->radius))	// make sure it's visible
 		{
 			continue;
 		}
@@ -1260,13 +1262,10 @@ void DrawTerrain(QD3DSetupOutputType *setupInfo)
 			/* DRAW THE TRIMESH IN THIS SUPERTILE */
 
 #if HQ_TERRAIN
-		Render_SubmitMesh(gSuperTileMemoryList[i].triMeshPtr, nil, nil, &gSuperTileMemoryList[i].coord);
+		Render_SubmitMesh(superTile->triMeshPtr, nil, nil, &superTile->coord);
 #else
-		TQ3TriMeshData* mesh = gSuperTileMemoryList[i].isFlat
-				? gSuperTileMemoryList[i].triMeshPtr2
-				: gSuperTileMemoryList[i].triMeshPtr;
-
-		Render_SubmitMesh(mesh, nil, nil, &gSuperTileMemoryList[i].coord);
+		TQ3TriMeshData* mesh = superTile->isFlat ? superTile->triMeshPtr2 : superTile->triMeshPtr;
+		Render_SubmitMesh(mesh, nil, nil, &superTile->coord);
 #endif
 	}
 
