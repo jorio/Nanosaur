@@ -693,8 +693,8 @@ float	x,z;
 	gDelta.y -= GRAVITY_CONSTANT*gFramesPerSecondFrac;			// add gravity
 
 	if (gDelta.y < 0.0f)											// if falling, keep dy at least -1.0 to avoid collision jitter on platforms
-		if (gDelta.y > (-1.0f * gFramesPerSecond))
-			gDelta.y = (-1.0f * gFramesPerSecond);
+		if (gDelta.y > (-1.0f * gFramesPerSecondFrac))
+			gDelta.y = (-1.0f * gFramesPerSecondFrac);
 
 }
 

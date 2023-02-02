@@ -8,7 +8,7 @@
 
 
 #define	MIN_FPS				4
-#define	MAX_FPS				175
+#define	MAX_FPS				500
 
 #define	MAX_FILL_LIGHTS		4
 
