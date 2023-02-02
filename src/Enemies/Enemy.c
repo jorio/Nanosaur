@@ -208,7 +208,8 @@ float	d,minDist = 100000;
 	}
 	while (thisNodePtr != nil);
 
-	*dist = minDist;
+	if (dist)
+		*dist = minDist;
 	return(best);
 }
 

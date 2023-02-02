@@ -61,6 +61,11 @@ extern const float	NUKE_RATE;
 #define	NUKE_DAMAGE		.5
 
 
+#define HeatSeekTurnSpeed	SpecialF[0]
+#define HeatSeekPrevTrailX	SpecialF[1]
+#define HeatSeekPrevTrailY	SpecialF[2]
+#define HeatSeekPrevTrailZ	SpecialF[3]
+
 static  TQ3Point3D gGunTipOffset = {0,0,-65};
 
 
@@ -609,8 +614,8 @@ float	r;
 
 		newObj->Delta.x = (-sin(r) * HEATSEEK_SPEED) + gDelta.x;	// calc deltas
 		newObj->Delta.z = (-cos(r) * HEATSEEK_SPEED) + gDelta.z;
-		
-		
+
+
 				/* MAKE COLLISION BOX */
 		
 		newObj->CType = CTYPE_MYBULLET;								// note: don't set as CTYPE_HURTENEMY since bullets do their own collision check
@@ -618,7 +623,10 @@ float	r;
 		
 		newObj->Damage = HEATSEEK_DAMAGE;		
 
-		newObj->SpecialF[0] = 0;									// init auto-target delay
+		newObj->HeatSeekTurnSpeed = 0;								// init auto-target delay
+		newObj->HeatSeekPrevTrailX = newObj->Coord.x;
+		newObj->HeatSeekPrevTrailY = newObj->Coord.y;
+		newObj->HeatSeekPrevTrailZ = newObj->Coord.z;
 
 		PlayEffect(EFFECT_HEATSEEK);								// play sound
 
@@ -641,11 +649,7 @@ float	r;
 
 static void MoveHeatSeek(ObjNode *theNode)
 {
-float	x,y,z,dist,r,fps,xi,yi,zi,turnSp;
-ObjNode	*enemyObj,*newObj;
-short	num,i;
-
-	fps = gFramesPerSecondFrac;
+	float fps = gFramesPerSecondFrac;
 
 			/* DECAY LIFE */
 
@@ -661,20 +665,20 @@ short	num,i;
 	
 			/* FIND CLOSEST ENEMY & ACCEL TO IT */
 
-	theNode->SpecialF[0] += fps * 4;
-	enemyObj = FindClosestEnemy(&gCoord, &dist);								// get closest
+	theNode->HeatSeekTurnSpeed += fps * 4;
+	ObjNode* enemyObj = FindClosestEnemy(&gCoord, NULL);						// get closest
 	if (enemyObj)
 	{
-		y = enemyObj->Coord.y + ((enemyObj->BottomOff + enemyObj->TopOff)>>1);	// calc center y of enemy as target y
+		float y = enemyObj->Coord.y + ((enemyObj->BottomOff + enemyObj->TopOff)/2);	// calc center y of enemy as target y
 		gDelta.y += (y - gCoord.y) * fps;
 	
-		turnSp = theNode->SpecialF[0];											// calc turn speed
+		float turnSp = theNode->HeatSeekTurnSpeed;								// calc turn speed
 		if (turnSp > 7)
 			turnSp = 7;
 		TurnObjectTowardTarget(theNode, enemyObj->Coord.x,						// rotate toward target
 							 enemyObj->Coord.z, turnSp, false);			
 	
-		r = theNode->Rot.y;														// calc deltas based on aiming
+		float r = theNode->Rot.y;												// calc deltas based on aiming
 		gDelta.x = -sin(r) * HEATSEEK_SPEED;
 		gDelta.z = -cos(r) * HEATSEEK_SPEED;	
 	}
@@ -682,9 +686,9 @@ short	num,i;
 	
 			/* MOVE IT */
 			
-	x = gCoord.x += gDelta.x * fps;
-	y = gCoord.y += gDelta.y * fps;
-	z = gCoord.z += gDelta.z * fps;
+	float x = gCoord.x += gDelta.x * fps;
+	float y = gCoord.y += gDelta.y * fps;
+	float z = gCoord.z += gDelta.z * fps;
 
 			/* CALC YAW/PITCH ROTATION */
 			
@@ -712,36 +716,49 @@ short	num,i;
 	
 
 			/* LEAVE TRAIL */
-	
-	num = (CalcQuickDistance(gCoord.x, gCoord.z, theNode->OldCoord.x, theNode->OldCoord.z) * (1.0/15.0)) + 1.0;
-	r = -1.0/(float)num;
-	xi = (gCoord.x - theNode->OldCoord.x) * r;
-	yi = (gCoord.y - theNode->OldCoord.y) * r;
-	zi = (gCoord.z - theNode->OldCoord.z) * r;
-	
-	for (i = 0; i <= num; i++)
-	{	
-		gNewObjectDefinition.coord.x = x;
-		gNewObjectDefinition.coord.y = y;
-		gNewObjectDefinition.coord.z = z;
-		gNewObjectDefinition.group = GLOBAL_MGroupNum_HeatSeekEcho;	
-		gNewObjectDefinition.type = GLOBAL_MObjType_HeatSeekEcho;	
-		gNewObjectDefinition.flags = 0;
-		gNewObjectDefinition.slot = SLOT_OF_DUMB;	
-		gNewObjectDefinition.moveCall = MoveHeatSeekEcho;
-		gNewObjectDefinition.rot = 0;
-		gNewObjectDefinition.scale = .7 + RandomFloat()*.5;
-		newObj = MakeNewDisplayGroupObject(&gNewObjectDefinition);
-		if (newObj)
+
+	float oldX = theNode->SpecialF[1];
+	float oldY = theNode->SpecialF[2];
+	float oldZ = theNode->SpecialF[3];
+
+	float numEchoes = (1.0f/15.0f) * CalcQuickDistance(x, z, oldX, oldZ);
+	if (numEchoes >= 1.0f)
+	{
+		theNode->SpecialF[1] = gCoord.x;
+		theNode->SpecialF[2] = gCoord.y;
+		theNode->SpecialF[3] = gCoord.z;
+
+		numEchoes++;
+		float xi = (gCoord.x - oldX) * (-1.0f / numEchoes);
+		float yi = (gCoord.y - oldY) * (-1.0f / numEchoes);
+		float zi = (gCoord.z - oldZ) * (-1.0f / numEchoes);
+
+		for (int i = 0; i <= numEchoes; i++)
 		{
-			newObj->Health = .7 + RandomFloat()*.3;							// transparency value
-			MakeObjectTransparent(newObj, newObj->Health);					// make transparent
-		}	
-		
-		x += xi;
-		y += yi;
-		z += zi;	
-	};
+			NewObjectDefinitionType newObjDef =
+			{
+				.coord		= {x,y,z},
+				.group		= GLOBAL_MGroupNum_HeatSeekEcho,
+				.type		= GLOBAL_MObjType_HeatSeekEcho,
+				.flags		= 0,
+				.slot		= SLOT_OF_DUMB,
+				.moveCall	= MoveHeatSeekEcho,
+				.rot		= 0,
+				.scale		= .7 + RandomFloat()*.5,
+			};
+
+			ObjNode* newObj = MakeNewDisplayGroupObject(&newObjDef);
+			if (newObj)
+			{
+				newObj->Health = .7 + RandomFloat()*.3;							// transparency value
+				MakeObjectTransparent(newObj, newObj->Health);					// make transparent
+			}
+
+			x += xi;
+			y += yi;
+			z += zi;
+		}
+	}
 
 
 	UpdateObject(theNode);
