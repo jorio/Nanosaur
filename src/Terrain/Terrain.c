@@ -61,6 +61,7 @@ enum
 /**********************/
 
 static UInt8	gHiccupEliminator = 0;
+static Boolean	gDisableHiccupTimer = false;
 
 Ptr		gTerrainPtr = nil;								// points to terrain file data
 UInt16	*gTileDataPtr;
@@ -560,7 +561,10 @@ SuperTileMemoryType	*superTilePtr;
 	superTileNum = GetFreeSuperTileMemory();					// get memory block for the data
 	superTilePtr = &gSuperTileMemoryList[superTileNum];			// get ptr to it
 
-	superTilePtr->hiccupTimer = (gHiccupEliminator++ & 0x7);	// set hiccup timer to aleiviate hiccup caused by massive texture uploading
+	if (gDisableHiccupTimer)
+		superTilePtr->hiccupTimer = 0;
+	else
+		superTilePtr->hiccupTimer = (gHiccupEliminator++ & 0x7);	// set hiccup timer to alleviate hiccup caused by massive texture uploading
 
 	superTilePtr->row = startRow;								// remember row/col of data for dereferencing later
 	superTilePtr->col = startCol;
@@ -2066,11 +2070,15 @@ long	i,w;
 
 	gCurrentSuperTileCol -= w;								// start left and scroll into position
 
+	gDisableHiccupTimer = true;
+
 	for (i=0; i < w; i++)
 	{
 		ScrollTerrainLeft();
 		CalcNewItemDeleteWindow();							// recalc item delete window
-	}	
+	}
+
+	gDisableHiccupTimer = false;
 }
 
 
