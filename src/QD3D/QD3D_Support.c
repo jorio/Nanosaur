@@ -608,16 +608,12 @@ void QD3D_OnWindowResized(void)
 
 float QD3D_GetCurrentViewportAspectRatio(const QD3DSetupOutputType *setupInfo)
 {
-	int	t,b,l,r;
-	t = setupInfo->paneClip.top;
-	b = setupInfo->paneClip.bottom;
-	l = setupInfo->paneClip.left;
-	r = setupInfo->paneClip.right;
+	TQ3Area adjPane = GetAdjustedPane(setupInfo->paneClip);
 
-	int w = gWindowWidth	- l		- r;
-	int h = gWindowHeight	- t		- b;
+	float w = adjPane.max.x - adjPane.min.x;
+	float h = adjPane.max.y - adjPane.min.y;
 
-	if (h == 0)
+	if (h < 1)
 		return 1;
 	else
 		return (float)w / (float)h;
