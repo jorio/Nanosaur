@@ -444,6 +444,8 @@ float	fluc = 0;
 		}
 		UpdateInfobarIcon(resume);
 		UpdateInfobarIcon(quit);
+		if (gGPSObj)
+			MoveGPS(gGPSObj);		// force GPS in upper-right corner even if window gets resized
 
 		QD3D_DrawScene(gGameViewInfoPtr,DrawTerrain);
 	}
@@ -778,12 +780,20 @@ Boolean					forceUpdate = false;
 		gOldGPSCoordX = x;
 		gOldGPSCoordY = y;
 	}
-	
-	
-			/* UPDATE IT IN THE INFOBAR */
-			
+
+			/* ORIENT GPS SO UP == PLAYER'S DIRECTION */
+
 	theNode->Rot.z = -gPlayerObj->Rot.y;
-						
+
+			/* PIN GPS TO UPPER-RIGHT CORNER OF 3D VIEWPORT */
+
+	Rect paneClip = gGameViewInfoPtr->paneClip;
+	float originalAR = (float)(GAME_VIEW_WIDTH - paneClip.left - paneClip.right) / (float)(GAME_VIEW_HEIGHT - paneClip.top - paneClip.bottom);
+	float viewportAR = QD3D_GetCurrentViewportAspectRatio(gGameViewInfoPtr);
+	theNode->Coord.x = 11.6f * viewportAR / originalAR - 3.2f;
+
+			/* UPDATE TRANSFORM MATRIX */
+
 	UpdateInfobarIcon(theNode);
 }
 
