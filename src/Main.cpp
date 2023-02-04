@@ -17,7 +17,7 @@ extern "C"
 	// bare minimum from Window.c to satisfy externs in game code
 	SDL_Window* gSDLWindow = nullptr;
 	WindowPtr gCoverWindow = nullptr;
-	UInt32* gCoverWindowPixPtr = nullptr;
+	UInt32* gBackdropPixels = nullptr;
 
 	// Lets the game know where to find its asset files
 	extern FSSpec gDataSpec;
@@ -130,7 +130,7 @@ retry:
 
 	// Set up globals that the game expects
 	gCoverWindow = Pomme::Graphics::GetScreenPort();
-	gCoverWindowPixPtr = (UInt32*) GetPixBaseAddr(GetGWorldPixMap(gCoverWindow));
+	gBackdropPixels = (UInt32*) GetPixBaseAddr(GetGWorldPixMap(gCoverWindow));
 
 	// Init gDataSpec
 	fs::path dataPath = FindGameData();

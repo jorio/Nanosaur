@@ -16,7 +16,7 @@
 extern TQ3Param2D				gEnvMapUVs[];
 extern RenderStats				gRenderStats;
 extern PrefsType				gGamePrefs;
-extern UInt32*					gCoverWindowPixPtr;
+extern UInt32*					gBackdropPixels;
 extern int						gWindowWidth;
 extern int						gWindowHeight;
 extern SDL_Window*				gSDLWindow;
@@ -52,6 +52,8 @@ typedef struct RendererState
 	bool		hasState_GL_LIGHTING;
 	bool		hasState_GL_FOG;
 	bool		hasFlag_glDepthMask;
+	TQ3ColorRGBA	viewportClearColor;
+	TQ3ColorRGBA	backdropClearColor;
 } RendererState;
 
 typedef struct MeshQueueEntry
@@ -123,9 +125,9 @@ static const TQ3Param2D kFullscreenQuadUVs[4] =
 
 static RendererState gState;
 
-static	GLuint			gCoverWindowTextureName = 0;
-static	GLuint			gCoverWindowTextureWidth = 0;
-static	GLuint			gCoverWindowTextureHeight = 0;
+static	GLuint			gBackdropTextureName = 0;
+static	GLuint			gBackdropWidth = 0;
+static	GLuint			gBackdropHeight = 0;
 
 float					gFadeOverlayOpacity = 0;
 
@@ -135,7 +137,11 @@ float					gFadeOverlayOpacity = 0;
 /*    MACROS/HELPERS        */
 /****************************/
 
-static void __SetInitialState(GLenum stateEnum, bool* stateFlagPtr, bool initialValue)
+static inline void ClearColorRGBA(TQ3ColorRGBA c)
+{
+	glClearColor(c.r, c.g, c.b, c.a);
+}
+
 {
 	*stateFlagPtr = initialValue;
 	if (initialValue)
@@ -253,8 +259,10 @@ void Render_InitState(void)
 	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 //	gState.wantColorMask = true;			// must match glColorMask call above!
 
+	gState.backdropClearColor = (TQ3ColorRGBA) {0, 0, 0, 1};
+	gState.viewportClearColor = (TQ3ColorRGBA) {0, 0, 0.5f, 1};
 	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-	glClearColor(0.0f, 0.0f, 0.5f, 1.0f);
+	ClearColorRGBA(gState.backdropClearColor);
 
 	gState.boundTexture = 0;
 //	gState.sceneHasFog = false;
@@ -275,6 +283,16 @@ void Render_InitState(void)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	CHECK_GL_ERROR();
+}
+
+void Render_SetBackdropClearColor(TQ3ColorRGBA clearColor)
+{
+	gState.backdropClearColor = clearColor;
+}
+
+void Render_SetViewportClearColor(TQ3ColorRGBA clearColor)
+{
+	gState.viewportClearColor = clearColor;
 }
 
 #pragma mark -
@@ -394,26 +412,32 @@ void Render_StartFrame(void)
 
 	// Clear transparent queue
 	gMeshQueueSize = 0;
-
-	// Clear color & depth buffers.
-	EnableFlag(glDepthMask);	// The depth mask must be re-enabled so we can clear the depth buffer.
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void Render_SetViewport(bool scissor, int x, int y, int w, int h)
+void Render_SetViewport(TQ3Area pane)
 {
-	if (scissor)
+	int x = pane.min.x;
+	int y = pane.min.y;
+	int w = pane.max.x-pane.min.x;
+	int h = pane.max.y-pane.min.y;
+	bool needScissor = x != 0 || y != 0 || ((int)pane.max.x != gWindowWidth) || ((int)pane.max.y != gWindowHeight);
+
+	if (needScissor)
 	{
 		EnableState(GL_SCISSOR_TEST);
-		glScissor	(x,y,w,h);
-		glViewport	(x,y,w,h);
-		glClear(GL_COLOR_BUFFER_BIT);
+		glScissor(x,y,w,h);
 	}
 	else
 	{
 		DisableState(GL_SCISSOR_TEST);
-		glViewport	(x,y,w,h);
 	}
+
+	glViewport(x,y,w,h);
+
+	// Clear color & depth buffers
+	ClearColorRGBA(gState.viewportClearColor);
+	EnableFlag(glDepthMask);	// The depth mask must be re-enabled so we can clear the depth buffer.
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void Render_EndFrame(void)
@@ -770,23 +794,23 @@ static void Render_Draw2DFullscreenQuad(int fit)
 	float screenBottom = (float)gWindowHeight;
 
 	// Adjust screen coordinates if we want to pillarbox/letterbox the image.
-	if (fit & (kCoverQuadLetterbox | kCoverQuadPillarbox))
+	if (fit & (kBackdropFit_Letterbox | kBackdropFit_Pillarbox))
 	{
 		const float targetAspectRatio = (float) gWindowWidth / gWindowHeight;
-		const float sourceAspectRatio = (float) gCoverWindowTextureWidth / gCoverWindowTextureHeight;
+		const float sourceAspectRatio = (float) gBackdropWidth / gBackdropHeight;
 
 		if (fabsf(sourceAspectRatio - targetAspectRatio) < 0.1)
 		{
 			// source and window have nearly the same aspect ratio -- fit (no-op)
 		}
-		else if ((fit & kCoverQuadLetterbox) && sourceAspectRatio > targetAspectRatio)
+		else if ((fit & kBackdropFit_Letterbox) && sourceAspectRatio > targetAspectRatio)
 		{
 			// source is wider than window -- letterbox
 			float letterboxedHeight = gWindowWidth / sourceAspectRatio;
 			screenTop = (gWindowHeight - letterboxedHeight) / 2;
 			screenBottom = screenTop + letterboxedHeight;
 		}
-		else if ((fit & kCoverQuadPillarbox) && sourceAspectRatio < targetAspectRatio)
+		else if ((fit & kBackdropFit_Pillarbox) && sourceAspectRatio < targetAspectRatio)
 		{
 			// source is narrower than window -- pillarbox
 			float pillarboxedWidth = sourceAspectRatio * gWindowWidth / targetAspectRatio;
@@ -842,42 +866,42 @@ TQ3Vector2D FitRectKeepAR(
 /*    BACKDROP/OVERLAY (COVER WINDOW)      */
 /*******************************************/
 
-void Render_Alloc2DCover(int width, int height)
+void Render_AllocBackdrop(int width, int height)
 {
-	GAME_ASSERT_MESSAGE(gCoverWindowTextureName == 0, "cover texture already allocated");
+	GAME_ASSERT_MESSAGE(gBackdropTextureName == 0, "cover texture already allocated");
 
-	gCoverWindowTextureWidth = width;
-	gCoverWindowTextureHeight = height;
+	gBackdropWidth = width;
+	gBackdropHeight = height;
 
-	gCoverWindowTextureName = Render_LoadTexture(
+	gBackdropTextureName = Render_LoadTexture(
 			GL_RGBA,
 			width,
 			height,
 			GL_BGRA,
 			GL_UNSIGNED_INT_8_8_8_8,
-			gCoverWindowPixPtr,
+			gBackdropPixels,
 			kRendererTextureFlags_ClampBoth
 	);
 
 	ClearPortDamage();
 }
 
-void Render_Dispose2DCover(void)
+void Render_DisposeBackdrop(void)
 {
-	if (gCoverWindowTextureName == 0)
+	if (gBackdropTextureName == 0)
 		return;
 
-	glDeleteTextures(1, &gCoverWindowTextureName);
-	gCoverWindowTextureName = 0;
+	glDeleteTextures(1, &gBackdropTextureName);
+	gBackdropTextureName = 0;
 }
 
-void Render_Clear2DCover(UInt32 argb)
+void Render_ClearBackdrop(UInt32 argb)
 {
 	UInt32 bgra = UnpackU32BE(&argb);
 
-	UInt32* backdropPixPtr = gCoverWindowPixPtr;
+	UInt32* backdropPixPtr = gBackdropPixels;
 
-	for (GLuint i = 0; i < gCoverWindowTextureWidth * gCoverWindowTextureHeight; i++)
+	for (GLuint i = 0; i < gBackdropWidth * gBackdropHeight; i++)
 	{
 		*(backdropPixPtr++) = bgra;
 	}
@@ -887,12 +911,18 @@ void Render_Clear2DCover(UInt32 argb)
 	DamagePortRegion(&port->portRect);
 }
 
-void Render_Draw2DCover(int fit)
+void Render_DrawBackdrop(int fit)
 {
-	if (gCoverWindowTextureName == 0)
+	if (fit != kBackdropFit_FillScreen)
+	{
+		ClearColorRGBA(gState.backdropClearColor);
+		glClear(GL_COLOR_BUFFER_BIT);
+	}
+
+	if (gBackdropTextureName == 0)
 		return;
 
-	Render_BindTexture(gCoverWindowTextureName);
+	Render_BindTexture(gBackdropTextureName);
 
 	// If the screen port has dirty pixels ("damaged"), update the texture
 	if (IsPortDamaged())
@@ -903,7 +933,7 @@ void Render_Draw2DCover(int fit)
 		// Set unpack row length to 640
 		GLint pUnpackRowLength;
 		glGetIntegerv(GL_UNPACK_ROW_LENGTH, &pUnpackRowLength);
-		glPixelStorei(GL_UNPACK_ROW_LENGTH, gCoverWindowTextureWidth);
+		glPixelStorei(GL_UNPACK_ROW_LENGTH, gBackdropWidth);
 
 		glTexSubImage2D(
 				GL_TEXTURE_2D,
@@ -914,7 +944,7 @@ void Render_Draw2DCover(int fit)
 				damageRect.bottom - damageRect.top,
 				GL_BGRA,
 				GL_UNSIGNED_INT_8_8_8_8,
-				gCoverWindowPixPtr + (damageRect.top * gCoverWindowTextureWidth + damageRect.left));
+				gBackdropPixels + (damageRect.top * gBackdropWidth + damageRect.left));
 		CHECK_GL_ERROR();
 
 		// Restore unpack row length
@@ -970,7 +1000,7 @@ void Render_FreezeFrameFadeOut(void)
 		if (!gGameViewInfoPtr)
 		{
 			Render_StartFrame();
-			Render_Draw2DCover(kCoverQuadFit);
+			Render_DrawBackdrop(kBackdropFit_KeepRatio);
 			Render_EndFrame();
 			SDL_GL_SwapWindow(gSDLWindow);
 		}

@@ -102,7 +102,7 @@ TQ3Vector3D			fillDirection2 = { -1, -1, .2 };
 	viewDef->view.paneClip.right 	= 0;
 	viewDef->view.paneClip.top 		= 0;
 	viewDef->view.paneClip.bottom 	= 0;
-	viewDef->view.backdropFit		= kCoverQuadFill;
+	viewDef->view.backdropFit		= kBackdropFit_FillScreen;
 
 	viewDef->styles.interpolation 	= kQ3InterpolationStyleVertex;
 	viewDef->styles.backfacing 		= kQ3BackfacingStyleRemove; 
@@ -158,6 +158,7 @@ QD3DSetupOutputType	*outputPtr;
 	outputPtr->hither = setupDefPtr->camera.hither;				// remember hither/yon
 	outputPtr->yon = setupDefPtr->camera.yon;
 	outputPtr->fov = setupDefPtr->camera.fov;
+	outputPtr->clearColor = setupDefPtr->view.clearColor;
 
 	outputPtr->cameraPlacement.upVector				= setupDefPtr->camera.up;
 	outputPtr->cameraPlacement.pointOfInterest		= setupDefPtr->camera.to;
@@ -193,12 +194,8 @@ QD3DSetupOutputType	*outputPtr;
 	else
 		glDisable(GL_FOG);
 
-	Render_Alloc2DCover(GAME_VIEW_WIDTH, GAME_VIEW_HEIGHT);
-
-	glClearColor(setupDefPtr->view.clearColor.r, setupDefPtr->view.clearColor.g, setupDefPtr->view.clearColor.b, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	CHECK_GL_ERROR();
+	Render_AllocBackdrop(GAME_VIEW_WIDTH, GAME_VIEW_HEIGHT);	// creates GL texture for backdrop
+	Render_ClearBackdrop(0);									// avoid residual junk from previous backdrop
 }
 
 
@@ -216,7 +213,7 @@ QD3DSetupOutputType	*data;
 	data = *dataHandle;
 	GAME_ASSERT(data);										// see if this setup exists
 
-	Render_Dispose2DCover(); // Source port addition - release backdrop GL texture
+	Render_DisposeBackdrop();								// deletes GL texture for backdrop
 
 	if (gShadowGLTextureName != 0)
 	{
@@ -317,40 +314,30 @@ void QD3D_DrawScene(QD3DSetupOutputType *setupInfo, void (*drawRoutine)(QD3DSetu
 
 			/* START RENDERING */
 
-	int mkc = SDL_GL_MakeCurrent(gSDLWindow, gGLContext);
-	GAME_ASSERT_MESSAGE(mkc == 0, SDL_GetError());
-
 	Render_StartFrame();
 
-	// Clip pane
+			/* DRAW BACKDROP */
+
 	if (setupInfo->needScissorTest)
 	{
-		// Render backdrop
-		Render_Draw2DCover(setupInfo->backdropFit);
+		Render_DrawBackdrop(setupInfo->keepBackdropAspectRatio);
 	}
 
-	// Clip pane
-	TQ3Area pane	= GetAdjustedPane(setupInfo->paneClip);
-	int paneWidth	= pane.max.x-pane.min.x;
-	int paneHeight	= pane.max.y-pane.min.y;
-	Render_SetViewport(setupInfo->needScissorTest, pane.min.x, pane.min.y, paneWidth, paneHeight);
+			/* ENTER 3D VIEWPORT */
 
+	Render_SetViewportClearColor(setupInfo->clearColor);
+	Render_SetViewport(GetAdjustedPane(setupInfo->paneClip));
 
-			/* PREPARE FRUSTUM PLANES FOR SPHERE VISIBILITY CHECKS */
+			/* PREPARE FRUSTUM CULLING PLANES */
 
 	UpdateFrustumPlanes();
 
-
-			/***************/
-			/* RENDER LOOP */
-			/***************/
+			/* 3D SCENE RENDER LOOP */
 
 	if (drawRoutine)
 		drawRoutine(setupInfo);
 
-			/******************/
 			/* DONE RENDERING */
-			/*****************/
 
 	Render_EndFrame();
 
@@ -560,7 +547,7 @@ void MakeShadowTexture(void)
 }
 
 
-#pragma mark ---------- source port additions -------------
+#pragma mark -
 
 static TQ3Area GetAdjustedPane(Rect paneClip)
 {
@@ -621,10 +608,6 @@ void QD3D_OnWindowResized(void)
 
 	CalcCameraMatrixInfo(gGameViewInfoPtr);
 }
-
-
-
-#pragma mark -
 
 float QD3D_GetCurrentViewportAspectRatio(const QD3DSetupOutputType *setupInfo)
 {

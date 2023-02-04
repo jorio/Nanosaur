@@ -77,6 +77,7 @@ typedef struct
 	int						backdropFit;
 	float					hither,yon;
 	float					fov;
+	TQ3ColorRGBA			clearColor;
 	TQ3CameraPlacement		cameraPlacement;
 	QD3DLightDefType		lights;
 }QD3DSetupOutputType;

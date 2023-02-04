@@ -165,7 +165,7 @@ extern	UInt16*					gTileDataPtr;
 extern	UInt16**				gTerrainHeightMapLayer;
 extern	UInt16**				gTerrainPathLayer;
 extern	UInt16**				gTerrainTextureLayer;
-extern	UInt32*					gCoverWindowPixPtr;
+extern	UInt32*					gBackdropPixels;
 extern	uint32_t				gScore;
 extern	uint32_t				gInfobarUpdateBits;
 extern	WindowPtr				gCoverWindow;

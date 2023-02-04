@@ -33,8 +33,8 @@ void PlayAMovie(FSSpec* spec)
 	CinepakContext cinepak(movie.width, movie.height);
 
 	Render_InitState();
-	Render_Alloc2DCover(movie.width, movie.height);
-	glClearColor(0,0,0,1);
+	Render_AllocBackdrop(movie.width, movie.height);
+	Render_SetBackdropClearColor({0,0,0,1});
 
 	movie.audioStream.Play();
 
@@ -76,7 +76,8 @@ void PlayAMovie(FSSpec* spec)
 		DamagePortRegion(&damage);
 
 		Render_StartFrame();
-		Render_Draw2DCover(kCoverQuadFit);
+		Render_DrawBackdrop(kBackdropFit_KeepRatio);
+		Render_EndFrame();
 		SDL_GL_SwapWindow(gSDLWindow);
 
 		unsigned int endTicks = SDL_GetTicks();
@@ -99,5 +100,5 @@ void PlayAMovie(FSSpec* spec)
 
 	Render_FreezeFrameFadeOut();
 
-	Render_Dispose2DCover();
+	Render_DisposeBackdrop();
 }

@@ -340,7 +340,7 @@ static void Slideshow(const struct SlideshowEntry* slides)
 	FSSpec spec;
 
 	Render_InitState();
-	Render_Alloc2DCover(GAME_VIEW_WIDTH, GAME_VIEW_HEIGHT);
+	Render_AllocBackdrop(GAME_VIEW_WIDTH, GAME_VIEW_HEIGHT);
 
 	for (int i = 0; slides[i].imagePath != NULL; i++)
 	{
@@ -361,8 +361,14 @@ static void Slideshow(const struct SlideshowEntry* slides)
 			slide->postDrawCallback();
 		}
 
-		uint8_t* clearColor = (uint8_t*)gCoverWindowPixPtr;
-		glClearColor(clearColor[1]/255.0f, clearColor[2]/255.0f, clearColor[3]/255.0f, 1.0f);
+		uint8_t* clearColor = (uint8_t*)gBackdropPixels;
+		Render_SetBackdropClearColor((TQ3ColorRGBA)
+			{
+				.r = clearColor[1]/255.0f,
+				.g = clearColor[2]/255.0f,
+				.b = clearColor[3]/255.0f,
+				.a = 1.0f,
+			});
 
 		UpdateInput();
 
@@ -397,12 +403,10 @@ static void Slideshow(const struct SlideshowEntry* slides)
 
 			UpdateInput();
 			DoSoundMaintenance();
-
-			Render_StartFrame();
-			Render_Draw2DCover(kCoverQuadFit);
-
 			QD3D_CalcFramesPerSecond(); // required to properly cap the framerate
 
+			Render_StartFrame();
+			Render_DrawBackdrop(kBackdropFit_KeepRatio);
 			Render_EndFrame();
 			SDL_GL_SwapWindow(gSDLWindow);
 
@@ -415,7 +419,7 @@ static void Slideshow(const struct SlideshowEntry* slides)
 
 	Render_FreezeFrameFadeOut();
 
-	Render_Dispose2DCover();
+	Render_DisposeBackdrop();
 }
 
 

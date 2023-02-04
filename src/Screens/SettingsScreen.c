@@ -597,8 +597,15 @@ static void InitDisplayPref(void)
 void DoSettingsScreen(void)
 {
 	Render_InitState();
-	Render_Alloc2DCover(GAME_VIEW_WIDTH, GAME_VIEW_HEIGHT);
-	glClearColor(((kBGColor >> 16) & 0xFF) / 255.0f, ((kBGColor >> 8) & 0xFF) / 255.0f, (kBGColor & 0xFF) / 255.0f, 1.0f);
+	Render_AllocBackdrop(GAME_VIEW_WIDTH, GAME_VIEW_HEIGHT);
+
+	Render_SetBackdropClearColor((TQ3ColorRGBA)
+		{
+			.r = (float) ((kBGColor >> 16) & 0xFF) / 255.0f,
+			.g = (float) ((kBGColor >>  8) & 0xFF) / 255.0f,
+			.b = (float) ((kBGColor      ) & 0xFF) / 255.0f,
+			.a = 1.0f
+		});
 
 	needFullRender = true;
 	gSettingsState = kSettingsState_FadeIn;
@@ -657,7 +664,7 @@ void DoSettingsScreen(void)
 		DoSoundMaintenance();
 
 		Render_StartFrame();
-		Render_Draw2DCover(kCoverQuadFit);
+		Render_DrawBackdrop(kBackdropFit_KeepRatio);
 		Render_EndFrame();
 
 		SDL_GL_SwapWindow(gSDLWindow);
@@ -666,5 +673,5 @@ void DoSettingsScreen(void)
 	SavePrefs(&gGamePrefs);
 
 	Render_FreezeFrameFadeOut();
-	Render_Dispose2DCover();
+	Render_DisposeBackdrop();
 }

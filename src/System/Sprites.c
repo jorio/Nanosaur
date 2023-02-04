@@ -172,7 +172,7 @@ void DrawSpriteFrameToScreen(short group, int frame, int x, int y)
 			/**************/
 	else
 	{
-		uint32_t* destPtr = (uint32_t *)(gCoverWindowPixPtr + (y * GAME_VIEW_WIDTH) + x);		// calc start addr
+		uint32_t* destPtr = (uint32_t *)(gBackdropPixels + (y * GAME_VIEW_WIDTH) + x);		// calc start addr
 	
 	
 				/* DRAW WITH MASK */

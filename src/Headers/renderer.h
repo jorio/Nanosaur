@@ -42,10 +42,10 @@ typedef struct RenderModifiers
 
 enum
 {
-	kCoverQuadFill						= 0,
-	kCoverQuadPillarbox					= 1,
-	kCoverQuadLetterbox					= 2,
-	kCoverQuadFit						= kCoverQuadPillarbox | kCoverQuadLetterbox,
+	kBackdropFit_FillScreen				= 0,
+	kBackdropFit_Pillarbox				= 1,
+	kBackdropFit_Letterbox				= 2,
+	kBackdropFit_KeepRatio				= kBackdropFit_Pillarbox | kBackdropFit_Letterbox,
 };
 
 typedef enum
@@ -99,7 +99,11 @@ void Render_StartFrame(void);
 // Flushes the rendering queue.
 void Render_EndFrame(void);
 
-void Render_SetViewport(bool scissor, int x, int y, int w, int h);
+void Render_SetBackdropClearColor(TQ3ColorRGBA clearColor);
+
+void Render_SetViewportClearColor(TQ3ColorRGBA clearColor);
+
+void Render_SetViewport(TQ3Area pane);
 
 #pragma mark -
 
@@ -133,13 +137,13 @@ void Render_Exit2D(void);
 
 #pragma mark -
 
-void Render_Alloc2DCover(int width, int height);
+void Render_AllocBackdrop(int width, int height);
 
-void Render_Dispose2DCover(void);
+void Render_DisposeBackdrop(void);
 
-void Render_Clear2DCover(uint32_t argb);
+void Render_ClearBackdrop(uint32_t argb);
 
-void Render_Draw2DCover(int fit);
+void Render_DrawBackdrop(int fit);
 
 #pragma mark -
 
