@@ -442,10 +442,11 @@ float	x,y,z;
 
 
 			/* MOVE IT */
-			
+
 	theNode->Scale.x += fps * 1.0;
 	theNode->Scale.y += fps * 1.0;
 	theNode->Scale.z += fps * 1.0;
+	theNode->Radius = theNode->Scale.x * gObjectGroupRadiusList[GLOBAL_MGroupNum_SonicScream][GLOBAL_MObjType_SonicScream];
 
 	x = gCoord.x += gDelta.x * fps;
 	y = gCoord.y += gDelta.y * fps;
