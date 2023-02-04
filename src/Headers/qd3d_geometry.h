@@ -13,7 +13,7 @@ enum
 };
 
 
-#define	MAX_SHARDS			150
+#define	MAX_SHARDS			1500
 
 typedef struct
 {

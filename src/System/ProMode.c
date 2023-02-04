@@ -33,7 +33,7 @@ void SetProModeSettings(int pro)
 	MAX_SPITTER					= pro ? 2 : 12;  // weird... but these values were in the original source
 	MAX_STEGO					= pro ? 10 : 2;
 	MAX_TRICER					= pro ? 10 : 3;
-	EXPLODEGEOMETRY_DENOMINATOR	= pro ? 1 : 4;
+	EXPLODEGEOMETRY_DENOMINATOR	= pro ? 2 : 4;
 	YON_DISTANCE				= pro ? 2800.0f : 1900.0f;
 	SONIC_SCREAM_RATE			= pro ? 4 : 4;
 	BLASTER_RATE				= pro ? 7 : 4;
