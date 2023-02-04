@@ -278,7 +278,7 @@ void CalcCameraMatrixInfo(QD3DSetupOutputType *setupInfo)
 	FillProjectionMatrix(
 		&gCameraViewToFrustumMatrix,
 		setupInfo->fov,
-		QD3D_GetCurrentViewportAspectRatio(setupInfo),
+		setupInfo->viewportAspectRatio,
 		setupInfo->hither,
 		setupInfo->yon);
 

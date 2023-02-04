@@ -793,8 +793,9 @@ Boolean					forceUpdate = false;
 
 	Rect paneClip = gGameViewInfoPtr->paneClip;
 	float originalAR = (float)(GAME_VIEW_WIDTH - paneClip.left - paneClip.right) / (float)(GAME_VIEW_HEIGHT - paneClip.top - paneClip.bottom);
-	float viewportAR = QD3D_GetCurrentViewportAspectRatio(gGameViewInfoPtr);
-	theNode->Coord.x = 11.6f * viewportAR / originalAR - 3.2f;
+	float viewportAR = gGameViewInfoPtr->viewportAspectRatio;
+	float metaAR = viewportAR / originalAR;
+	theNode->Coord.x = 11.5f * metaAR - 3.1875f;	// to minimize jitter, these floats come out to "round" IEEE-754 representations
 
 			/* UPDATE TRANSFORM MATRIX */
 

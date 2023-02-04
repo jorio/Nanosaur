@@ -158,6 +158,7 @@ QD3DSetupOutputType	*outputPtr;
 	outputPtr->hither = setupDefPtr->camera.hither;				// remember hither/yon
 	outputPtr->yon = setupDefPtr->camera.yon;
 	outputPtr->fov = setupDefPtr->camera.fov;
+	outputPtr->viewportAspectRatio = 1;		// filled in later
 	outputPtr->clearColor = setupDefPtr->view.clearColor;
 
 	outputPtr->cameraPlacement.upVector				= setupDefPtr->camera.up;
@@ -312,6 +313,18 @@ void QD3D_DrawScene(QD3DSetupOutputType *setupInfo, void (*drawRoutine)(QD3DSetu
 	GAME_ASSERT(setupInfo->isActive);							// make sure it's legit
 	GAME_ASSERT(gGLContext);
 
+			/* CALC VIEWPORT DIMENSIONS */
+
+	SDL_GL_GetDrawableSize(gSDLWindow, &gWindowWidth, &gWindowHeight);
+	TQ3Area viewportPane = GetAdjustedPane(setupInfo->paneClip);
+	float viewportWidth = viewportPane.max.x - viewportPane.min.x;
+	float viewportHeight = viewportPane.max.y - viewportPane.min.y;
+	setupInfo->viewportAspectRatio = (viewportHeight < 1) ? (1.0f) : (viewportWidth / viewportHeight);
+
+			/* UPDATE CAMERA MATRICES */
+
+	CalcCameraMatrixInfo(setupInfo);
+
 			/* START RENDERING */
 
 	Render_StartFrame();
@@ -322,11 +335,15 @@ void QD3D_DrawScene(QD3DSetupOutputType *setupInfo, void (*drawRoutine)(QD3DSetu
 	{
 		Render_DrawBackdrop(setupInfo->keepBackdropAspectRatio);
 	}
+	else if (gGamePrefs.force4x3 && (viewportPane.min.x != 0 || viewportPane.min.y != 0))
+	{
+		Render_DrawBackdrop(true);		// Forces clearing pillarbox/letterbox zones
+	}
 
 			/* ENTER 3D VIEWPORT */
 
 	Render_SetViewportClearColor(setupInfo->clearColor);
-	Render_SetViewport(GetAdjustedPane(setupInfo->paneClip));
+	Render_SetViewport(viewportPane);
 
 			/* PREPARE FRUSTUM CULLING PLANES */
 
@@ -390,7 +407,12 @@ void QD3D_MoveCameraFromTo(QD3DSetupOutputType *setupInfo, TQ3Vector3D *moveVect
 //=============================== MISC ==================================================================
 //=======================================================================================================
 
-/************** QD3D CALC FRAMES PER SECOND *****************/
+/************** QD3D REFRESH WINDOW SIZE *****************/
+
+void QD3D_OnWindowResized(void)
+{
+	SDL_GL_GetDrawableSize(gSDLWindow, &gWindowWidth, &gWindowHeight);
+}
 
 /************** QD3D CALC FRAMES PER SECOND *****************/
 
@@ -592,32 +614,4 @@ static TQ3Area GetAdjustedPane(Rect paneClip)
 	pane.max.y += offset.y;
 
 	return pane;
-}
-
-// Called when the game window gets resized.
-// Adjusts the clipping pane and camera aspect ratio.
-void QD3D_OnWindowResized(void)
-{
-	if (!gSDLWindow)
-		return;
-
-	SDL_GL_GetDrawableSize(gSDLWindow, &gWindowWidth, &gWindowHeight);
-
-	if (!gGameViewInfoPtr)
-		return;
-
-	CalcCameraMatrixInfo(gGameViewInfoPtr);
-}
-
-float QD3D_GetCurrentViewportAspectRatio(const QD3DSetupOutputType *setupInfo)
-{
-	TQ3Area adjPane = GetAdjustedPane(setupInfo->paneClip);
-
-	float w = adjPane.max.x - adjPane.min.x;
-	float h = adjPane.max.y - adjPane.min.y;
-
-	if (h < 1)
-		return 1;
-	else
-		return (float)w / (float)h;
 }

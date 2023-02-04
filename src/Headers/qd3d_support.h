@@ -77,6 +77,7 @@ typedef struct
 	bool					keepBackdropAspectRatio;
 	float					hither,yon;
 	float					fov;
+	float					viewportAspectRatio;
 	TQ3ColorRGBA			clearColor;
 	TQ3CameraPlacement		cameraPlacement;
 	QD3DLightDefType		lights;
@@ -95,10 +96,5 @@ extern	void QD3D_UpdateCameraFrom(QD3DSetupOutputType *setupInfo, TQ3Point3D *fr
 extern	void QD3D_MoveCameraFromTo(QD3DSetupOutputType *setupInfo, TQ3Vector3D *moveVector, TQ3Vector3D *lookAtVector);
 extern	void	QD3D_CalcFramesPerSecond(void);
 extern	void QD3D_NewViewDef(QD3DSetupInputType *viewDef);
-
 void MakeShadowTexture(void);
-
 void QD3D_OnWindowResized(void);
-
-float QD3D_GetCurrentViewportAspectRatio(const QD3DSetupOutputType *setupInfo);
-
