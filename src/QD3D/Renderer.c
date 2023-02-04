@@ -142,6 +142,7 @@ static inline void ClearColorRGBA(TQ3ColorRGBA c)
 	glClearColor(c.r, c.g, c.b, c.a);
 }
 
+static void SetInitialState_Impl(GLenum stateEnum, bool* stateFlagPtr, bool initialValue)
 {
 	*stateFlagPtr = initialValue;
 	if (initialValue)
@@ -151,7 +152,7 @@ static inline void ClearColorRGBA(TQ3ColorRGBA c)
 	CHECK_GL_ERROR();
 }
 
-static void __SetInitialClientState(GLenum stateEnum, bool* stateFlagPtr, bool initialValue)
+static void SetInitialClientState_Impl(GLenum stateEnum, bool* stateFlagPtr, bool initialValue)
 {
 	*stateFlagPtr = initialValue;
 	if (initialValue)
@@ -161,7 +162,7 @@ static void __SetInitialClientState(GLenum stateEnum, bool* stateFlagPtr, bool i
 	CHECK_GL_ERROR();
 }
 
-static inline void __SetState(GLenum stateEnum, bool* stateFlagPtr, bool enable)
+static inline void SetState_Impl(GLenum stateEnum, bool* stateFlagPtr, bool enable)
 {
 	if (enable != *stateFlagPtr)
 	{
@@ -175,7 +176,7 @@ static inline void __SetState(GLenum stateEnum, bool* stateFlagPtr, bool enable)
 		gRenderStats.batchedStateChanges++;
 }
 
-static inline void __SetClientState(GLenum stateEnum, bool* stateFlagPtr, bool enable)
+static inline void SetClientState_Impl(GLenum stateEnum, bool* stateFlagPtr, bool enable)
 {
 	if (enable != *stateFlagPtr)
 	{
@@ -189,17 +190,17 @@ static inline void __SetClientState(GLenum stateEnum, bool* stateFlagPtr, bool e
 		gRenderStats.batchedStateChanges++;
 }
 
-#define SetInitialState(stateEnum, initialValue) __SetInitialState(stateEnum, &gState.hasState_##stateEnum, initialValue)
-#define SetInitialClientState(stateEnum, initialValue) __SetInitialClientState(stateEnum, &gState.hasClientState_##stateEnum, initialValue)
+#define SetInitialState(stateEnum, initialValue) SetInitialState_Impl(stateEnum, &gState.hasState_##stateEnum, initialValue)
+#define SetInitialClientState(stateEnum, initialValue) SetInitialClientState_Impl(stateEnum, &gState.hasClientState_##stateEnum, initialValue)
 
-#define EnableState(stateEnum) __SetState(stateEnum, &gState.hasState_##stateEnum, true)
-#define EnableClientState(stateEnum) __SetClientState(stateEnum, &gState.hasClientState_##stateEnum, true)
+#define EnableState(stateEnum) SetState_Impl(stateEnum, &gState.hasState_##stateEnum, true)
+#define EnableClientState(stateEnum) SetClientState_Impl(stateEnum, &gState.hasClientState_##stateEnum, true)
 
-#define DisableState(stateEnum) __SetState(stateEnum, &gState.hasState_##stateEnum, false)
-#define DisableClientState(stateEnum) __SetClientState(stateEnum, &gState.hasClientState_##stateEnum, false)
+#define DisableState(stateEnum) SetState_Impl(stateEnum, &gState.hasState_##stateEnum, false)
+#define DisableClientState(stateEnum) SetClientState_Impl(stateEnum, &gState.hasClientState_##stateEnum, false)
 
-#define RestoreStateFromBackup(stateEnum, backup) __SetState(stateEnum, &gState.hasState_##stateEnum, (backup)->hasState_##stateEnum)
-#define RestoreClientStateFromBackup(stateEnum, backup) __SetClientState(stateEnum, &gState.hasClientState_##stateEnum, (backup)->hasClientState_##stateEnum)
+#define RestoreStateFromBackup(stateEnum, backup) SetState_Impl(stateEnum, &gState.hasState_##stateEnum, (backup)->hasState_##stateEnum)
+#define RestoreClientStateFromBackup(stateEnum, backup) SetClientState_Impl(stateEnum, &gState.hasClientState_##stateEnum, (backup)->hasClientState_##stateEnum)
 
 #define EnableFlag(glFunction) do {					\
 	if (!gState.hasFlag_##glFunction) {				\
