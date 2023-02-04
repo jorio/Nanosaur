@@ -8,7 +8,7 @@ static const uint32_t kMutedColor	= 0x404040;
 static const uint32_t kTitleColor	= 0x606060;
 static const uint32_t kAccentColor	= 0x108020;
 
-static const int kColumnX[] = { 128, 300, 400, 500 };
+static const int kColumnX[] = { 120, 320, 450, 580 };
 
 static int selectedEntry = 0;
 
@@ -57,30 +57,28 @@ static SettingEntry gSettingEntries[] =
 {
 	{nil							, "Configure Controls"	, Callback_EnterControls,	0,	{ NULL } },
 	{nil							, nil					, nil,						0,  { NULL } },
-	{&gGamePrefs.extreme			, "Game Difficulty"		, Callback_Difficulty,		2,	{ "Easy", "EXTREME!" } },
+	{&gGamePrefs.extreme			, "Game Difficulty"		, Callback_Difficulty,		2,	{ "EASY", "EXTREME!" } },
 	{nil							, nil					, nil,						0,  { NULL } },
 	{&gGamePrefs.music				, "Music"				, Callback_Music,			2,	{ "NO", "YES" }, },
 	{&gGamePrefs.ambientSounds		, "Ambient Sounds"		, nil,						2,	{ "NO", "YES" }, },
 	{nil							, nil					, nil,						0,  { NULL } },
 	{&gGamePrefs.fullscreen			, "Fullscreen"			, Callback_Fullscreen,		2,	{ "NO", "YES" }, },
 	{&gGamePrefs.vsync				, "V-Sync"				, Callback_VSync,			2,	{ "NO", "YES" }, },
-	{&gGamePrefs.force4x3			, "Aspect Ratio"		, NULL,						2,	{ "Fill Screen", "Force 4:3" }, },
-	{&gGamePrefs.preferredDisplay	, "Preferred Display"	, Callback_Fullscreen,		1,	{ "Default" }, },
+	{&gGamePrefs.force4x3			, "Aspect Ratio"		, NULL,						2,	{ "FILL SCREEN", "FORCE 4:3" }, },
+	{&gGamePrefs.preferredDisplay	, "Preferred Display"	, Callback_Fullscreen,		1,	{ "DEFAULT" }, },
 #if !(__APPLE__)
 	{&gGamePrefs.antialiasingLevel	, "Antialiasing"		, Callback_Antialiasing,	4,	{ "NO", "MSAA 2x", "MSAA 4x", "MSAA 8x" }, },
 #endif
 	{nil							, nil					, nil,						0,  { NULL } },
 	{&gGamePrefs.highQualityTextures, "Texture Filtering"	, nil,						2,	{ "NO", "YES" }, },
 	{&gGamePrefs.canDoFog			, "Fog"					, nil,						2,	{ "NO", "YES" }, },
-	{&gGamePrefs.nanosaurTeethFix	, "Nano's Dentist Is"	, nil				,		2,	{ "Extinct", "Alive" } },
+	{&gGamePrefs.whiteSky			, "Sky Color"			, nil,						2,	{ "BLACK", "WHITE" } },
+	{&gGamePrefs.nanosaurTeethFix	, "Nano's Dentist Is"	, nil,						2,	{ "EXTINCT", "ALIVE" } },
 //	{&gGamePrefs.shadows			, "Shadow Decals"		, nil,						2,	{ "NO", "YES" }, },
 //	{&gGamePrefs.dust				, "Dust"				, nil,						2,	{ "NO", "YES" }, },
 	{nil							, nil					, nil,						0,  { NULL } },
 	{&gGamePrefs.mainMenuHelp		, "Show Help in Main Menu"		, nil,				2,	{ "NO", "YES" }, },
 	{&gGamePrefs.debugInfoInTitleBar, "Debug Info in Title Bar",	Callback_DebugInfo,	2,  { "NO", "YES" } },
-	{nil							, nil					, nil,						0,  { NULL } },
-	{nil							, nil					, nil,						0,  { NULL } },
-	{nil							, nil					, nil,						0,  { NULL } },
 	{nil							, nil					, nil,						0,  { NULL } },
 	{nil							, "Done"				, Callback_Done,			0,  { NULL } },
 };
@@ -580,13 +578,13 @@ static void InitDisplayPref(void)
 
 			for (size_t j = 0; j < entry->numChoices; j++)
 			{
-				snprintf(gMonitorNameBuffers[j], 64, "Monitor #%d", (int) j+1);
+				snprintf(gMonitorNameBuffers[j], 64, "DISPLAY %d", (int) j+1);
 				entry->choices[j] = gMonitorNameBuffers[j];
 			}
 
 			for (size_t j = entry->numChoices; j < MAX_CHOICES; j++)
 			{
-				snprintf(gMonitorNameBuffers[j], 64, "Disconnected monitor #%d", (int) j+1);
+				snprintf(gMonitorNameBuffers[j], 64, "DISCONNECTED DISPLAY %d", (int) j+1);
 			}
 
 			break;

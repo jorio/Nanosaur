@@ -69,13 +69,13 @@ TQ3Point3D		cameraFrom = { 110, 90, 190.0 };
 	viewDef.camera.from 			= cameraFrom;
 #endif
 	
-	if (!gGamePrefs.canDoFog)		// if no fog possible, then bg is black
+	if (!gGamePrefs.whiteSky)
 	{
 		viewDef.view.clearColor.r = 0;
 		viewDef.view.clearColor.g = 0;
 		viewDef.view.clearColor.b = 0;
 	}
-	else							// set fog since I think it'll work
+	else
 	{
 		viewDef.view.clearColor.r = 
 		viewDef.view.clearColor.g = 

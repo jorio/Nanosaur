@@ -299,6 +299,7 @@ typedef struct
 	char magic[32];
 	Boolean	highQualityTextures;
 	Boolean	canDoFog;
+	Boolean	whiteSky;
 	Boolean	shadows;
 	Boolean	dust;
 	Boolean fullscreen;

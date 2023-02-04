@@ -66,6 +66,7 @@ void InitDefaultPrefs(void)
 	gGamePrefs.music = true;
 	gGamePrefs.ambientSounds = true;
 	gGamePrefs.nanosaurTeethFix = true;
+	gGamePrefs.whiteSky = true;
 
 	memcpy(gGamePrefs.keys, kDefaultKeyBindings, sizeof(gGamePrefs.keys));
 	_Static_assert(sizeof(kDefaultKeyBindings) == sizeof(gGamePrefs.keys), "size mismatch: default keybindings / prefs keybinings");
@@ -152,13 +153,13 @@ TQ3ColorRGB		c2 = { 1, .9, .6 };
 
 	viewDef.view.keepBackdropAspectRatio = gGamePrefs.force4x3;
 
-	if (!gGamePrefs.canDoFog)		// if no fog possible, then bg is black
+	if (!gGamePrefs.whiteSky)
 	{
 		viewDef.view.clearColor.r = 0;
 		viewDef.view.clearColor.g = 0;
 		viewDef.view.clearColor.b = 0;
 	}
-	else							// set fog since I think it'll work
+	else
 	{
 		viewDef.view.clearColor.r = .95;
 		viewDef.view.clearColor.g = .95;
