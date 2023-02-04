@@ -327,17 +327,14 @@ void QD3D_DrawScene(QD3DSetupOutputType *setupInfo, void (*drawRoutine)(QD3DSetu
 	{
 		// Render backdrop
 		Render_Draw2DCover(setupInfo->backdropFit);
+	}
 
-		// Set scissor
-		TQ3Area pane	= GetAdjustedPane(setupInfo->paneClip);
-		int paneWidth	= pane.max.x-pane.min.x;
-		int paneHeight	= pane.max.y-pane.min.y;
-		Render_SetViewport(true, pane.min.x, pane.min.y, paneWidth, paneHeight);
-	}
-	else
-	{
-		Render_SetViewport(false, 0, 0, gWindowWidth, gWindowHeight);
-	}
+	// Clip pane
+	TQ3Area pane	= GetAdjustedPane(setupInfo->paneClip);
+	int paneWidth	= pane.max.x-pane.min.x;
+	int paneHeight	= pane.max.y-pane.min.y;
+	Render_SetViewport(setupInfo->needScissorTest, pane.min.x, pane.min.y, paneWidth, paneHeight);
+
 
 			/* PREPARE FRUSTUM PLANES FOR SPHERE VISIBILITY CHECKS */
 
@@ -568,6 +565,8 @@ void MakeShadowTexture(void)
 static TQ3Area GetAdjustedPane(Rect paneClip)
 {
 	TQ3Area pane;
+	TQ3Vector2D scale;
+	TQ3Vector2D offset;
 
 	pane.min.x = paneClip.left;					// set bounds?
 	pane.max.x = GAME_VIEW_WIDTH - paneClip.right;
@@ -579,10 +578,31 @@ static TQ3Area GetAdjustedPane(Rect paneClip)
 	pane.min.y += gAdditionalClipping*.75f;
 	pane.max.y -= gAdditionalClipping*.75f;
 
-	pane.min.x *= gWindowWidth	/ (float)(GAME_VIEW_WIDTH);	// scale clip pane to window size
-	pane.max.x *= gWindowWidth	/ (float)(GAME_VIEW_WIDTH);
-	pane.min.y *= gWindowHeight	/ (float)(GAME_VIEW_HEIGHT);
-	pane.max.y *= gWindowHeight	/ (float)(GAME_VIEW_HEIGHT);
+	if (gGamePrefs.force4x3)
+	{
+		TQ3Vector2D fit = FitRectKeepAR(GAME_VIEW_WIDTH, GAME_VIEW_HEIGHT, gWindowWidth, gWindowHeight);
+		scale.x = fit.x / (float) GAME_VIEW_WIDTH;
+		scale.y = fit.y / (float) GAME_VIEW_HEIGHT;
+		offset.x = (gWindowWidth  - fit.x) / 2;
+		offset.y = (gWindowHeight - fit.y) / 2;
+	}
+	else
+	{
+		scale.x = gWindowWidth	/ (float) GAME_VIEW_WIDTH;
+		scale.y = gWindowHeight	/ (float) GAME_VIEW_HEIGHT;
+		offset.x = 0;
+		offset.y = 0;
+	}
+
+	pane.min.x *= scale.x;	// scale clip pane to window size
+	pane.max.x *= scale.x;
+	pane.min.y *= scale.y;
+	pane.max.y *= scale.y;
+
+	pane.min.x += offset.x;
+	pane.max.x += offset.x;
+	pane.min.y += offset.y;
+	pane.max.y += offset.y;
 
 	return pane;
 }

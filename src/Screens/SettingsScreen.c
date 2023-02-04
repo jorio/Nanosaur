@@ -64,6 +64,7 @@ static SettingEntry gSettingEntries[] =
 	{nil							, nil					, nil,						0,  { NULL } },
 	{&gGamePrefs.fullscreen			, "Fullscreen"			, Callback_Fullscreen,		2,	{ "NO", "YES" }, },
 	{&gGamePrefs.vsync				, "V-Sync"				, Callback_VSync,			2,	{ "NO", "YES" }, },
+	{&gGamePrefs.force4x3			, "Aspect Ratio"		, NULL,						2,	{ "Fill Screen", "Force 4:3" }, },
 	{&gGamePrefs.preferredDisplay	, "Preferred Display"	, Callback_Fullscreen,		1,	{ "Default" }, },
 #if !(__APPLE__)
 	{&gGamePrefs.antialiasingLevel	, "Antialiasing"		, Callback_Antialiasing,	4,	{ "NO", "MSAA 2x", "MSAA 4x", "MSAA 8x" }, },

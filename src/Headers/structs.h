@@ -311,6 +311,7 @@ typedef struct
 	Boolean	ambientSounds;
 	Boolean	debugInfoInTitleBar;
 	Boolean	nanosaurTeethFix;
+	Boolean	force4x3;
 	KeyBinding keys[NUM_CONTROL_NEEDS];
 }PrefsType;
 
