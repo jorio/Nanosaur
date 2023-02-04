@@ -197,25 +197,6 @@ static void Callback_Done(void)
 	}
 }
 
-static void DrawDebugInfo(void)
-{
-	char text[256];
-
-	RGBForeColor2(kMutedColor);
-
-	snprintf(text, sizeof(text), "Game version: %s", PROJECT_VERSION);
-	MoveTo(640 - 8 - TextWidthC(text), 480 - 12 - 14 * 2);
-	DrawStringC(text);
-
-	snprintf(text, sizeof(text), "OpenGL %s", glGetString(GL_VERSION));
-	MoveTo(640 - 8 - TextWidthC(text), 480 - 12 - 14 * 1);
-	DrawStringC(text);
-
-	snprintf(text, sizeof(text), "%s", glGetString(GL_RENDERER));
-	MoveTo(640 - 8 - TextWidthC(text), 480 - 12 - 14 * 0);
-	DrawStringC(text);
-}
-
 static void DrawRow(
 		int y,
 		bool rowIsSelected,
@@ -281,8 +262,6 @@ static void DrawSettingsPage(void)
 		Rect r = gCoverWindow->portRect;
 		EraseRect(&r);
 
-		DrawDebugInfo();
-
 		const char* title = PRO_MODE ? "NANOSAUR EXTREME SETTINGS" : "NANOSAUR SETTINGS";
 		MoveTo(kColumnX[0], 50);
 		RGBForeColor2(kTitleColor);
@@ -291,8 +270,7 @@ static void DrawSettingsPage(void)
 		if (gShowAntialiasingWarning)
 		{
 			RGBForeColor2(0xFFFF9900);
-			MoveTo(8, 480 - 12 - 14 * 1); DrawStringC("The new antialiasing level will take");
-			MoveTo(8, 480 - 12 - 14 * 0); DrawStringC("effect when you restart the game.");
+			MoveTo(80, 480 - 4); DrawStringC("The new antialiasing level will take effect when you restart the game.");
 		}
 	}
 

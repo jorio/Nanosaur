@@ -394,7 +394,7 @@ static void Slideshow(const struct SlideshowEntry* slides)
 
 			if (!promptShownYet && slideAge > 2)
 			{
-				MoveTo(490, 480-4);
+				MoveTo(494, 480-4);
 				RGBBackColor2(0);
 				RGBForeColor2(0xFFFFFF);
 				DrawStringC(" Hit SPACE to continue ");
@@ -430,23 +430,10 @@ static void Slideshow(const struct SlideshowEntry* slides)
 
 static void ShowCharity_SourcePortVersionOverlay(void)
 {
-    RGBBackColor2(0xA5A5A5);
-    RGBForeColor2(0x000000);
-    MoveTo(8, 16);
-    DrawStringC(PROJECT_VERSION);
-}
-
-static void ShowCharity_SourcePortCreditOverlay(void)
-{
-	RGBBackColor2(0xA5A5A5);
-	MoveTo(8, 480-4-14);
-	RGBForeColor2(0xA50808);
-	DrawStringC("ENHANCED UPDATE:   ");
-	ForeColor(blackColor);
-	DrawStringC("Iliyas Jorio");
-	MoveTo(8, 480-4);
+	RGBBackColor2(PRO_MODE? 0xA0A0A0: 0xA5A5A5);
 	RGBForeColor2(0x606060);
-	DrawStringC("https://github.com/jorio/nanosaur");
+	MoveTo(4, 480-4);
+	DrawStringC("Version " PROJECT_VERSION);
 }
 
 void ShowCharity(void)
@@ -455,7 +442,7 @@ void ShowCharity(void)
 
 	const struct SlideshowEntry slides[] = {
 			{ firstImage, ShowCharity_SourcePortVersionOverlay },
-			{ ":images:Boot2.tga", ShowCharity_SourcePortCreditOverlay },
+			{ ":images:Boot2.tga", NULL },
 			{ NULL, NULL },
 	};
 	Slideshow(slides);
@@ -464,11 +451,26 @@ void ShowCharity(void)
 
 /*************** SHOW HELP **********************/
 
+static void ShowHelp_TechInfoOverlay(void)
+{
+	RGBForeColor2(0x404040);
+	RGBBackColor2(0x9e9e9e);
+
+	int LH = 14;
+
+	int x = 4;
+	int y = 480 - 4 - LH * 3;
+
+	MoveTo(x, y); DrawStringC("Nanosaur v" PROJECT_VERSION " / "); DrawStringC(SDL_GetCurrentVideoDriver());
+	y += LH; MoveTo(x, y); DrawStringC(SDL_GetRevision());
+	y += LH; MoveTo(x, y); DrawStringC("OpenGL "); DrawStringC((const char*) glGetString(GL_VERSION));
+	y += LH; MoveTo(x, y); DrawStringC((const char*) glGetString(GL_RENDERER));
+}
+
 void ShowHelp(void)
 {
 	const struct SlideshowEntry slides[] = {
-			{ ":images:Help1.tga", NULL },
-			{ ":images:Help2.tga", NULL },
+			{ ":images:Help1.tga", ShowHelp_TechInfoOverlay },
 			{ NULL, NULL },
 	};
 	Slideshow(slides);
