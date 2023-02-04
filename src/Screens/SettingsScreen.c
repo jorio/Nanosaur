@@ -664,7 +664,7 @@ void DoSettingsScreen(void)
 		DoSoundMaintenance();
 
 		Render_StartFrame();
-		Render_DrawBackdrop(kBackdropFit_KeepRatio);
+		Render_DrawBackdrop(true);
 		Render_EndFrame();
 
 		SDL_GL_SwapWindow(gSDLWindow);

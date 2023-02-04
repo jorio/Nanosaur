@@ -776,7 +776,7 @@ void Render_Exit2D(void)
 	Render_EnterExit2D(false);
 }
 
-static void Render_Draw2DFullscreenQuad(int fit)
+static void Render_DrawBackdropQuad(bool keepBackdropAspectRatio)
 {
 	//		2----3
 	//		| \  |
@@ -795,29 +795,13 @@ static void Render_Draw2DFullscreenQuad(int fit)
 	float screenBottom = (float)gWindowHeight;
 
 	// Adjust screen coordinates if we want to pillarbox/letterbox the image.
-	if (fit & (kBackdropFit_Letterbox | kBackdropFit_Pillarbox))
+	if (keepBackdropAspectRatio)
 	{
-		const float targetAspectRatio = (float) gWindowWidth / gWindowHeight;
-		const float sourceAspectRatio = (float) gBackdropWidth / gBackdropHeight;
-
-		if (fabsf(sourceAspectRatio - targetAspectRatio) < 0.1)
-		{
-			// source and window have nearly the same aspect ratio -- fit (no-op)
-		}
-		else if ((fit & kBackdropFit_Letterbox) && sourceAspectRatio > targetAspectRatio)
-		{
-			// source is wider than window -- letterbox
-			float letterboxedHeight = gWindowWidth / sourceAspectRatio;
-			screenTop = (gWindowHeight - letterboxedHeight) / 2;
-			screenBottom = screenTop + letterboxedHeight;
-		}
-		else if ((fit & kBackdropFit_Pillarbox) && sourceAspectRatio < targetAspectRatio)
-		{
-			// source is narrower than window -- pillarbox
-			float pillarboxedWidth = sourceAspectRatio * gWindowWidth / targetAspectRatio;
-			screenLeft = (gWindowWidth / 2.0f) - (pillarboxedWidth / 2.0f);
-			screenRight = screenLeft + pillarboxedWidth;
-		}
+		TQ3Vector2D fit	= FitRectKeepAR(gBackdropWidth, gBackdropHeight, gWindowWidth, gWindowHeight);
+		screenLeft		= (gWindowWidth - fit.x) * 0.5f;
+		screenTop		= (gWindowHeight - fit.y) * 0.5f;
+		screenRight		= screenLeft + fit.x;
+		screenBottom	= screenTop + fit.y;
 	}
 
 	// Compute normalized device coordinates for the quad vertices.
@@ -830,7 +814,6 @@ static void Render_Draw2DFullscreenQuad(int fit)
 	pts[1] = (TQ3Point2D) { ndcRight, ndcBottom };
 	pts[2] = (TQ3Point2D) { ndcLeft, ndcTop };
 	pts[3] = (TQ3Point2D) { ndcRight, ndcTop };
-
 
 	glColor4f(1, 1, 1, 1);
 	EnableState(GL_TEXTURE_2D);
@@ -912,9 +895,9 @@ void Render_ClearBackdrop(UInt32 argb)
 	DamagePortRegion(&port->portRect);
 }
 
-void Render_DrawBackdrop(int fit)
+void Render_DrawBackdrop(bool keepBackdropAspectRatio)
 {
-	if (fit != kBackdropFit_FillScreen)
+	if (keepBackdropAspectRatio)
 	{
 		ClearColorRGBA(gState.backdropClearColor);
 		glClear(GL_COLOR_BUFFER_BIT);
@@ -956,7 +939,7 @@ void Render_DrawBackdrop(int fit)
 
 	glViewport(0, 0, gWindowWidth, gWindowHeight);
 	Render_Enter2D();
-	Render_Draw2DFullscreenQuad(fit);
+	Render_DrawBackdropQuad(keepBackdropAspectRatio);
 	Render_Exit2D();
 }
 
@@ -1001,7 +984,7 @@ void Render_FreezeFrameFadeOut(void)
 		if (!gGameViewInfoPtr)
 		{
 			Render_StartFrame();
-			Render_DrawBackdrop(kBackdropFit_KeepRatio);
+			Render_DrawBackdrop(true);
 			Render_EndFrame();
 			SDL_GL_SwapWindow(gSDLWindow);
 		}

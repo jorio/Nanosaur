@@ -39,15 +39,6 @@ typedef struct RenderModifiers
 	int						sortPriority;
 } RenderModifiers;
 
-
-enum
-{
-	kBackdropFit_FillScreen				= 0,
-	kBackdropFit_Pillarbox				= 1,
-	kBackdropFit_Letterbox				= 2,
-	kBackdropFit_KeepRatio				= kBackdropFit_Pillarbox | kBackdropFit_Letterbox,
-};
-
 typedef enum
 {
 	kRendererTextureFlags_None			= 0,
@@ -143,7 +134,7 @@ void Render_DisposeBackdrop(void);
 
 void Render_ClearBackdrop(uint32_t argb);
 
-void Render_DrawBackdrop(int fit);
+void Render_DrawBackdrop(bool keepBackdropAspectRatio);
 
 #pragma mark -
 

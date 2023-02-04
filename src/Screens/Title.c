@@ -406,7 +406,7 @@ static void Slideshow(const struct SlideshowEntry* slides)
 			QD3D_CalcFramesPerSecond(); // required to properly cap the framerate
 
 			Render_StartFrame();
-			Render_DrawBackdrop(kBackdropFit_KeepRatio);
+			Render_DrawBackdrop(true);
 			Render_EndFrame();
 			SDL_GL_SwapWindow(gSDLWindow);
 

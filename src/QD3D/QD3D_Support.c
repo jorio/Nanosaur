@@ -102,7 +102,7 @@ TQ3Vector3D			fillDirection2 = { -1, -1, .2 };
 	viewDef->view.paneClip.right 	= 0;
 	viewDef->view.paneClip.top 		= 0;
 	viewDef->view.paneClip.bottom 	= 0;
-	viewDef->view.backdropFit		= kBackdropFit_FillScreen;
+	viewDef->view.keepBackdropAspectRatio = true;
 
 	viewDef->styles.interpolation 	= kQ3InterpolationStyleVertex;
 	viewDef->styles.backfacing 		= kQ3BackfacingStyleRemove; 
@@ -154,7 +154,7 @@ QD3DSetupOutputType	*outputPtr;
 	outputPtr->paneClip = setupDefPtr->view.paneClip;
 	outputPtr->needScissorTest = setupDefPtr->view.paneClip.left != 0 || setupDefPtr->view.paneClip.right != 0
 								 || setupDefPtr->view.paneClip.bottom != 0 || setupDefPtr->view.paneClip.top != 0;
-	outputPtr->backdropFit = setupDefPtr->view.backdropFit;
+	outputPtr->keepBackdropAspectRatio = setupDefPtr->view.keepBackdropAspectRatio;
 	outputPtr->hither = setupDefPtr->camera.hither;				// remember hither/yon
 	outputPtr->yon = setupDefPtr->camera.yon;
 	outputPtr->fov = setupDefPtr->camera.fov;

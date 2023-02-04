@@ -150,7 +150,7 @@ TQ3ColorRGB		c2 = { 1, .9, .6 };
 	viewDef.lights.fillBrightness[0] = 1.2;
 	viewDef.lights.fillBrightness[1] = .4;
 
-	viewDef.view.backdropFit		= gGamePrefs.force4x3 ? kBackdropFit_KeepRatio : kBackdropFit_FillScreen;
+	viewDef.view.keepBackdropAspectRatio = gGamePrefs.force4x3;
 
 	if (!gGamePrefs.canDoFog)		// if no fog possible, then bg is black
 	{
