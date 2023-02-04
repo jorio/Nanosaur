@@ -19,7 +19,7 @@
 
 		/* KEY CONTROL BIT FIELDS */
 
-typedef	unsigned short KeyControlType;
+typedef	uint16_t KeyControlType;
 
 enum
 {
@@ -29,10 +29,11 @@ enum
 	KEYCONTROL_BACKWARD		=	(1<<3),		
 	KEYCONTROL_JUMP			= 	(1<<4),
 	KEYCONTROL_ATTACK		=	(1<<5),	
-	KEYCONTROL_ATTACKMODE	=	(1<<6),
-	KEYCONTROL_PICKUP		=	(1<<7),
-	KEYCONTROL_JETUP		=	(1<<8),
-	KEYCONTROL_JETDOWN		=	(1<<9)
+	KEYCONTROL_PREVWEAPON	=	(1<<6),
+	KEYCONTROL_NEXTWEAPON	=	(1<<7),
+	KEYCONTROL_PICKUP		=	(1<<8),
+	KEYCONTROL_JETUP		=	(1<<9),
+	KEYCONTROL_JETDOWN		=	(1<<10),
 };
 
 

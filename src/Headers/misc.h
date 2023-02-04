@@ -40,3 +40,13 @@ OSErr DrawPictureToScreen(FSSpec *myFSSpec, short x, short y);
 void DoSettingsScreen(void);
 
 void SetProModeSettings(int isPro);
+
+static inline int PositiveModulo(int value, unsigned int m)
+{
+	int mod = value % (int) m;
+	if (mod < 0)
+	{
+		mod += m;
+	}
+	return mod;
+}

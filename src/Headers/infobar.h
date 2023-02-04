@@ -24,7 +24,8 @@ enum
 
 extern	void InitInfobar(void);
 extern	void UpdateInfobar(void);
-extern	void NextAttackMode(void);
+void NextAttackMode(void);
+void PreviousAttackMode(void);
 extern	void InitMyInventory(void);
 extern	void AddToScore(long points);
 extern	void DoPaused(void);

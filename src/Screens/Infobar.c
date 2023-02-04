@@ -218,36 +218,40 @@ unsigned long	bits;
 
 /********************* NEXT ATTACK MODE ***********************/
 
-void NextAttackMode(void)
+static void IncrementAttackMode(int delta)
 {
-short	i;
-
 			/* SCAN FOR NEXT AVAILABLE ATTACK MODE */
-			
-	i = gCurrentAttackMode;
-	
+
+	int i = gCurrentAttackMode;
+
 	do
 	{
-		if (++i >= NUM_ATTACK_MODES)						// see if wrap around
-			i = 0;
-	
+		i = PositiveModulo(i + delta, NUM_ATTACK_MODES);
+
 		if (gPossibleAttackModes[i])						// can I do this one?
 			break;
-			
 	}while(i !=	gCurrentAttackMode);
 
 
 			/* SEE IF IT CHANGED */
-			
+
 	if (i != gCurrentAttackMode)
 	{
 		gCurrentAttackMode = i;
 		gInfobarUpdateBits |= UPDATE_WEAPONICON;
 		PlayEffect(EFFECT_SELECT);		// play sound
 	}
-
 }
 
+void NextAttackMode(void)
+{
+	IncrementAttackMode(1);
+}
+
+void PreviousAttackMode(void)
+{
+	IncrementAttackMode(-1);
+}
 
 /****************** PRINT NUMBER ******************/
 

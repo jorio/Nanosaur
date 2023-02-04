@@ -91,8 +91,8 @@ static const char* kInputNeedCaptions[NUM_CONTROL_NEEDS] =
 	[kNeed_TurnRight	] = "Turn Right",
 	[kNeed_JetUp		] = "Jetpack Up",
 	[kNeed_JetDown		] = "Jetpack Down",
-//[kNeed_PrevWeapon	] = "Previous Weapon",
-	[kNeed_AttackMode	] = "Next Weapon",
+	[kNeed_PrevWeapon	] = "Previous Weapon",
+	[kNeed_NextWeapon	] = "Next Weapon",
 	[kNeed_Attack		] = "Shoot",
 	[kNeed_PickUp		] = "Pick Up, Throw",
 	[kNeed_Jump			] = "Jump, Double-Jump",
@@ -118,17 +118,6 @@ static const int numSettingEntries = sizeof(gSettingEntries) / sizeof(SettingEnt
 
 static bool needFullRender = false;
 
-
-
-static unsigned int PositiveModulo(int value, unsigned int m)
-{
-	int mod = value % (int) m;
-	if (mod < 0)
-	{
-		mod += m;
-	}
-	return mod;
-}
 
 
 static void Cycle(SettingEntry* entry, int delta)
