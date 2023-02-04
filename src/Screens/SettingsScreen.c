@@ -104,7 +104,6 @@ static const char* kInputNeedCaptions[NUM_CONTROL_NEEDS] =
 	[kNeed_ToggleGPS	] = "Toggle GPS",
 	[kNeed_ToggleMusic	] = "Toggle Music",
 	[kNeed_ToggleAmbient] = "Toggle Ambient Sounds",
-	[kNeed_ToggleFullscreen] = "Toggle Fullscreen",
 	[kNeed_UIUp			] = nil,
 	[kNeed_UIDown		] = nil,
 	[kNeed_UILeft		] = nil,

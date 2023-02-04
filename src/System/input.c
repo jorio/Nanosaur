@@ -17,14 +17,16 @@
 /*     PROTOTYPES     */
 /**********************/
 
-SDL_GameController	*gSDLController = NULL;
-SDL_JoystickID		gSDLJoystickInstanceID = -1;		// ID of the joystick bound to gSDLController
+typedef uint8_t KeyState;
 
-Byte				gRawKeyboardState[SDL_NUM_SCANCODES];
+static SDL_GameController	*gSDLController = NULL;
+static SDL_JoystickID		gSDLJoystickInstanceID = -1;		// ID of the joystick bound to gSDLController
+
+static KeyState		gRawKeyboardState[SDL_NUM_SCANCODES];
 bool				gAnyNewKeysPressed = false;
 char				gTextInput[SDL_TEXTINPUTEVENT_TEXT_SIZE];
 
-Byte				gNeedStates[NUM_CONTROL_NEEDS];
+static KeyState		gNeedStates[NUM_CONTROL_NEEDS];
 
 
 
@@ -34,16 +36,18 @@ Byte				gNeedStates[NUM_CONTROL_NEEDS];
 
 enum
 {
-	KEYSTATE_OFF		= 0b00,
-	KEYSTATE_UP			= 0b01,
+	KEYSTATE_ACTIVE_BIT		= 0b001,
+	KEYSTATE_CHANGE_BIT		= 0b010,
+	KEYSTATE_IGNORE_BIT		= 0b100,
 
-	KEYSTATE_PRESSED	= 0b10,
-	KEYSTATE_HELD		= 0b11,
-
-	KEYSTATE_ACTIVE_BIT	= 0b10,
+	KEYSTATE_OFF			= 0b000,
+	KEYSTATE_PRESSED		= KEYSTATE_ACTIVE_BIT | KEYSTATE_CHANGE_BIT,
+	KEYSTATE_HELD			= KEYSTATE_ACTIVE_BIT,
+	KEYSTATE_UP				= KEYSTATE_OFF | KEYSTATE_CHANGE_BIT,
+	KEYSTATE_IGNOREHELD		= KEYSTATE_OFF | KEYSTATE_IGNORE_BIT,
 };
 
-#define JOYSTICK_DEAD_ZONE .1f
+#define JOYSTICK_DEAD_ZONE .33f
 #define JOYSTICK_DEAD_ZONE_SQUARED (JOYSTICK_DEAD_ZONE*JOYSTICK_DEAD_ZONE)
 
 #define JOYSTICK_FAKEDIGITAL_DEAD_ZONE .66f
@@ -89,7 +93,6 @@ const KeyBinding kDefaultKeyBindings[NUM_CONTROL_NEEDS] =
 [kNeed_UIPause			] = {{SDL_SCANCODE_ESCAPE,	0,						}, 0,					0,	{SDL_CONTROLLER_BUTTON_START,		SDL_CONTROLLER_BUTTON_INVALID,		}, SDL_CONTROLLER_AXIS_INVALID,		0,		},
 [kNeed_ToggleMusic		] = {{SDL_SCANCODE_F9,		0,						}, 0,					0,	{SDL_CONTROLLER_BUTTON_INVALID,		SDL_CONTROLLER_BUTTON_INVALID,		}, SDL_CONTROLLER_AXIS_INVALID,		0,		},
 [kNeed_ToggleAmbient	] = {{SDL_SCANCODE_F10,		0,						}, 0,					0,	{SDL_CONTROLLER_BUTTON_INVALID,		SDL_CONTROLLER_BUTTON_INVALID,		}, SDL_CONTROLLER_AXIS_INVALID,		0,		},
-[kNeed_ToggleFullscreen	] = {{SDL_SCANCODE_F11,		0,						}, 0,					0,	{SDL_CONTROLLER_BUTTON_INVALID,		SDL_CONTROLLER_BUTTON_INVALID,		}, SDL_CONTROLLER_AXIS_INVALID,		0,		},
 };
 
 
@@ -102,7 +105,7 @@ const KeyBinding kDefaultKeyBindings[NUM_CONTROL_NEEDS] =
 /* STATIC FUNCTIONS   */
 /**********************/
 
-static inline void UpdateKeyState(Byte* state, bool downNow)
+static inline void UpdateKeyState(KeyState* state, bool downNow)
 {
 	switch (*state)	// look at prev state
 	{
@@ -110,10 +113,15 @@ static inline void UpdateKeyState(Byte* state, bool downNow)
 		case KEYSTATE_PRESSED:
 			*state = downNow ? KEYSTATE_HELD : KEYSTATE_UP;
 			break;
+
 		case KEYSTATE_OFF:
 		case KEYSTATE_UP:
 		default:
 			*state = downNow ? KEYSTATE_PRESSED : KEYSTATE_OFF;
+			break;
+
+		case KEYSTATE_IGNOREHELD:
+			*state = downNow ? KEYSTATE_IGNOREHELD : KEYSTATE_OFF;
 			break;
 	}
 }
@@ -230,7 +238,25 @@ void UpdateInput(void)
 	}
 
 	// --------------------------------------------
+	// Intercept system key chords
 
+	if (GetNewSDLKeyState(SDL_SCANCODE_RETURN)
+		&& (GetSDLKeyState(SDL_SCANCODE_LALT) || GetSDLKeyState(SDL_SCANCODE_RALT)))
+	{
+		gGamePrefs.fullscreen = gGamePrefs.fullscreen ? 0 : 1;
+		SetFullscreenMode(false);
+
+		gRawKeyboardState[SDL_SCANCODE_RETURN] = KEYSTATE_IGNOREHELD;
+	}
+
+	if ((!gTerrainPtr || gGamePaused) && IsCmdQPressed())
+	{
+		CleanQuit();
+		return;
+	}
+
+	// --------------------------------------------
+	// Update need states
 
 	for (int i = 0; i < NUM_CONTROL_NEEDS; i++)
 	{
@@ -240,7 +266,7 @@ void UpdateInput(void)
 
 		for (int j = 0; j < KEYBINDING_MAX_KEYS; j++)
 			if (kb->key[j] && kb->key[j] < numkeys)
-				downNow |= 0 != keystate[kb->key[j]];
+				downNow |= gRawKeyboardState[kb->key[j]] & KEYSTATE_ACTIVE_BIT;
 
 		if (kb->mouseButton)
 			downNow |= 0 != (mouseButtons & SDL_BUTTON(kb->mouseButton));
@@ -263,20 +289,6 @@ void UpdateInput(void)
 		}
 
 		UpdateKeyState(&gNeedStates[i], downNow);
-	}
-
-
-		/* INTERCEPT SYSTEM KEY CHORDS */
-
-	if (GetNewNeedState(kNeed_ToggleFullscreen))
-	{
-		gGamePrefs.fullscreen = gGamePrefs.fullscreen ? 0 : 1;
-		SetFullscreenMode(false);
-	}
-
-	if ((!gTerrainPtr || gGamePaused) && IsCmdQPressed())
-	{
-		CleanQuit();
 	}
 }
 
@@ -312,7 +324,7 @@ bool GetNewSDLKeyState(unsigned short sdlScanCode)
 
 bool GetSDLKeyState(unsigned short sdlScanCode)
 {
-	return gRawKeyboardState[sdlScanCode] == KEYSTATE_PRESSED || gRawKeyboardState[sdlScanCode] == KEYSTATE_HELD;
+	return 0 != (gRawKeyboardState[sdlScanCode] & KEYSTATE_ACTIVE_BIT);
 }
 
 bool AreAnyNewKeysPressed(void)
