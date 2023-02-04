@@ -1022,6 +1022,7 @@ static void KillPlayer(ObjNode *theNode)
 	if (!gPlayerGotKilledFlag)
 	{
 		StopJetPack(theNode);
+		theNode->StatusBits &= ~STATUS_BIT_HIDDEN;				// un-hide me -- camera gets reset to third-person mode
 		MorphToSkeletonAnim(theNode->Skeleton,PLAYER_ANIM_DEATH,1.5);
 		gPlayerGotKilledFlag = true;
 	}
