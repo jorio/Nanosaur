@@ -75,7 +75,7 @@ retry:
 	// Initialize SDL video subsystem
 	if (0 != SDL_Init(SDL_INIT_VIDEO))
 	{
-		throw std::runtime_error("Couldn't initialize SDL video subsystem.");
+		throw std::runtime_error("Couldn't init SDL video subsystem: " + std::string(SDL_GetError()));
 	}
 
 	if (gGamePrefs.preferredDisplay >= SDL_GetNumVideoDisplays())
@@ -124,7 +124,7 @@ retry:
 		}
 		else
 		{
-			throw std::runtime_error("Couldn't create SDL window.");
+			throw std::runtime_error("Couldn't create SDL window: " + std::string(SDL_GetError()));
 		}
 	}
 
@@ -141,7 +141,7 @@ retry:
 		auto gamecontrollerdbPath8 = (dataPath / "System" / "gamecontrollerdb.txt").u8string();
 		if (-1 == SDL_GameControllerAddMappingsFromFile((const char*)gamecontrollerdbPath8.c_str()))
 		{
-			SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, "Nanosaur", "Couldn't load gamecontrollerdb.txt!", gSDLWindow);
+			DoAlert("Couldn't load gamecontrollerdb.txt! No big deal, but gamepads may not work.");
 		}
 	}
 }

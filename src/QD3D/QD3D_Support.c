@@ -56,9 +56,10 @@ void QD3D_Boot(void)
 				/* LET 'ER RIP! */
 
 	GAME_ASSERT_MESSAGE(gSDLWindow, "Gotta have a window to create a context");
+	GAME_ASSERT_MESSAGE(!gGLContext, "GL context already created!");
 
 	gGLContext = SDL_GL_CreateContext(gSDLWindow);									// also makes it current
-	GAME_ASSERT_MESSAGE(gGLContext, "Couldn't create an OpenGL context!");
+	GAME_ASSERT_MESSAGE(gGLContext, SDL_GetError());
 }
 
 
