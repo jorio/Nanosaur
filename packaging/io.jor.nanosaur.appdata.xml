@@ -4,38 +4,64 @@
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>CC-BY-NC-SA-4.0</project_license>
   <name>Nanosaur</name>
-  <summary>Play as a cybernetic dinosaur in this third-person shooter</summary>
+  <summary>Send dinosaur eggs to the future before a meteor hits the Earth!</summary>
+  <summary xml:lang="fr">Envoyez des œufs de dinos dans le futur avant qu’une météorite ne s’écrase sur Terre !</summary>
   <developer_name>Pangea Software, Inc., Iliyas Jorio</developer_name>
-  
+
   <description>
-    <p>This is Pangea Software’s Nanosaur updated to run on modern systems. Originally released in 1998 as a Mac-only game, Nanosaur casts a cybernetic dinosaur from the future who’s sent back in time 20 minutes before a giant asteroid hits the Earth.</p>
-    <p>The Game Plot</p>
-    <p>You are a dinosaur (a Nanosaur to be exact) from the future who has traveled back in time to collect the eggs of 5 dinosaur species before the giant asteroid hits the earth. The "primitive" dinosaurs will attack you as you try to get their eggs, but just remember that it's for their own good that you blast them into oblivion!</p>
-    <p>The Game Play</p>
-    <p>Being a dinosaur from the future, you are equipped with several pieces of technology to help you in your mission.</p>
+    <p>You are a dinosaur (a Nanosaur to be exact) from the future who has traveled back in time to collect the eggs of 5 dinosaur species before the giant asteroid hits the earth. The “primitive” dinosaurs will attack you as you try to get their eggs, but just remember that it’s for their own good that you blast them into oblivion!</p>
+    <p xml:lang="fr">Vous êtes un dinosaure du futur – un Nanosaur, pour être précis – qui a remonté le temps pour récupérer les œufs de 5 espèces de dinosaures juste avant que l’astéroïde géant ne s’écrase sur Terre. Les dinosaures “primitifs” vous attaqueront lorsque que vous tenterez de prendre leurs œufs : dites-vous juste que c’est pour leur propre bien que vous en faites de la chair à pâté !</p>
+
+    <p>Being a dinosaur from the future, you are equipped with several pieces of technology to help you in your mission:</p>
+    <p xml:lang="fr">Étant un dinosaure du futur, vous êtes équipé de gadgets ultra-sophistiqués pour mener votre mission à bien :</p>
+
     <ul>
-    <li>Fusion Blaster: a multi-purpose weapon for killing things.</li>
-    <li>Jet Pack: For flying over things that might kill you.</li>
-    <li>Temporal Compass: for finding time portals.</li>
-    <li>GPS Locator: for figuring out where you are and where you should go.</li>
+      <li>Fusion Blaster: a multipurpose weapon for killing things.</li>
+      <li xml:lang="fr">Sulfateuse à fusion : une arme multifonction pour tuer des trucs.</li>
+
+      <li>Jet Pack: for flying over things that might kill you.</li>
+      <li xml:lang="fr">Réacteur dorsal : pour survoler les trucs qui veulent vous tuer.</li>
+
+      <li>Temporal Compass: for finding time portals.</li>
+      <li xml:lang="fr">Boussole temporelle : pour trouver les portails temporels.</li>
+
+      <li>GPS Locator: for figuring out where you are and where you should go.</li>
+      <li xml:lang="fr">Localisateur GPS : pour savoir où vous êtes et où aller.</li>
     </ul>
-    <p>You can jump, swim, run around, jet around, shoot stuff, etc. The general rule to playing the game is "if it moves, kill it or it'll kill you." You only have 20 minutes to collect all 5 egg species so being efficient about your actions is critical.</p>
+
+    <p>You can jump, swim, run around, jet around, shoot stuff, etc. The general rule to playing the game is “if it moves, kill it or it’ll kill you.” You only have 20 minutes to collect all 5 egg species so being efficient about your actions is critical.</p>
+    <p xml:lang="fr">Vous pouvez sauter, nager, courir, voler, tirer, etc. L’idée générale du jeu est « si un truc bouge, tuez-le avant qu’il ne vous tue ». Vous n’avez que 20 minutes pour récupérer les 5 espèces d’œufs : il est donc crucial d’être efficace dans vos actions.</p>
+
+    <p>About this port: Nanosaur was released in 1998 by Pangea Software. It was a pack-in game on Macs that came out around that time. This port aims to provide the best way to experience Nanosaur today. This port was made and re-released under permission from Pangea Software, Inc.</p>
+    <p xml:lang="fr">À propos de ce portage : Nanosaur fut initialement lancé en 1998 par Pangea Software. Ce jeu était fourni sur les Macs qui sortaient à cette époque. Ce portage a pour objectif d’offrir la meilleure façon de jouer à Nanosaur aujourd’hui. Ce portage a été réalisé et rediffusé avec la permission de Pangea Software, Inc.</p>
   </description>
-  
+
   <categories>
     <category>Game</category>
+    <category>ActionGame</category>
   </categories>
-  
+
   <content_rating type="oars-1.1">
     <content_attribute id="violence-cartoon">mild</content_attribute>
     <content_attribute id="violence-fantasy">mild</content_attribute>
   </content_rating>
-  
-  <launchable type="desktop-id">nanosaur.desktop</launchable>
-  
+
+  <supports>
+    <control>keyboard</control>
+    <control>gamepad</control>
+  </supports>
+
+  <launchable type="desktop-id">io.jor.nanosaur.desktop</launchable>
+  <provides>
+    <id>io.jor.nanosaur.desktop</id>
+  </provides>
+
   <screenshots>
     <screenshot type="default">
-      <image>https://github.com/jorio/Nanosaur/raw/master/docs/screenshot.png</image>
+      <image>https://img.itch.zone/aW1hZ2UvMTU2ODI4Ny85MTc5MTM0LmpwZw==/original/TAtiB6.jpg</image>
+    </screenshot>
+    <screenshot>
+      <image>https://img.itch.zone/aW1hZ2UvMTU2ODI4Ny85MTc5MDk1LmpwZw==/original/8u0Vje.jpg</image>
     </screenshot>
     <screenshot>
       <caption>Two Dilophosauruses attack in the Desert Area</caption>
@@ -66,19 +92,33 @@
       <image>https://pangeasoft.net/nano/images/screenshots/nano9.jpg</image>
     </screenshot>
   </screenshots>
-  
-  <url type="homepage">https://github.com/jorio/Nanosaur</url>
+
+  <url type="homepage">https://jorio.itch.io/nanosaur</url>
+  <url type="donation">https://ko-fi.com/jorio</url>
+  <url type="vcs-browser">https://github.com/jorio/Nanosaur</url>
   <url type="bugtracker">https://github.com/jorio/Nanosaur/issues</url>
-  
-  <provides>
-    <id>nanosaur.desktop</id>
-  </provides>
-  
+
   <releases>
+    <release version="1.4.4" date="2023-02-05">
+      <url>https://github.com/jorio/Nanosaur/releases/tag/v1.4.5</url>
+      <description>
+        <p>New in this release:</p>
+        <ul>
+          <li>Fixed physics for very high framerates</li>
+          <li>Ironed out problems with first-person camera</li>
+          <li>New settings: aspect ratio, sky color, deinonychus dentistry fix</li>
+          <li>Pin GPS to upper-right corner of 3D viewport in widescreen mode</li>
+          <li>Fix frustum culling inconsistencies</li>
+          <li>HiDPI support</li>
+          <li>Other stability, performance, and cosmetic fixes</li>
+        </ul>
+      </description>
+    </release>
     <release version="1.4.3" date="2022-02-28">
       <url>https://github.com/jorio/Nanosaur/releases/tag/v1.4.3</url>
       <description>
-        <ul>  
+        <p>New in this release:</p>
+        <ul>
           <li>Seamless terrain texturing.</li>
           <li>Stability fixes.</li>
           <li>macOS: Builds are now notarized.</li>
@@ -89,7 +129,8 @@
     <release version="1.4.2" date="2021-02-19">
       <url>https://github.com/jorio/Nanosaur/releases/tag/v1.4.2</url>
       <description>
-        <ul>  
+        <p>New in this release:</p>
+        <ul>
           <li>Full rewrite of the 3D renderer. Fixes performance on Apple Silicon and other systems (Issue #8).</li>
           <li>Keyboard inputs can now be remapped (Issue #2).</li>
           <li>Basic gamepad support.</li>

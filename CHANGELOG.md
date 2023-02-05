@@ -1,5 +1,16 @@
 # Nanosaur changelog
 
+- **v1.4.4 (Feb. 5, 2023)**
+	- Fixed physics for very high framerates
+	- Ironed out problems with first-person camera
+	- New settings: aspect ratio (#25), sky color, deinonychus dentistry fix
+	- Pin GPS to upper-right corner of 3D viewport in widescreen mode (#33)
+	- Fix frustum culling inconsistencies
+	- HiDPI (Retina) support
+	- Fix faraway T-Rexes appear to skate over the terrain
+	- Other stability, performance and cosmetic fixes
+	- SDL 2.26.2
+
 - **v1.4.3 (Feb. 28, 2022)**
 	- Seamless terrain texturing.
 	- Stability fixes.
