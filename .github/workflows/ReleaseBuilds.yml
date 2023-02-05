@@ -4,7 +4,7 @@ on: [workflow_dispatch]
 
 jobs:
   build-linux-appimage:
-    runs-on: ubuntu-18.04  # Use oldest available Ubuntu for maximum glibc compatibility
+    runs-on: ubuntu-20.04  # Use oldest available Ubuntu for maximum glibc compatibility
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v3
