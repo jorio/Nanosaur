@@ -818,7 +818,7 @@ static void UpdatePlayer(ObjNode *theNode)
 	
 			/* CHECK FOR EASTER EGG */
 			
-	if (gMyCoord.y > 2000)						// while riding birdie does this
+	if (gMyCoord.y > 1900)						// while riding birdie does this
 	{
 		GetCheatWeapons();
 		GetHealth(1);
