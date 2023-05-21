@@ -872,7 +872,11 @@ void Render_AllocBackdrop(int width, int height)
 			width,
 			height,
 			GL_BGRA,
+#if !(__BIG_ENDIAN__)
 			GL_UNSIGNED_INT_8_8_8_8,
+#else
+			GL_UNSIGNED_INT_8_8_8_8_REV,
+#endif
 			gBackdropPixels,
 			kRendererTextureFlags_ClampBoth
 	);
@@ -937,7 +941,11 @@ void Render_DrawBackdrop(bool keepBackdropAspectRatio)
 				damageRect.right - damageRect.left,
 				damageRect.bottom - damageRect.top,
 				GL_BGRA,
+#if !(__BIG_ENDIAN__)
 				GL_UNSIGNED_INT_8_8_8_8,
+#else
+				GL_UNSIGNED_INT_8_8_8_8_REV,
+#endif
 				gBackdropPixels + (damageRect.top * gBackdropWidth + damageRect.left));
 		CHECK_GL_ERROR();
 

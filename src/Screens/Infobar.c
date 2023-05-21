@@ -593,7 +593,11 @@ static TQ3Point3D				points[4] = { { -GPS_DISPLAY_SIZE,  GPS_DISPLAY_SIZE, 0 },
 			GPS_MAP_TEXTURE_SIZE,
 			GPS_MAP_TEXTURE_SIZE,
 			GL_BGRA,
+#if !(__BIG_ENDIAN__)
 			GL_UNSIGNED_INT_8_8_8_8,
+#else
+			GL_UNSIGNED_INT_8_8_8_8_REV,
+#endif
 			GetPixBaseAddr(GetGWorldPixMap(gGPSGWorld)),
 			kRendererTextureFlags_ClampBoth);
 	mesh->glTextureName = textureName;
@@ -776,7 +780,11 @@ Boolean					forceUpdate = false;
 				GPS_MAP_TEXTURE_SIZE,
 				GPS_MAP_TEXTURE_SIZE,
 				GL_BGRA,
+#if !(__BIG_ENDIAN__)
 				GL_UNSIGNED_INT_8_8_8_8,
+#else
+				GL_UNSIGNED_INT_8_8_8_8_REV,
+#endif
 				GetPixBaseAddr(GetGWorldPixMap(gGPSGWorld)));
 		CHECK_GL_ERROR();
 

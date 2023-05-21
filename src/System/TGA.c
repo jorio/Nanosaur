@@ -216,6 +216,9 @@ OSErr ReadTGA(const FSSpec* spec, uint8_t** outPtr, TGAHeader* outHeader, bool f
 		return err;
 	}
 
+	// Byteswap little-endian header on big-endian systems
+	UnpackStructs("<8B4H2B", sizeof(TGAHeader), 1, &header);
+
 	// Make sure we support the format
 	switch (header.imageType)
 	{

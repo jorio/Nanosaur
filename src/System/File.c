@@ -205,8 +205,10 @@ SkeletonFile_AnimHeader_Type	*animHeaderPtr;
 		GAME_ASSERT(hand);
 		HLock(hand);
 		indexPtr = (UInt16 *) *hand;
+#if !(__BIG_ENDIAN__)
 		ByteswapInts(sizeof(UInt16), skeleton->Bones[i].numPointsAttachedToBone, indexPtr);
-			
+#endif
+
 
 			/* COPY POINT INDEX ARRAY INTO BONE STRUCT */
 
@@ -221,8 +223,10 @@ SkeletonFile_AnimHeader_Type	*animHeaderPtr;
 		GAME_ASSERT(hand);
 		HLock(hand);
 		indexPtr = (UInt16 *) *hand;
+#if !(__BIG_ENDIAN__)
 		ByteswapInts(sizeof(UInt16), skeleton->Bones[i].numNormalsAttachedToBone, indexPtr);
-			
+#endif
+
 			/* COPY NORMAL INDEX ARRAY INTO BONE STRUCT */
 
 		for (int j = 0; j < skeleton->Bones[i].numNormalsAttachedToBone; j++)
@@ -563,7 +567,9 @@ long		fileSize;
 	int numTexels = gNumTerrainTextureTiles * OREOMAP_TILE_SIZE * OREOMAP_TILE_SIZE;
 	GAME_ASSERT(numTexels*2 == fileSize-4);
 
+#if !(__BIG_ENDIAN__)
 	ByteswapInts(sizeof(UInt16), numTexels, gTileDataPtr);
+#endif
 }
 
 
@@ -627,7 +633,9 @@ int			dummy1,dummy2;
 
 	offset = *((SInt32 *)(gTerrainPtr+0));										// get offset to TEXTURE_LAYER
 	shortPtr = (UInt16 *)(gTerrainPtr + offset);								// calc ptr to TEXTURE_LAYER
+#if !(__BIG_ENDIAN__)
 	ByteswapInts(sizeof(UInt16), gTerrainTileDepth * gTerrainTileWidth, shortPtr);
+#endif
 
 	for (int row = 0; row < gTerrainTileDepth; row++)
 	{
@@ -645,7 +653,9 @@ int			dummy1,dummy2;
 	if (offset > 0)
 	{
 		shortPtr = (UInt16 *)(gTerrainPtr + offset);							// calc ptr to HEIGHTMAP_LAYER
+#if !(__BIG_ENDIAN__)
 		ByteswapInts(sizeof(UInt16), gTerrainTileDepth * gTerrainTileWidth, shortPtr);
+#endif
 
 		for (int row = 0; row < gTerrainTileDepth; row++)
 		{
@@ -664,7 +674,9 @@ int			dummy1,dummy2;
 	if (offset > 0)
 	{
 		shortPtr = (UInt16 *)(gTerrainPtr + offset);							// calc ptr to PATH_LAYER
+#if !(__BIG_ENDIAN__)
 		ByteswapInts(sizeof(UInt16), gTerrainTileDepth * gTerrainTileWidth, shortPtr);
+#endif
 
 		for (int row = 0; row < gTerrainTileDepth; row++)
 		{
