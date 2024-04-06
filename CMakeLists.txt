@@ -220,7 +220,7 @@ set_target_properties(${GAME_TARGET} PROPERTIES
 	MACOSX_BUNDLE_EXECUTABLE_NAME		${GAME_TARGET}			# CFBundleExecutable - executable name inside the bundle
 	MACOSX_BUNDLE_SHORT_VERSION_STRING	${PROJECT_VERSION}		# CFBundleShortVersionString
 	MACOSX_BUNDLE_COPYRIGHT				${GAME_MAC_COPYRIGHT}	# NSHumanReadableCopyright (supersedes CFBundleGetInfoString (MACOSX_BUNDLE_INFO_STRING))
-	MACOSX_BUNDLE_BUNDLE_NAME			${GAME_MAC_BUNDLE_NAME}	# CFBundleName - user-visible short name for the bundle
+	MACOSX_BUNDLE_BUNDLE_NAME			${GAME_MAC_BUNDLE_NAME}	# CFBundleName - user-visible short name for the bundle, up to 15 characters
 	MACOSX_BUNDLE_GUI_IDENTIFIER		${GAME_MAC_BUNDLE_ID}	# CFBundleIdentifier - unique bundle ID in reverse-DNS format
 
 	# Bundle ID required for code signing - must match CFBundleIdentifier otherwise xcode will complain
@@ -268,6 +268,9 @@ if(APPLE)
 
 		# High-DPI support in Info.plist
 		COMMAND plutil -replace NSHighResolutionCapable -bool true ${BUNDLE_CONTENTS_DIR}/Info.plist
+
+		# Sonoma Game Mode support
+		COMMAND plutil -replace LSApplicationCategoryType -string "public.app-category.games" ${BUNDLE_CONTENTS_DIR}/Info.plist
 
 		# Make it honor mainmenu.nib (use -replace instead of -insert so it doesn't fail on subsequent builds)
 		COMMAND plutil -replace NSMainNibFile -string "mainmenu" ${BUNDLE_CONTENTS_DIR}/Info.plist

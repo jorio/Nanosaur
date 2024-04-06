@@ -23,18 +23,18 @@ dist_dir = os.path.abspath("dist")
 
 game_name           = "Nanosaur"  # no spaces
 game_name_human     = "Nanosaur"  # spaces and other special characters allowed
-game_package        = "io.jor.nanosaur"  # unique package name
+game_package        = "io.jor.nanosaur"  # unique package identifier
 game_ver            = "1.4.4"
 
 source_check        = "src/Enemies/Enemy_TriCer.c"  # some file that's likely to be from the game's source tree
 
-sdl_ver             = "2.26.2"
+sdl_ver             = "2.30.2"
 appimagetool_ver    = "13"
 
 lib_hashes = {  # sha-256
-    "SDL2-2.26.2.tar.gz":            "95d39bc3de037fbdfa722623737340648de4f180a601b0afad27645d150b99e0",
-    "SDL2-2.26.2.dmg":               "f56a95714c54d89b5d67e08a0362a5b53d4a8d405f7d63ec1bee0f57dc13c69c",
-    "SDL2-devel-2.26.2-VC.zip":      "8fcc6c2fbfabeddbf7872f994022aa40826ed82324e5a8671dfd4166c62c7e27",
+    f"SDL2-{sdl_ver}.dmg":           "41a7ca54f099a138fe6ff1a8d168bb817a325cd8c37723ec52c2fe46f2fd4fe4",
+    f"SDL2-{sdl_ver}.tar.gz":        "891d66ac8cae51361d3229e3336ebec1c407a8a2a063b61df14f5fdf3ab5ac31",
+    f"SDL2-devel-{sdl_ver}-VC.zip":  "fc5d6c096a6b82f86613060dfef553a09b9e08afcb401fefac4b9ca221265cda",
     "appimagetool-x86_64.AppImage":  "df3baf5ca5facbecfc2f3fa6713c29ab9cefa8fd8c1eac5d283b79cab33e4acb", # appimagetool v13
     "appimagetool-aarch64.AppImage": "334e77beb67fc1e71856c29d5f3f324ca77b0fde7a840fdd14bd3b88c25c341f",
 }
