@@ -6,17 +6,21 @@
 	#define _Static_assert static_assert
 #endif
 
+#if OSXPPC && !_DEBUG
+#define GAME_ASSERT(condition)
+#define GAME_ASSERT_MESSAGE(condition, message)
+#else
 #define GAME_ASSERT(condition)											\
 	do {																\
 		if (!(condition))												\
 			DoAssert(#condition, __func__, __LINE__);					\
 	} while(0)
-
 #define GAME_ASSERT_MESSAGE(condition, message)							\
 	do {																\
 		if (!(condition))												\
 			DoAssert(message, __func__, __LINE__);						\
 	} while(0)
+#endif
 
 #define AllocHandle(size) NewHandle(size)
 #define AllocHandleClear(size) NewHandleClear(size)

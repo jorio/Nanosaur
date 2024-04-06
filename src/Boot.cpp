@@ -101,7 +101,9 @@ retry:
 	}
 
 	// Create window
+#if !(OSXPPC)
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
+#endif
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
 	if (gGamePrefs.antialiasingLevel != 0)
@@ -115,7 +117,11 @@ retry:
 	float screenFillRatio = 2.0f / 3.0f;
 
 	SDL_Rect displayBounds = { .x = 0, .y = 0, .w = GAME_VIEW_WIDTH, .h = GAME_VIEW_HEIGHT };
+#if SDL_VERSION_ATLEAST(2,0,5)
 	SDL_GetDisplayUsableBounds(display, &displayBounds);
+#else
+	SDL_GetDisplayBounds(display, &displayBounds);
+#endif
 	TQ3Vector2D fitted = FitRectKeepAR(GAME_VIEW_WIDTH, GAME_VIEW_HEIGHT, displayBounds.w, displayBounds.h);
 	int initialWidth  = (int) (fitted.x * screenFillRatio);
 	int initialHeight = (int) (fitted.y * screenFillRatio);
@@ -153,6 +159,7 @@ retry:
 	const char* executablePath = argc > 0 ? argv[0] : NULL;
 	fs::path dataPath = FindGameData(executablePath);
 
+#if !(OSXPPC)
 	// Init joystick subsystem
 	{
 		SDL_Init(SDL_INIT_JOYSTICK);
@@ -162,6 +169,7 @@ retry:
 			DoAlert("Couldn't load gamecontrollerdb.txt! No big deal, but gamepads may not work.");
 		}
 	}
+#endif
 }
 
 static void Shutdown()

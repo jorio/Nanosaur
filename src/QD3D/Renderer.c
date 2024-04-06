@@ -9,7 +9,9 @@
 
 #include <SDL.h>
 #include <SDL_opengl.h>
+#if !OSXPPC
 #include <SDL_opengl_glext.h>
+#endif
 #include <stdlib.h>		// qsort
 #include "game.h"
 
@@ -108,6 +110,7 @@ static const uint8_t kFullscreenQuadTriangles[2][3] =
 	{1, 3, 2},
 };
 
+#if !OSXPPC
 static const TQ3Param2D kFullscreenQuadUVs[4] =
 {
 	{0, 1},
@@ -115,7 +118,10 @@ static const TQ3Param2D kFullscreenQuadUVs[4] =
 	{0, 0},
 	{1, 0},
 };
-
+#else
+static const int gBackdropWidthPOT = 1024;
+static const int gBackdropHeightPOT = 512;
+#endif
 
 #pragma mark -
 
@@ -799,6 +805,12 @@ static void Render_DrawBackdropQuad(bool keepBackdropAspectRatio)
 			{ 1,	 1},
 	};
 
+#if OSXPPC
+	float rw = (float)gBackdropWidth / gBackdropWidthPOT;
+	float rh = (float)gBackdropHeight / gBackdropHeightPOT;
+	TQ3Param2D uvs[4] = { {0, rh}, {rw, rh}, {0, 0}, {rw, 0}, };
+#endif
+
 	float screenLeft   = 0.0f;
 	float screenRight  = (float)gWindowWidth;
 	float screenTop    = 0.0f;
@@ -829,7 +841,11 @@ static void Render_DrawBackdropQuad(bool keepBackdropAspectRatio)
 	EnableState(GL_TEXTURE_2D);
 	EnableClientState(GL_TEXTURE_COORD_ARRAY);
 	glVertexPointer(2, GL_FLOAT, 0, pts);
+#if !OSXPPC
 	glTexCoordPointer(2, GL_FLOAT, 0, kFullscreenQuadUVs);
+#else
+	glTexCoordPointer(2, GL_FLOAT, 0, uvs);
+#endif
 	glDrawElements(GL_TRIANGLES, 3*2, GL_UNSIGNED_BYTE, kFullscreenQuadTriangles);
 }
 
@@ -866,6 +882,17 @@ void Render_AllocBackdrop(int width, int height)
 
 	gBackdropWidth = width;
 	gBackdropHeight = height;
+	Ptr initialTextureBuffer = (Ptr) gBackdropPixels;
+
+#if OSXPPC
+	// No NPOT support, make a larger texture
+	GAME_ASSERT(width <= gBackdropWidthPOT);
+	GAME_ASSERT(height <= gBackdropHeightPOT);
+	width = gBackdropWidthPOT;
+	height = gBackdropHeightPOT;
+	initialTextureBuffer = AllocPtrClear(width*height*4);
+#endif
+
 
 	gBackdropTextureName = Render_LoadTexture(
 			GL_RGBA,
@@ -877,9 +904,13 @@ void Render_AllocBackdrop(int width, int height)
 #else
 			GL_UNSIGNED_INT_8_8_8_8_REV,
 #endif
-			gBackdropPixels,
+			initialTextureBuffer,
 			kRendererTextureFlags_ClampBoth
 	);
+
+#if OSXPPC
+	DisposePtr(initialTextureBuffer);
+#endif
 
 	ClearPortDamage();
 }
@@ -927,6 +958,13 @@ void Render_DrawBackdrop(bool keepBackdropAspectRatio)
 	{
 		Rect damageRect;
 		GetPortDamageRegion(&damageRect);
+
+#if OSXPPC
+		GAME_ASSERT(damageRect.left <= gBackdropWidthPOT);
+		GAME_ASSERT(damageRect.right <= gBackdropWidthPOT);
+		GAME_ASSERT(damageRect.top <= gBackdropHeightPOT);
+		GAME_ASSERT(damageRect.bottom <= gBackdropHeightPOT);
+#endif
 
 		// Set unpack row length to 640
 		GLint pUnpackRowLength;

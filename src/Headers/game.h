@@ -15,7 +15,11 @@ extern "C"
 {
 #endif
 
-#define HQ_TERRAIN		1	// seamless terrain texturing
+#if !(OSXPPC)
+#define HQ_TERRAIN		1	// seamless terrain texturing (requires NPOT texture support)
+#else
+#define HQ_TERRAIN		0
+#endif
 
 #include "globals.h"
 #include "sprites.h"

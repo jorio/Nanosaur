@@ -35,7 +35,7 @@ static void UpdateSuperTileTexture(SuperTileMemoryType* superTilePtr);
 static void DrawTileIntoMipmap(UInt16 tile, int row, int col, UInt16 *buffer);
 
 #if !(HQ_TERRAIN)
-static void BuildTerrainSuperTile_Flat(SuperTileMemoryType *, int startCol, int startRow);
+static void BuildTerrainSuperTile_Flat(SuperTileMemoryType *);
 static void ShrinkSuperTileTextureMap(const uint16_t* srcPtr, uint16_t* dstPtr, int targetSize);
 #endif // !(HQ_TERRAIN)
 
@@ -612,13 +612,13 @@ SuperTileMemoryType	*superTilePtr;
 	superTilePtr->coord.y = (miny+maxy)/2;						// This y coord is not used to translate since the terrain has no translation matrix
 																// Instead, this is used by the cone-of-vision routine for culling tests
 
-#if !(HQ_TERRAIN)
+#if 0 //!(HQ_TERRAIN) // TODO: Bounding box issue with flat supertiles? Shading on flat supertiles is ugly anyway...
 			/* SEE IF IT'S A FLAT SUPER-TILE */
 
 	if (maxy == miny)
 	{
 		superTilePtr->isFlat = true;
-		BuildTerrainSuperTile_Flat(superTilePtr,startCol,startRow);
+		BuildTerrainSuperTile_Flat(superTilePtr);
 		return(superTileNum);
 	}
 	else
@@ -855,7 +855,7 @@ SuperTileMemoryType	*superTilePtr;
 
 /************************* BUILD TERRAIN SUPERTILE: FLAT ************************************/
 
-static void BuildTerrainSuperTile_Flat(SuperTileMemoryType	*superTilePtr, long startCol, long startRow) 
+static void BuildTerrainSuperTile_Flat(SuperTileMemoryType	*superTilePtr) 
 {
 TQ3TriMeshData		*triMeshPtr;
 TQ3Point3D			*pointList;
@@ -890,6 +890,7 @@ TQ3PlaneEquation	planeEq;
 
 			/* SET BOUNDING BOX */
 
+	triMeshPtr->bBox.isEmpty = kQ3False;
 	triMeshPtr->bBox.min.x = pointList[0].x;
 	triMeshPtr->bBox.max.x = pointList[1].x;
 	triMeshPtr->bBox.min.y = pointList[0].y;

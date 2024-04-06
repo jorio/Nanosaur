@@ -351,6 +351,10 @@ bool GetNewNeedState(int needID)
 
 SDL_GameController* TryOpenController(bool showMessage)
 {
+#if OSXPPC
+	#warning Controller support not available on OSXPPC
+	return NULL;
+#else
 	if (gSDLController)
 	{
 		SDL_Log("Already have a valid controller.");
@@ -401,6 +405,7 @@ SDL_GameController* TryOpenController(bool showMessage)
 	*/
 
 	return gSDLController;
+#endif
 }
 
 void OnJoystickRemoved(SDL_JoystickID which)

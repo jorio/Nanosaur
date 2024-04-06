@@ -169,6 +169,9 @@ static void MoveToPreferredDisplay(void)
 
 void SetFullscreenMode(bool enforceDisplayPref)
 {
+#if OSXPPC
+	#warning Fullscreen mode disabled for now on OSXPPC
+#else
 	if (!gGamePrefs.fullscreen)
 	{
 		SDL_SetWindowFullscreen(gSDLWindow, 0);
@@ -195,6 +198,7 @@ void SetFullscreenMode(bool enforceDisplayPref)
 		// Enter fullscreen mode
 		SDL_SetWindowFullscreen(gSDLWindow, SDL_WINDOW_FULLSCREEN_DESKTOP);
 	}
+#endif
 
 	// Ensure the clipping pane gets resized properly after switching in or out of fullscreen mode
 	QD3D_OnWindowResized();
