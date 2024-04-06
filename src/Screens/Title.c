@@ -438,11 +438,11 @@ static void ShowCharity_SourcePortVersionOverlay(void)
 
 void ShowCharity(void)
 {
-	const char* firstImage = PRO_MODE ? ":images:Boot1Pro.tga" : ":images:Boot1.tga";
+	const char* firstImage = PRO_MODE ? ":Images:Boot1Pro.tga" : ":Images:Boot1.tga";
 
 	const struct SlideshowEntry slides[] = {
 			{ firstImage, ShowCharity_SourcePortVersionOverlay },
-			{ ":images:Boot2.tga", NULL },
+			{ ":Images:Boot2.tga", NULL },
 			{ NULL, NULL },
 	};
 	Slideshow(slides);
@@ -470,7 +470,7 @@ static void ShowHelp_TechInfoOverlay(void)
 void ShowHelp(void)
 {
 	const struct SlideshowEntry slides[] = {
-			{ ":images:Help1.tga", ShowHelp_TechInfoOverlay },
+			{ ":Images:Help1.tga", ShowHelp_TechInfoOverlay },
 			{ NULL, NULL },
 	};
 	Slideshow(slides);

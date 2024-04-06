@@ -744,7 +744,7 @@ FSSpec	spec;
 
 			/* LOAD GLOBAL STUFF */
 
-	FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":models:Global_Models.3dmf", &spec);
+	FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":Models:Global_Models.3dmf", &spec);
 	LoadGrouped3DMF(&spec,MODEL_GROUP_GLOBAL);	
 			
 			/* LOAD LEVEL SPECIFIC STUFF */
@@ -752,23 +752,21 @@ FSSpec	spec;
 	switch(levelNum)
 	{
 		case	LEVEL_NUM_0:
-		
-				
-				FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":terrain:level1.trt", &spec);
+				FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":Terrain:Level1.trt", &spec);
 				LoadTerrainTileset(&spec);
 				
 				FSMakeFSSpec(
 					gDataSpec.vRefNum,
 					gDataSpec.parID,
-					PRO_MODE ? ":terrain:level1pro.ter" : ":terrain:level1.ter",
+					PRO_MODE ? ":Terrain:Level1Pro.ter" : ":Terrain:Level1.ter",
 					&spec);
 				LoadTerrain(&spec);
 
 				/* LOAD MODELS */
 						
-				FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":models:Level1_Models.3dmf", &spec);
+				FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":Models:Level1_Models.3dmf", &spec);
 				LoadGrouped3DMF(&spec,MODEL_GROUP_LEVEL0);	
-				FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":models:Infobar_Models.3dmf", &spec);
+				FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":Models:Infobar_Models.3dmf", &spec);
 				LoadGrouped3DMF(&spec,MODEL_GROUP_INFOBAR);	
 				
 				

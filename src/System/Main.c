@@ -335,14 +335,14 @@ FSSpec	spec;
 	
 	if (gWonGameFlag)
 	{
-		FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":movies:Win.mov", &spec);
+		FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":Movies:Win.mov", &spec);
 		PlayAMovie(&spec);
 	}
 	
 			/* PLAY LOSE MOVIE */
 	else
 	{
-		FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":movies:Lose.mov", &spec);
+		FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":Movies:Lose.mov", &spec);
 		PlayAMovie(&spec);
 	}
 

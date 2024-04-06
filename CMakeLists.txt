@@ -54,6 +54,8 @@ endif()
 set(POMME_NO_INPUT true)  # the game has its own input system
 set(POMME_NO_MP3 true)
 
+add_compile_definitions(POMME_CASE_SENSITIVE_FSSPEC=1)
+
 #------------------------------------------------------------------------------
 # DEPENDENCIES
 #------------------------------------------------------------------------------

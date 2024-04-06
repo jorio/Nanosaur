@@ -128,7 +128,7 @@ do_again:
 
 			/* LOAD ART */
 			
-	FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":models:MenuInterface.3dmf", &file);
+	FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":Models:MenuInterface.3dmf", &file);
 	LoadGrouped3DMF(&file, MODEL_GROUP_MENU);
 	LoadASkeleton(SKELETON_TYPE_DEINON);
 
