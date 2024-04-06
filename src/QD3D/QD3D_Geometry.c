@@ -220,7 +220,7 @@ TQ3Point3D			centerPt = {0,0,0};
 		ShardType* shard = &gShardMemory[shardIndex];
 		TQ3TriMeshData* sMesh = shard->mesh;
 
-		const uint16_t* ind = inMesh->triangles[t].pointIndices;						// get indices of 3 points
+		const uint32_t* ind = inMesh->triangles[t].pointIndices;						// get indices of 3 points
 
 				/*********************/
 				/* INIT TRIMESH DATA */

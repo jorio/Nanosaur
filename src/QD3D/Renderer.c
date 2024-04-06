@@ -704,7 +704,7 @@ static void DrawMeshList(int renderPass, const MeshQueueEntry* entry)
 		}
 
 		// Draw the mesh
-		glDrawElements(GL_TRIANGLES, mesh->numTriangles * 3, GL_UNSIGNED_SHORT, mesh->triangles);
+		glDrawElements(GL_TRIANGLES, mesh->numTriangles * 3, GL_UNSIGNED_INT, mesh->triangles);
 		CHECK_GL_ERROR();
 
 		// Pass 2 to draw transparent meshes without face culling (see above for an explanation)
@@ -714,7 +714,7 @@ static void DrawMeshList(int renderPass, const MeshQueueEntry* entry)
 			// We've restored glCullFace to GL_BACK, which is the default for all other meshes.
 			
 			// Draw the mesh again
-			glDrawElements(GL_TRIANGLES, mesh->numTriangles * 3, GL_UNSIGNED_SHORT, mesh->triangles);
+			glDrawElements(GL_TRIANGLES, mesh->numTriangles * 3, GL_UNSIGNED_INT, mesh->triangles);
 			CHECK_GL_ERROR();
 		}
 
