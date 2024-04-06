@@ -479,7 +479,7 @@ void QD3D_CalcFramesPerSecond(void)
 		if (ticksElapsed >= gDebugTextUpdateInterval)
 		{
 			float fps = 1000 * gDebugTextFrameAccumulator / (float)ticksElapsed;
-			snprintf(
+			SDL_snprintf(
 					gDebugTextBuffer, sizeof(gDebugTextBuffer),
 					"%s%s - %dfps %dt %dm %dn %dp %dK x:%.0f z:%.0f",
 					PRO_MODE ? "NanoExtreme" : "Nanosaur",

@@ -51,7 +51,7 @@ FSSpec		gDataSpec;
 void InitDefaultPrefs(void)
 {
 	memset(&gGamePrefs, 0, sizeof(gGamePrefs));
-	snprintf(gGamePrefs.magic, sizeof(gGamePrefs.magic), "%s", PREFS_MAGIC);
+	SDL_snprintf(gGamePrefs.magic, sizeof(gGamePrefs.magic), "%s", PREFS_MAGIC);
 
 	gGamePrefs.highQualityTextures = true;			// set the defaults
 	gGamePrefs.canDoFog = true;

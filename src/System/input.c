@@ -353,7 +353,7 @@ SDL_GameController* TryOpenController(bool showMessage)
 {
 	if (gSDLController)
 	{
-		printf("Already have a valid controller.\n");
+		SDL_Log("Already have a valid controller.");
 		return gSDLController;
 	}
 
@@ -373,11 +373,11 @@ SDL_GameController* TryOpenController(bool showMessage)
 
 	if (!gSDLController)
 	{
-		printf("Joystick(s) found, but none is suitable as an SDL_GameController.\n");
+		SDL_Log("Joystick(s) found, but none is suitable as an SDL_GameController.");
 		if (showMessage)
 		{
 			char messageBuf[1024];
-			snprintf(messageBuf, sizeof(messageBuf),
+			SDL_snprintf(messageBuf, sizeof(messageBuf),
 					 "The game does not support your controller yet (\"%s\").\n\n"
 					 "You can play with the keyboard and mouse instead. Sorry!",
 					 SDL_JoystickNameForIndex(0));
@@ -390,14 +390,14 @@ SDL_GameController* TryOpenController(bool showMessage)
 		return NULL;
 	}
 
-	printf("Opened joystick %d as controller: %s\n", gSDLJoystickInstanceID, SDL_GameControllerName(gSDLController));
+	SDL_Log("Opened joystick %d as controller: %s", gSDLJoystickInstanceID, SDL_GameControllerName(gSDLController));
 
 	/*
 	gSDLHaptic = SDL_HapticOpenFromJoystick(SDL_GameControllerGetJoystick(gSDLController));
 	if (!gSDLHaptic)
-		printf("This joystick can't do haptic.\n");
+		SDL_Log("This joystick can't do haptic.");
 	else
-		printf("This joystick can do haptic!\n");
+		SDL_Log("This joystick can do haptic!");
 	*/
 
 	return gSDLController;
@@ -411,7 +411,7 @@ void OnJoystickRemoved(SDL_JoystickID which)
 	if (which != gSDLJoystickInstanceID)	// don't care, this isn't the joystick I'm using
 		return;
 
-	printf("Current joystick was removed: %d\n", which);
+	SDL_Log("Current joystick was removed: %d", which);
 
 	// Nuke reference to this controller+joystick
 	SDL_GameControllerClose(gSDLController);

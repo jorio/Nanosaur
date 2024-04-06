@@ -55,7 +55,7 @@ Str255		numStr;
 
 void DoAlert(const char* s)
 {
-	printf("NANOSAUR ALERT: %s\n", s);
+	SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "NANOSAUR ALERT: %s", s);
 	Enter2D();
 	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, "Nanosaur", s, NULL);
 	Exit2D();
@@ -65,9 +65,9 @@ void DoAlert(const char* s)
 
 void DoAssert(const char* msg, const char* file, int line)
 {
-	printf("NANOSAUR ASSERTION FAILED: %s - %s:%d\n", msg, file, line);
+	SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "NANOSAUR ASSERTION FAILED: %s - %s:%d", msg, file, line);
 	static char alertbuf[1024];
-	snprintf(alertbuf, 1024, "%s\n%s:%d", msg, file, line);
+	SDL_snprintf(alertbuf, 1024, "%s\n%s:%d", msg, file, line);
 	Enter2D();
 	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Nanosaur: Assertion Failed!", alertbuf, NULL);
 	ExitToShell();
@@ -77,7 +77,7 @@ void DoAssert(const char* msg, const char* file, int line)
 
 void DoFatalAlert(const char* s)
 {
-	printf("NANOSAUR FATAL ALERT: %s\n", s);
+	SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "NANOSAUR FATAL ALERT: %s", s);
 	Enter2D();
 	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Nanosaur: Fatal Alert", s, NULL);
 	CleanQuit();
@@ -88,8 +88,8 @@ void DoFatalAlert(const char* s)
 void DoFatalAlert2(const char* s1, const char* s2)
 {
 	static char alertbuf[1024];
-	snprintf(alertbuf, 1024, "%s\n%s", s1, s2);
-	printf("NANOSAUR FATAL ALERT: %s\n", alertbuf);
+	SDL_snprintf(alertbuf, 1024, "%s\n%s", s1, s2);
+	SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "NANOSAUR FATAL ALERT: %s", alertbuf);
 	Enter2D();
 	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Nanosaur: Fatal Alert", alertbuf, NULL);
 	ExitToShell();

@@ -9,7 +9,6 @@
 
 
 
-#include <stdio.h>
 #include <math.h>
 #include <QD3D.h>
 #include <QD3DMath.h>

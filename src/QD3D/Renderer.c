@@ -225,7 +225,7 @@ static inline void SetClientState_Impl(GLenum stateEnum, bool* stateFlagPtr, boo
 void DoFatalGLError(GLenum error, const char* file, int line)
 {
 	static char alertbuf[1024];
-	snprintf(alertbuf, sizeof(alertbuf), "OpenGL error 0x%x\nin %s:%d", error, file, line);
+	SDL_snprintf(alertbuf, sizeof(alertbuf), "OpenGL error 0x%x\nin %s:%d", (int)error, file, line);
 	DoFatalAlert(alertbuf);
 }
 

@@ -70,13 +70,13 @@ const char* modelName = "Unknown";
 
 	char filename[256];
 	
-	snprintf(filename, sizeof(filename), ":Skeletons:%s.skeleton", modelName);
+	SDL_snprintf(filename, sizeof(filename), ":Skeletons:%s.skeleton", modelName);
 	FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, filename, &fsSpecSkel);
 
 	if (gGamePrefs.nanosaurTeethFix && skeletonType == SKELETON_TYPE_DEINON)
 		modelName = "DeinonTeethFix";
 
-	snprintf(filename, sizeof(filename), ":Skeletons:%s.3dmf", modelName);
+	SDL_snprintf(filename, sizeof(filename), ":Skeletons:%s.3dmf", modelName);
 	FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, filename, &fsSpec3DMF);
 
 
@@ -390,7 +390,7 @@ OSErr MakePrefsFSSpec(const char* prefFileName, FSSpec* spec)
 	}
 
 	char name[256];
-	snprintf(name, 256, ":%s:%s", PREFS_FOLDER, prefFileName);
+	SDL_snprintf(name, 256, ":%s:%s", PREFS_FOLDER, prefFileName);
 	return FSMakeFSSpec(gPrefsFolderVRefNum, gPrefsFolderDirID, name, spec);
 }
 
@@ -428,7 +428,7 @@ PrefsType	prefs;
 	if (count != sizeof(PrefsType))
 	{
 		// size of file doesn't match size of struct
-		printf("prefs appear to be corrupt\n");
+		SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "prefs appear to be corrupt");
 		FSClose(refNum);
 		return badFileFormat;
 	}
@@ -440,7 +440,7 @@ PrefsType	prefs;
 		|| count < (long)sizeof(PrefsType)
 		|| 0 != strncmp(PREFS_MAGIC, prefs.magic, sizeof(prefs.magic)))
 	{
-		printf("prefs appear to be corrupt\n");
+		SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "prefs appear to be corrupt");
 		return(iErr);
 	}
 	

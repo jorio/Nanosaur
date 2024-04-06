@@ -10,7 +10,6 @@
 /***************/
 
 #include "game.h"
-#include <stdio.h>  // snprintf
 
 
 /****************************/
@@ -148,7 +147,7 @@ OSErr err;
 		return;
 	}
 
-	snprintf(path, sizeof(path), ":Audio:SoundBank:%s.aiff", kEffectNames[effectNum]);
+	SDL_snprintf(path, sizeof(path), ":Audio:SoundBank:%s.aiff", kEffectNames[effectNum]);
 
 	err = FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, path, &spec);
 	GAME_ASSERT_MESSAGE(err == noErr, path);

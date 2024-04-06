@@ -73,7 +73,7 @@ void LoadSpriteGroup(const char* groupName, short groupNum, int numFrames)
 		uint8_t* pixels;
 		TGAHeader header;
 
-		snprintf(path, sizeof(path), ":sprites:%s%d.tga", groupName, 1000 + i);
+		SDL_snprintf(path, sizeof(path), ":sprites:%s%d.tga", groupName, 1000 + i);
 
 		FSSpec spec;
 		err = FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, path, &spec);

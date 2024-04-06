@@ -5,7 +5,6 @@
 #include <Pomme.h>
 
 #include <string.h>
-#include <stdio.h>
 #include <stdlib.h>
 
 #include <QD3D.h>

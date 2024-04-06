@@ -115,7 +115,7 @@ retry:
 	{
 		if (gGamePrefs.antialiasingLevel != 0)
 		{
-			printf("Couldn't create SDL window with the requested MSAA level. Retrying without MSAA...\n");
+			SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "Couldn't create SDL window with requested MSAA level. Retrying without MSAA...");
 
 			// retry without MSAA
 			gGamePrefs.antialiasingLevel = 0;
@@ -157,6 +157,12 @@ int main(int argc, char** argv)
 {
 	bool success = true;
 	std::string uncaught;
+
+#if _DEBUG
+	SDL_LogSetAllPriority(SDL_LOG_PRIORITY_VERBOSE);
+#else
+	SDL_LogSetAllPriority(SDL_LOG_PRIORITY_INFO);
+#endif
 
 	try
 	{

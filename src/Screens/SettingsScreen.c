@@ -544,13 +544,13 @@ static void InitDisplayPref(void)
 
 			for (size_t j = 0; j < entry->numChoices; j++)
 			{
-				snprintf(gMonitorNameBuffers[j], 64, "DISPLAY %d", (int) j+1);
+				SDL_snprintf(gMonitorNameBuffers[j], 64, "DISPLAY %d", (int) j+1);
 				entry->choices[j] = gMonitorNameBuffers[j];
 			}
 
 			for (size_t j = entry->numChoices; j < MAX_CHOICES; j++)
 			{
-				snprintf(gMonitorNameBuffers[j], 64, "DISCONNECTED DISPLAY %d", (int) j+1);
+				SDL_snprintf(gMonitorNameBuffers[j], 64, "DISCONNECTED DISPLAY %d", (int) j+1);
 			}
 
 			break;

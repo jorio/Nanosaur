@@ -45,7 +45,7 @@ void SetProModeSettings(int pro)
 	if (gSDLWindow)
 	{
 		static char windowTitle[256];
-		snprintf(windowTitle, sizeof(windowTitle),
+		SDL_snprintf(windowTitle, sizeof(windowTitle),
 			"%s %s",
 			PRO_MODE ? "Nanosaur Extreme" : "Nanosaur",
 			PROJECT_VERSION);
