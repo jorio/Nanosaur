@@ -481,7 +481,7 @@ void QD3D_CalcFramesPerSecond(void)
 			float fps = 1000 * gDebugTextFrameAccumulator / (float)ticksElapsed;
 			SDL_snprintf(
 					gDebugTextBuffer, sizeof(gDebugTextBuffer),
-					"%s%s - %dfps %dt %dm %dn %dp %dK x:%.0f z:%.0f",
+					"%s%s - %dfps %dt %dm %dn %dp %dK x:%.0f y:%.0f z:%.0f",
 					PRO_MODE ? "NanoExtreme" : "Nanosaur",
 					PROJECT_VERSION,
 					(int)round(fps),
@@ -491,6 +491,7 @@ void QD3D_CalcFramesPerSecond(void)
 					(int)Pomme_GetNumAllocs(),
 					(int)(Pomme_GetHeapSize()/1024),
 					gMyCoord.x,
+					gMyCoord.y,
 					gMyCoord.z
 			);
 			SDL_SetWindowTitle(gSDLWindow, gDebugTextBuffer);
