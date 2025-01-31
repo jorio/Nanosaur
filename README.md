@@ -3,6 +3,7 @@
 This is Pangea Software’s **Nanosaur** updated to run on modern systems. Originally released in 1998 as a Mac-only game, Nanosaur casts a cybernetic dinosaur from the future who’s sent back in time 20 minutes before a giant asteroid hits the Earth.
 
 **Download the game for macOS, Windows or Linux here:** https://github.com/jorio/Nanosaur/releases
+New settings: aspect ratio (#25), sky color, deinonychus dentistry fix
 
 ![Screenshot](docs/screenshot.png)
 
