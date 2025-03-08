@@ -51,7 +51,7 @@ static void Callback_Antialiasing(void);
 static void Callback_DebugInfo(void);
 static void Callback_Done(void);
 
-static char gMonitorNameBuffers[MAX_CHOICES][64];
+static char gDisplayNameBuffers[MAX_CHOICES][64];
 
 static SettingEntry gSettingEntries[] =
 {
@@ -65,10 +65,8 @@ static SettingEntry gSettingEntries[] =
 	{&gGamePrefs.fullscreen			, "Fullscreen"			, Callback_Fullscreen,		2,	{ "NO", "YES" }, },
 	{&gGamePrefs.vsync				, "V-Sync"				, Callback_VSync,			2,	{ "NO", "YES" }, },
 	{&gGamePrefs.force4x3			, "Aspect Ratio"		, NULL,						2,	{ "FILL SCREEN", "FORCE 4:3" }, },
-	{&gGamePrefs.preferredDisplay	, "Preferred Display"	, Callback_Fullscreen,		1,	{ "DEFAULT" }, },
-#if !(__APPLE__)
+	{&gGamePrefs.displayNumMinus1	, "Preferred Display"	, Callback_Fullscreen,		1,	{ "DEFAULT" }, },
 	{&gGamePrefs.antialiasingLevel	, "Antialiasing"		, Callback_Antialiasing,	4,	{ "NO", "MSAA 2x", "MSAA 4x", "MSAA 8x" }, },
-#endif
 	{nil							, nil					, nil,						0,  { NULL } },
 	{&gGamePrefs.highQualityTextures, "Texture Filtering"	, nil,						2,	{ "NO", "YES" }, },
 	{&gGamePrefs.canDoFog			, "Fog"					, nil,						2,	{ "NO", "YES" }, },
@@ -491,7 +489,7 @@ static void NavigateControlsPage(void)
 	{
 		if (controlsHighlightedRow == kKeybindingRow_Reset)
 		{
-			memcpy(gGamePrefs.keys, kDefaultKeyBindings, sizeof(kDefaultKeyBindings));
+			SDL_memcpy(gGamePrefs.keys, kDefaultKeyBindings, sizeof(kDefaultKeyBindings));
 			_Static_assert(sizeof(kDefaultKeyBindings) == sizeof(gGamePrefs.keys), "size mismatch: default keybindings / prefs keybindings");
 			PlayEffect_Parms(EFFECT_CRYSTAL, FULL_CHANNEL_VOLUME/2, kMiddleC-6);
 			needFullRender = true;
@@ -513,7 +511,7 @@ static void NavigateControlsPage_AwaitingPress(void)
 		return;
 	}
 
-	for (int i = 0; i < SDL_NUM_SCANCODES; i++)
+	for (int i = 0; i < SDL_SCANCODE_COUNT; i++)
 	{
 		if (GetNewSDLKeyState(i))
 		{
@@ -530,12 +528,12 @@ static void NavigateControlsPage_AwaitingPress(void)
 static void InitDisplayPref(void)
 {
 	// Init display pref
-	for (size_t i = 0; i < sizeof(gSettingEntries)/sizeof(gSettingEntries[0]); i++)
+	for (size_t i = 0; i < SDL_arraysize(gSettingEntries); i++)
 	{
 		SettingEntry* entry = &gSettingEntries[i];
-		if (entry->valuePtr == &gGamePrefs.preferredDisplay)
+		if (entry->valuePtr == &gGamePrefs.displayNumMinus1)
 		{
-			entry->numChoices = SDL_GetNumVideoDisplays();
+			entry->numChoices = GetNumDisplays();
 
 			if (entry->numChoices > MAX_CHOICES)
 			{
@@ -544,13 +542,13 @@ static void InitDisplayPref(void)
 
 			for (size_t j = 0; j < entry->numChoices; j++)
 			{
-				SDL_snprintf(gMonitorNameBuffers[j], 64, "DISPLAY %d", (int) j+1);
-				entry->choices[j] = gMonitorNameBuffers[j];
+				SDL_snprintf(gDisplayNameBuffers[j], 64, "DISPLAY %d", (int) j+1);
+				entry->choices[j] = gDisplayNameBuffers[j];
 			}
 
 			for (size_t j = entry->numChoices; j < MAX_CHOICES; j++)
 			{
-				SDL_snprintf(gMonitorNameBuffers[j], 64, "DISCONNECTED DISPLAY %d", (int) j+1);
+				SDL_snprintf(gDisplayNameBuffers[j], 64, "DISCONNECTED DISPLAY %d", (int) j+1);
 			}
 
 			break;

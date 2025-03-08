@@ -40,8 +40,6 @@ QD3DSetupOutputType		*gGameViewInfoPtr = nil;
 
 PrefsType	gGamePrefs;
 
-FSSpec		gDataSpec;
-
 
 //======================================================================================
 //======================================================================================
@@ -50,7 +48,7 @@ FSSpec		gDataSpec;
 
 void InitDefaultPrefs(void)
 {
-	memset(&gGamePrefs, 0, sizeof(gGamePrefs));
+	SDL_memset(&gGamePrefs, 0, sizeof(gGamePrefs));
 	SDL_snprintf(gGamePrefs.magic, sizeof(gGamePrefs.magic), "%s", PREFS_MAGIC);
 
 	gGamePrefs.highQualityTextures = true;			// set the defaults
@@ -58,7 +56,7 @@ void InitDefaultPrefs(void)
 	gGamePrefs.shadows = true;
 	gGamePrefs.dust = true;
 	gGamePrefs.fullscreen = true;
-	gGamePrefs.preferredDisplay = 0;
+	gGamePrefs.displayNumMinus1 = 0;
 	gGamePrefs.antialiasingLevel = 0;
 	gGamePrefs.vsync = true;
 	gGamePrefs.mainMenuHelp = true;
@@ -68,7 +66,7 @@ void InitDefaultPrefs(void)
 	gGamePrefs.nanosaurTeethFix = true;
 	gGamePrefs.whiteSky = true;
 
-	memcpy(gGamePrefs.keys, kDefaultKeyBindings, sizeof(gGamePrefs.keys));
+	SDL_memcpy(gGamePrefs.keys, kDefaultKeyBindings, sizeof(gGamePrefs.keys));
 	_Static_assert(sizeof(kDefaultKeyBindings) == sizeof(gGamePrefs.keys), "size mismatch: default keybindings / prefs keybinings");
 }
 
@@ -98,8 +96,7 @@ OSErr		iErr;
 
 			/* INIT PREFERENCES */
 
-	InitDefaultPrefs();
-	LoadPrefs(&gGamePrefs);							// attempt to read from prefs file
+	LoadPrefs();
 
 	SetFullscreenMode(true);
 	SetProModeSettings(gGamePrefs.extreme);

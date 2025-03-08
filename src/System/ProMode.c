@@ -46,9 +46,7 @@ void SetProModeSettings(int pro)
 	{
 		static char windowTitle[256];
 		SDL_snprintf(windowTitle, sizeof(windowTitle),
-			"%s %s",
-			PRO_MODE ? "Nanosaur Extreme" : "Nanosaur",
-			PROJECT_VERSION);
+			"%s%s %s", GAME_FULL_NAME, PRO_MODE ? " Extreme" : "", GAME_VERSION);
 		SDL_SetWindowTitle(gSDLWindow, windowTitle);
 	}
 }

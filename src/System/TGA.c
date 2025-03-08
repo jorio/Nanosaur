@@ -350,7 +350,7 @@ PicHandle GetPictureFromTGA(const FSSpec* spec)
 	picPtr->picSize = -1;
 	picPtr->__pomme_pixelsARGB32 = picPixels;
 
-	memcpy(picPixels, pixelData, payloadSize);
+	SDL_memcpy(picPixels, pixelData, payloadSize);
 	DisposePtr((Ptr) pixelData);
 
 	return picHandle;

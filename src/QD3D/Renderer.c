@@ -7,12 +7,11 @@
 /*    EXTERNALS             */
 /****************************/
 
-#include <SDL.h>
-#include <SDL_opengl.h>
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_opengl.h>
 #if !OSXPPC
-#include <SDL_opengl_glext.h>
+#include <SDL3/SDL_opengl_glext.h>
 #endif
-#include <stdlib.h>		// qsort
 #include "game.h"
 
 extern TQ3Param2D				gEnvMapUVs[];
@@ -237,7 +236,7 @@ void DoFatalGLError(GLenum error, const char* file, int line)
 
 void Render_SetDefaultModifiers(RenderModifiers* dest)
 {
-	memcpy(dest, &kDefaultRenderMods, sizeof(RenderModifiers));
+	SDL_memcpy(dest, &kDefaultRenderMods, sizeof(RenderModifiers));
 }
 
 void Render_InitState(void)
@@ -415,7 +414,7 @@ void Render_Load3DMFTextures(TQ3MetaFile* metaFile, GLuint* outTextureNames)
 void Render_StartFrame(void)
 {
 	// Clear rendering statistics
-	memset(&gRenderStats, 0, sizeof(gRenderStats));
+	SDL_memset(&gRenderStats, 0, sizeof(gRenderStats));
 
 	// Clear transparent queue
 	gMeshQueueSize = 0;
@@ -456,7 +455,7 @@ void Render_EndFrame(void)
 	if (gMeshQueueSize != 0)
 	{
 		// Sort mesh draw queue, front to back
-		qsort(
+		SDL_qsort(
 				gMeshQueuePtrs,
 				gMeshQueueSize,
 				sizeof(gMeshQueuePtrs[0]),

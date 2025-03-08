@@ -74,7 +74,7 @@ void InitObjectManager(void)
 
 		/* INIT OBJECT POOL */
 
-	memset(gObjNodeMemory, 0, sizeof(gObjNodeMemory));
+	SDL_memset(gObjNodeMemory, 0, sizeof(gObjNodeMemory));
 
 	if (!gObjNodePool)
 		gObjNodePool = Pool_New(OBJ_BUDGET);
@@ -115,7 +115,7 @@ ObjNode	*MakeNewObject(NewObjectDefinitionType *newObjDef)
 
 				/* INITIALIZE NEW NODE */
 
-	memset(newNodePtr, 0, sizeof(ObjNode));
+	SDL_memset(newNodePtr, 0, sizeof(ObjNode));
 
 	newNodePtr->Slot		= newObjDef->slot;
 	newNodePtr->Type		= newObjDef->type;

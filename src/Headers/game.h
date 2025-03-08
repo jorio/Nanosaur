@@ -1,12 +1,8 @@
 #pragma once
 
-#include <SDL.h>
-#include <SDL_opengl.h>
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_opengl.h>
 #include <Pomme.h>
-
-#include <string.h>
-#include <stdlib.h>
-
 #include <QD3D.h>
 #include <QD3DMath.h>
 
@@ -78,7 +74,7 @@ extern	Boolean					gWonGameFlag;
 extern	Byte					gCameraMode;
 extern	Byte					gCurrentAttackMode;
 extern	Byte					gMyStartAim;
-extern	char					gTextInput[SDL_TEXTINPUTEVENT_TEXT_SIZE];
+extern	char					gTextInput[64];
 extern	CollisionRec			gCollisionList[];
 extern	const KeyBinding		kDefaultKeyBindings[NUM_CONTROL_NEEDS];
 extern	float					gCameraDistFromMe;

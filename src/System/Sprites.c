@@ -45,8 +45,8 @@ static SpriteFrame	gSpriteFrames[MAX_SPRITE_GROUPS][MAX_SHAPE_ANIMS];
 
 void InitSpriteManager(void)
 {
-	memset(gNumFrames, 0, sizeof(gNumFrames));
-	memset(gSpriteFrames, 0, sizeof(gSpriteFrames));
+	SDL_memset(gNumFrames, 0, sizeof(gNumFrames));
+	SDL_memset(gSpriteFrames, 0, sizeof(gSpriteFrames));
 }
 
 
@@ -138,7 +138,7 @@ void DisposeSpriteGroup(short groupNum)
 		}
 	}
 
-	memset(&gSpriteFrames[groupNum], 0, sizeof(gSpriteFrames[groupNum]));
+	SDL_memset(&gSpriteFrames[groupNum], 0, sizeof(gSpriteFrames[groupNum]));
 	gNumFrames[groupNum] = 0;
 }	
 
@@ -195,7 +195,7 @@ void DrawSpriteFrameToScreen(short group, int frame, int x, int y)
 		{
 			for (int h = 0; h < height; h++)
 			{
-				memcpy(destPtr, srcPtr, width*4);
+				SDL_memcpy(destPtr, srcPtr, width*4);
 				destPtr += GAME_VIEW_WIDTH;
 				srcPtr += width;
 			}

@@ -605,9 +605,9 @@ static TQ3Point3D				points[4] = { { -GPS_DISPLAY_SIZE,  GPS_DISPLAY_SIZE, 0 },
 
 		/* BUILD GEOMETRY FOR THIS */
 
-	memcpy(mesh->triangles,		triangles,	sizeof(triangles));
-	memcpy(mesh->points,		points,		sizeof(points));
-	memcpy(mesh->vertexUVs,		uvs,		sizeof(uvs));
+	SDL_memcpy(mesh->triangles,		triangles,	sizeof(triangles));
+	SDL_memcpy(mesh->points,		points,		sizeof(points));
+	SDL_memcpy(mesh->vertexUVs,		uvs,		sizeof(uvs));
 
 	mesh->bBox.min.x = points[0].x;
 	mesh->bBox.min.y = points[3].y;

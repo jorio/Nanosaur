@@ -53,7 +53,7 @@ extern	SkeletonDefType *LoadSkeletonFile(short skeletonType);
 void	OpenGameFile(const char* filename, short *fRefNumPtr, const char* errString);
 void InitDefaultPrefs(void);
 OSErr MakePrefsFSSpec(const char* prefFileName, FSSpec* spec);
-OSErr LoadPrefs(PrefsType *prefBlock);
+OSErr LoadPrefs(void);
 extern	void SavePrefs(PrefsType *prefs);
 extern	Ptr	LoadAFile(FSSpec* fsSpec, long* outSize);
 

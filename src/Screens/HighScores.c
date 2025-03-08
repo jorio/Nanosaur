@@ -369,9 +369,9 @@ short		i;
 			/*************/
 			/* MAIN LOOP */
 			/*************/
-		
-	
-	QD3D_CalcFramesPerSecond();					
+
+	QD3D_CalcFramesPerSecond();
+	SDL_StartTextInput(gSDLWindow);
 
 	do
 	{
@@ -399,6 +399,7 @@ short		i;
 
 			/* CLEANUP */
 
+	SDL_StopTextInput(gSDLWindow);
 	DeleteAllObjects();
 }
 

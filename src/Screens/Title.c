@@ -433,7 +433,7 @@ static void ShowCharity_SourcePortVersionOverlay(void)
 	RGBBackColor2(PRO_MODE? 0xA0A0A0: 0xA5A5A5);
 	RGBForeColor2(0x606060);
 	MoveTo(4, 480-4);
-	DrawStringC("Version " PROJECT_VERSION);
+	DrawStringC("Version " GAME_VERSION);
 }
 
 void ShowCharity(void)
@@ -461,8 +461,8 @@ static void ShowHelp_TechInfoOverlay(void)
 	int x = 4;
 	int y = 480 - 4 - LH * 3;
 
-	MoveTo(x, y); DrawStringC("Nanosaur v" PROJECT_VERSION " / "); DrawStringC(SDL_GetCurrentVideoDriver());
-	y += LH; MoveTo(x, y); DrawStringC(SDL_GetRevision());
+	MoveTo(x, y); DrawStringC(GAME_FULL_NAME " " GAME_VERSION " / "); DrawStringC(SDL_GetCurrentVideoDriver());
+	y += LH; MoveTo(x, y); DrawStringC("SDL "); DrawStringC(SDL_GetRevision());
 	y += LH; MoveTo(x, y); DrawStringC("OpenGL "); DrawStringC((const char*) glGetString(GL_VERSION));
 	y += LH; MoveTo(x, y); DrawStringC((const char*) glGetString(GL_RENDERER));
 }

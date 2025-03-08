@@ -369,7 +369,7 @@ Str255		s;
 OSErr MakePrefsFSSpec(const char* prefFileName, FSSpec* spec)
 {
 	static Boolean checkedOnce = false;
-	static const char* PREFS_FOLDER = "Nanosaur";
+	static const char* PREFS_FOLDER = GAME_NAME;
 
 	if (!checkedOnce)
 	{
@@ -401,7 +401,7 @@ OSErr MakePrefsFSSpec(const char* prefFileName, FSSpec* spec)
 // Load in standard preferences
 //
 
-OSErr LoadPrefs(PrefsType *prefBlock)
+static OSErr LoadPrefsToBlock(PrefsType *prefBlock)
 {
 OSErr		iErr;
 short		refNum;
@@ -447,6 +447,13 @@ PrefsType	prefs;
 	*prefBlock = prefs;
 	
 	return(noErr);
+}
+
+
+OSErr LoadPrefs(void)
+{
+	InitDefaultPrefs();
+	return LoadPrefsToBlock(&gGamePrefs);
 }
 
 

@@ -402,8 +402,8 @@ TQ3Param2D				uvsFlat[4] = {{0,0}, {1,0}, {0,1}, {1,1}};
 
 		gSuperTileMemoryList[i].triMeshPtr = tmd;
 
-		memcpy(tmd->triangles,		newTriangle,	sizeof(tmd->triangles[0]) * NUM_POLYS_IN_SUPERTILE);
-		memcpy(tmd->vertexUVs,		uvs,			sizeof(tmd->vertexUVs[0]) * NUM_VERTICES_IN_SUPERTILE);
+		SDL_memcpy(tmd->triangles,	newTriangle,	sizeof(tmd->triangles[0]) * NUM_POLYS_IN_SUPERTILE);
+		SDL_memcpy(tmd->vertexUVs,	uvs,			sizeof(tmd->vertexUVs[0]) * NUM_VERTICES_IN_SUPERTILE);
 		for (int pointIndex = 0; pointIndex < NUM_VERTICES_IN_SUPERTILE; pointIndex++)
 		{
 			tmd->points[pointIndex] = (TQ3Point3D) { 0, 0, 0 };					// clear point list
@@ -455,8 +455,8 @@ TQ3Param2D				uvsFlat[4] = {{0,0}, {1,0}, {0,1}, {1,1}};
 
 		gSuperTileMemoryList[i].triMeshPtr = tmd;
 
-		memcpy(tmd->triangles,		newTriangle,	sizeof(tmd->triangles[0]) * NUM_POLYS_IN_SUPERTILE);
-		memcpy(tmd->vertexUVs,		uvs,			sizeof(tmd->vertexUVs[0]) * NUM_VERTICES_IN_SUPERTILE);
+		SDL_memcpy(tmd->triangles,	newTriangle,	sizeof(tmd->triangles[0]) * NUM_POLYS_IN_SUPERTILE);
+		SDL_memcpy(tmd->vertexUVs,	uvs,			sizeof(tmd->vertexUVs[0]) * NUM_VERTICES_IN_SUPERTILE);
 		for (int pointIndex = 0; pointIndex < NUM_VERTICES_IN_SUPERTILE; pointIndex++)
 		{
 			tmd->points[pointIndex] = (TQ3Point3D) { 0, 0, 0 };					// clear point list
@@ -496,7 +496,7 @@ TQ3Param2D				uvsFlat[4] = {{0,0}, {1,0}, {0,1}, {1,1}};
 			tmdFlat->vertexNormals[pointIndex] = (TQ3Vector3D) {0, 1, 0 };		// set dummy vertex normals (point up)
 		}
 
-		memcpy(tmdFlat->vertexUVs, uvsFlat, 4 * sizeof(tmdFlat->vertexUVs[0]));
+		SDL_memcpy(tmdFlat->vertexUVs, uvsFlat, 4 * sizeof(tmdFlat->vertexUVs[0]));
 		tmdFlat->bBox.isEmpty = kQ3False;					// calc bounding box
 		tmdFlat->bBox.min.x = tmdFlat->bBox.min.y = tmdFlat->bBox.min.z = 0;
 		tmdFlat->bBox.max.x = tmdFlat->bBox.max.y = tmdFlat->bBox.max.z = TERRAIN_SUPERTILE_UNIT_SIZE;
@@ -725,7 +725,7 @@ SuperTileMemoryType	*superTilePtr;
 					/* CALC FOLD-SPLIT */
 			else
 			{
-				if (abs(h1-h3) < abs(h2-h4))
+				if (SDL_abs(h1-h3) < SDL_abs(h2-h4))
 					superTilePtr->splitAngle[row][col] = SPLIT_BACKWARD; 			// use \ splits
 				else
 					superTilePtr->splitAngle[row][col] = SPLIT_FORWARD;				// use / splits
@@ -925,7 +925,7 @@ TQ3PlaneEquation	planeEq;
 static void UpdateSuperTileTexture(SuperTileMemoryType* superTilePtr)
 {
 #if _DEBUG
-	memset(gTempTextureBuffer, 0xFF, TEMP_TEXTURE_BUFF_SIZE*TEMP_TEXTURE_BUFF_SIZE*2);
+	SDL_memset(gTempTextureBuffer, 0xFF, TEMP_TEXTURE_BUFF_SIZE*TEMP_TEXTURE_BUFF_SIZE*2);
 #endif
 
 			/******************/
@@ -1039,7 +1039,7 @@ const int tileSize = OREOMAP_TILE_SIZE;
 		case	TILE_FLIPXY_MASK | TILE_ROT2:
 				for (int y = 0; y < tileSize; y++)
 				{
-					memcpy(buffer, tileData, tileSize * sizeof(UInt16));
+					SDL_memcpy(buffer, tileData, tileSize * sizeof(UInt16));
 
 					buffer += bufWidth;						// next line in dest
 					tileData += tileSize;					// next line in src
@@ -1069,7 +1069,7 @@ const int tileSize = OREOMAP_TILE_SIZE;
 				tileData += tileSize*(tileSize-1);
 				for (int y = 0; y < tileSize; y++)
 				{
-					memcpy(buffer, tileData, tileSize * sizeof(UInt16));
+					SDL_memcpy(buffer, tileData, tileSize * sizeof(UInt16));
 
 					buffer += bufWidth;						// next line in dest
 					tileData -= tileSize;					// next line in src
@@ -1212,7 +1212,7 @@ static void ShrinkSuperTileTextureMap(const uint16_t* srcPtr, uint16_t* dstPtr, 
 			break;
 
 		case 160:
-			memcpy(dstPtr, srcPtr, dstSize * dstSize * sizeof(uint16_t));
+			SDL_memcpy(dstPtr, srcPtr, dstSize * dstSize * sizeof(uint16_t));
 			break;
 
 		default:

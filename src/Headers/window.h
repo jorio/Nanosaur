@@ -9,4 +9,6 @@ extern void	DumpGWorldToGWorld(GWorldPtr, GWorldPtr, Rect *, Rect *);
 extern	void MakeFadeEvent(Boolean	fadeIn);
 void Enter2D(void);
 void Exit2D(void);
+int GetNumDisplays(void);
+void MoveToPreferredDisplay(void);
 void SetFullscreenMode(bool enforceDisplayPref);

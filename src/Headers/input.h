@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 #define KEYBINDING_MAX_KEYS					2
 #define KEYBINDING_MAX_GAMEPAD_BUTTONS		2
@@ -73,5 +73,5 @@ bool AreAnyNewKeysPressed(void);
 bool GetNewNeedState(int needID);
 bool GetNeedState(int needID);
 
-SDL_GameController* TryOpenController(bool showMessageOnFailure);
+SDL_Gamepad* TryOpenGamepad(bool showMessageOnFailure);
 void OnJoystickRemoved(SDL_JoystickID which);

@@ -1,5 +1,9 @@
 # Nanosaur changelog
 
+- **v1.4.5 (NOT RELEASED YET)**
+	- Ported to SDL 3
+    - **NOTE:** The Mac version now requires macOS 10.13.
+
 - **v1.4.4 (Feb. 5, 2023)**
 	- Fixed physics for very high framerates
 	- Ironed out problems with first-person camera

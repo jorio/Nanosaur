@@ -121,7 +121,7 @@ void Free3DMFGroup(Byte groupNum)
 		gObjectGroupFile[groupNum] = nil;
 	}
 
-	memset(gObjectGroupList[groupNum], 0, sizeof(gObjectGroupList[groupNum]));
+	SDL_memset(gObjectGroupList[groupNum], 0, sizeof(gObjectGroupList[groupNum]));
 
 	gNumObjectsInGroupList[groupNum] = 0;
 }

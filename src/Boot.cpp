@@ -1,29 +1,24 @@
+// NANOSAUR ENTRY POINT
+// (C) 2025 Iliyas Jorio
+// This file is part of Nanosaur. https://github.com/jorio/nanosaur
+
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_main.h>
+
 #include "Pomme.h"
+#include "PommeGraphics.h"
 #include "PommeInit.h"
 #include "PommeFiles.h"
-#include "PommeGraphics.h"
-
-#include <SDL.h>
-
-#include <iostream>
 
 extern "C"
 {
-	// bare minimum from Window.c to satisfy externs in game code
+	#include "game.h"
+
 	SDL_Window* gSDLWindow = nullptr;
 	WindowPtr gCoverWindow = nullptr;
 	UInt32* gBackdropPixels = nullptr;
-
-	// Lets the game know where to find its asset files
-	extern FSSpec gDataSpec;
-
-	// Tell Windows graphics driver that we prefer running on a dedicated GPU if available
-#if 0 //_WIN32
-	__declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
-	__declspec(dllexport) unsigned long NvOptimusEnablement = 1;
-#endif
-
-	#include "game.h"
+	FSSpec gDataSpec;
+	int gCurrentAntialiasingLevel;
 }
 
 static fs::path FindGameData(const char* executablePath)
@@ -65,10 +60,11 @@ tryAgain:
 	dataPath = dataPath.lexically_normal();
 
 	// Set data spec -- Lets the game know where to find its asset files
-	gDataSpec = Pomme::Files::HostPathToFSSpec(dataPath / "Skeletons");
+	gDataSpec = Pomme::Files::HostPathToFSSpec(dataPath / "System");
 
-	FSSpec dummySpec;
-	if (noErr != FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":Skeletons:Diloph.3dmf", &dummySpec))
+	FSSpec someDataFileSpec;
+	OSErr iErr = FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":System:gamecontrollerdb.txt", &someDataFileSpec);
+	if (iErr)
 	{
 		goto tryAgain;
 	}
@@ -76,78 +72,62 @@ tryAgain:
 	return dataPath;
 }
 
-void Boot(int argc, const char** argv)
+static void Boot(int argc, char** argv)
 {
-	(void) argc;
-	(void) argv;
+	SDL_SetAppMetadata(GAME_FULL_NAME, GAME_VERSION, GAME_IDENTIFIER);
+#if _DEBUG
+	SDL_SetLogPriorities(SDL_LOG_PRIORITY_VERBOSE);
+#else
+	SDL_SetLogPriorities(SDL_LOG_PRIORITY_INFO);
+#endif
 
 	// Start our "machine"
 	Pomme::Init();
 
+	// Find path to game data folder
+	const char* executablePath = argc > 0 ? argv[0] : NULL;
+	fs::path dataPath = FindGameData(executablePath);
+
 	// Load game prefs before starting
-	InitDefaultPrefs();
-	LoadPrefs(&gGamePrefs);
+	LoadPrefs();
 
-retry:
+retryVideo:
 	// Initialize SDL video subsystem
-	if (0 != SDL_Init(SDL_INIT_VIDEO))
+	if (!SDL_Init(SDL_INIT_VIDEO))
 	{
-		throw std::runtime_error("Couldn't init SDL video subsystem: " + std::string(SDL_GetError()));
-	}
-
-	if (gGamePrefs.preferredDisplay >= SDL_GetNumVideoDisplays())
-	{
-		gGamePrefs.preferredDisplay = 0;
+		throw std::runtime_error("Couldn't initialize SDL video subsystem.");
 	}
 
 	// Create window
-#if !(OSXPPC)
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
-#endif
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
-	if (gGamePrefs.antialiasingLevel != 0)
+
+	gCurrentAntialiasingLevel = gGamePrefs.antialiasingLevel;
+	if (gCurrentAntialiasingLevel != 0)
 	{
 		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 1 << gGamePrefs.antialiasingLevel);
+		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 1 << gCurrentAntialiasingLevel);
 	}
 
-	// Prepare window dimensions
-	int display = gGamePrefs.preferredDisplay;
-	float screenFillRatio = 2.0f / 3.0f;
-
-	SDL_Rect displayBounds = { .x = 0, .y = 0, .w = GAME_VIEW_WIDTH, .h = GAME_VIEW_HEIGHT };
-#if SDL_VERSION_ATLEAST(2,0,5)
-	SDL_GetDisplayUsableBounds(display, &displayBounds);
-#else
-	SDL_GetDisplayBounds(display, &displayBounds);
-#endif
-	TQ3Vector2D fitted = FitRectKeepAR(GAME_VIEW_WIDTH, GAME_VIEW_HEIGHT, displayBounds.w, displayBounds.h);
-	int initialWidth  = (int) (fitted.x * screenFillRatio);
-	int initialHeight = (int) (fitted.y * screenFillRatio);
-
 	gSDLWindow = SDL_CreateWindow(
-			"Nanosaur " PROJECT_VERSION,
-			SDL_WINDOWPOS_CENTERED_DISPLAY(gGamePrefs.preferredDisplay),
-			SDL_WINDOWPOS_CENTERED_DISPLAY(gGamePrefs.preferredDisplay),
-			initialWidth,
-			initialHeight,
-			SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI);
+		GAME_FULL_NAME " " GAME_VERSION, 640, 480,
+		SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY);
 
 	if (!gSDLWindow)
 	{
-		if (gGamePrefs.antialiasingLevel != 0)
+		if (gCurrentAntialiasingLevel != 0)
 		{
-			SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "Couldn't create SDL window with requested MSAA level. Retrying without MSAA...");
+			SDL_Log("Couldn't create SDL window with the requested MSAA level. Retrying without MSAA...");
 
 			// retry without MSAA
 			gGamePrefs.antialiasingLevel = 0;
 			SDL_QuitSubSystem(SDL_INIT_VIDEO);
-			goto retry;
+			goto retryVideo;
 		}
 		else
 		{
-			throw std::runtime_error("Couldn't create SDL window: " + std::string(SDL_GetError()));
+			throw std::runtime_error("Couldn't create SDL window.");
 		}
 	}
 
@@ -155,26 +135,27 @@ retry:
 	gCoverWindow = Pomme::Graphics::GetScreenPort();
 	gBackdropPixels = (UInt32*) GetPixBaseAddr(GetGWorldPixMap(gCoverWindow));
 
-	// Init gDataSpec
-	const char* executablePath = argc > 0 ? argv[0] : NULL;
-	fs::path dataPath = FindGameData(executablePath);
-
-#if !(OSXPPC)
-	// Init joystick subsystem
+	// Init gamepad subsystem
+	SDL_Init(SDL_INIT_GAMEPAD);
+	auto gamecontrollerdbPath8 = (dataPath / "System" / "gamecontrollerdb.txt").u8string();
+	if (-1 == SDL_AddGamepadMappingsFromFile((const char*)gamecontrollerdbPath8.c_str()))
 	{
-		SDL_Init(SDL_INIT_JOYSTICK);
-		auto gamecontrollerdbPath8 = (dataPath / "System" / "gamecontrollerdb.txt").u8string();
-		if (-1 == SDL_GameControllerAddMappingsFromFile((const char*)gamecontrollerdbPath8.c_str()))
-		{
-			DoAlert("Couldn't load gamecontrollerdb.txt! No big deal, but gamepads may not work.");
-		}
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, GAME_FULL_NAME, "Couldn't load gamecontrollerdb.txt!", gSDLWindow);
 	}
-#endif
 }
 
 static void Shutdown()
 {
+	// Always restore the user's mouse acceleration before exiting.
+	// SetMacLinearMouse(false);
+
 	Pomme::Shutdown();
+
+	if (gSDLWindow)
+	{
+		SDL_DestroyWindow(gSDLWindow);
+		gSDLWindow = NULL;
+	}
 
 	SDL_Quit();
 }
@@ -182,50 +163,39 @@ static void Shutdown()
 int main(int argc, char** argv)
 {
 	bool success = true;
-	std::string uncaught;
-
-#if _DEBUG
-	SDL_LogSetAllPriority(SDL_LOG_PRIORITY_VERBOSE);
-#else
-	SDL_LogSetAllPriority(SDL_LOG_PRIORITY_INFO);
-#endif
+	std::string uncaught = "";
 
 	try
 	{
-		// Start the game
-		Boot(argc, const_cast<const char**>(argv));
-
-		// Run the game
+		Boot(argc, argv);
 		GameMain();
 	}
 	catch (Pomme::QuitRequest&)
 	{
 		// no-op, the game may throw this exception to shut us down cleanly
 	}
-#if !(_DEBUG)  // Skip last-resort catch in debug builds so we get a stack trace
-	catch (std::exception& ex)
+#if !(_DEBUG)
+	// In release builds, catch anything that might be thrown by GameMain
+	// so we can show an error dialog to the user.
+	catch (std::exception& ex)		// Last-resort catch
 	{
 		success = false;
 		uncaught = ex.what();
 	}
-	catch (...)
+	catch (...)						// Last-resort catch
 	{
 		success = false;
 		uncaught = "unknown";
 	}
 #endif
 
-	if (success)
+	Shutdown();
+
+	if (!success)
 	{
-		// Clean up
-		Shutdown();
-		return 0;
+		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Uncaught exception: %s", uncaught.c_str());
+		SDL_ShowSimpleMessageBox(0, GAME_FULL_NAME, uncaught.c_str(), nullptr);
 	}
-	else
-	{
-		std::cerr << "Uncaught exception: " << uncaught << "\n";
-		Enter2D();
-		SDL_ShowSimpleMessageBox(0, "Uncaught Exception", uncaught.c_str(), nullptr);
-		return 1;
-	}
+
+	return success ? 0 : 1;
 }

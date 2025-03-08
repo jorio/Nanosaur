@@ -69,7 +69,7 @@ void QD3D_Shutdown(void)
 {
 	if (gGLContext)
 	{
-		SDL_GL_DeleteContext(gGLContext);
+		SDL_GL_DestroyContext(gGLContext);
 		gGLContext = NULL;
 	}
 }
@@ -316,7 +316,7 @@ void QD3D_DrawScene(QD3DSetupOutputType *setupInfo, void (*drawRoutine)(QD3DSetu
 
 			/* CALC VIEWPORT DIMENSIONS */
 
-	SDL_GL_GetDrawableSize(gSDLWindow, &gWindowWidth, &gWindowHeight);
+	SDL_GetWindowSizeInPixels(gSDLWindow, &gWindowWidth, &gWindowHeight);
 	TQ3Area viewportPane = GetAdjustedPane(setupInfo->paneClip);
 	float viewportWidth = viewportPane.max.x - viewportPane.min.x;
 	float viewportHeight = viewportPane.max.y - viewportPane.min.y;
@@ -412,7 +412,7 @@ void QD3D_MoveCameraFromTo(QD3DSetupOutputType *setupInfo, TQ3Vector3D *moveVect
 
 void QD3D_OnWindowResized(void)
 {
-	SDL_GL_GetDrawableSize(gSDLWindow, &gWindowWidth, &gWindowHeight);
+	SDL_GetWindowSizeInPixels(gSDLWindow, &gWindowWidth, &gWindowHeight);
 }
 
 /************** QD3D CALC FRAMES PER SECOND *****************/
@@ -481,9 +481,10 @@ void QD3D_CalcFramesPerSecond(void)
 			float fps = 1000 * gDebugTextFrameAccumulator / (float)ticksElapsed;
 			SDL_snprintf(
 					gDebugTextBuffer, sizeof(gDebugTextBuffer),
-					"%s%s - %dfps %dt %dm %dn %dp %dK x:%.0f z:%.0f",
-					PRO_MODE ? "NanoExtreme" : "Nanosaur",
-					PROJECT_VERSION,
+					"%s%s %s - %dfps %dt %dm %dn %dp %dK x:%.0f z:%.0f",
+					GAME_FULL_NAME,
+					PRO_MODE ? " Extreme" : "",
+					GAME_VERSION,
 					(int)round(fps),
 					gRenderStats.trianglesDrawn,
 					gRenderStats.meshQueueSize,

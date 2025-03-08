@@ -103,8 +103,8 @@ OSErr		iErr;
 
 			/* INIT BANK INFO */
 
-	memset(gSndHandles, 0, sizeof(gSndHandles));
-	memset(gSndOffsets, 0, sizeof(gSndOffsets));
+	SDL_memset(gSndHandles, 0, sizeof(gSndHandles));
+	SDL_memset(gSndOffsets, 0, sizeof(gSndOffsets));
 
 
 			/******************/
