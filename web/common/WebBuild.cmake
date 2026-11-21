@@ -26,7 +26,7 @@
         "${CMAKE_SOURCE_DIR}/web/common/WebTexture.c"
         "${CMAKE_SOURCE_DIR}/web/common/gl_compat.c")
     target_include_directories(${GAME_TARGET} PRIVATE "${CMAKE_SOURCE_DIR}/web/common")
-    foreach(asset controls.js touch.js style.css pwa.js)
+    foreach(asset controls.js touch.js style.css pwa.js legacy_gl.js)
         configure_file("web/common/${asset}" "web/common/${asset}" COPYONLY)
     endforeach()
     configure_file(web/game.js web/game.js COPYONLY)

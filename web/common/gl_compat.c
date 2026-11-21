@@ -72,6 +72,12 @@ SDL_GLContext WebCreateGLContext(SDL_Window* window)
             Browser.useWebGL = true;
             Module['GL_MAX_TEXTURE_IMAGE_UNITS'] = 2;
             GLImmediate.init();
+            const jit = GLImmediate.TexEnvJIT;
+            if (!jit.pangeaPatched) {
+                const generate = jit.genAllPassLines;
+                jit.genAllPassLines = (...args) => globalThis.PangeaGL.repairTexEnvShader(generate(...args));
+                jit.pangeaPatched = true;
+            }
         });
         unpackRowLength = 0;
         boundTexture = 0;

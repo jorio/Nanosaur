@@ -34,7 +34,7 @@ def main():
     write_changed(build / 'manifest.webmanifest', json.dumps(manifest, indent=2)+'\n')
     assets = ['index.html', 'index.js', 'index.wasm', 'index.data', 'manifest.webmanifest',
               'web/game.js', 'web/common/controls.js', 'web/common/touch.js',
-              'web/common/style.css', 'web/common/pwa.js',
+              'web/common/style.css', 'web/common/pwa.js', 'web/common/legacy_gl.js',
               'web/icons/icon-192.png', 'web/icons/icon-512.png']
     digest = hashlib.sha256()
     for asset in assets:
