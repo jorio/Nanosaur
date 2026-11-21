@@ -488,6 +488,9 @@ long				count;
 	count = sizeof(PrefsType);
 	FSWrite(refNum, &count, (Ptr)prefs);	
 	FSClose(refNum);
+#ifdef __EMSCRIPTEN__
+	WebSyncFiles();
+#endif
 }
 
 
