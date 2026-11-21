@@ -73,3 +73,5 @@ If you want to build the game **manually** instead, the rest of this document de
     ```
     If you'd like to enable runtime sanitizers, append `-DSANITIZE=1` to the **first** `cmake` call above.
 1. The game gets built in `build/Nanosaur`. Enjoy!
+
+For the experimental mobile web/PWA build, see [web/README.md](web/README.md).

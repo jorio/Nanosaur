@@ -110,6 +110,13 @@ void ResetCameraSettings(void)
 
 void MoveCamera(ObjNode *theNode)
 {
+#ifdef __EMSCRIPTEN__
+    float yaw, pitch, zoom;
+    WebConsumeCamera(&yaw, &pitch, &zoom);
+    gCameraViewYAngle += yaw;
+    gCameraDistFromMe = fminf(CAMERA_FARTHEST, fmaxf(CAMERA_CLOSEST, gCameraDistFromMe + zoom));
+    gCameraHeightFactor = fminf(1.5f, fmaxf(.05f, gCameraHeightFactor + pitch));
+#endif
 float	fps = gFramesPerSecondFrac;
 
 	(void) theNode;

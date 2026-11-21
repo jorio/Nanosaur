@@ -210,6 +210,9 @@ TQ3ColorRGB		c2 = { 1, .9, .6 };
 
 static void CleanupLevel(void)
 {
+#ifdef __EMSCRIPTEN__
+	WebSetGameplayActive(false);
+#endif
 	StopAllEffectChannels();
 	Render_FreezeFrameFadeOut();
 	DeleteAllObjects();
@@ -226,6 +229,9 @@ static void CleanupLevel(void)
 
 static void PlayLevel(void)
 {
+#ifdef __EMSCRIPTEN__
+	WebSetGameplayActive(true);
+#endif
 float killDelay = KILL_DELAY;						// time to wait after I'm dead before fading out
 float	fps;
 FSSpec	spec;
@@ -274,7 +280,10 @@ FSSpec	spec;
 				
 			/* SEE IF PAUSE GAME */
 
-		if (GetNewNeedState(kNeed_UIPause)						// see if pause/abort
+		if (GetNewNeedState(kNeed_UIPause)
+#ifdef __EMSCRIPTEN__
+			|| WebConsumePauseRequest()
+#endif						// see if pause/abort
 			|| IsCmdQPressed())
 		{
 			DoPaused();

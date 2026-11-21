@@ -255,6 +255,9 @@ void UpdateInput(void)
 		const KeyBinding* kb = &gGamePrefs.keys[i];
 
 		bool downNow = false;
+#ifdef __EMSCRIPTEN__
+		downNow = WebGetKey(i) || WebGetAnalog(i) > .15f;
+#endif
 
 		if (!isTextInputActive)		// Skip keyboard during high score name input
 		{
@@ -285,6 +288,9 @@ void UpdateInput(void)
 
 		UpdateKeyState(&gNeedStates[i], downNow);
 	}
+#ifdef __EMSCRIPTEN__
+	WebClearPresses();
+#endif
 }
 
 

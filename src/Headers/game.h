@@ -172,3 +172,7 @@ extern	WindowPtr				gCoverWindow;
 #ifdef __cplusplus
 }
 #endif
+
+#ifdef __EMSCRIPTEN__
+#include "web.h"
+#endif
